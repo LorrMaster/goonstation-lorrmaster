@@ -372,11 +372,13 @@ var/list/datum/bioEffect/mutini_effects = list()
 	var/Uid = "not initialized" //Unique id for the mob. Used for fingerprints and whatnot.
 	var/uid_hash
 	var/fingerprints
+	var/datum/forensic_id/fingerprint_new = new()
 
 	New(var/mob/owneri)
 		owner = owneri
 		Uid = CreateUid()
 		bioUids[Uid] = null
+		fingerprint_new.build_fingerprint_id()
 		build_fingerprints()
 		mobAppearance = new/datum/appearanceHolder()
 

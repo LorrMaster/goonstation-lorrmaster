@@ -212,7 +212,11 @@ TYPEINFO(/obj/item/device/detective_scanner)
 	var/maximum_scans = 25
 	var/number_of_scans = 0
 	var/last_scan = "No scans have been performed yet."
+	var/datum/forensic_id/forensics = new()
 
+	New()
+		..()
+		forensics.build_scanner_id("FRNSIC")
 	Topic(href, href_list)
 		..()
 		if (href_list["print"])
@@ -278,10 +282,17 @@ TYPEINFO(/obj/item/device/detective_scanner)
 
 		if (scans == null)
 			scans = new/list(maximum_scans)
-		last_scan = scan_forensic(A, visible = 1) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+		if(!A.forensic_holder)
+			return
+		last_scan = scan_forensic(A, visible = 1, emagged = TRUE) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+		boutput(user, last_scan)
+		var/scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
+		var/datum/forensic_data/basic/f_data = new(src.forensics, tstamp = TIME)
+		A.forensic_holder.add_evidence(f_data, FORENSIC_CATEGORY_SCAN, null)
+		return
 		var/index = (number_of_scans % maximum_scans) + 1 // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
 		scans[index] = last_scan
-		var/scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
+		scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
 		number_of_scans += 1
 
 		boutput(user, scan_output)
@@ -356,11 +367,13 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 	var/organ_scan = 0
 	var/image/scanner_status
 	hide_attack = ATTACK_PARTIALLY_HIDDEN
+	var/datum/forensic_id/forensics = new()
 
 	New()
 		..()
 		scanner_status = image('icons/obj/items/device.dmi', icon_state = "health_over-basic")
 		AddOverlays(scanner_status, "status")
+		forensics.build_scanner_id("HEALTH")
 
 	attack_self(mob/user as mob)
 		if (!src.reagent_upgrade && !src.organ_upgrade)
@@ -508,6 +521,11 @@ TYPEINFO(/obj/item/device/reagentscanner)
 	var/scan_results = null
 	hide_attack = ATTACK_PARTIALLY_HIDDEN
 	tooltip_flags = REBUILD_DIST
+	var/datum/forensic_id/forensics = new()
+
+	New()
+		..()
+		forensics.build_scanner_id("REGNT")
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		return
@@ -574,7 +592,11 @@ TYPEINFO(/obj/item/device/analyzer/atmospheric)
 	var/hudarrow_color = "#0df0f0"
 	///We keep track of the airgroup so we can acquire a new breach after the old one is patched, even if the user is standing on space at the time
 	var/datum/air_group/tracking_airgroup = null
+	var/datum/forensic_id/forensics = new()
 
+	New()
+		..()
+		forensics.build_scanner_id("ATMOS")
 	// Distance upgrade action code
 	pixelaction(atom/target, params, mob/user, reach)
 		var/turf/T = get_turf(target)
@@ -1069,6 +1091,11 @@ TYPEINFO(/obj/item/device/appraisal)
 	m_amt = 150
 	icon_state = "CargoA"
 	item_state = "electronic"
+	var/datum/forensic_id/forensics = new()
+
+	New()
+		..()
+		forensics.build_scanner_id("APRAISE")
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		return

@@ -40,6 +40,9 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	/// Glove fingertip color, for coloring some overlays
 	var/fingertip_color = null
 
+	var/datum/forensic_id/forensic_id = new("(glove id: xxxxxx)")
+	var/datum/forensic_id/forensic_mask = new("???/??-??=??-?=???-???/??-?????")
+
 	setupProperties()
 		..()
 		setProperty("coldprot", 3)
