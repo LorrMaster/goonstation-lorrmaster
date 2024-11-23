@@ -40,8 +40,8 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	/// Glove fingertip color, for coloring some overlays
 	var/fingertip_color = null
 
-	var/datum/forensic_id/forensic_id = new("(glove id: xxxxxx)")
-	var/datum/forensic_id/forensic_mask = new("???/??-??=??-?=???-???/??-?????")
+	var/datum/forensic_id/forensic_id = new/datum/forensic_id
+	var/datum/forensic_id/forensic_mask = new/datum/forensic_id
 
 	setupProperties()
 		..()
@@ -53,6 +53,8 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	New()
 		..() // your parents miss you
 		flags |= HAS_EQUIP_CLICK
+		forensic_id.id = forensic_id.build_id(7,FORENSIC_CHARS_LOW)
+		forensic_mask.build_glove_mask(peek_range = 9, peek_count = 2)
 		SPAWN(2 SECONDS)
 			src.glove_ID = src.CreateID()
 			if (glove_IDs) // fix for Cannot execute null.Add(), maybe??
@@ -211,6 +213,9 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 
 	proc/get_fingertip_color()
 		return src.color || src.fingertip_color
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		var/id_note = "<li>Glove ID: [forensic_id.id]</li>"
+		scan_builder.add_scan_text(id_note)
 
 
 /obj/item/clothing/gloves/long // adhara stuff

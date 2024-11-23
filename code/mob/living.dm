@@ -2407,3 +2407,9 @@
 
 /mob/living/HealBleeding(amt)
 	src.bleeding = max(src.bleeding - amt, 0)
+
+/mob/living/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	var/note_fingerprints = "<li>[src]'s Fingerprints: [src.bioHolder.fingerprint_new.id]</li>"
+	scan_builder.add_scan_text(note_fingerprints)
+	var/note_dna = "<li>[src]'s DNA: CGAT</li>"
+	scan_builder.add_scan_text(note_dna)

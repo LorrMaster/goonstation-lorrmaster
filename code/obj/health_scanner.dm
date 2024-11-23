@@ -33,6 +33,10 @@ TYPEINFO(/obj/health_scanner)
 	proc/find_partners(var/in_range = 0)
 		return // dummy proc that the scanner and screen will define themselves
 
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		var/id_note = "<li>Scanner particle ID: 1234567890</li>"
+		scan_builder.add_scan_text(id_note)
+
 /obj/health_scanner/wall
 	name = "health status screen"
 	desc = "A screen that shows health information received from connected floor scanners."
@@ -83,6 +87,7 @@ TYPEINFO(/obj/health_scanner)
 	icon_state = "floorscan1"
 	plane = PLANE_FLOOR
 	var/time_between_scans = 3 SECONDS
+	var/datum/forensic_id/forensic_lead = new(5, FORENSIC_CHARS_NUM, "HLTH-")
 
 	New()
 		..()
@@ -124,6 +129,8 @@ TYPEINFO(/obj/health_scanner)
 				var/burn = round(H.get_burn_damage())
 				var/brute = round(H.get_brute_damage())
 				SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_SIGNAL, "health=[health_percent]&oxy=[oxy]&tox=[tox]&burn=[burn]&brute=[brute]")
+				var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
+				H.add_evidence(f_data, FORENSIC_CATEGORY_SCAN, null)
 
 			playsound(src.loc, 'sound/machines/scan2.ogg', 30, 0)
 		return data
@@ -132,3 +139,7 @@ TYPEINFO(/obj/health_scanner)
 		var/datum/signal/new_signal = get_free_signal()
 		new_signal.data = list("command"="text_message", "sender_name"="HEALTH-MAILBOT", "sender"="00000000", "address_1"="00000000", "group"=list(MGD_MEDBAY, MGA_MEDCRIT), "message"="CRIT ALERT: [H] in [get_area(src)].")
 		SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, new_signal, null, "pda")
+
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		var/id_note = "<li>Scanner particle ID: [forensic_lead.id]</li>"
+		scan_builder.add_scan_text(id_note)

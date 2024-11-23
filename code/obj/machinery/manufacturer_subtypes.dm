@@ -81,6 +81,7 @@
 		/datum/manufacture/bagpipe,
 		/datum/manufacture/fiddle,
 		/datum/manufacture/whistle)
+	forensic_lead = new(id_prefix = "GEN-")
 
 /obj/machinery/manufacturer/general/grody
 	name = "grody manufacturer"
@@ -89,6 +90,7 @@
 	free_resources = list()
 	malfunction = TRUE
 	wires = 15 & ~(1 << 3) // This cuts the malfunction wire, so the fab malfunctions immediately
+	forensic_lead = new(id_prefix = "G3N-")
 
 /obj/machinery/manufacturer/robotics
 	name = "robotics fabricator"
@@ -194,6 +196,7 @@
 		/datum/manufacture/cardboard_ai,
 		/datum/manufacture/corporate_laws,
 		/datum/manufacture/robocop_laws)
+	forensic_lead = new(id_prefix = "ROBO-")
 
 /obj/machinery/manufacturer/medical
 	name = "medical fabricator"
@@ -249,8 +252,8 @@
 		/datum/manufacture/metal,
 		/datum/manufacture/glass
 	)
-
 	hidden = list()
+	forensic_lead = new(id_prefix = "MED-")
 
 /obj/machinery/manufacturer/science
 	name = "science fabricator"
@@ -304,6 +307,7 @@
 		/datum/manufacture/stapler,
 		/datum/manufacture/surgical_spoon
 	)
+	forensic_lead = new(id_prefix = "SCI-")
 
 /obj/machinery/manufacturer/mining
 	name = "mining fabricator"
@@ -355,6 +359,7 @@
 		/datum/manufacture/mining_magnet
 #endif
 		)
+	forensic_lead = new(id_prefix = "MINE-")
 
 /obj/machinery/manufacturer/hangar
 	name = "ship component fabricator"
@@ -400,6 +405,7 @@
 		/datum/manufacture/beaconkit,
 		/datum/manufacture/podgps
 	)
+	forensic_lead = new(id_prefix = "SHIP-")
 
 /obj/machinery/manufacturer/uniform // add more stuff to this as needed, but it should be for regular uniforms the HoP might hand out, not tons of gimmicks. -cogwerks
 	name = "uniform manufacturer"
@@ -465,6 +471,7 @@
 		/datum/manufacture/towel,
 		/datum/manufacture/tricolor,
 		/datum/manufacture/hat_ltophat)
+	forensic_lead = new(id_prefix = "UNI-")
 
 /// cogwerks - a gas extractor for the engine
 
@@ -482,6 +489,7 @@
 		/datum/manufacture/n2_can,
 		/datum/manufacture/plasma_can,
 		/datum/manufacture/red_o2_grenade)
+	forensic_lead = new(id_prefix = "GAS-")
 
 // a blank manufacturer for mechanics
 
@@ -493,6 +501,7 @@
 	free_resources = list(/obj/item/material_piece/steel = 2,
 		/obj/item/material_piece/copper = 2,
 		/obj/item/material_piece/glass = 2)
+	forensic_lead = new(id_prefix = "REV-")
 
 /obj/machinery/manufacturer/personnel
 	name = "personnel equipment manufacturer"
@@ -504,6 +513,7 @@
 		/obj/item/material_piece/glass = 2)
 	available = list(/datum/manufacture/id_card, /datum/manufacture/implant_access,	/datum/manufacture/implanter)
 	hidden = list(/datum/manufacture/id_card_gold, /datum/manufacture/implant_access_infinite)
+	forensic_lead = new(id_prefix = "PERS-")
 
 //combine personnel + uniform manufactuer here. this is 'cause destiny doesn't have enough room! arrg!
 //and i hate this, i do, but you're gonna have to update this list whenever you update /personnel or /uniform
@@ -566,6 +576,7 @@
 		/datum/manufacture/patch,
 		/datum/manufacture/tricolor,
 		/datum/manufacture/hat_ltophat)
+	forensic_lead = new(id_prefix = "PERS-")
 
 /obj/machinery/manufacturer/qm // This manufacturer just creates different crated and boxes for the QM. Lets give their boring lives at least something more interesting.
 	name = "crate manufacturer"
@@ -583,6 +594,7 @@
 		/datum/manufacture/freezer)
 
 	hidden = list(/datum/manufacture/classcrate)
+	forensic_lead = new(id_prefix = "CRATE-")
 
 /obj/machinery/manufacturer/zombie_survival
 	name = "\improper Uber-Extreme Survival Manufacturer"
@@ -628,6 +640,7 @@
 		/datum/manufacture/cleaver,
 		/datum/manufacture/fireaxe,
 		/datum/manufacture/shovel)
+	forensic_lead = new(id_prefix = "ZOMB-")
 
 /obj/machinery/manufacturer/engineering
 	name = "Engineering Specialist Manufacturer"
@@ -683,6 +696,7 @@
 		/datum/manufacture/interdictor_rod_epsilon,
 		/datum/manufacture/interdictor_rod_phi
 	)
+	forensic_lead = new(id_prefix = "ENGI-")
 
 	New()
 		. = ..()

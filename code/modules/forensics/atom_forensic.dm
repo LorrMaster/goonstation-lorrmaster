@@ -1,10 +1,3 @@
-#define FORENSIC_CATEGORY_NOTE 1
-#define FORENSIC_CATEGORY_FINGERPRINT 2
-#define FORENSIC_CATEGORY_DNA 3
-#define FORENSIC_CATEGORY_SOURCE 4
-#define FORENSIC_CATEGORY_SCAN 5
-#define FORENSIC_CATEGORY_COMPUTER_LOG 6
-
 /atom
 	var/tmp/list/fingerprints = null
 	var/tmp/list/fingerprints_full = null//new/list()
@@ -16,13 +9,14 @@
 	//var/list/forensic_info = null
 	var/list/forensic_trace = null // list(fprint, bDNA, btype) - can't get rid of this so easy!
 
+	// -------------------- New Stuff -----------
 	var/datum/forensic_holder/forensic_holder = new()
 
 /atom/movable
 	var/tracked_blood = null // list(bDNA, btype, color, count)
 
-/atom/proc/on_forensic_scan()
-	return ""
+/atom/proc/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	return
 
 
 /*
@@ -51,6 +45,8 @@
 	return src.forensic_trace[key]
 
 /// Add a mob's fingerprint to something. If `hidden_only` is TRUE, only add to admin-visible prints.
+/atom/proc/add_evidence(var/datum/forensic_data/data, var/category = FORENSIC_CATEGORY_NOTE, var/area = null)
+	forensic_holder.add_evidence(data, category, area)
 /atom/proc/add_fingerprint(mob/living/M, hidden_only = FALSE)
 	if (!ismob(M) || isnull(M.key))
 		return
