@@ -121,6 +121,9 @@ TYPEINFO(/obj/machinery/manufacturer)
 	var/static/list/text_bad_output_adjective = list("janky","crooked","warped","shoddy","shabby","lousy","crappy","shitty")
 	var/datum/action/action_bar = null
 
+	var/static/datum/forensic_display/lead_display = new("Recently fabricated (Pattern ID: @F)")
+	var/datum/forensic_id/forensic_lead = new("FAB-")
+
 	New()
 		START_TRACKING
 		..()
@@ -139,6 +142,8 @@ TYPEINFO(/obj/machinery/manufacturer)
 		if (istype(manuf_controls,/datum/manufacturing_controller))
 			src.set_up_schematics()
 			manuf_controls.manufacturing_units += src
+		if(src.forensic_lead != null)
+			src.forensic_lead.id += forensic_lead.build_id(1, FORENSIC_CHARS_UP) + forensic_lead.build_id(3, FORENSIC_CHARS_NUM)
 
 		for (var/turf/T in view(5,src))
 			nearby_turfs += T
@@ -788,6 +793,9 @@ TYPEINFO(/obj/machinery/manufacturer)
 			return TRUE
 		return FALSE
 
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		var/id_note = "<li>Fabricator pattern ID: [src.forensic_lead.id]</li>"
+		scan_builder.add_scan_text(id_note)
 	/*
 	Handling for shocking the user
 	Handling for getting the satchel of an ore scoop
@@ -1772,6 +1780,8 @@ TYPEINFO(/obj/machinery/manufacturer)
 			A = product
 			A.set_loc(get_output_location())
 
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, src.lead_display, TIME)
+		A.add_evidence(f_data, FORENSIC_CATEGORY_NOTE, null)
 		return A
 
 	proc/flip_out()

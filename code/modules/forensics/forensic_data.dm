@@ -1,17 +1,20 @@
-#define FORENSIC_CHARS_UP "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-#define FORENSIC_CHARS_LOW "abcdefghijklmnopqrstuvwxyz"
-#define FORENSIC_CHARS_NUM "1234567890"
-#define FORENSIC_CHARS_DNA "CGAT"
-#define FORENSIC_CHARS_ALL (FORENSIC_CHARS_UP + FORENSIC_CHARS_LOW + FORENSIC_CHARS_NUM)
+
+#define FINGERPRINT_BUNCH_SIZE 5 // Number of characters between each "-"
+#define FINGERPRINT_LENGTH 25 // Must be a multiple of FINGERPRINT_DASH
+#define FINGERPRINT_BUNCH_COUNT (FINGERPRINT_LENGTH / FINGERPRINT_BUNCH_SIZE)
 
 // -----| Forensic ID & Display |-----
 
 datum/forensic_id // Basically just a way to store forensic text by reference
 	var/id = null
 
-	New(var/id_text = null)
+	New(var/length = 0, var/chars = null, var/id_prefix = "", var/id_suffix = "", var/length = 0)
 		..()
-		id = id_text
+		if(length == 0)
+			src.id = id_prefix + id_suffix
+		else
+			var/scanner_id = build_id(length, chars)
+			src.id = (id_prefix + scanner_id + id_suffix)
 
 	proc/build_id(var/id_length, var/character_list = FORENSIC_CHARS_ALL)
 		var/new_id = ""
@@ -20,23 +23,53 @@ datum/forensic_id // Basically just a way to store forensic text by reference
 			new_id += character_list[rand(1, len)]
 		return new_id
 
-	proc/build_scanner_id(var/scanner_prefix)
-		// prefix examples: FRNSIC-XXXXX | REAGNT-XXXXX | ATMOS-XXXXX | DEVICE-XXXXX | HEALTH-XXXXX |
-		//					TRNSPRT-XXXXX | RCD-XXXXX | PDA-XXXXX | APRAISE-XXXXX | GENE-XXXXX
-		if(!scanner_prefix)
-			scanner_prefix = "UNKNOWN"
-		var/scanner_id = build_id(5, FORENSIC_CHARS_NUM)
-		src.id = (scanner_prefix + "-" + scanner_id)
-
 	proc/build_fingerprint_id(var/has_adermatoglyphia = FALSE)
 		if(has_adermatoglyphia)
 			return null // genetic condition where you do not have fingerprints
 		var/fp = ""
-		for(var/i=1, i<= 5, i++)
+		for(var/i=1, i<= FINGERPRINT_BUNCH_COUNT, i++)
 			if(i != 1)
 				fp += "-"
-			fp += build_id(5, FORENSIC_CHARS_LOW)
+			fp += build_id(FINGERPRINT_BUNCH_SIZE, FORENSIC_CHARS_FP)
 		src.id = fp
+	proc/build_glove_mask(var/peek_range = 0, var/peek_count = 0)
+		// 000?? ?xx?? ??000 00000 00000 ==> "...?? ?xx?? ??..."
+		// peek_range: number of values & question marks
+		// peek_count: number of values to reveal
+		if(peek_range == 0 || peek_count == 0)
+			return null
+		if(peek_range > FINGERPRINT_LENGTH)
+			peek_range = FINGERPRINT_LENGTH
+		if(peek_count > peek_range)
+			peek_count = peek_range
+
+		// Why is this empty???
+		var/mask = ""
+		var/hide_count = FINGERPRINT_LENGTH - peek_range
+		var/peek_start = rand(0, hide_count) + 1
+		for(var/i=1, i< peek_start, i++)
+			mask += "0"
+		for(var/i=peek_start, i< peek_range + peek_start, i++)
+			mask += "?"
+		if(peek_count == 1)
+			var/index = rand(1,peek_range) - 1
+			mask = replacetext(mask, "?", "x", peek_start + index, peek_start + index + 1)
+		else
+			var/list/rand_list = new/list()
+			for(var/i=0, i< peek_range, i++)
+				rand_list += i
+			for(var/i=1, i<= peek_count, i++)
+				var/index = rand(1, rand_list.len)
+				mask = replacetext(mask, "?", "x", peek_start + rand_list[index], peek_start + rand_list[index] + 1)
+				rand_list.Cut(index)
+		for(var/i=peek_range + peek_start, i<= FINGERPRINT_LENGTH, i++)
+			mask += "0"
+		src.id = mask
+
+	proc/build_dna()
+		return "F849-K912-P912-V982-M002"
+
+
 
 datum/forensic_display // Store how the forensic text should be displayed... by reference!
 	var/display_text = null
@@ -56,7 +89,7 @@ datum/forensic_data
 
 	proc/get_evidence()
 		return null
-	proc/scan_display(var/timestamp_type)
+	proc/scan_display(var/obj/item/device/detective_scanner/scanner, var/timestamp_type)
 		return ""
 
 datum/forensic_data/basic // Evidence that can just be stored as a single ID
@@ -72,7 +105,7 @@ datum/forensic_data/basic // Evidence that can just be stored as a single ID
 		src.timestamp = tstamp
 	get_evidence()
 		return evidence.id
-	scan_display(var/timestamp_type)
+	scan_display(var/obj/item/device/detective_scanner/scanner, var/timestamp_type)
 		var/scan_text = replacetext(display.display_text, "@F", evidence.id)
 		var/time_text = null
 		if(timestamp == 0)
@@ -88,6 +121,7 @@ datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 	var/datum/forensic_id/print_mask = null // The mask that the gloves apply to the print
 	// (insulative fibers: xxxxxx) | (black fibers: xxxxxx) | ()
 	// xxxxx-xxxxx-xxxxx-xxxxx-xxxxx
+	// 000?? ?xx?? ??000 00000 00000
 	// ...??-??a??-?g?...
 
 	get_evidence() // return the fingerprint + glove id
@@ -97,51 +131,44 @@ datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 		if(!fingerprint_text)
 			return glove_print.id
 		return fingerprint_text + " " + glove_print.id
-	scan_display(var/timestamp_type)
-		usr.visible_message(SPAN_ALERT("F: [print.id]"))
+	scan_display(var/obj/item/device/detective_scanner/scanner, var/timestamp_type)
 		var/fp = get_print()
 		if(!glove_print)
 			return fp
-		return fp + " (insulative fibers - Glove ID: xxxxxxx)"
+		return fp + " (Glove ID: [glove_print.id])"
 
 
 	proc/get_print() // return the fingerprint, which could be obscured by gloves
-		// MASK:	~~~~/-=--##-/~~
-		// 		/: Ignore everything outside of brackets
-		// 		-: Value is hidden (replaced with a dash)
-		// 		=: Value is shown
-		// 		#: Value is randomized
-		if(!print_mask)
-			return print.id
-		else if(!print)
+		if(!print)
 			return ""
-		var/final_print = print.id
-		var/start_index = 0
-		var/end_index = length(print)
-		var/k = 1
-		for(var/i=1, i<=length(print_mask) && k<=length(print), i++)
-			switch(print_mask[i])
+		else if(!print_mask)
+			return print.id
+		var/final_print = "..."
+		var/bunch_char = 0
+		var/bunch_num = 0
+		var/last_shown = FALSE // Used for inserting the hyphens
+		for(var/i=1, i<= FINGERPRINT_LENGTH, i++)
+			switch(copytext(print_mask.id, i, i+1))
 				if("?")
-					final_print[k] = "?"
-				if("#")
-					// randomize
-				if("/")
-					if(start_index == 0)
-						start_index = k
-					else
-						end_index = k+1
-						break
-				if("-")
-					final_print[k] = "-"
-			k++
-		if(!final_print)
-			return "Dev Error 5274"
-		final_print = copytext(final_print, start_index, end_index)
-		if(start_index != 1 || end_index != length(print))
-			final_print = "..." + final_print + "..."
-		return final_print;
+					if(last_shown && bunch_char == 0)
+						final_print += "-"
+					final_print += "?"
+					last_shown = TRUE
+				if("x")
+					if(last_shown && bunch_char == 0)
+						final_print += "-"
+					final_print += copytext(print.id, i + bunch_num, i + bunch_num + 1)
+					last_shown = TRUE
+				else
+					last_shown = FALSE
+			bunch_char++
+			if(bunch_char >= FINGERPRINT_BUNCH_SIZE)
+				bunch_char = 0
+				bunch_num++
+		return final_print + "...";
 
 datum/forensic_data/dna
 	var/datum/forensic_id/print = null
+	var/datum/forensic_id/form = null
 	var/datum/forensic_display/display = null
 	var/decomposition = 0

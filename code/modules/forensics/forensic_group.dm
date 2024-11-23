@@ -20,11 +20,11 @@ datum/forensic_group
 
 	proc/apply_evidence(var/datum/forensic_data/data)
 		return
-	proc/scan_text(var/emagged)
+	proc/scan_text(var/obj/item/device/detective_scanner/scanner)
 		return ""
 
 datum/forensic_group/basic_list
-	var/list/datum/forensic_data/evidence_list = new/list()
+	var/list/datum/forensic_data/basic/evidence_list = new/list()
 	var/datum/forensic_data/basic/last = null
 
 	apply_evidence(var/datum/forensic_data/data)
@@ -52,7 +52,7 @@ datum/forensic_group/basic_list
 			src.evidence_list[oldest] = E
 			src.last = E
 			qdel(D)
-	scan_text(var/emagged)
+	scan_text(var/obj/item/device/detective_scanner/scanner)
 		var/data_text = ""
 		for(var/i=1, i<= src.evidence_list.len; i++)
 			data_text += "<li>" + src.evidence_list[i].scan_display(0) + "</li>"
@@ -92,10 +92,10 @@ datum/forensic_group/fingerprints
 			src.last = fp
 			qdel(D)
 
-	scan_text(var/emagged)
+	scan_text(var/obj/item/device/detective_scanner/scanner)
 		var/fp_text = ""
 		for(var/i=1, i<= prints_list.len; i++)
-			fp_text += "<li>" + prints_list[i].scan_display(0) + "</li>"
+			fp_text += "<li>" + prints_list[i].scan_display(scanner, 0) + "</li>"
 		return fp_text
 
 

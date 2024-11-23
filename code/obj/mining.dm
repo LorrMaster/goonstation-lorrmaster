@@ -2195,7 +2195,7 @@ TYPEINFO(/obj/item/cargotele)
 	w_class = W_CLASS_SMALL
 	flags = TABLEPASS | SUPPRESSATTACK
 	c_flags = ONBELT
-
+	var/datum/forensic_id/forensic_lead = new(5, FORENSIC_CHARS_NUM, "TRNSPRT-")
 
 	New()
 		. = ..()
@@ -2252,6 +2252,10 @@ TYPEINFO(/obj/item/cargotele)
 				return
 			src.try_teleport(O, user)
 
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		var/id_note = "Scanner particle ID: [forensic_lead.id]"
+		scan_builder.add_scan_text(id_note)
+
 	proc/can_teleport(var/obj/cargo, var/mob/user)
 		if (!src.target)
 			boutput(user, SPAN_ALERT("You need to set a target first!"))
@@ -2279,6 +2283,8 @@ TYPEINFO(/obj/item/cargotele)
 		boutput(user, SPAN_NOTICE("Teleporting [cargo] to [src.target]..."))
 		playsound(user.loc, 'sound/machines/click.ogg', 50, 1)
 		SETUP_GENERIC_PRIVATE_ACTIONBAR(user, src, src.teleport_delay, PROC_REF(finish_teleport), list(cargo, user), null, null, null, null)
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
+		cargo.add_evidence(f_data, FORENSIC_CATEGORY_SCAN, null)
 		return TRUE
 
 

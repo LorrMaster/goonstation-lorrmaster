@@ -538,10 +538,10 @@
 	return eth_eq
 
 
-/proc/scan_forensic(var/atom/A as turf|obj|mob, visible = 0, emagged = FALSE)
+/proc/scan_forensic(var/atom/A as turf|obj|mob, visible = 0, var/obj/item/device/detective_scanner/scanner = null)
 	if(!A.forensic_holder)
 		return
-	return A.forensic_holder.scan_display(A, emagged)
+	return A.forensic_holder.scan_display(A, scanner)
 
 // Made this a global proc instead of 10 or so instances of duplicate code spread across the codebase (Convair880).
 /proc/scan_atmospheric(var/atom/A as turf|obj, var/pda_readout = 0, var/simple_output = 0, var/visible = 0, var/alert_output = 0)

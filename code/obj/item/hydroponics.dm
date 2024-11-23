@@ -400,6 +400,7 @@ TYPEINFO(/obj/item/plantanalyzer)
 	icon_state = "plantanalyzer"
 	w_class = W_CLASS_TINY
 	c_flags = ONBELT
+	var/datum/forensic_id/forensic_lead = new(5, FORENSIC_CHARS_NUM, "PLANT-")
 
 	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
 		if (BOUNDS_DIST(A, user) > 0)
@@ -407,7 +408,13 @@ TYPEINFO(/obj/item/plantanalyzer)
 
 		boutput(user, scan_plant(A, user, visible = 1)) // Replaced with global proc (Convair880).
 		src.add_fingerprint(user)
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
+		A.add_evidence(f_data, FORENSIC_CATEGORY_SCAN, null)
 		return
+
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		var/id_note = "Scanner particle ID: [forensic_lead.id]"
+		scan_builder.add_scan_text(id_note)
 
 /////////////////////////////////////////// Seed fabricator ///////////////////////////////
 
