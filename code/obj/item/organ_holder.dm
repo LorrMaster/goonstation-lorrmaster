@@ -75,6 +75,10 @@
 	///How cut up are our flanks?
 	var/flanks_stage = REGION_CLOSED
 
+	// default forensics IDs when creating organs
+	var/datum/forensic_id/retina_default = new()
+	var/datum/forensic_id/footprints_default = new()
+
 	New(var/mob/living/L, var/ling)
 		..()
 		if (!ishuman(L))
@@ -519,22 +523,18 @@
 	proc/create_organs()
 		if (!src.donor)
 			return // vOv
+		var/all_synth = (prob(1) && prob(1))
 
 		if (!src.head)
 			src.head = new /obj/item/organ/head(src.donor, src)
 			organ_list["head"] = head
-
 		if (!src.skull)
 			src.skull = new /obj/item/skull(src.donor, src)
 			organ_list["skull"] = skull
-
 			// For variety and hunters (Convair880).
 			SPAWN(2.5 SECONDS) // Don't remove.
 				if (src.donor && src.donor.organHolder && src.donor.organHolder.skull)
 					src.donor.assign_gimmick_skull()
-
-		var/all_synth = (prob(1) && prob(1))
-
 		if (!src.brain)
 			if (prob(2) || all_synth)
 				src.brain = new /obj/item/organ/brain/synth(src.donor, src)
@@ -560,6 +560,7 @@
 			else
 				src.right_eye = new /obj/item/organ/eye/right(src.donor, src)
 			organ_list["right_eye"] = right_eye
+		src.right_eye.mirror_retina(src.left_eye)
 
 		if (!src.chest)
 			src.chest = new /obj/item/organ/chest(src.donor, src)
@@ -1492,6 +1493,19 @@
 					REMOVE_ATOM_PROPERTY(donor, PROP_MOB_STAMINA_REGEN_BONUS, "double_lung_removal")
 					donor.remove_stam_mod_max("double_lung_removal")
 					lungs_changed = 2
+
+	proc/get_retina_scan()
+		var/retinas = ""
+		if(!src.left_eye)
+			retinas += "_____"
+		else
+			retinas += src.left_eye.retina_scan.id
+		retinas += "   "
+		if(!src.right_eye)
+			retinas += "_____"
+		else
+			retinas += src.right_eye.retina_scan.get_retina_mirror()
+		return retinas
 
 /*=================================*/
 /*---------- Human Procs ----------*/

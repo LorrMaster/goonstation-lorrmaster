@@ -10,7 +10,7 @@
 	throw_speed = 5
 	throw_range = 10
 	hide_attack = ATTACK_PARTIALLY_HIDDEN
-	var/datum/forensic_id/forensic_lead = new(5, FORENSIC_CHARS_NUM, "GENE-")
+	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "GENE-")
 
 /obj/item/device/analyzer/genetic/attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 	var/datum/computer/file/genetics_scan/GS = create_new_dna_sample_file(target)
@@ -30,7 +30,8 @@
 	record_cloner_defects(target)
 
 	var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-	target.add_evidence(f_data, FORENSIC_CATEGORY_SCAN, null)
+	f_data.flags = REMOVABLE_CLEANING
+	target.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
 
 /obj/item/device/analyzer/genetic/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"

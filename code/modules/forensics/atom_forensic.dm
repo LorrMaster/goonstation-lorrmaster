@@ -17,21 +17,23 @@
 
 /atom/proc/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	return
-
-
-/*
-/atom/proc/add_forensic_info(var/key, var/value)
-	if (!key || !value)
+/atom/proc/add_evidence(var/datum/forensic_data/data, var/category = FORENSIC_GROUP_NOTE, var/area = null)
+	src.forensic_holder.add_evidence(data, category, area)
+/atom/proc/add_fingerprint(mob/living/M, hidden_only = FALSE)
+	if (!ismob(M) || isnull(M.key))
 		return
-	if (!islist(src.forensic_info))
-		src.forensic_info = list("fprints" = null, "bDNA" = null, "btype" = null)
-	src.forensic_info[key] = value
+	if (src.flags & NOFPRINT)
+		return
+	var/mob/living/carbon/human/H = M
+	var/datum/forensic_data/fingerprint/fp = new()
+	fp.print = H.bioHolder.fingerprint_default
+	if(H.gloves)
+		fp.glove_print = H.gloves.fiber_id
+		fp.print_mask = H.gloves.fiber_mask
+	src.forensic_holder.add_evidence(fp, FORENSIC_GROUP_FINGERPRINT, null)
 
-/atom/proc/get_forensic_info(var/key)
-	if (!key || !islist(src.forensic_info))
-		return 0
-	return src.forensic_info[key]
-*/
+
+
 /atom/proc/add_forensic_trace(var/key, var/value)
 	if (!key || !value)
 		return
@@ -45,20 +47,6 @@
 	return src.forensic_trace[key]
 
 /// Add a mob's fingerprint to something. If `hidden_only` is TRUE, only add to admin-visible prints.
-/atom/proc/add_evidence(var/datum/forensic_data/data, var/category = FORENSIC_CATEGORY_NOTE, var/area = null)
-	forensic_holder.add_evidence(data, category, area)
-/atom/proc/add_fingerprint(mob/living/M, hidden_only = FALSE)
-	if (!ismob(M) || isnull(M.key))
-		return
-	if (src.flags & NOFPRINT)
-		return
-	var/mob/living/carbon/human/H = M
-	var/datum/forensic_data/fingerprint/fp = new()
-	fp.print = H.bioHolder.fingerprint_new
-	if(H.gloves)
-		fp.glove_print = H.gloves.forensic_id
-		fp.print_mask = H.gloves.forensic_mask
-	src.forensic_holder.add_fingerprint(fp, FORENSIC_CATEGORY_FINGERPRINT, null)
 
 /atom/proc/add_fingerprint_old(mob/living/M, hidden_only = FALSE)
 	if (!ismob(M) || isnull(M.key))
@@ -98,6 +86,35 @@
 
 // WHAT THE ACTUAL FUCK IS THIS SHIT
 // WHO THE FUCK WROTE THIS
+
+/atom/proc/add_blood_new(var/mob/living/source = null, var/datum/forensic_id/dna_id = null, var/blood_color = "#FFFFFF")
+	// To apply blood dna evidence without changing the overlay, use forensic_holder.add_evidence()
+	// var/blood_type = "???"
+	if(!src.forensic_holder)
+		return
+	if(dna_id)
+		var/datum/forensic_data/dna/dna_data = new(dna_id, DNA_FORM_BLOOD)
+		src.forensic_holder.add_evidence(dna_data, FORENSIC_GROUP_DNA)
+	else if(source)
+		if(!source.can_bleed || !source.bioHolder)
+			return
+		blood_color = source.bioHolder.bloodColor
+		var/datum/forensic_data/dna/dna_data = new(source.bioHolder.dna_signature, DNA_FORM_BLOOD)
+		src.forensic_holder.add_evidence(dna_data, FORENSIC_GROUP_DNA)
+	if (isitem(src))
+		var/obj/item/I = src
+		var/image/blood_overlay = image('icons/obj/decals/blood/blood.dmi', "itemblood")
+		blood_overlay.appearance_flags = PIXEL_SCALE | RESET_COLOR
+		blood_overlay.color = blood_color
+		blood_overlay.alpha = min(blood_overlay.alpha, 200)
+		blood_overlay.blend_mode = BLEND_INSET_OVERLAY
+		I.appearance_flags |= KEEP_TOGETHER
+		I.UpdateOverlays(blood_overlay, "blood_splatter")
+		if (istype(I, /obj/item/clothing))
+			var/obj/item/clothing/C = src
+			C.add_stain(/datum/stain/blood)
+
+
 // maybe better now
 /atom/proc/add_blood(atom/source, var/amount = 5)
 	var/b_uid = "--unidentified substance--"

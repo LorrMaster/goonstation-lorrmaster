@@ -1049,6 +1049,9 @@ TYPEINFO(/obj/item/clothing/shoes/stomp_boots)
 		src.setProperty("movespeed", 0.8)
 		src.setProperty("disorient_resist", 15)
 
+	get_shoe_pattern()
+		return "slsls"
+
 /obj/ability_button/stomper_boot_stomp
 	name = "Stomp"
 	icon_state = "magbootson"

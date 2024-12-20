@@ -2409,7 +2409,19 @@
 	src.bleeding = max(src.bleeding - amt, 0)
 
 /mob/living/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
-	var/note_fingerprints = "<li>[src]'s Fingerprints: [src.bioHolder.fingerprint_new.id]</li>"
+	// Collect data on fingerprints, DNA, retina scan, ethanol
+	var/note_fingerprints = "<li>[src]'s Fingerprints: [src.bioHolder.fingerprint_default.id]</li>"
+	var/note_dna = "<li>[src]'s DNA: [src.bioHolder.dna_signature.id]</li>"
 	scan_builder.add_scan_text(note_fingerprints)
-	var/note_dna = "<li>[src]'s DNA: CGAT</li>"
 	scan_builder.add_scan_text(note_dna)
+
+	if(src.organHolder)
+		var/note_retinas = "<li>[src]'s Retina Scan: [src.organHolder.get_retina_scan()]</li>"
+		scan_builder.add_scan_text(note_retinas)
+	if(src.reagents)
+		var/note_ethanol = null
+		if (src.reagents.has_reagent("Ethanol") && src.reagents.get_reagent_amount("cloak_juice") < 5)
+			note_ethanol = "<li>Ethanol in bloodstream: [src.reagents.get_reagent_amount("ethanol")] units</li>"
+		else
+			note_ethanol = "<li>No ethanol in bloodstream.</li>"
+		scan_builder.add_scan_text(note_ethanol)

@@ -313,6 +313,8 @@
 	on_holder_examine()
 		if (src.show_on_examine)
 			return "has [bicon(src)] \an [initial(src.name)] attached as a"
+	get_foot_pattern()
+		return "sll"
 
 	proc/foreign_limb_effect()
 		if(rebelliousness < 10 && prob(20))

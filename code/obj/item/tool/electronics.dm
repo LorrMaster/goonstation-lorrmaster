@@ -309,6 +309,7 @@
 		AM.set_loc(T)
 		AM.set_dir(src.dir)
 		AM.was_built_from_frame(user, 0)
+		AM.forensic_holder = src.forensic_holder
 
 		// if we have a material, give it to the object if the object doesn't have one
 		if (src.material && !AM.material)

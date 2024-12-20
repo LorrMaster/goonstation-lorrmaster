@@ -145,7 +145,7 @@ TYPEINFO(/obj/machinery/manufacturer)
 			src.set_up_schematics()
 			manuf_controls.manufacturing_units += src
 		if(src.forensic_lead != null)
-			src.forensic_lead.id += forensic_lead.build_id(1, FORENSIC_CHARS_UP) + forensic_lead.build_id(3, FORENSIC_CHARS_NUM)
+			src.forensic_lead.id += forensic_lead.build_id(1, CHAR_LIST_UPPER_LIMIT) + forensic_lead.build_id(3, CHAR_LIST_NUM)
 
 		for (var/turf/T in view(5,src))
 			nearby_turfs += T
@@ -1844,7 +1844,7 @@ TYPEINFO(/obj/machinery/manufacturer)
 			A.set_loc(get_output_location())
 
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, src.lead_display, TIME)
-		A.add_evidence(f_data, FORENSIC_CATEGORY_NOTE, null)
+		A.add_evidence(f_data, FORENSIC_GROUP_NOTE, null)
 		return A
 
 	proc/flip_out()
