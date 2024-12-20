@@ -650,6 +650,12 @@
 
 /obj/landmark/spawner/random_trader
 	spawn_the_thing()
+		var/type = pick(concrete_typesof(/obj/npc/trader/random) - /obj/npc/trader/random/contraband)
+		new type(src.loc)
+		qdel(src)
+
+/obj/landmark/spawner/random_trader/diner
+	spawn_the_thing()
 		var/type = pick(concrete_typesof(/obj/npc/trader/random))
 		new type(src.loc)
 		qdel(src)
@@ -739,6 +745,8 @@ ABSTRACT_TYPE(/obj/npc/trader/random)
 			buytypes -= pickedbuytype
 			if(buyitem.comtype != null)
 				src.goods_buy += buyitem
+
+		src.AddComponent(/datum/component/minimap_marker/minimap, MAP_INFO, "trader")
 
 	activatesecurity()
 		for(var/mob/M in AIviewers(src))
