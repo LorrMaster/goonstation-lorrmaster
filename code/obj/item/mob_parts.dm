@@ -98,6 +98,7 @@ ABSTRACT_TYPE(/obj/item/parts)
 	var/random_limb_blacklisted = FALSE
 	/// Can break cuffs/shackles instantly if both limbs have this set. Has to be this high because limb pathing is a fuck.
 	var/breaks_cuffs = FALSE
+	var/datum/forensic_id/footprint = null
 
 	New(atom/new_holder)
 		..()
@@ -106,6 +107,8 @@ ABSTRACT_TYPE(/obj/item/parts)
 		src.limb_data = new src.limb_type(src)
 		if (holder && movement_modifier)
 			APPLY_MOVEMENT_MODIFIER(holder, movement_modifier, src.type)
+		src.footprint = new/datum/forensic_id
+		src.footprint.build_id_footprint(get_foot_pattern())
 
 	disposing()
 		if (limb_data)
@@ -387,6 +390,15 @@ ABSTRACT_TYPE(/obj/item/parts)
 		if (src.skintoned)
 			return src.skin_tone
 		return src.fingertip_color
+	proc/get_foot_pattern()
+		// What kind of footprints this limb makes
+		// Need to make this different for arms, treads, artifacts, cyborg limbs... ughhh...
+		// Arms should use fingerprints as their footprint?
+		// Light legs: snns / Standard legs: snnns / Treads: snsnsnsnsnsnsn
+		// Eldrich legs: sls / Martian legs: lsl
+		// Precursor: None
+
+		return "sllll"
 
 /obj/item/proc/streak_object(var/list/directions, var/streak_splatter) //stolen from gibs
 	var/destination

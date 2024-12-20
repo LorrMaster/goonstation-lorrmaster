@@ -22,8 +22,14 @@
 	var/step_sound = "step_default"
 	var/step_priority = STEP_PRIORITY_NONE
 	var/step_lots = 0 //classic steps (used for clown shoos)
+	var/datum/forensic_id/shoe_print
 
 	var/magnetic = 0    //for magboots, to avoid type checks on shoe
+
+	New()
+		..()
+		src.shoe_print = new/datum/forensic_id
+		src.shoe_print.build_id_footprint(get_shoe_pattern())
 
 	setupProperties()
 		..()
@@ -57,6 +63,8 @@
 			var/turf/T = get_turf(user)
 			var/obj/item/clothing/shoes/rocket/R = new/obj/item/clothing/shoes/rocket(T)
 			R.uses = uses
+			R.forensic_holder = src.forensic_holder
+			R.shoe_print.id = src.shoe_print + "==>"
 			boutput(user, SPAN_NOTICE("You haphazardly kludge together some rocket shoes."))
 			qdel(W)
 			qdel(src)
@@ -65,6 +73,17 @@
 			boutput(user, "You neatly cut the knot and most of the laces away. Problem solved forever!")
 			src.laces = LACES_CUT
 			tooltip_rebuild = 1
+
+	proc/get_shoe_pattern()
+		switch(rand(1,3))
+			if(1)
+				return "llsll"
+			if(2)
+				return "lslll"
+			if(3)
+				return "lllsl"
+
+
 
 /obj/item/clothing/shoes/rocket
 	name = "rocket shoes"
@@ -102,6 +121,14 @@
 			src.emagged = 0
 			src.desc = "A gas tank taped to some shoes. Brilliant. They also look kind of silly."
 			return 1
+	get_shoe_pattern()
+		switch(rand(1,3))
+			if(1)
+				return "llsll==>"
+			if(2)
+				return "lslll==>"
+			if(3)
+				return "lllsl==>"
 
 
 /obj/item/clothing/shoes/rocket/abilities = list(/obj/ability_button/shoerocket)
@@ -201,6 +228,8 @@ TYPEINFO(/obj/item/clothing/shoes/magnetic)
 		step_sound = "step_plating"
 		step_lots = FALSE
 		playsound(src.loc, 'sound/items/miningtool_off.ogg', 30, 1)
+	get_shoe_pattern()
+		return "slsls"
 
 TYPEINFO(/obj/item/clothing/shoes/hermes)
 	mats = 0
@@ -239,6 +268,9 @@ TYPEINFO(/obj/item/clothing/shoes/industrial)
 	laces = LACES_NONE
 	kick_bonus = 2
 
+	get_shoe_pattern()
+		return "slsls"
+
 /obj/item/clothing/shoes/industrial/equipped(mob/user, slot)
 	APPLY_ATOM_PROPERTY(user, PROP_MOB_MOVESPEED_ASSIST, src.type, 1)
 	. = ..()
@@ -269,6 +301,8 @@ TYPEINFO(/obj/item/clothing/shoes/industrial)
 	setupProperties()
 		..()
 		setProperty("chemprot", 7)
+	get_shoe_pattern()
+		return "sllls"
 
 	torn
 		desc = "Rubber boots that would prevent slipping on wet surfaces, were they not all torn up. Like these are. Damn."
@@ -342,6 +376,8 @@ TYPEINFO(/obj/item/clothing/shoes/industrial)
 			src.add_fingerprint(user)
 			return
 		return ..()
+	get_shoe_pattern()
+		return "lsslssl"
 
 	autumn
 		name = "autumn clown shoes"
@@ -385,6 +421,8 @@ TYPEINFO(/obj/item/clothing/shoes/industrial)
 		src.item_function_flags |= IMMUNE_TO_ACID
 		setProperty("chemprot", 7)
 		setProperty("negate_fluid_speed_penalty",0.6)
+	get_shoe_pattern()
+		return "ssslll"
 
 TYPEINFO(/obj/item/clothing/shoes/moon)
 	mats = 2
@@ -404,6 +442,8 @@ TYPEINFO(/obj/item/clothing/shoes/moon)
 	unequipped(var/mob/user)
 		animate(user)
 		..()
+	get_shoe_pattern()
+		return "ssoos"
 
 /obj/item/clothing/shoes/cowboy
 	name = "Cowboy boots"
@@ -508,6 +548,8 @@ TYPEINFO(/obj/item/clothing/shoes/moon)
 		setProperty("heatprot", 10)
 		setProperty("chemprot", 7)
 		setProperty("meleeprot", 1)
+	get_shoe_pattern()
+		return "lslsl"
 
 /obj/item/clothing/shoes/swat/noslip
 	name = "hi-grip assault boots"
@@ -548,6 +590,8 @@ TYPEINFO(/obj/item/clothing/shoes/moon)
 		else
 			. = "Looks like some big shoes to fill!"
 		. = ..()
+	get_shoe_pattern()
+		return "lsllsl"
 
 /obj/item/clothing/shoes/swat/heavy/clown
 	name = "heavy clown boots"
@@ -617,6 +661,14 @@ TYPEINFO(/obj/item/clothing/shoes/moon)
 	setupProperties()
 		..()
 		setProperty("movespeed", 0.3)
+	get_shoe_pattern()
+		switch(rand(1,3))
+			if(1)
+				return "llsll=<"
+			if(2)
+				return "lslll=<"
+			if(3)
+				return "lllsl=<"
 
 	proc/toggle()
 		src.on = !(src.on)
@@ -703,6 +755,14 @@ TYPEINFO(/obj/item/clothing/shoes/moon)
 	name = "jester's shoes"
 	desc = "The shoes of a not-so-funny-clown."
 	icon_state = "jester"
+	get_shoe_pattern()
+		switch(rand(1,3))
+			if(1)
+				return "o-lsll"
+			if(2)
+				return "o-slll"
+			if(3)
+				return "o-llsl"
 
 /obj/item/clothing/shoes/scream
 	name = "scream shoes"

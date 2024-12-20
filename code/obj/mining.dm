@@ -2195,7 +2195,7 @@ TYPEINFO(/obj/item/cargotele)
 	w_class = W_CLASS_SMALL
 	flags = TABLEPASS | SUPPRESSATTACK
 	c_flags = ONBELT
-	var/datum/forensic_id/forensic_lead = new(5, FORENSIC_CHARS_NUM, "TRNSPRT-")
+	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "TELE-")
 
 	New()
 		. = ..()
@@ -2284,7 +2284,8 @@ TYPEINFO(/obj/item/cargotele)
 		playsound(user.loc, 'sound/machines/click.ogg', 50, 1)
 		SETUP_GENERIC_PRIVATE_ACTIONBAR(user, src, src.teleport_delay, PROC_REF(finish_teleport), list(cargo, user), null, null, null, null)
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-		cargo.add_evidence(f_data, FORENSIC_CATEGORY_SCAN, null)
+		f_data.flags = REMOVABLE_CLEANING
+		cargo.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
 		return TRUE
 
 

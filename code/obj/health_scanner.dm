@@ -87,7 +87,7 @@ TYPEINFO(/obj/health_scanner)
 	icon_state = "floorscan1"
 	plane = PLANE_FLOOR
 	var/time_between_scans = 3 SECONDS
-	var/datum/forensic_id/forensic_lead = new(5, FORENSIC_CHARS_NUM, "HLTH-")
+	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "HLTH-")
 
 	New()
 		..()
@@ -130,7 +130,8 @@ TYPEINFO(/obj/health_scanner)
 				var/brute = round(H.get_brute_damage())
 				SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_SIGNAL, "health=[health_percent]&oxy=[oxy]&tox=[tox]&burn=[burn]&brute=[brute]")
 				var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-				H.add_evidence(f_data, FORENSIC_CATEGORY_SCAN, null)
+				f_data.flags = REMOVABLE_CLEANING
+				H.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
 
 			playsound(src.loc, 'sound/machines/scan2.ogg', 30, 0)
 		return data

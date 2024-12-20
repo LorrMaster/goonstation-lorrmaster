@@ -309,6 +309,7 @@
 		AM.set_loc(T)
 		AM.set_dir(src.dir)
 		AM.was_built_from_frame(user, 0)
+		AM.forensic_holder = src.forensic_holder
 
 		// if we have a material, give it to the object if the object doesn't have one
 		if (src.material && !AM.material)
@@ -915,6 +916,7 @@
 
 		var/turf/target_loc = get_turf(target)
 		var/obj/item/electronics/frame/F = new(target_loc)
+		F.forensic_holder = O.forensic_holder // keep forensic evidence when deconstructed
 		F.name = "[target.name] frame"
 		if(O.deconstruct_flags & DECON_DESTRUCT)
 			F.store_type = O.type

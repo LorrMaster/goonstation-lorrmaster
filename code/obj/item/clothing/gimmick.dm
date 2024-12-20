@@ -1377,6 +1377,9 @@ TYPEINFO(/obj/item/clothing/gloves/ring/gold)
 	step_priority = STEP_PRIORITY_LOW
 	laces = LACES_NONE
 
+	get_shoe_pattern()
+		return "ll_h"
+
 /obj/item/clothing/shoes/heels/black
 	name = "black heels"
 	icon_state = "bheels"

@@ -3655,3 +3655,13 @@ mob/living/carbon/human/has_genetics()
 			return hand_color
 
 	. = ..()
+
+/mob/living/carbon/human/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	..()
+	if(src.shoes)
+		var/note_footprints = null
+		if(src.shoes.shoe_print)
+			note_footprints = "<li> [src.shoes]'s shoeprints: " + src.shoes.shoe_print.id + "</li>"
+		else
+			note_footprints = "<li> (Insert footprints here) </li>"
+		scan_builder.add_scan_text(note_footprints)

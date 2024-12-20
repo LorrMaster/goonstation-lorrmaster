@@ -16,11 +16,23 @@
 	var/color_g = 1
 	var/color_b = 1
 	var/show_on_examine = FALSE // do we get mentioned when our donor is examined?
+	var/datum/forensic_id/retina_scan = null
 
 	New()
 		..()
+		src.retina_scan = new()
+		build_retina()
 		SPAWN(0)
 			src.UpdateIcon()
+
+	proc/build_retina()
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_CENTER)
+
+	proc/mirror_retina(var/obj/item/organ/eye/eye_pair)
+		if(!eye_pair)
+			return
+		else if(cmptextEx(src.organ_name, eye_pair.organ_name))
+			src.retina_scan = eye_pair.retina_scan
 
 	disposing()
 		if (holder)
@@ -42,6 +54,13 @@
 			SPAWN(0) //need to delay until after the eye is actually removed from the organholder
 				H.update_face()
 		. = ..()
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		if(retina_scan)
+			scan_builder.add_scan_text("[src]'s retina ID: [src.retina_scan.id]")
+		else
+			scan_builder.add_scan_text("[src]'s retina ID: _____")
 
 	proc/update_color(datum/appearanceHolder/AH, side)
 		if(src.change_iris)
@@ -124,6 +143,10 @@
 	iris_state_override = "eye"
 	iris_color = "#2dca2d"
 
+	build_retina()
+		// Synth eyes are round + line (Ex: p,b,q,P,d)
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_SYNTH)
+
 TYPEINFO(/obj/item/organ/eye/cyber)
 	mats = 6
 
@@ -140,6 +163,9 @@ TYPEINFO(/obj/item/organ/eye/cyber)
 	show_on_examine = TRUE
 	change_iris = FALSE
 
+	build_retina() // cyber eye has two numbers in the center
+		var/list/center_list = list(("[rand(0,9)]" + "[rand(0,9)]"))
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	emp_act()
 		..()
 		if (!src.broken)
@@ -200,6 +226,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/sechud)
 	color_b = 0.95
 	iris_color = "#3a0404"
 
+	build_retina() // sechud eyes have an S
+		var/list/center_list = list("s","S","$")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	process()
 		if (src.broken)
 			processing_items.Remove(src)
@@ -231,6 +260,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/thermal)
 	color_b = 0.9
 	iris_color = "#a01f1f"
 
+	build_retina() // Thermal eyes have a T
+		var/list/center_list = list("t","T")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(mob/M)
 		. = ..()
 		APPLY_ATOM_PROPERTY(M, PROP_MOB_THERMALVISION, src)
@@ -256,6 +288,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/meson)
 	var/mob/living/carbon/human/assigned = null
 	iris_color = "#45bb00"
 
+	build_retina()
+		var/list/center_list = list("&")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(var/mob/M)
 		..()
 		if (src.broken)
@@ -291,6 +326,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/spectro)
 	color_b = 0.95
 	iris_color = "#d12ab5"
 
+	build_retina()
+		var/list/center_list = list("%")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(mob/M)
 		. = ..()
 		APPLY_ATOM_PROPERTY(M, PROP_MOB_SPECTRO, src)
@@ -314,6 +352,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/prodoc)
 	iris_color = "#1dd144"
 
 	// stolen from original prodocs
+	build_retina()
+		var/list/center_list = list("+")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	process()
 		if (src.broken)
 			processing_items.Remove(src)
@@ -349,6 +390,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/ecto)
 	color_b = 0.925
 	iris_color = "#65e681"
 
+	build_retina()
+		var/list/center_list = list("g","G")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(mob/M)
 		. = ..()
 		APPLY_ATOM_PROPERTY(M, PROP_MOB_GHOSTVISION, src)
@@ -377,6 +421,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/camera)
 		src.camera.c_tag = src.camera_tag
 		src.camera.network = src.camera_network
 
+	build_retina()
+		var/list/center_list = list("**")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(var/mob/M)
 		..()
 		src.camera.c_tag = "[M]'s Eye"
@@ -396,6 +443,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/nightvision)
 	color_b = 0.7
 	iris_color = "#027e17"
 
+	build_retina(var/datum/forensic_id/retina_pair = null)
+		var/list/center_list = list("#")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(mob/M)
 		. = ..()
 		APPLY_ATOM_PROPERTY(M, PROP_MOB_NIGHTVISION, src)
@@ -420,6 +470,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/laser)
 	iris_color = "#ff0000"
 	var/eye_proj_override = null
 
+	build_retina()
+		var/list/center_list = list("z","Z")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	add_ability(var/datum/abilityHolder/aholder, var/abil)
 		if (!ispath(abil, /datum/targetable/organAbility/eyebeam) || !aholder)
 			return ..()
@@ -469,6 +522,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/laser)
 	desc = "I guess its owner is just a lzard now. Ugh that pun was terrible. Not worth losing an eye over."
 	icon_state = "eye-lizard"
 
+	build_retina() // Lizards have vertical cat-like eyes
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_CAT)
+
 obj/item/organ/eye/skeleton
 	name = "boney eye"
 	desc = "Yes it also has eye sockets. How this works is unknown."
@@ -477,12 +533,26 @@ obj/item/organ/eye/skeleton
 	blood_reagent = "calcium"
 	change_iris = 0
 
+	build_retina() // Skeleton eyes are inside-out: ))O(( instead of ((O))
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_CENTER)
+
 /obj/item/organ/eye/cow
 	name = "cow eye"
 	desc = "This takes 'hitting the bullseye' to another level."
 	icon_state = "eye-cow"
 	blood_reagent = "milk"
 
+	build_retina() // Cow eyes are horizontal
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_COW)
+
 /obj/item/organ/eye/pug
 	name = "pug eye"
 	desc = "Poor guy."
+
+	build_retina() // Pug eyes point outwards (0-) (-0)
+		var/list/center_list
+		if(rand(0,1))
+			center_list = list("a-","c-","C-","D-","e-","Q-","u-","U-","v-","V-","0-")
+		else
+			center_list = list("a=","c=","C=","D=","e=","Q=","u=","U=","v=","V=","0=")
+		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list, 1)

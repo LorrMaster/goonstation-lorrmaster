@@ -12,45 +12,73 @@ Forensic Data -> A fingerprint
 #define FINGERPRINTS_COOLDOWN 10
 
 ABSTRACT_TYPE(/datum/forensic_group)
-
 datum/forensic_group
-	var/category = FORENSIC_CATEGORY_NOTE
-	var/removable = TRUE
-	var/area = null // Some objects might have additional types of evidence for specific areas (inside vs outside a pod)
+	// Photographic Analysis, Audio Analysis
+	// @"Scan Log [DNA | Footprints]"
+	// @"Scan Log [DNA | Retina]"
 
-	proc/apply_evidence(var/datum/forensic_data/data)
+	var/category = FORENSIC_GROUP_NONE // An identifier for the group type. Must be unique for each group.
+	var/area = null // Some objects might have duplicate types of evidence for specific areas (fingerprints inside vs outside a pod)
+	var/group_flags = 0 // Flags associated with the whole group. If EVIDENCE_REMOVABLE_CLEANING is true,
+						// then evidence in that group may (or may not!) be removable via cleaning
+
+	proc/apply_evidence(var/datum/forensic_data/data) // Add a piece of evidence to this group
 		return
 	proc/scan_text(var/obj/item/device/detective_scanner/scanner)
 		return ""
+	proc/get_header() // The label that this evidence will be displayed under for scans
+		return SPAN_ALERT("Error: Forensic scan header not found")
+	proc/matching_flags(var/flags_A, var/flags_B)
+		flags_A &= !IS_JUNK
+		flags_B &= !IS_JUNK
+		return flags_A == flags_B
+
+datum/forensic_group/notes
+	category = FORENSIC_GROUP_NOTE
+	group_flags = REMOVABLE_CLEANING | REMOVABLE_DATA
+	var/list/datum/forensic_data/basic/notes_list = new/list()
+
+	apply_evidence(var/datum/forensic_data/data)
+		if(istype(data, /datum/forensic_data/basic))
+			var/datum/forensic_data/basic/E = data
+			apply_basic(E)
+
+	scan_text(var/obj/item/device/detective_scanner/scanner)
+		var/data_text = ""
+		for(var/i=1, i<= src.notes_list.len; i++)
+			data_text += "<li>" + src.notes_list[i].scan_display(0) + "</li>"
+		return data_text
+
+	get_header()
+		return HEADER_NOTES
+
+	proc/apply_basic(var/datum/forensic_data/basic/E)
+		for(var/i=1, i<= notes_list.len; i++)
+			if(E.evidence == src.notes_list[i].evidence && matching_flags(E.flags, src.notes_list[i].flags))
+				notes_list[i].timestamp = TIME
+				return
+		src.notes_list += E
 
 datum/forensic_group/basic_list
 	var/list/datum/forensic_data/basic/evidence_list = new/list()
-	var/datum/forensic_data/basic/last = null
 
 	apply_evidence(var/datum/forensic_data/data)
+		if(!istype(data, /datum/forensic_data/basic))
+			return
 		var/datum/forensic_data/basic/E = data
-		if(!src.last)
-			src.evidence_list += E
-			src.last = E
-			return
-		else if(src.last.evidence == E.evidence)
-			src.last.timestamp = TIME
-			return
-		var/oldest = 1 // Might as well find the oldest print while we're at it
+
+		var/oldest = 1
 		for(var/i=1, i<= evidence_list.len; i++)
-			if(E.evidence == evidence_list[i].evidence)
+			if(E.evidence == src.evidence_list[i].evidence)
 				evidence_list[i].timestamp = TIME
-				src.last = evidence_list[i]
 				return
 			if(evidence_list[i].timestamp < evidence_list[oldest].timestamp)
 				oldest = i
 		if(src.evidence_list.len < 7)
 			src.evidence_list += E
-			src.last = E
 		else
 			var/datum/D = src.evidence_list[oldest]
 			src.evidence_list[oldest] = E
-			src.last = E
 			qdel(D)
 	scan_text(var/obj/item/device/detective_scanner/scanner)
 		var/data_text = ""
@@ -58,38 +86,83 @@ datum/forensic_group/basic_list
 			data_text += "<li>" + src.evidence_list[i].scan_display(0) + "</li>"
 		return data_text
 
-datum/forensic_group/fingerprints
-	category = FORENSIC_CATEGORY_FINGERPRINT
-	var/list/datum/forensic_data/fingerprint/prints_list = list()
-	var/datum/forensic_data/fingerprint/last = null
+datum/forensic_group/basic_list/scanner
+	category = FORENSIC_GROUP_SCAN
+	group_flags = REMOVABLE_CLEANING
+
+	get_header()
+		return "Scan Particles"
+
+datum/forensic_group/basic_list/footprints
+	category = FORENSIC_GROUP_SHOES
+	group_flags = REMOVABLE_CLEANING
+
+	get_header()
+		return "Footprints"
+
+datum/forensic_group/double_list // a list of evidence pairs (Ex. A player's DNA & Shoe prints together)
+	var/list/datum/forensic_data/double/evidence_list = new/list()
 
 	apply_evidence(var/datum/forensic_data/data)
-		var/datum/forensic_data/fingerprint/fp = data
-		if(!src.last)
-			src.prints_list += fp
-			src.last = fp
+		if(!istype(data, /datum/forensic_data/double))
 			return
-		else if(fp.print == src.last.print && fp.glove_print == src.last.glove_print)
-			src.last.timestamp = TIME
-			return
+		var/datum/forensic_data/basic/E = data
 
-		// Check to see if the fp already exists here
-		var/oldest = 1 // Might as well find the oldest print while we're at it
+		var/oldest = 1
+		for(var/i=1, i<= evidence_list.len; i++)
+			if(src.evidence_list[i].is_same(E))
+				evidence_list[i].timestamp = TIME
+				return
+			if(evidence_list[i].timestamp < evidence_list[oldest].timestamp)
+				oldest = i
+		if(src.evidence_list.len < 7)
+			src.evidence_list += E
+		else
+			var/datum/D = src.evidence_list[oldest]
+			src.evidence_list[oldest] = E
+			qdel(D)
+	scan_text(var/obj/item/device/detective_scanner/scanner)
+		var/data_text = ""
+		for(var/i=1, i<= src.evidence_list.len; i++)
+			data_text += "<li>" + src.evidence_list[i].scan_display(0) + "</li>"
+		return data_text
+
+datum/forensic_group/double_list/retinas
+	category = FORENSIC_GROUP_RETINA
+	group_flags = REMOVABLE_DATA
+
+	get_header()
+		return "Retina Scans"
+
+datum/forensic_group/double_list/log_health_floor // Floor health scanner stores footprints & dna from scanned patients
+	category = FORENSIC_GROUP_HEALTH_FLOOR
+	group_flags = REMOVABLE_DATA
+
+	get_header()
+		return @"Scan Log [DNA | Footprints]"
+
+datum/forensic_group/fingerprints
+	category = FORENSIC_GROUP_FINGERPRINT
+	group_flags = REMOVABLE_CLEANING
+	var/list/datum/forensic_data/fingerprint/prints_list = list()
+
+	apply_evidence(var/datum/forensic_data/data)
+		if(!istype(data, /datum/forensic_data/fingerprint))
+			return
+		var/datum/forensic_data/fingerprint/fp = data
+
+		var/oldest = 1
 		for(var/i=1, i<= src.prints_list.len; i++)
-			if(fp.print == prints_list[i].print && fp.glove_print == src.prints_list[i].glove_print)
-				src.prints_list[i].timestamp = TIME
-				src.last = prints_list[i]
+			if(src.prints_list[i].is_same(fp))
 				return
 			if(src.prints_list[i].timestamp < src.prints_list[oldest].timestamp)
 				oldest = i
 
 		if(src.prints_list.len < FINGERPRINTS_MAX)
 			src.prints_list += fp
-			src.last = fp
 		else
 			var/datum/D = src.prints_list[oldest]
 			src.prints_list[oldest] = fp
-			src.last = fp
 			qdel(D)
 
 	scan_text(var/obj/item/device/detective_scanner/scanner)
@@ -98,4 +171,18 @@ datum/forensic_group/fingerprints
 			fp_text += "<li>" + prints_list[i].scan_display(scanner, 0) + "</li>"
 		return fp_text
 
+	get_header()
+		return HEADER_FINGERPRINTS
 
+datum/forensic_group/dna
+	category = FORENSIC_GROUP_DNA
+	group_flags = REMOVABLE_CLEANING
+	var/list/datum/forensic_data/dna/dna_list = list()
+	var/blood_color = "#FFFFFF"
+
+	get_header()
+		return HEADER_DNA
+
+	proc/mix_blood_color(var/new_color)
+		if(!new_color)
+			return
