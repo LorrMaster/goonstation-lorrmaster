@@ -2285,7 +2285,7 @@ TYPEINFO(/obj/item/cargotele)
 		SETUP_GENERIC_PRIVATE_ACTIONBAR(user, src, src.teleport_delay, PROC_REF(finish_teleport), list(cargo, user), null, null, null, null)
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
 		f_data.flags = REMOVABLE_CLEANING
-		cargo.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
+		cargo.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		return TRUE
 
 

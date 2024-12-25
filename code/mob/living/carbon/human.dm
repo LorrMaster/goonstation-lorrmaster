@@ -3682,7 +3682,34 @@ mob/living/carbon/human/has_genetics()
 	if(src.shoes)
 		var/note_footprints = null
 		if(src.shoes.shoe_print)
-			note_footprints = "<li> [src.shoes]'s shoeprints: " + src.shoes.shoe_print.id + "</li>"
+			note_footprints = "<li> [src.shoes]'s shoeprints: [src.shoes.shoe_print.id]</li>"
 		else
 			note_footprints = "<li> (Insert footprints here) </li>"
 		scan_builder.add_scan_text(note_footprints)
+	if(src.gloves)
+		var/note_gloves = "<li> [src.gloves]'s fibers: [src.gloves.fiber_id.id]</li>"
+		scan_builder.add_scan_text(note_gloves)
+
+/mob/living/carbon/human/proc/apply_scanner_evidence(var/datum/forensic_id/scan_id)
+	src.organHolder?.apply_scanner_evidence(scan_id)
+	if(src.limbs)
+		if(src.limbs.r_arm)
+			if(!isrobolimb(src.limbs.r_arm))
+				var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+				f_data.flags = REMOVABLE_CLEANING
+				src.limbs.r_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		if(src.limbs.l_arm)
+			if(!isrobolimb(src.limbs.l_arm))
+				var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+				f_data.flags = REMOVABLE_CLEANING
+				src.limbs.l_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		if(src.limbs.r_leg)
+			if(!isrobolimb(src.limbs.r_leg))
+				var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+				f_data.flags = REMOVABLE_CLEANING
+				src.limbs.r_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		if(src.limbs.l_leg)
+			if(!isrobolimb(src.limbs.l_leg))
+				var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+				f_data.flags = REMOVABLE_CLEANING
+				src.limbs.l_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)

@@ -434,9 +434,16 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 		SPAN_ALERT("You have analyzed [target]'s vitals."))
 		playsound(src.loc , 'sound/items/med_scanner.ogg', 20, 0)
 		boutput(user, scan_health(target, src.reagent_scan, src.disease_detection, src.organ_scan, visible = 1))
+
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
 		f_data.flags = REMOVABLE_CLEANING
-		target.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
+		target.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		if(ishuman(target))
+			var/mob/living/carbon/human/H = target
+			H.apply_scanner_evidence(src.forensic_lead)
+		else if(isliving(target))
+			var/mob/living/L = target
+			L.organHolder?.apply_scanner_evidence(src.forensic_lead)
 
 		scan_health_overhead(target, user)
 
@@ -455,7 +462,7 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 				boutput(user, scan_health(P.occupant, src.reagent_scan, src.disease_detection, src.organ_scan))
 				var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
 				f_data.flags = REMOVABLE_CLEANING
-				A.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
+				A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 				update_medical_record(P.occupant)
 				return
 		..()
@@ -541,7 +548,7 @@ TYPEINFO(/obj/item/device/reagentscanner)
 		SPAN_NOTICE("You scan [A] with [src]!"))
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
 		f_data.flags = REMOVABLE_CLEANING
-		A.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
+		A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 		src.scan_results = scan_reagents(A, visible = TRUE)
 		tooltip_rebuild = TRUE
@@ -693,7 +700,7 @@ TYPEINFO(/obj/item/device/analyzer/atmospheric)
 			boutput(user, scan_atmospheric(A, visible = 1))
 			var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
 			f_data.flags = REMOVABLE_CLEANING
-			A.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
+			A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		src.add_fingerprint(user)
 		return
 
@@ -1194,7 +1201,7 @@ TYPEINFO(/obj/item/device/appraisal)
 			playsound(src, 'sound/machines/chime.ogg', 10, TRUE)
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
 		f_data.flags = REMOVABLE_CLEANING
-		A.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
+		A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 		if (user.client && !user.client.preferences?.flying_chat_hidden)
 			var/image/chat_maptext/chat_text = null

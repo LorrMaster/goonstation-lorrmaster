@@ -17,8 +17,8 @@
 
 /atom/proc/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	return
-/atom/proc/add_evidence(var/datum/forensic_data/data, var/category = FORENSIC_GROUP_NOTE, var/area = null)
-	src.forensic_holder.add_evidence(data, category, area)
+/atom/proc/add_evidence(var/datum/forensic_data/data, var/category = FORENSIC_GROUP_NOTE)
+	src.forensic_holder.add_evidence(data, category)
 /atom/proc/add_fingerprint(mob/living/M, hidden_only = FALSE)
 	if (!ismob(M) || isnull(M.key))
 		return
@@ -84,28 +84,31 @@
 		src.fingerprints -= src.fingerprints[1]
 	src.fingerprints += print
 
-// WHAT THE ACTUAL FUCK IS THIS SHIT
-// WHO THE FUCK WROTE THIS
-
-/atom/proc/add_blood_new(var/mob/living/source = null, var/datum/forensic_id/dna_id = null, var/blood_color = "#FFFFFF")
-	// To apply blood dna evidence without changing the overlay, use forensic_holder.add_evidence()
-	// var/blood_type = "???"
+/atom/proc/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 	if(!src.forensic_holder)
 		return
-	if(dna_id)
+	if(source)
+		var/datum/forensic_id/dna_id = source.dna_signature
 		var/datum/forensic_data/dna/dna_data = new(dna_id, DNA_FORM_BLOOD)
 		src.forensic_holder.add_evidence(dna_data, FORENSIC_GROUP_DNA)
-	else if(source)
-		if(!source.can_bleed || !source.bioHolder)
-			return
-		blood_color = source.bioHolder.bloodColor
-		var/datum/forensic_data/dna/dna_data = new(source.bioHolder.dna_signature, DNA_FORM_BLOOD)
-		src.forensic_holder.add_evidence(dna_data, FORENSIC_GROUP_DNA)
+		src.forensic_holder.is_stained = TRUE
+		src.forensic_holder.stain_color = blood_color
+	if(isitem(src))
+		apply_stain_effect(blood_color)
+
+	/*
+		else if (istype(src, /turf/simulated))
+			if (istype(source, /mob/living))
+				var/mob/living/L = source
+				bleed(L, amount, 5, rand(1,3), src)
+	*/
+
+/atom/proc/apply_stain_effect()
 	if (isitem(src))
 		var/obj/item/I = src
 		var/image/blood_overlay = image('icons/obj/decals/blood/blood.dmi', "itemblood")
 		blood_overlay.appearance_flags = PIXEL_SCALE | RESET_COLOR
-		blood_overlay.color = blood_color
+		blood_overlay.color = src.forensic_holder.stain_color
 		blood_overlay.alpha = min(blood_overlay.alpha, 200)
 		blood_overlay.blend_mode = BLEND_INSET_OVERLAY
 		I.appearance_flags |= KEEP_TOGETHER
@@ -113,88 +116,6 @@
 		if (istype(I, /obj/item/clothing))
 			var/obj/item/clothing/C = src
 			C.add_stain(/datum/stain/blood)
-
-
-// maybe better now
-/atom/proc/add_blood(atom/source, var/amount = 5)
-	var/b_uid = "--unidentified substance--"
-	var/b_type = "--unidentified substance--"
-	var/blood_color = "#FFFFFF"
-	// Null is white so using the default color of red causes issues in cases of white blood
-
-	if (QDELETED(src) || QDELETED(source)) // Be safe
-		return
-
-	if (istype(source, /obj/fluid))
-		var/obj/fluid/F = source
-		blood_color = F.group.average_color.to_rgb()
-		var/datum/reagent/blood/blood_reagent = F.group.reagents.reagent_list["blood"]
-		if (!blood_reagent)
-			blood_reagent = F.group.reagents.reagent_list["bloodc"]
-		var/datum/bioHolder/bioholder = blood_reagent?.data
-		if (istype(bioholder))
-			b_uid = bioholder.Uid
-			b_type = bioholder.bloodType
-	else if (istype(source, /mob/living))
-		var/mob/living/L = source
-		if (!L.can_bleed)
-			return
-		b_uid = L.bioHolder?.Uid
-		b_type = L.bioHolder?.bloodType
-		if (L.bioHolder?.bloodColor)
-			blood_color = L.bioHolder.bloodColor
-		else if (L.blood_id)
-			var/datum/reagent/R = reagents_cache[L.blood_id]
-			blood_color = rgb(R.fluid_r, R.fluid_g, R.fluid_b)
-		else
-			blood_color = L.blood_color
-	else
-		if (source.blood_DNA)
-			b_uid = source.blood_DNA
-		if (source.blood_type)
-			b_type = source.blood_type
-
-	if (istype(source, /obj/decal/cleanable))
-		var/obj/decal/cleanable/C = source
-		if (C.color)
-			blood_color = C.color
-		else if (C.sample_reagent) // Gibs have no color but do have reagents
-			var/datum/reagent/R = reagents_cache[C.sample_reagent]
-			blood_color = rgb(R.fluid_r, R.fluid_g, R.fluid_b)
-
-	if (src.blood_DNA)
-		var/list/blood_list = params2list(src.blood_DNA)
-		blood_list -= b_uid
-		if (length(blood_list) >= 6)
-			blood_list = blood_list.Copy(blood_list.len - 5, 0)
-		blood_list += b_uid
-		src.blood_DNA = list2params(blood_list)
-		return
-
-	if (isitem(src))
-		var/obj/item/I = src
-		var/image/blood_overlay = image('icons/obj/decals/blood/blood.dmi', "itemblood")
-		blood_overlay.appearance_flags = PIXEL_SCALE | RESET_COLOR
-		blood_overlay.color = blood_color
-		blood_overlay.alpha = min(blood_overlay.alpha, 200)
-		blood_overlay.blend_mode = BLEND_INSET_OVERLAY
-		I.appearance_flags |= KEEP_TOGETHER
-		I.UpdateOverlays(blood_overlay, "blood_splatter")
-		I.blood_DNA = b_uid
-		I.blood_type = b_type
-		I.forensics_blood_color = blood_color
-		if (istype(I, /obj/item/clothing))
-			var/obj/item/clothing/C = src
-			C.add_stain(/datum/stain/blood)
-	else if (istype(src, /turf/simulated))
-		if (istype(source, /mob/living))
-			var/mob/living/L = source
-			bleed(L, amount, 5, rand(1,3), src)
-	else if (ishuman(src)) // this will add the blood to their hands or something?
-		var/mob/living/carbon/human/H = src
-		H.blood_DNA = b_uid
-		H.blood_type = b_type
-		H.forensics_blood_color = blood_color
 
 // Was clean_blood. Reworked the proc to take care of other forensic evidence as well (Convair880).
 /atom/proc/clean_forensic()

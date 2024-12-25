@@ -410,7 +410,7 @@ TYPEINFO(/obj/item/plantanalyzer)
 		src.add_fingerprint(user)
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
 		f_data.flags = REMOVABLE_CLEANING
-		A.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
+		A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		return
 
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)

@@ -9,7 +9,7 @@
 #define FORENSIC_GROUP_RETINA 7
 #define FORENSIC_GROUP_HEALTH_FLOOR 8
 
-/proc/forensic_group_create(var/category, var/area) // Create a new group from its unique variable
+/proc/forensic_group_create(var/category) // Create a new group from its unique variable
 	// Is there a better way to do this? IDK.
 	var/datum/forensic_group/G
 	switch(category)
@@ -27,13 +27,13 @@
 			G = new/datum/forensic_group/double_list/retinas
 		if(FORENSIC_GROUP_HEALTH_FLOOR)
 			G = new/datum/forensic_group/double_list/log_health_floor
-	G.area = area
 	return G
 
 #define IS_HIDDEN (1 << 1) // If true, only admins can see this evidence
 #define IS_JUNK (1 << 2) // If true, this evidence is fake / planted (and should be ignored by admins)
 #define REMOVABLE_CLEANING (1 << 3) // Can this evidence be washed away?
 #define REMOVABLE_DATA (1 << 4) // Can this evidence be deleted from a computer?
+#define REMOVABLE_FLAGS REMOVABLE_CLEANING | REMOVABLE_DATA
 
 #define DNA_FORM_NONE 1
 #define DNA_FORM_BLOOD 2

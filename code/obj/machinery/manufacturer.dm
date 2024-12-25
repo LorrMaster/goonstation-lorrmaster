@@ -1844,7 +1844,7 @@ TYPEINFO(/obj/machinery/manufacturer)
 			A.set_loc(get_output_location())
 
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, src.lead_display, TIME)
-		A.add_evidence(f_data, FORENSIC_GROUP_NOTE, null)
+		A.add_evidence(f_data, FORENSIC_GROUP_NOTE)
 		return A
 
 	proc/flip_out()

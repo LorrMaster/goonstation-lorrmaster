@@ -1430,6 +1430,9 @@
 				O.on_transplant(src.donor)
 			if (is_full_robotic() && !istype(src.donor:mutantrace, /datum/mutantrace/cyberman))
 				donor.unlock_medal("Spaceship of Theseus", 1)
+			if(I.forensic_holder)
+				var/datum/forensic_data/dna/f_data = new(donor.bioHolder?.dna_signature, DNA_FORM_BLOOD)
+				I.forensic_holder.add_evidence(f_data, FORENSIC_GROUP_DNA)
 			return 1
 
 	//checks if this organholder has all cyberorgans instead of meat ones.
@@ -1504,6 +1507,15 @@
 		else
 			retinas += src.right_eye.retina_scan.get_retina_mirror()
 		return retinas
+	proc/apply_scanner_evidence(var/datum/forensic_id/scan_id)
+		// apply the scan evidence to every organ in the body (maybe ignore robotic organs?)
+		if (islist(src.organ_list))
+			for (var/i in src.organ_list)
+				var/obj/item/organ/O = src.organ_list[i]
+				if (istype(O) && !O.robotic)
+					var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+					f_data.flags = REMOVABLE_CLEANING
+					O.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 /*=================================*/
 /*---------- Human Procs ----------*/

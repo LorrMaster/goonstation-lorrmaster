@@ -131,7 +131,8 @@ TYPEINFO(/obj/health_scanner)
 				SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_SIGNAL, "health=[health_percent]&oxy=[oxy]&tox=[tox]&burn=[burn]&brute=[brute]")
 				var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
 				f_data.flags = REMOVABLE_CLEANING
-				H.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
+				H.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+				H.apply_scanner_evidence(src.forensic_lead)
 
 			playsound(src.loc, 'sound/machines/scan2.ogg', 30, 0)
 		return data
