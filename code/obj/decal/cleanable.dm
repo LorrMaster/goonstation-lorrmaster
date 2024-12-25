@@ -118,14 +118,20 @@ proc/make_cleanable(var/type,var/loc)
 		if (istype(src.loc, /turf/space))
 			return
 		if (iscarbon(AM))
-			var/mob/M =	AM
+			var/mob/living/carbon/M =	AM
 			if (prob(src.slippery))
 				if (M.slip())
 					M.visible_message(SPAN_ALERT("<b>[M]</b> slips on [src]!"),\
 					SPAN_ALERT("You slip on [src]!"))
 
 					if (src.slipped_in_blood)
-						M.add_blood(src)
+						var/b_color = "#FFFFFF"
+						if (src.color)
+							b_color = src.color
+						else if (src.sample_reagent) // Gibs have no color but do have reagents
+							var/datum/reagent/R = reagents_cache[src.sample_reagent]
+							b_color = rgb(R.fluid_r, R.fluid_g, R.fluid_b)
+						M.apply_blood(null, b_color)
 
 	attackby(obj/item/W, mob/user)
 		if (src.can_sample && W.is_open_container() && W.reagents)
@@ -293,7 +299,7 @@ proc/make_cleanable(var/type,var/loc)
 					if(src.disposed || istype(O, /obj/decal/cleanable/blood) && O != src)
 						break
 					if(prob(max(src?.reagents?.total_volume*5, 10)))
-						O.add_blood(src)
+						O.apply_blood(null, src.get_blood_color())
 
 	proc/set_sample_reagent_custom(var/reagent_id, var/amt = 10)
 		if(isnull(reagent_id))
@@ -326,22 +332,22 @@ proc/make_cleanable(var/type,var/loc)
 				var/mob/living/carbon/human/H = AM
 				if (H.lying)
 					if (H.wear_suit)
-						H.wear_suit.add_blood(src)
+						H.wear_suit.apply_blood(null, src.get_blood_color())
 						H.update_bloody_suit()
 					else if (H.w_uniform)
-						H.w_uniform.add_blood(src)
+						H.w_uniform.apply_blood(null, src.get_blood_color())
 						H.update_bloody_uniform()
 				else
 					if (H.shoes)
-						H.shoes.add_blood(src)
+						H.shoes.apply_blood(null, src.get_blood_color())
 						H.update_bloody_shoes()
 					else
-						H.add_blood(src)
+						H.apply_blood(null, src.get_blood_color())
 				if (H.m_intent != "walk")
 					src.add_tracked_blood(H)
 					H.update_bloody_feet()
 			else if (isliving(AM))// || isobj(AM))
-				AM.add_blood(src)
+				AM.apply_blood(null, src.get_blood_color())
 				if (!AM.anchored)
 					src.add_tracked_blood(AM)
 
@@ -364,6 +370,11 @@ proc/make_cleanable(var/type,var/loc)
 		processing_items.Remove(src)
 
 	proc/get_blood_color()
+		if (src.color)
+			return src.color
+		else if (src.sample_reagent) // Gibs have no color but do have reagents
+			var/datum/reagent/R = reagents_cache[src.sample_reagent]
+			return rgb(R.fluid_r, R.fluid_g, R.fluid_b)
 		return src.color
 
 	proc/add_tracked_blood(atom/movable/AM as mob|obj)
@@ -513,7 +524,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 		var/counter = 0
 		for (var/obj/item/I in get_turf(src))
 			if (prob(vis_amount*10))
-				I.add_blood(src)
+				I.apply_blood(null, src.get_blood_color())
 			if(counter++>25)break
 
 		var/turf/simulated/floor/T = src.loc

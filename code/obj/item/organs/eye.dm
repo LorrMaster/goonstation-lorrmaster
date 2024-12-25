@@ -167,7 +167,7 @@ TYPEINFO(/obj/item/organ/eye/cyber)
 	change_iris = FALSE
 
 	build_retina() // cyber eye has two numbers in the center
-		var/list/center_list = list(("[rand(0,9)]" + "[rand(0,9)]"))
+		var/list/center_list = list(("[rand(0,9)][rand(0,9)]"))
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	emp_act()
 		..()
@@ -230,7 +230,7 @@ TYPEINFO(/obj/item/organ/eye/cyber/sechud)
 	iris_color = "#3a0404"
 
 	build_retina() // sechud eyes have an S
-		var/list/center_list = list("s","S","$")
+		var/list/center_list = list("s[rand(0,9)]s","S[rand(0,9)]S","$[rand(0,9)]$")
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	process()
 		if (src.broken)
@@ -264,7 +264,7 @@ TYPEINFO(/obj/item/organ/eye/cyber/thermal)
 	iris_color = "#a01f1f"
 
 	build_retina() // Thermal eyes have a T
-		var/list/center_list = list("t","T")
+		var/list/center_list = list("t[rand(0,9)]t","T[rand(0,9)]T")
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(mob/M)
 		. = ..()
@@ -292,7 +292,7 @@ TYPEINFO(/obj/item/organ/eye/cyber/meson)
 	iris_color = "#45bb00"
 
 	build_retina()
-		var/list/center_list = list("&")
+		var/list/center_list = list("&[rand(0,9)]&")
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(var/mob/M)
 		..()
@@ -330,7 +330,7 @@ TYPEINFO(/obj/item/organ/eye/cyber/spectro)
 	iris_color = "#d12ab5"
 
 	build_retina()
-		var/list/center_list = list("%")
+		var/list/center_list = list("%[rand(0,9)]%")
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(mob/M)
 		. = ..()
@@ -356,7 +356,7 @@ TYPEINFO(/obj/item/organ/eye/cyber/prodoc)
 
 	// stolen from original prodocs
 	build_retina()
-		var/list/center_list = list("+")
+		var/list/center_list = list("+[rand(0,9)]+")
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	process()
 		if (src.broken)
@@ -394,7 +394,7 @@ TYPEINFO(/obj/item/organ/eye/cyber/ecto)
 	iris_color = "#65e681"
 
 	build_retina()
-		var/list/center_list = list("g","G")
+		var/list/center_list = list("g[rand(0,9)]g","G[rand(0,9)]G")
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(mob/M)
 		. = ..()
@@ -425,7 +425,7 @@ TYPEINFO(/obj/item/organ/eye/cyber/camera)
 		src.camera.network = src.camera_network
 
 	build_retina()
-		var/list/center_list = list("**")
+		var/list/center_list = list("*[rand(0,9)]*")
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(var/mob/M)
 		..()
@@ -447,7 +447,7 @@ TYPEINFO(/obj/item/organ/eye/cyber/nightvision)
 	iris_color = "#027e17"
 
 	build_retina(var/datum/forensic_id/retina_pair = null)
-		var/list/center_list = list("#")
+		var/list/center_list = list("#[rand(0,9)]#")
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	on_transplant(mob/M)
 		. = ..()
@@ -474,7 +474,7 @@ TYPEINFO(/obj/item/organ/eye/cyber/laser)
 	var/eye_proj_override = null
 
 	build_retina()
-		var/list/center_list = list("z","Z")
+		var/list/center_list = list("z[rand(0,9)]z","Z[rand(0,9)]Z")
 		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
 	add_ability(var/datum/abilityHolder/aholder, var/abil)
 		if (!ispath(abil, /datum/targetable/organAbility/eyebeam) || !aholder)

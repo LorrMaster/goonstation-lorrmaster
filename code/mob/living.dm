@@ -2408,6 +2408,18 @@
 /mob/living/HealBleeding(amt)
 	src.bleeding = max(src.bleeding - amt, 0)
 
+/mob/living/proc/get_blood_color()
+	return blood_color = src.blood_color
+	/*
+	if (src.bioHolder?.bloodColor)
+		blood_color = src.bioHolder.bloodColor
+	else if (src.blood_id)
+		var/datum/reagent/R = reagents_cache[src.blood_id]
+		blood_color = rgb(R.fluid_r, R.fluid_g, R.fluid_b)
+	else
+		blood_color = src.blood_color
+	*/
+
 /mob/living/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	// Collect data on fingerprints, DNA, retina scan, ethanol
 	var/note_fingerprints = "<li>[src]'s Fingerprints: [src.bioHolder.fingerprint_default.id]</li>"
@@ -2416,7 +2428,17 @@
 	scan_builder.add_scan_text(note_dna)
 
 	if(src.organHolder)
-		var/note_retinas = "<li>[src]'s Retina Scan: [src.organHolder.get_retina_scan()]</li>"
+		var/retinas = ""
+		if(!src.organHolder.left_eye)
+			retinas += "_____"
+		else
+			retinas += src.organHolder.left_eye.retina_scan.id
+		retinas += "   "
+		if(!src.organHolder.right_eye)
+			retinas += "_____"
+		else
+			retinas += src.organHolder.right_eye.retina_scan.get_retina_mirror()
+		var/note_retinas = "<li>[src]'s Retina Scan: [retinas]</li>"
 		scan_builder.add_scan_text(note_retinas)
 	if(src.reagents)
 		var/note_ethanol = null

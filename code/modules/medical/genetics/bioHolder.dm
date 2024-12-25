@@ -697,6 +697,8 @@ var/list/datum/bioEffect/mutini_effects = list()
 			Uid = toCopy.Uid
 			uid_hash = md5(Uid)
 			build_fingerprints()
+			src.fingerprint_default = toCopy.fingerprint_default
+			src.dna_signature = toCopy.dna_signature
 
 		if (copyPool)
 			src.RemoveAllPoolEffects()

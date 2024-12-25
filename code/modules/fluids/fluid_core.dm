@@ -87,6 +87,8 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 		if (!fluid_ma)
 			fluid_ma = new(src)
 
+		src.forensic_holder.cannot_clean = TRUE // Need to remove the fluid to clean any evidence
+
 
 	proc/set_up(var/newloc, var/do_enters = 1)
 		if (is_setup) return
@@ -191,6 +193,14 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 	proc/add_reagent(var/reagent_name, var/volume) //should be called right after new() on inital group creation
 		if (!src.group) return
 		src.group.reagents.add_reagent(reagent_name,volume)
+
+	proc/get_blood_bioholder()
+		// Used for getting blood's dna and such
+		var/datum/reagent/blood/blood_reagent = src.group.reagents.reagent_list["blood"]
+		if (!blood_reagent)
+			blood_reagent = src.group.reagents.reagent_list["bloodc"]
+		var/datum/bioHolder/bioholder = blood_reagent?.data
+		return bioholder
 
 	//incorporate touch_modifier?
 	Crossed(atom/movable/A)
@@ -669,6 +679,14 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 			return
 	..()
 
+/obj/item/EnteredFluid(obj/fluid/F as obj)
+	..()
+	var/datum/bioHolder/bioholder = F.get_blood_bioholder()
+	var/b_color = F.color
+	if (bioholder)
+		src.apply_blood(bioholder, b_color)
+
+
 /mob/living/EnteredFluid(obj/fluid/F as obj, atom/oldloc)
 	//SUBMERGED OVERLAYS
 	if (src.is_submerged != F.my_depth_level)
@@ -765,20 +783,25 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 
 	//BLOODSTAINS
 	if (F.group.master_reagent_id == "blood" || F.group.master_reagent_id == "bloodc" || F.group.master_reagent_id == "hemolymph") // Replace with a blood reagent check proc
-		if (src.lying)
-			if (src.wear_suit)
-				src.wear_suit.add_blood(F)
-				src.update_bloody_suit()
-			else if (src.w_uniform)
-				src.w_uniform.add_blood(F)
-				src.update_bloody_uniform()
-		else
-			if (src.shoes)
-				src.shoes.add_blood(F)
-				src.update_bloody_shoes()
+		var/datum/bioHolder/bioholder = F.get_blood_bioholder()
+		if (bioholder)
+			var/b_color = F.color // F.group.average_color.to_rgb()
+			if (src.lying)
+				if (src.wear_suit)
+					src.wear_suit.apply_blood(bioholder, b_color)
+					src.update_bloody_suit()
+				else if (src.w_uniform)
+					src.w_uniform.apply_blood(bioholder, b_color)
+					src.update_bloody_uniform()
 			else
-				src.add_blood(F)
-
+				if (src.shoes)
+					src.shoes.apply_blood(bioholder, b_color)
+					src.update_bloody_shoes()
+				else if (src.limbs)
+					if(src.limbs.l_leg)
+						src.limbs.l_leg.apply_blood(bioholder, b_color)
+					if(src.limbs.r_leg)
+						src.limbs.r_leg.apply_blood(bioholder, b_color)
 		F.add_tracked_blood(src)
 		src.update_bloody_feet()
 

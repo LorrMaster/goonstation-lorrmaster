@@ -83,13 +83,13 @@ datum/forensic_id // Mainly a way to store forensic text by reference
 			dna_id += build_id(3, CHAR_LIST_UPPER_LIMIT) + build_id(DNA_BUNCH_SIZE - 3, CHAR_LIST_NUM)
 		src.id = dna_id
 
-	proc/build_id_footprint(var/list/pattern)
+	proc/build_id_footprint(var/pattern)
 		// The footprint pattern determines which symbols are swapped with what
 		// l = letter, s = symbol, h = high heels, other = no change
 		var/list/letters_list = CHAR_LIST_LOWER
 		var/list/symbols_list = CHAR_LIST_SYMBOLS
 		var/final_id = ""
-		for(var/i=1, i< pattern.len, i++)
+		for(var/i=1, i<= length(pattern), i++)
 			var/char = copytext(pattern, i, i+1)
 			switch(char)
 				if("l")
@@ -167,6 +167,8 @@ datum/forensic_data
 
 	proc/scan_display(var/obj/item/device/detective_scanner/scanner, var/timestamp_type)
 		return ""
+	proc/should_remove(var/remove_flags)
+		return HAS_ANY_FLAGS((src.flags & REMOVABLE_FLAGS), remove_flags)
 
 datum/forensic_data/basic // Evidence that can just be stored as a single ID. Flags not included.
 	var/static/datum/forensic_display/disp_empty = new("@F")
@@ -287,5 +289,5 @@ datum/forensic_data/dna
 			else
 				return pattern.id
 
-	proc/is_equal(datum/forensic_data/dna/other)
+	proc/is_same(datum/forensic_data/dna/other)
 		return src.pattern == other.pattern && src.form == other.form

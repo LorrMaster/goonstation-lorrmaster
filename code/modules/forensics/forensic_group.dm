@@ -4,7 +4,7 @@
 
 /*
 Forensic Holder -> All the different types of forensics on an object
-Forensic Group -> All the fingerprints on an object / area
+Forensic Group -> All the fingerprints on an object
 Forensic Data -> A fingerprint
 */
 
@@ -18,7 +18,6 @@ datum/forensic_group
 	// @"Scan Log [DNA | Retina]"
 
 	var/category = FORENSIC_GROUP_NONE // An identifier for the group type. Must be unique for each group.
-	var/area = null // Some objects might have duplicate types of evidence for specific areas (fingerprints inside vs outside a pod)
 	var/group_flags = 0 // Flags associated with the whole group. If EVIDENCE_REMOVABLE_CLEANING is true,
 						// then evidence in that group may (or may not!) be removable via cleaning
 
@@ -28,6 +27,8 @@ datum/forensic_group
 		return ""
 	proc/get_header() // The label that this evidence will be displayed under for scans
 		return SPAN_ALERT("Error: Forensic scan header not found")
+	proc/remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+		return
 	proc/matching_flags(var/flags_A, var/flags_B)
 		flags_A &= !IS_JUNK
 		flags_B &= !IS_JUNK
@@ -51,6 +52,13 @@ datum/forensic_group/notes
 
 	get_header()
 		return HEADER_NOTES
+
+	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+		for(var/i=1, i<= src.notes_list.len; i++)
+			if(src.notes_list[i].should_remove(remove_flags))
+				ADD_FLAG(src.notes_list[i].flags, IS_HIDDEN)
+				parent.add_evidence(src.notes_list[i], FORENSIC_GROUP_NOTE, TRUE)
+				src.notes_list.Cut(i, i+1)
 
 	proc/apply_basic(var/datum/forensic_data/basic/E)
 		for(var/i=1, i<= notes_list.len; i++)
@@ -80,6 +88,14 @@ datum/forensic_group/basic_list
 			var/datum/D = src.evidence_list[oldest]
 			src.evidence_list[oldest] = E
 			qdel(D)
+
+	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+		for(var/i=1, i<= src.evidence_list.len; i++)
+			if(src.evidence_list[i].should_remove(remove_flags))
+				ADD_FLAG(src.evidence_list[i].flags, IS_HIDDEN)
+				parent.add_evidence(src.evidence_list[i], category, TRUE)
+				src.evidence_list.Cut(i, i+1)
+
 	scan_text(var/obj/item/device/detective_scanner/scanner)
 		var/data_text = ""
 		for(var/i=1, i<= src.evidence_list.len; i++)
@@ -121,6 +137,14 @@ datum/forensic_group/double_list // a list of evidence pairs (Ex. A player's DNA
 			var/datum/D = src.evidence_list[oldest]
 			src.evidence_list[oldest] = E
 			qdel(D)
+
+	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+		for(var/i=1, i<= src.evidence_list.len; i++)
+			if(src.evidence_list[i].should_remove(remove_flags))
+				ADD_FLAG(src.evidence_list[i].flag, IS_HIDDEN)
+				parent.add_evidence(src.evidence_list[i], category, TRUE)
+				src.evidence_list.Cut(i, i+1)
+
 	scan_text(var/obj/item/device/detective_scanner/scanner)
 		var/data_text = ""
 		for(var/i=1, i<= src.evidence_list.len; i++)
@@ -165,6 +189,13 @@ datum/forensic_group/fingerprints
 			src.prints_list[oldest] = fp
 			qdel(D)
 
+	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+		if(HAS_ANY_FLAGS((src.group_flags & REMOVABLE_FLAGS), remove_flags))
+			for(var/i=1, i<= src.prints_list.len; i++)
+				ADD_FLAG(src.prints_list[i].flags, IS_HIDDEN)
+				parent.add_evidence(src.prints_list[i], category, TRUE)
+			parent.remove_group(category)
+
 	scan_text(var/obj/item/device/detective_scanner/scanner)
 		var/fp_text = ""
 		for(var/i=1, i<= prints_list.len; i++)
@@ -178,11 +209,38 @@ datum/forensic_group/dna
 	category = FORENSIC_GROUP_DNA
 	group_flags = REMOVABLE_CLEANING
 	var/list/datum/forensic_data/dna/dna_list = list()
-	var/blood_color = "#FFFFFF"
+
+	apply_evidence(var/datum/forensic_data/data)
+		if(!istype(data, /datum/forensic_data/dna))
+			return
+		var/datum/forensic_data/dna/E = data
+
+		var/oldest = 1
+		for(var/i=1, i<= dna_list.len; i++)
+			if(src.dna_list[i].is_same(E))
+				dna_list[i].timestamp = TIME
+				return
+			if(dna_list[i].timestamp < dna_list[oldest].timestamp)
+				oldest = i
+		if(src.dna_list.len < 7)
+			src.dna_list += E
+		else
+			var/datum/D = src.dna_list[oldest]
+			src.dna_list[oldest] = E
+			qdel(D)
+
+	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+		if(HAS_ANY_FLAGS((src.group_flags & REMOVABLE_FLAGS), remove_flags))
+			for(var/i=1, i<= src.dna_list.len; i++)
+				ADD_FLAG(src.dna_list[i].flags, IS_HIDDEN)
+				parent.add_evidence(src.dna_list[i], category, TRUE)
+			parent.remove_group(category)
+
+	scan_text(var/obj/item/device/detective_scanner/scanner)
+		var/data_text = ""
+		for(var/i=1, i<= src.dna_list.len; i++)
+			data_text += "<li>" + src.dna_list[i].scan_display(0) + "</li>"
+		return data_text
 
 	get_header()
 		return HEADER_DNA
-
-	proc/mix_blood_color(var/new_color)
-		if(!new_color)
-			return

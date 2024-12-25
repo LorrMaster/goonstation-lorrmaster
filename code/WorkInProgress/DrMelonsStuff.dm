@@ -226,27 +226,33 @@
 		// hacky, but cool effect
 		// Stop spamming expensive calls
 		if (src.reagents.has_reagent("blood", suffocation_volume))
-			var/dna = null
+			var/datum/bioHolder/bio = null
+			var/b_color = "#FFFFFF"
 			var/datum/reagent/blood/sample = reagents.get_reagent("blood")
 			if (sample && istype(sample.data, /datum/bioHolder))
 				var/datum/bioHolder/tocopy = sample.data
-				dna = tocopy.owner
-			if (!dna)
-				dna = H
-			H.add_blood(dna)
+				bio = tocopy.owner
+			if (!bio)
+				bio = H.bioHolder
+				b_color = H.blood_color
+			else if(isliving(bio.owner))
+				var/mob/living/L = bio.owner
+				b_color = L.blood_color
+
+			H.apply_blood(bio, b_color)
 			if (H.gloves)
-				H.gloves.add_blood(dna)
+				H.gloves.apply_blood(bio, b_color)
 				H.update_bloody_gloves()
 			else
 				H.update_bloody_hands()
 			if (H.wear_suit)
-				H.wear_suit.add_blood(dna)
+				H.wear_suit.apply_blood(bio, b_color)
 				H.update_bloody_suit()
 			else if (H.w_uniform)
-				H.w_uniform.add_blood(dna)
+				H.w_uniform.apply_blood(bio, b_color)
 				H.update_bloody_uniform()
 			if (H.shoes)
-				H.shoes.add_blood(dna)
+				H.shoes.apply_blood(bio, b_color)
 				H.update_bloody_shoes()
 
 	proc/turn_tap(mob/user)

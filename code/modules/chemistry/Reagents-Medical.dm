@@ -932,7 +932,7 @@ datum
 							for (var/obj/item/check in gear_to_bloody)
 								LAGCHECK(LAG_LOW)
 								if (prob(40))
-									check.add_blood(H)
+									check.apply_blood(H.bioHolder, H.blood_color)
 							H.update_blood_all()
 					else if (effect <= 4)
 						M.visible_message(SPAN_ALERT("[M] coughs up a lot of blood!"))

@@ -548,48 +548,53 @@
 	return
 
 /mob/living/carbon/human/spread_blood_clothes(mob/whose)
-	if (!whose || !ismob(whose))
+	if (!whose || !isliving(whose))
 		return
-
+	var/mob/living/L = whose
+	if(!L.can_bleed)
+		return
 	if (src.wear_mask)
-		src.wear_mask.add_blood(whose)
+		src.wear_mask.apply_blood(L.bioHolder, L.get_blood_color())
 		src.update_bloody_mask()
 	if (src.head)
-		src.head.add_blood(whose)
+		src.head.apply_blood(L.bioHolder, L.get_blood_color())
 		src.update_bloody_head()
 	if (src.glasses && prob(33))
-		src.glasses.add_blood(whose)
+		src.glasses.apply_blood(L.bioHolder, L.get_blood_color())
 	if (prob(15))
 		if (src.wear_suit)
-			src.wear_suit.add_blood(whose)
+			src.wear_suit.apply_blood(L.bioHolder, L.get_blood_color())
 			src.update_bloody_suit()
 		else if (src.w_uniform)
-			src.w_uniform.add_blood(whose)
+			src.w_uniform.apply_blood(L.bioHolder, L.get_blood_color())
 			src.update_bloody_uniform()
 
 /mob/proc/spread_blood_hands(mob/whose)
 	return
 
 /mob/living/carbon/human/spread_blood_hands(mob/whose)
-	if (!whose || !ismob(whose))
+	if (!whose || !isliving(whose))
+		return
+	var/mob/living/L = whose
+	if(!L.can_bleed)
 		return
 
 	if (src.gloves)
-		src.gloves.add_blood(whose)
+		src.gloves.apply_blood(L.bioHolder, L.get_blood_color())
 		src.update_bloody_gloves()
 	else
-		src.add_blood(whose)
+		src.apply_blood(L.bioHolder, L.get_blood_color())
 		src.update_bloody_hands()
 	if (src.equipped())
 		var/obj/item/I = src.equipped()
 		if (istype(I))
-			I.add_blood(whose)
+			I.apply_blood(L.bioHolder, L.get_blood_color())
 	if (prob(15))
 		if (src.wear_suit)
-			src.wear_suit.add_blood(whose)
+			src.wear_suit.apply_blood(L.bioHolder, L.get_blood_color())
 			src.update_bloody_suit()
 		else if (src.w_uniform)
-			src.w_uniform.add_blood(whose)
+			src.w_uniform.apply_blood(L.bioHolder, L.get_blood_color())
 			src.update_bloody_uniform()
 
 /mob/proc/is_bleeding()
