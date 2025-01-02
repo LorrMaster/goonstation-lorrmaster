@@ -3241,7 +3241,9 @@
 	var/steps = 1
 	if (move_dir & (move_dir-1))
 		steps *= DIAG_MOVE_DELAY_MULT
-
+	if(src.shoes)
+		if(src.shoes.forensic_holder?.is_tracking())
+			src.shoes.forensic_holder.track_blood(NewLoc, src.get_footprints())
 	//STEP SOUND HANDLING
 	if (!src.lying && isturf(NewLoc) && NewLoc.turf_flags & MOB_STEP)
 		if (NewLoc.active_liquid)
@@ -3680,36 +3682,59 @@ mob/living/carbon/human/has_genetics()
 /mob/living/carbon/human/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	..()
 	if(src.shoes)
-		var/note_footprints = null
-		if(src.shoes.shoe_print)
-			note_footprints = "<li> [src.shoes]'s shoeprints: [src.shoes.shoe_print.id]</li>"
-		else
-			note_footprints = "<li> (Insert footprints here) </li>"
-		scan_builder.add_scan_text(note_footprints)
+		scan_builder.add_target(src.shoes)
+	else
+		var/datum/forensic_data/multi/f_data = get_footprints()
+		var/note_footprints = f_data.scan_display()
+		scan_builder.add_scan_text("<li>[src]'s footprints: [note_footprints]</li>")
 	if(src.gloves)
-		var/note_gloves = "<li> [src.gloves]'s fibers: [src.gloves.fiber_id.id]</li>"
-		scan_builder.add_scan_text(note_gloves)
+		scan_builder.add_target(src.gloves)
+
+/mob/living/carbon/human/proc/get_footprints(var/timestamp = 0)
+	var/datum/forensic_data/multi/f_data = new()
+	// Need to account for having one set of treads, and other potential half-shoelessness
+	if(src.shoes)
+		f_data.evidence_A = src.shoes.shoe_print_l
+		f_data.evidence_B = src.shoes.shoe_print_r
+	else if(src.limbs)
+		if(!src.limbs.l_leg && !src.limbs.r_leg)
+			f_data.evidence_A = src.drag_mob_print
+			f_data.evidence_B = src.drag_mob_print
+		else
+			if(src.limbs.l_leg)
+				f_data.evidence_A = src.limbs.l_leg.footprint
+			else
+				f_data.evidence_A = f_data.retina_empty
+			if(src.limbs.r_leg)
+				f_data.evidence_B = src.limbs.r_leg.footprint
+			else
+				f_data.evidence_B = f_data.retina_empty
+	f_data.display = f_data.disp_pair
+	return f_data
 
 /mob/living/carbon/human/proc/apply_scanner_evidence(var/datum/forensic_id/scan_id)
+	// Apply the evidence to every non-robo limb/organ in the body. Only works with scan particles for now.
 	src.organHolder?.apply_scanner_evidence(scan_id)
 	if(src.limbs)
 		if(src.limbs.r_arm)
 			if(!isrobolimb(src.limbs.r_arm))
-				var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+				var/datum/forensic_data/basic/f_data = new(scan_id)
 				f_data.flags = REMOVABLE_CLEANING
 				src.limbs.r_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		if(src.limbs.l_arm)
 			if(!isrobolimb(src.limbs.l_arm))
-				var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+				var/datum/forensic_data/basic/f_data = new(scan_id)
 				f_data.flags = REMOVABLE_CLEANING
 				src.limbs.l_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		if(src.limbs.r_leg)
 			if(!isrobolimb(src.limbs.r_leg))
-				var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+				var/datum/forensic_data/basic/f_data = new(scan_id)
 				f_data.flags = REMOVABLE_CLEANING
 				src.limbs.r_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		if(src.limbs.l_leg)
 			if(!isrobolimb(src.limbs.l_leg))
-				var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+				var/datum/forensic_data/basic/f_data = new(scan_id)
 				f_data.flags = REMOVABLE_CLEANING
 				src.limbs.l_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+
+

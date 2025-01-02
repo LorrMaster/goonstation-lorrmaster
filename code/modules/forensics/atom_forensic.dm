@@ -1,13 +1,10 @@
 /atom
 	var/tmp/list/fingerprints = null
-	var/tmp/list/fingerprints_full = null//new/list()
+	var/tmp/list/fingerprints_full = null
 	var/tmp/fingerprintslast = null
 	var/tmp/blood_DNA = null
 	var/tmp/blood_type = null
-	// only exists because human overlays are a headache, preserves color from add_blood
-	var/tmp/forensics_blood_color = null
-	//var/list/forensic_info = null
-	var/list/forensic_trace = null // list(fprint, bDNA, btype) - can't get rid of this so easy!
+	var/tmp/forensics_blood_color = null // only exists because human overlays are a headache, preserves color from add_blood
 
 	// -------------------- New Stuff -----------
 	var/datum/forensic_holder/forensic_holder = new()
@@ -18,71 +15,35 @@
 /atom/proc/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	return
 /atom/proc/add_evidence(var/datum/forensic_data/data, var/category = FORENSIC_GROUP_NOTE)
-	src.forensic_holder.add_evidence(data, category)
-/atom/proc/add_fingerprint(mob/living/M, hidden_only = FALSE)
+	if(src.forensic_holder)
+		src.forensic_holder.add_evidence(data, category)
+/atom/proc/add_fingerprint(mob/living/M, admin_only = FALSE, is_fake = FALSE, ignore_gloves = FALSE, ignore_sleuth = FALSE)
 	if (!ismob(M) || isnull(M.key))
-		return
-	if (src.flags & NOFPRINT)
 		return
 	var/mob/living/carbon/human/H = M
 	var/datum/forensic_data/fingerprint/fp = new()
 	fp.print = H.bioHolder.fingerprint_default
-	if(H.gloves)
+	if(H.gloves && !ignore_gloves)
 		fp.glove_print = H.gloves.fiber_id
 		fp.print_mask = H.gloves.fiber_mask
-	src.forensic_holder.add_evidence(fp, FORENSIC_GROUP_FINGERPRINT, null)
+	ADD_FLAG(fp.flags, REMOVABLE_CLEANING)
+	if(is_fake)
+		ADD_FLAG(fp.flags, IS_JUNK)
+	else
+		add_adminprint(M)
+	src.forensic_holder.add_evidence(fp, FORENSIC_GROUP_FINGERPRINT, admin_only)
+	if(M.mind && !ignore_sleuth)
+		var/datum/forensic_data/basic/color_data = new(M.mind.color)
+		ADD_FLAG(color_data.flags, REMOVABLE_CLEANING)
+		src.forensic_holder.add_evidence(color_data, FORENSIC_GROUP_SLEUTH_COLOR)
 
-
-
-/atom/proc/add_forensic_trace(var/key, var/value)
-	if (!key || !value)
-		return
-	if (!islist(src.forensic_trace))
-		src.forensic_trace = list("fprints" = null, "bDNA" = null, "btype" = null)
-	src.forensic_trace[key] = value
-
-/atom/proc/get_forensic_trace(var/key)
-	if (!key || !islist(src.forensic_trace))
-		return 0
-	return src.forensic_trace[key]
-
-/// Add a mob's fingerprint to something. If `hidden_only` is TRUE, only add to admin-visible prints.
-
-/atom/proc/add_fingerprint_old(mob/living/M, hidden_only = FALSE)
+/atom/proc/add_adminprint(mob/living/M)
 	if (!ismob(M) || isnull(M.key))
 		return
-	if (src.flags & NOFPRINT)
-		return
-	var/time = time2text(TIME, "hh:mm:ss")
-	// The actual print that we save to the player-visible prints list
-	var/seen_print
-	if (ishuman(M))
-		var/mob/living/carbon/human/H = M
-		LAZYLISTINIT(src.fingerprints)
-
-		if (H.gloves) // Fixed: now adds distorted prints even if 'fingerprintslast == ckey'. Important for the clean_forensic proc (Convair880).
-			seen_print = H.gloves.distort_prints(H.bioHolder.fingerprints, TRUE)
-		else
-			seen_print = H.bioHolder.fingerprints
-
-		if (seen_print && !hidden_only)
-			add_fingerprint_direct(seen_print)
-
-	LAZYLISTINIT(src.fingerprints_full)
-	if (src.fingerprintslast != M.key) // don't really care about someone spam touching
-		src.fingerprints_full[time] = list("key" = M.key, "real_name" = M.real_name, "time" = time, "timestamp" = TIME, "seen_print" = seen_print)
-		if (ishuman(M))
-			var/mob/living/carbon/human/H = M
-			src.fingerprints_full[time]["color"] = H.mind.color
-		src.fingerprintslast = M.key
-
-/// Add a fingerprint to an atom directly. Doesn't interact with hidden prints at all
-/atom/proc/add_fingerprint_direct(print)
-	LAZYLISTINIT(src.fingerprints)
-	src.fingerprints -= print
-	if (length(src.fingerprints) >= 6) // limit fingerprints in the list to 6
-		src.fingerprints -= src.fingerprints[1]
-	src.fingerprints += print
+	//var/datum/player = M.mind?.get_player()
+	//if(M.mind.get_player())
+		//var/datum/forensic_data/basic/color_data = new(M.mind.color)
+		//src.forensic_holder.add_evidence(color_data, FORENSIC_GROUP_ADMIN)
 
 /atom/proc/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 	if(!src.forensic_holder)
@@ -95,6 +56,12 @@
 		src.forensic_holder.stain_color = blood_color
 	if(isitem(src))
 		apply_stain_effect(blood_color)
+		var/datum/spreader_track/T = new()
+
+		T.track_color = blood_color
+		if(source)
+			T.dna_signature = source.dna_signature
+		src.forensic_holder.spreader = T
 
 	/*
 		else if (istype(src, /turf/simulated))
@@ -117,104 +84,63 @@
 			var/obj/item/clothing/C = src
 			C.add_stain(/datum/stain/blood)
 
-// Was clean_blood. Reworked the proc to take care of other forensic evidence as well (Convair880).
 /atom/proc/clean_forensic()
-	if (!src)
-		return
-	if (src.flags & NOFPRINT)
-		return
-	// The first version accidently looped through everything for every atom. Consequently, cleaner grenades caused horrendous lag on my local server. Woops.
-	if (!ismob(src)) // Mobs are a special case.
-		if (isobj(src))
-			var/obj/O = src
-			if (O.tracked_blood)
-				O.tracked_blood = null
-		if (isitem(src) && (src.fingerprints || src.blood_DNA || src.blood_type || src.forensics_blood_color))
-			src.add_forensic_trace("fprints", src.fingerprints)
-			src.fingerprints = null
-			src.add_forensic_trace("btype", src.blood_type)
-			src.blood_type = null
-			src.forensics_blood_color = null
-			if (src.blood_DNA)
-				src.add_forensic_trace("bDNA", src.blood_DNA)
-				var/obj/item/CI = src
-				CI.blood_DNA = null
-				CI.UpdateOverlays(null, "blood_splatter")
-		if (istype(src, /obj/item/clothing))
-			var/obj/item/clothing/C = src
-			C.clean_stains()
-
-		else if (istype(src, /obj/decal/cleanable) || istype(src, /obj/reagent_dispensers/cleanable))
-			qdel(src)
-
-		else if (isturf(src))
-			var/turf/T = get_turf(src)
-			for (var/obj/decal/cleanable/mess in T)
-				qdel(mess)
-			T.messy = 0
-
-		else // Don't think it should clean doors and the like. Give the detective at least something to work with.
-			return
-
-	else
-		if (isobserver(src) || isintangible(src) || iswraith(src)) // Just in case.
-			return
-
-		src.remove_filter(list("paint_color", "paint_pattern")) //wash off any paint
-
-		if (ishuman(src))
-			var/mob/living/carbon/human/M = src
-			var/list/gear_to_clean = list(M.r_hand, M.l_hand, M.head, M.wear_mask, M.w_uniform, M.wear_suit, M.belt, M.gloves, M.glasses, M.shoes, M.wear_id, M.back)
-			for (var/obj/item/check in gear_to_clean)
-				if (check.fingerprints || check.blood_DNA || check.blood_type || check.forensics_blood_color)
-					check.add_forensic_trace("fprints", check.fingerprints)
-					check.fingerprints = null
-					check.add_forensic_trace("btype", check.blood_type)
-					check.blood_type = null
-					check.forensics_blood_color = null
-					if (check.blood_DNA)
-						check.add_forensic_trace("bDNA", check.blood_DNA)
-						check.blood_DNA = null
-						check.UpdateOverlays(null, "blood_splatter")
-				if (istype(check, /obj/item/clothing))
-					var/obj/item/clothing/C = check
-					C.clean_stains()
-
-			if (isnull(M.gloves)) // Can't clean your hands when wearing gloves.
-				M.add_forensic_trace("bDNA", M.blood_DNA)
-				M.blood_DNA = null
-				M.add_forensic_trace("btype", M.blood_type)
-				M.blood_type = null
-				M.forensics_blood_color = null
-
-			M.add_forensic_trace("fprints", M.fingerprints)
-			M.fingerprints = null // Foreign fingerprints on the mob.
-			M.gunshot_residue = 0 // Only humans can have residue at the moment.
-			if (M.makeup || M.spiders)
-				M.makeup = null
-				M.makeup_color = null
-				M.spiders = null
-				M.set_body_icon_dirty()
-			M.tracked_blood = null
-			M.set_clothing_icon_dirty()
-
-			// Noir effect alters M.color, so reapply
-			if (M.bioHolder.HasEffect("noir"))
-				animate_fade_grayscale(M, 0)
-
-		else
-
-			var/mob/living/L = src // Punching cyborgs does leave fingerprints for instance.
-			L.add_forensic_trace("fprints", L.fingerprints)
-			L.fingerprints = null
-			L.add_forensic_trace("bDNA", L.blood_DNA)
-			L.blood_DNA = null
-			L.add_forensic_trace("btype", L.blood_type)
-			L.blood_type = null
-			L.forensics_blood_color = null
-			L.tracked_blood = null
-			L.set_clothing_icon_dirty()
+	if(src.forensic_holder)
+		if(src.forensic_holder.is_stained)
+			src.forensic_holder.stain_color = "#FFFFFF"
+			src.forensic_holder.is_stained = FALSE
+		src.forensic_holder.remove_evidence(REMOVABLE_CLEANING)
 	SEND_SIGNAL(src, COMSIG_ATOM_CLEANED)
+
+/obj/clean_forensic()
+	src.forensic_holder.spreader = null
+	if(isitem(src))
+		var/obj/item/I = src
+		if(I.forensic_holder.is_stained)
+			I.UpdateOverlays(null, "blood_splatter")
+		if(istype(I, /obj/item/clothing))
+			var/obj/item/clothing/C = I
+			C.clean_stains()
+			if (ishuman(src.loc))
+				var/mob/living/carbon/human/H = src.loc
+				H.set_clothing_icon_dirty()
+	else if (istype(src, /obj/decal/cleanable) || istype(src, /obj/reagent_dispensers/cleanable))
+		qdel(src)
+	..()
+
+/turf/clean_forensic()
+	var/turf/T = get_turf(src)
+	for (var/obj/decal/cleanable/mess in T)
+		qdel(mess)
+	T.messy = 0
+	..()
+
+/mob/clean_forensic()
+	if (isobserver(src) || isintangible(src)) // Just in case.
+		return
+	src.remove_filter(list("paint_color", "paint_pattern")) //wash off any paint
+	..()
+
+/mob/living/clean_forensic()
+	if(ishuman(src))
+		var/mob/living/carbon/human/H = src
+		var/list/gear_to_clean = list(H.r_hand, H.l_hand, H.head, H.wear_mask, H.w_uniform, H.wear_suit, H.belt, H.gloves, H.glasses, H.shoes, H.wear_id, H.back)
+		// if (isnull(src.gloves))
+		// 	gear_to_clean += src.r_hand
+		// 	gear_to_clean += src.l_hand
+		for (var/obj/item/check in gear_to_clean)
+			check.clean_forensic()
+		if (H.makeup || H.spiders)
+			H.makeup = null
+			H.makeup_color = null
+			H.spiders = null
+			H.set_body_icon_dirty()
+		if (H.bioHolder.HasEffect("noir")) // Noir effect alters M.color, so reapply
+			animate_fade_grayscale(H, 0)
+
+	src.set_clothing_icon_dirty()
+	src.tracked_blood = null
+	..()
 
 /atom/movable/proc/track_blood()
 	return
@@ -283,6 +209,15 @@
 			B.add_volume(blood_color_to_pass, src.tracked_blood["sample_reagent"], 0.5, 0.5, src.tracked_blood, states[2], src.last_move, 0)
 	else
 		B.add_volume(blood_color_to_pass, src.tracked_blood["sample_reagent"], 1, 1, src.tracked_blood, "smear2", src.last_move, 0)
+
+	if(B.forensic_holder)
+		if(ishuman(src))
+			var/mob/living/carbon/human/H = src
+			var/datum/forensic_data/multi/f_print = H.get_footprints(TIME)
+			B.add_evidence(f_print, FORENSIC_GROUP_TRACKS)
+		if(src.bioHolder)
+			var/datum/forensic_data/dna/blood_dna = new(src.bioHolder.dna_signature, DNA_FORM_BLOOD, TIME)
+			B.add_evidence(blood_dna, FORENSIC_GROUP_DNA)
 
 	if (src.tracked_blood && isnum(src.tracked_blood["count"])) // mirror from below
 		src.tracked_blood["count"] --

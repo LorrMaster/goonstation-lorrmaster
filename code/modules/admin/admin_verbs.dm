@@ -1016,6 +1016,21 @@ var/list/fun_images = list()
 	else
 		M << link("http://wiki.ss13.co/Rules")
 
+/client/proc/view_forensics(obj/O as obj in world)
+	set name = "View Object Forensics"
+	SET_ADMIN_CAT(ADMIN_CAT_ATOM)
+	set popup_menu = 0
+
+	ADMIN_ONLY
+	SHOW_VERB_DESC
+	if(!O.forensic_holder)
+		alert("There is no forensic data on this object.", null, null, null, null, null)
+		return
+	var/datum/forensic_scan_builder/scan_builder = new()
+	scan_builder.base_accuracy = 0
+	scan_builder.is_admin = TRUE
+	return scan_builder.compile_scan(O)
+
 /client/proc/view_fingerprints(obj/O as obj in world)
 	set name = "View Object Fingerprints"
 	SET_ADMIN_CAT(ADMIN_CAT_NONE)

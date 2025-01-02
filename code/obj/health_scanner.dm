@@ -129,10 +129,17 @@ TYPEINFO(/obj/health_scanner)
 				var/burn = round(H.get_burn_damage())
 				var/brute = round(H.get_brute_damage())
 				SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_SIGNAL, "health=[health_percent]&oxy=[oxy]&tox=[tox]&burn=[burn]&brute=[brute]")
-				var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-				f_data.flags = REMOVABLE_CLEANING
-				H.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+
+				var/datum/forensic_data/basic/scan_data = new(src.forensic_lead)
+				scan_data.flags = REMOVABLE_CLEANING
+				H.add_evidence(scan_data, FORENSIC_GROUP_SCAN)
 				H.apply_scanner_evidence(src.forensic_lead)
+
+				var/datum/forensic_data/multi/print_data = H.get_footprints(TIME)
+				print_data.evidence_C = H.bioHolder.dna_signature
+				print_data.display = print_data.disp_pair_double
+				print_data.flags = REMOVABLE_DATA
+				src.add_evidence(print_data, FORENSIC_GROUP_HEALTH_FLOOR)
 
 			playsound(src.loc, 'sound/machines/scan2.ogg', 30, 0)
 		return data

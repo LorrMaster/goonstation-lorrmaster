@@ -1,7 +1,4 @@
 
-// Need a scanner proc to handle item-specific notes
-// Mob fingerprints/DNA, source ID, safe hints
-
 /*
 Forensic Holder -> All the different types of forensics on an object
 Forensic Group -> All the fingerprints on an object
@@ -14,25 +11,22 @@ Forensic Data -> A fingerprint
 ABSTRACT_TYPE(/datum/forensic_group)
 datum/forensic_group
 	// Photographic Analysis, Audio Analysis
-	// @"Scan Log [DNA | Footprints]"
-	// @"Scan Log [DNA | Retina]"
 
 	var/category = FORENSIC_GROUP_NONE // An identifier for the group type. Must be unique for each group.
 	var/group_flags = 0 // Flags associated with the whole group. If EVIDENCE_REMOVABLE_CLEANING is true,
 						// then evidence in that group may (or may not!) be removable via cleaning
+	var/group_accuracy = 1
 
 	proc/apply_evidence(var/datum/forensic_data/data) // Add a piece of evidence to this group
 		return
-	proc/scan_text(var/obj/item/device/detective_scanner/scanner)
+	proc/get_text(var/datum/forensic_scan_builder/scan_builder)
 		return ""
 	proc/get_header() // The label that this evidence will be displayed under for scans
 		return SPAN_ALERT("Error: Forensic scan header not found")
-	proc/remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+	proc/remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		return
 	proc/matching_flags(var/flags_A, var/flags_B)
-		flags_A &= !IS_JUNK
-		flags_B &= !IS_JUNK
-		return flags_A == flags_B
+		return (flags_A & !IS_JUNK) == (flags_B & !IS_JUNK)
 
 datum/forensic_group/notes
 	category = FORENSIC_GROUP_NOTE
@@ -44,26 +38,25 @@ datum/forensic_group/notes
 			var/datum/forensic_data/basic/E = data
 			apply_basic(E)
 
-	scan_text(var/obj/item/device/detective_scanner/scanner)
+	get_text(var/datum/forensic_scan_builder/scan_builder)
 		var/data_text = ""
+		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
 		for(var/i=1, i<= src.notes_list.len; i++)
-			data_text += "<li>" + src.notes_list[i].scan_display(0) + "</li>"
+			data_text += "<li>" + src.notes_list[i].scan_display() + src.notes_list[i].get_time_estimate(scan_accuracy) + "</li>"
 		return data_text
 
 	get_header()
 		return HEADER_NOTES
 
-	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		for(var/i=1, i<= src.notes_list.len; i++)
-			if(src.notes_list[i].should_remove(remove_flags))
-				ADD_FLAG(src.notes_list[i].flags, IS_HIDDEN)
-				parent.add_evidence(src.notes_list[i], FORENSIC_GROUP_NOTE, TRUE)
+			if(src.notes_list[i].should_remove(removal_flags))
 				src.notes_list.Cut(i, i+1)
 
 	proc/apply_basic(var/datum/forensic_data/basic/E)
 		for(var/i=1, i<= notes_list.len; i++)
 			if(E.evidence == src.notes_list[i].evidence && matching_flags(E.flags, src.notes_list[i].flags))
-				notes_list[i].timestamp = TIME
+				notes_list[i].time_end = TIME
 				return
 		src.notes_list += E
 
@@ -78,9 +71,9 @@ datum/forensic_group/basic_list
 		var/oldest = 1
 		for(var/i=1, i<= evidence_list.len; i++)
 			if(E.evidence == src.evidence_list[i].evidence)
-				evidence_list[i].timestamp = TIME
+				evidence_list[i].time_end = TIME
 				return
-			if(evidence_list[i].timestamp < evidence_list[oldest].timestamp)
+			if(evidence_list[i].time_end < evidence_list[oldest].time_end)
 				oldest = i
 		if(src.evidence_list.len < 7)
 			src.evidence_list += E
@@ -89,17 +82,16 @@ datum/forensic_group/basic_list
 			src.evidence_list[oldest] = E
 			qdel(D)
 
-	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		for(var/i=1, i<= src.evidence_list.len; i++)
-			if(src.evidence_list[i].should_remove(remove_flags))
-				ADD_FLAG(src.evidence_list[i].flags, IS_HIDDEN)
-				parent.add_evidence(src.evidence_list[i], category, TRUE)
+			if(src.evidence_list[i].should_remove(removal_flags))
 				src.evidence_list.Cut(i, i+1)
 
-	scan_text(var/obj/item/device/detective_scanner/scanner)
+	get_text(var/datum/forensic_scan_builder/scan_builder)
 		var/data_text = ""
+		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
 		for(var/i=1, i<= src.evidence_list.len; i++)
-			data_text += "<li>" + src.evidence_list[i].scan_display(0) + "</li>"
+			data_text += "<li>" + src.evidence_list[i].scan_display() + src.evidence_list[i].get_time_estimate(scan_accuracy) + "</li>"
 		return data_text
 
 datum/forensic_group/basic_list/scanner
@@ -109,27 +101,56 @@ datum/forensic_group/basic_list/scanner
 	get_header()
 		return "Scan Particles"
 
-datum/forensic_group/basic_list/footprints
-	category = FORENSIC_GROUP_SHOES
+datum/forensic_group/basic_list/sleuth_color
+	category = FORENSIC_GROUP_SLEUTH_COLOR
 	group_flags = REMOVABLE_CLEANING
 
+	get_text(var/datum/forensic_scan_builder/scan_builder)
+		return ""
 	get_header()
-		return "Footprints"
+		return "Sleuth"
+	proc/get_sleuth_text(var/atom/A)
+		var/data_text = ""
+		var/sleuth_accuracy = 0.35
+		for(var/i=1, i<= src.evidence_list.len; i++)
+			var/color = src.evidence_list[i].evidence.id
+			var/time_since = TIME - src.evidence_list[i].time_end
+			var/time = src.evidence_list[i].get_time_estimate(sleuth_accuracy)
+			var/c_text
+			if(i == 1)
+				var/list/intensity_list = list("faintly","acutely","strongly","mildly","kind","trace")
+				var/list/time_since_list = list(0, rand(4,6), rand(8,12), rand(27,33), rand(41,49), rand(55,65))
+				var/intensity = get_intensity(intensity_list, time_since_list, time_since)
+				c_text = "\The [A] smells [intensity] of a [color]."
+			else
+				var/list/intensity_list = list("a faint","an acute","a strong","a mild","kind of a","a trace")
+				var/list/time_since_list = list(0, rand(4,6), rand(8,12), rand(27,33), rand(41,49), rand(55,65))
+				var/intensity = get_intensity(intensity_list, time_since_list, time_since)
+				var/scent = pick("scent", "hint", "taste", "aroma", "fragrance")
+				var/detect = pick("detect","notice","note","find","pick up","smell","locate","track","discover","acertain","inhale","sense")
+				c_text = "You also [detect] [intensity] [scent] of [color]."
+			data_text += "<li>[SPAN_NOTICE(c_text)] [time]</li>"
+			return data_text
+	proc/get_intensity(var/list/intensity_list, var/list/time_since_list, var/time_since)
+		for(var/i=2, i<= intensity_list.len; i++)
+			if(time_since < time_since_list[i] MINUTES)
+				return intensity_list[i]
+		return intensity_list[1]
 
-datum/forensic_group/double_list // a list of evidence pairs (Ex. A player's DNA & Shoe prints together)
-	var/list/datum/forensic_data/double/evidence_list = new/list()
+datum/forensic_group/multi_list // Two or three pieces of evidence grouped together
+	var/list/datum/forensic_data/multi/evidence_list = new/list()
 
 	apply_evidence(var/datum/forensic_data/data)
-		if(!istype(data, /datum/forensic_data/double))
+		if(!istype(data, /datum/forensic_data/multi))
 			return
-		var/datum/forensic_data/basic/E = data
+		var/datum/forensic_data/multi/E = data
 
 		var/oldest = 1
 		for(var/i=1, i<= evidence_list.len; i++)
 			if(src.evidence_list[i].is_same(E))
-				evidence_list[i].timestamp = TIME
+				evidence_list[i].time_end = TIME
 				return
-			if(evidence_list[i].timestamp < evidence_list[oldest].timestamp)
+			if(evidence_list[i].time_end < evidence_list[oldest].time_end)
 				oldest = i
 		if(src.evidence_list.len < 7)
 			src.evidence_list += E
@@ -138,32 +159,47 @@ datum/forensic_group/double_list // a list of evidence pairs (Ex. A player's DNA
 			src.evidence_list[oldest] = E
 			qdel(D)
 
-	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
+	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		for(var/i=1, i<= src.evidence_list.len; i++)
-			if(src.evidence_list[i].should_remove(remove_flags))
-				ADD_FLAG(src.evidence_list[i].flag, IS_HIDDEN)
-				parent.add_evidence(src.evidence_list[i], category, TRUE)
+			if(src.evidence_list[i].should_remove(removal_flags))
 				src.evidence_list.Cut(i, i+1)
 
-	scan_text(var/obj/item/device/detective_scanner/scanner)
+	get_text(var/datum/forensic_scan_builder/scan_builder)
 		var/data_text = ""
+		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
 		for(var/i=1, i<= src.evidence_list.len; i++)
-			data_text += "<li>" + src.evidence_list[i].scan_display(0) + "</li>"
+			data_text += "<li>" + src.evidence_list[i].scan_display() + src.evidence_list[i].get_time_estimate(scan_accuracy) + "</li>"
 		return data_text
 
-datum/forensic_group/double_list/retinas
+datum/forensic_group/multi_list/footprints
+	category = FORENSIC_GROUP_TRACKS
+	group_flags = REMOVABLE_CLEANING
+
+	get_header()
+		return "Footprints"
+
+datum/forensic_group/multi_list/retinas
 	category = FORENSIC_GROUP_RETINA
 	group_flags = REMOVABLE_DATA
 
 	get_header()
 		return "Retina Scans"
 
-datum/forensic_group/double_list/log_health_floor // Floor health scanner stores footprints & dna from scanned patients
+datum/forensic_group/multi_list/log_health_floor // Floor health scanner stores footprints & dna from scanned patients
 	category = FORENSIC_GROUP_HEALTH_FLOOR
 	group_flags = REMOVABLE_DATA
+	group_accuracy = 0
 
 	get_header()
-		return @"Scan Log [DNA | Footprints]"
+		return @"Scan Log: DNA | Footprints"
+
+datum/forensic_group/multi_list/log_health_analyzer // Health analyzer stores retina & dna from scanned patients
+	category = FORENSIC_GROUP_HEALTH_ANALYZER
+	group_flags = REMOVABLE_DATA
+	group_accuracy = 0
+
+	get_header()
+		return @"Scan Log: DNA | Retina Scan"
 
 datum/forensic_group/fingerprints
 	category = FORENSIC_GROUP_FINGERPRINT
@@ -179,7 +215,7 @@ datum/forensic_group/fingerprints
 		for(var/i=1, i<= src.prints_list.len; i++)
 			if(src.prints_list[i].is_same(fp))
 				return
-			if(src.prints_list[i].timestamp < src.prints_list[oldest].timestamp)
+			if(src.prints_list[i].time_end < src.prints_list[oldest].time_end)
 				oldest = i
 
 		if(src.prints_list.len < FINGERPRINTS_MAX)
@@ -189,17 +225,16 @@ datum/forensic_group/fingerprints
 			src.prints_list[oldest] = fp
 			qdel(D)
 
-	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
-		if(HAS_ANY_FLAGS((src.group_flags & REMOVABLE_FLAGS), remove_flags))
-			for(var/i=1, i<= src.prints_list.len; i++)
-				ADD_FLAG(src.prints_list[i].flags, IS_HIDDEN)
-				parent.add_evidence(src.prints_list[i], category, TRUE)
+	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
+		if(HAS_ANY_FLAGS((src.group_flags & REMOVABLE_ALL), removal_flags))
+			prints_list = null
 			parent.remove_group(category)
 
-	scan_text(var/obj/item/device/detective_scanner/scanner)
+	get_text(var/datum/forensic_scan_builder/scan_builder)
 		var/fp_text = ""
+		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
 		for(var/i=1, i<= prints_list.len; i++)
-			fp_text += "<li>" + prints_list[i].scan_display(scanner, 0) + "</li>"
+			fp_text += "<li>" + prints_list[i].scan_display() + src.prints_list[i].get_time_estimate(scan_accuracy) + "</li>"
 		return fp_text
 
 	get_header()
@@ -209,38 +244,66 @@ datum/forensic_group/dna
 	category = FORENSIC_GROUP_DNA
 	group_flags = REMOVABLE_CLEANING
 	var/list/datum/forensic_data/dna/dna_list = list()
+	var/list/datum/forensic_data/dna/dna_trace_list = list() // Blood evidence that requires luminol to detect
+	var/luminol_time = 0 // Time when the luminol was will stop being effective, or zero if not applied
 
 	apply_evidence(var/datum/forensic_data/data)
 		if(!istype(data, /datum/forensic_data/dna))
 			return
 		var/datum/forensic_data/dna/E = data
+		var/list/datum/forensic_data/dna/ev_list = null
+		if(HAS_FLAG(data.flags, IS_TRACE))
+			ev_list = dna_trace_list
+		else
+			ev_list = dna_list
 
 		var/oldest = 1
-		for(var/i=1, i<= dna_list.len; i++)
-			if(src.dna_list[i].is_same(E))
-				dna_list[i].timestamp = TIME
+		for(var/i=1, i<= ev_list.len; i++)
+			if(ev_list[i].is_same(E))
+				ev_list[i].time_end = TIME
 				return
-			if(dna_list[i].timestamp < dna_list[oldest].timestamp)
+			if(ev_list[i].time_end < ev_list[oldest].time_end)
 				oldest = i
-		if(src.dna_list.len < 7)
-			src.dna_list += E
+		if(ev_list.len < 7)
+			ev_list += E
 		else
-			var/datum/D = src.dna_list[oldest]
-			src.dna_list[oldest] = E
+			var/datum/D = ev_list[oldest]
+			ev_list[oldest] = E
 			qdel(D)
 
-	remove_evidence(var/datum/forensic_holder/parent, var/remove_flags)
-		if(HAS_ANY_FLAGS((src.group_flags & REMOVABLE_FLAGS), remove_flags))
-			for(var/i=1, i<= src.dna_list.len; i++)
-				ADD_FLAG(src.dna_list[i].flags, IS_HIDDEN)
-				parent.add_evidence(src.dna_list[i], category, TRUE)
+	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
+		if(!HAS_ANY_FLAGS((src.group_flags & REMOVABLE_ALL), removal_flags))
+			return
+		for(var/i=src.dna_list.len, i>= 1; i--)
+			var/datum/forensic_data/dna/E = src.dna_list[i]
+			src.dna_list.Cut(i, i+1)
+			if(E.form == DNA_FORM_BLOOD)
+				ADD_FLAG(E.flags, IS_TRACE)
+				apply_evidence(E) // reapply this blood evidence as trace evidence
+		if(dna_list.len == 0 && dna_trace_list.len == 0)
 			parent.remove_group(category)
 
-	scan_text(var/obj/item/device/detective_scanner/scanner)
+	get_text(var/datum/forensic_scan_builder/scan_builder)
 		var/data_text = ""
+		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
 		for(var/i=1, i<= src.dna_list.len; i++)
-			data_text += "<li>" + src.dna_list[i].scan_display(0) + "</li>"
+			data_text += "<li>" + src.dna_list[i].scan_display(0) + src.dna_list[i].get_time_estimate(scan_accuracy) + "</li>"
+		if(luminol_time > TIME)
+			scan_accuracy *= 2
+			for(var/i=1, i<= src.dna_trace_list.len; i++)
+				data_text += "<li>" + src.dna_trace_list[i].scan_display() + src.dna_trace_list[i].get_time_estimate(scan_accuracy) + "</li>"
 		return data_text
 
 	get_header()
 		return HEADER_DNA
+
+	proc/contains_blood(var/include_trace = FALSE)
+		for(var/i=1; i<= src.dna_list.len; i++)
+			if(src.dna_list[i].form == DNA_FORM_BLOOD)
+				return TRUE
+		if(include_trace == FALSE)
+			return FALSE
+		for(var/i=1; i<= src.dna_trace_list.len; i++)
+			if(src.dna_trace_list[i].form == DNA_FORM_BLOOD)
+				return TRUE
+		return FALSE

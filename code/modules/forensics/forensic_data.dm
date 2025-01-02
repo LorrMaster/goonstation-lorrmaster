@@ -20,6 +20,12 @@ datum/forensic_id // Mainly a way to store forensic text by reference
 			var/scanner_id = build_id(length, char_list)
 			src.id = (id_prefix + scanner_id + id_suffix)
 
+	proc/create_basic(var/flags)
+		// Shorthand for creating a new datum/forensic_data/basic
+		var/datum/forensic_data/basic/f_data = new(src)
+		f_data.flags = flags
+		return f_data
+
 	proc/build_id(var/id_length, var/list/char_list = CHAR_LIST_NUM)
 		var/new_id = ""
 		for(var/i=1, i<= id_length, i++)
@@ -68,19 +74,19 @@ datum/forensic_id // Mainly a way to store forensic text by reference
 				rand_list += i
 			for(var/i=1, i<= peek_count, i++)
 				var/index = rand(1, rand_list.len)
-				mask = replacetext(mask, "?", "x", peek_start + rand_list[index], peek_start + rand_list[index] + 1)
-				rand_list.Cut(index)
+				mask = replacetext(mask, "?", "x", peek_start + rand_list[index], peek_start + rand_list[index] + 1) // List index out-of-bounds
+				rand_list.Cut(index, index + 1)
 		for(var/i=peek_range + peek_start, i<= FINGERPRINT_LENGTH, i++)
 			mask += "0"
 		src.id = mask
 
 	proc/build_id_dna()
-		// GAD53-JDA09-HAW23-TAS29 -hair- (23-34 mins ago)
+		// Gad53-Jda09-Haw23-Tas29 (hair) (23-34 mins ago)
 		var/dna_id = ""
 		for(var/i=1, i<= DNA_BUNCH_COUNT, i++)
 			if(i != 1)
 				dna_id += "-"
-			dna_id += build_id(3, CHAR_LIST_UPPER_LIMIT) + build_id(DNA_BUNCH_SIZE - 3, CHAR_LIST_NUM)
+			dna_id += build_id(1, CHAR_LIST_UPPER_LIMIT) + build_id(2, CHAR_LIST_LOWER_LIMIT) + build_id(DNA_BUNCH_SIZE - 3, CHAR_LIST_NUM)
 		src.id = dna_id
 
 	proc/build_id_footprint(var/pattern)
@@ -161,63 +167,99 @@ datum/forensic_display // Store how the forensic text should be displayed... by 
 //
 ABSTRACT_TYPE(/datum/forensic_data)
 datum/forensic_data
-	var/timestamp = 0 // What time the evidence was applied, or 0 if not relavent
-	// Note: change timestamp to time_start & time_end. Should be more accurate & interesting.
+	// Note: multiple forensic_holders should not share forensic_data, each should have their own instance of the evidence
+	var/time_start = 0 // What time the evidence was first applied, or 0 if not relavent
+	var/time_end = 0 // When the evidence was most recently applied
+	var/perc_offset = 0 // Error offset for time estimations
+	var/accuracy_mult = 1 // Individual accuracy multiplier for this piece of evidence
 	var/flags = 0
-
-	proc/scan_display(var/obj/item/device/detective_scanner/scanner, var/timestamp_type)
+	New()
+		..()
+		src.time_start = TIME
+		src.time_end = time_start
+		src.perc_offset = (rand() - 0.5) * 2
+		src.accuracy_mult = ((rand() - 0.5) * 0.15) + 1
+	proc/scan_display()
+		// rename to scan_report
 		return ""
 	proc/should_remove(var/remove_flags)
-		return HAS_ANY_FLAGS((src.flags & REMOVABLE_FLAGS), remove_flags)
+		return HAS_ANY_FLAGS((src.flags & REMOVABLE_ALL), remove_flags)
+	proc/mark_as_junk()
+		flags = flags | IS_JUNK
+	proc/get_time_estimate(var/accuracy)
+		// Return an estimate for when this evidence might have occured
+		if(src.time_start == 0 || accuracy < 0)
+			return "" // Negative accuracy -> do not report a time
+
+		var/t_end = (TIME - src.time_end) / (1 MINUTES)
+		if(accuracy == 0) // perfect accuracy is zero
+			return SPAN_SUBTLE(SPAN_ITALIC(" ([round(t_end)] mins ago)"))
+		else
+			accuracy = t_end * 0.25 * accuracy * accuracy_mult // Base accuracy: +-25% (20 mins -> 15-25 mins)
+			var/offset = accuracy * src.perc_offset
+			var/low_est = round(t_end - accuracy + offset)
+			var/high_est = round(t_end + accuracy + offset)
+			if(low_est == high_est)
+				return SPAN_SUBTLE(SPAN_ITALIC(" ([low_est] mins ago)"))
+			else
+				return SPAN_SUBTLE(SPAN_ITALIC(" ([low_est] to [high_est] mins ago)"))
+
 
 datum/forensic_data/basic // Evidence that can just be stored as a single ID. Flags not included.
 	var/static/datum/forensic_display/disp_empty = new("@F")
 	var/datum/forensic_id/evidence = null
 	var/datum/forensic_display/display = null
 
-	New(var/datum/forensic_id/id, var/datum/forensic_display/disp = disp_empty, var/tstamp = 0)
+	New(var/datum/forensic_id/id, var/datum/forensic_display/disp = disp_empty)
 		..()
 		src.evidence = id
 		src.display = disp
-		src.timestamp = tstamp
-	scan_display(var/obj/item/device/detective_scanner/scanner, var/timestamp_type)
-		// Ignore: if(timestamp == 0)
-		// Exact: [80 mins ago]
-		// Inexact: [30-40 mins ago]
-		// If difference < 1 min, then exact
-		// Timestamps require detective training?
 
+	scan_display()
 		var/scan_text = replacetext(display.display_text, "@F", evidence.id)
 		var/time_text = null
-		if(timestamp == 0)
+		if(time_start == 0)
 			time_text = ""
 		else
 			time_text = "TTTTT"
 		scan_text = replacetext(scan_text, "@T", time_text) // Change this to just add a timestamp at the end
 		return scan_text
 
-datum/forensic_data/double // Two different pieces of evidence that are linked together. Flags not included.
-	var/static/datum/forensic_display/disp_double = new("@A | @B")
+datum/forensic_data/multi // Two or three different pieces of evidence that are linked together. Flags not included.
+	var/static/datum/forensic_display/disp_double = new("@A [SPAN_NOTICE("|")] @B")
+	var/static/datum/forensic_display/disp_pair = new("@A @B")
+	var/static/datum/forensic_display/disp_pair_double = new("@C [SPAN_NOTICE("|")] @A @B")
 	var/static/datum/forensic_id/retina_empty = new("_____")
-	var/datum/forensic_display/display = null // @A, @B
+	var/datum/forensic_display/display = null // @A, @B, @C
 	var/datum/forensic_id/evidence_A = null
 	var/datum/forensic_id/evidence_B = null
+	var/datum/forensic_id/evidence_C = null
+	var/mirror_B = FALSE // Mirror evidence B when displayed. Used for retinas.
 
-	New(var/datum/forensic_id/idA, var/datum/forensic_id/idB, var/datum/forensic_display/disp = disp_double, var/tstamp = 0)
+	New(var/datum/forensic_id/idA, var/datum/forensic_id/idB, var/datum/forensic_id/idC = null, var/datum/forensic_display/disp = disp_double)
 		..()
 		src.evidence_A = idA
 		src.evidence_B = idB
+		src.evidence_C = idC
 		src.display = disp
-		src.timestamp = tstamp
-	scan_display(var/obj/item/device/detective_scanner/scanner, var/timestamp_type)
-		var/scan_text = replacetext(display.display_text, "@A", evidence_A.id)
-		scan_text = replacetext(scan_text, "@B", evidence_B.id)
+	scan_display()
+		var/scan_text = display.display_text
+		scan_text = replacetextEx(scan_text, "@A", evidence_A.id)
+		if(mirror_B)
+			scan_text = replacetextEx(scan_text, "@B", evidence_B.get_retina_mirror())
+		else
+			scan_text = replacetextEx(scan_text, "@B", evidence_B.id)
+		if(evidence_C)
+			scan_text = replacetextEx(scan_text, "@C", evidence_C.id)
+		else
+			scan_text = replacetextEx(scan_text, "@C", "")
 		return scan_text
-	proc/is_same(datum/forensic_data/double/other)
-		return src.evidence_A == other.evidence_A && src.evidence_B == other.evidence_B
+	proc/is_same(datum/forensic_data/multi/other)
+		return src.evidence_A == other.evidence_A && src.evidence_B == other.evidence_B && src.evidence_C == other.evidence_C
 
 datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 	flags = REMOVABLE_CLEANING
+	accuracy_mult = 1.25
 	var/datum/forensic_id/print = null // The original fingerprint
 	var/datum/forensic_id/glove_print = null // The glove fibres & ID
 	var/datum/forensic_id/print_mask = null // The mask that the gloves apply to the print
@@ -226,7 +268,7 @@ datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 	// 000?? ??x?? ?x?00 00000 00000
 	// ...????a???g?...
 
-	scan_display(var/obj/item/device/detective_scanner/scanner, var/timestamp_type)
+	scan_display()
 		var/fp = get_print()
 		if(!glove_print)
 			return fp
@@ -272,12 +314,15 @@ datum/forensic_data/dna
 		src.pattern = dna
 		src.form = form
 
-	scan_display(var/obj/item/device/detective_scanner/scanner, var/timestamp_type)
+	scan_display()
+		if(HAS_FLAG(src.flags, IS_TRACE))
+			// color should be set to #"3399FF" to represent luminol. Not sure how to do this.
+			return pattern.id + " (" + SPAN_HINT("blood traces") + ")"
 		switch(src.form)
 			if(DNA_FORM_NONE)
 				return pattern.id
 			if(DNA_FORM_BLOOD)
-				return pattern.id + " (blood)"
+				return pattern.id + " ([SPAN_ALERT("blood")])"
 			if(DNA_FORM_HAIR)
 				return pattern.id + " (hair)"
 			if(DNA_FORM_TISSUE)
@@ -291,3 +336,30 @@ datum/forensic_data/dna
 
 	proc/is_same(datum/forensic_data/dna/other)
 		return src.pattern == other.pattern && src.form == other.form
+
+datum/forensic_data/projectile_hit // Bullet holes, laser marks, and the like
+	var/datum/forensic_id/proj_id = null // Which bullet created this, if it still exists
+	var/turf/start_turf // Where the projectile was fired / last deflected
+	var/turf/hit_turf // Where it was when it hit
+	var/penatration = 0 // Did the projectile pass through, get halted, or bounce off?
+	var/deflection_angle = 0 // What direction did the projectile leave (if relevant)
+	var/cone_of_tolerance // Base accuracy in determining the angle of the bullet in degrees
+
+	scan_display()
+		var/scan_text = "Bullet ID: [proj_id.id]"
+		switch(src.penatration)
+			if(PROJECTILE_BOUNCE)
+				return scan_text
+			if(PROJECTILE_EMBEDDED)
+				return scan_text
+			if(PROJECTILE_THROUGH)
+				return scan_text
+			else
+				return "Dev Coding Error: Bullet penetration is missing"
+
+	// Bullet Obj
+		// Rifling, or which barrel the bullet came from
+		// Deformation, how the bullet changed (flattened, dented, fragmentation)
+	// Footprint
+		// The two footprint ids
+		// The original direction?

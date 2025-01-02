@@ -22,14 +22,16 @@
 	var/step_sound = "step_default"
 	var/step_priority = STEP_PRIORITY_NONE
 	var/step_lots = 0 //classic steps (used for clown shoos)
-	var/datum/forensic_id/shoe_print
+	var/datum/forensic_id/shoe_print_r
+	var/datum/forensic_id/shoe_print_l
 
 	var/magnetic = 0    //for magboots, to avoid type checks on shoe
 
 	New()
 		..()
-		src.shoe_print = new/datum/forensic_id
-		src.shoe_print.build_id_footprint(get_shoe_pattern())
+		src.shoe_print_r = new()
+		src.shoe_print_r.build_id_footprint(get_shoe_pattern())
+		src.shoe_print_l = src.shoe_print_r
 
 	setupProperties()
 		..()
@@ -64,7 +66,10 @@
 			var/obj/item/clothing/shoes/rocket/R = new/obj/item/clothing/shoes/rocket(T)
 			R.uses = uses
 			R.forensic_holder = src.forensic_holder
-			R.shoe_print.id = src.shoe_print + "==>"
+			R.shoe_print_r = new()
+			R.shoe_print_l = new()
+			R.shoe_print_r.id = src.shoe_print_r.id + "==>"
+			R.shoe_print_l.id = src.shoe_print_l.id + "==>"
 			boutput(user, SPAN_NOTICE("You haphazardly kludge together some rocket shoes."))
 			qdel(W)
 			qdel(src)
@@ -82,7 +87,10 @@
 				return "lslll"
 			if(3)
 				return "lllsl"
-
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		..()
+		var/note_footprints = "[src.shoe_print_l.id] [src.shoe_print_r.id]"
+		scan_builder.add_scan_text("<li>[src]'s shoeprints: [note_footprints]</li>")
 
 
 /obj/item/clothing/shoes/rocket
@@ -422,7 +430,7 @@ TYPEINFO(/obj/item/clothing/shoes/industrial)
 		setProperty("chemprot", 7)
 		setProperty("negate_fluid_speed_penalty",0.6)
 	get_shoe_pattern()
-		return "ssslll"
+		return "sssslll"
 
 TYPEINFO(/obj/item/clothing/shoes/moon)
 	mats = 2

@@ -29,7 +29,7 @@
 
 	record_cloner_defects(target)
 
-	var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
+	var/datum/forensic_data/basic/f_data = new(src.forensic_lead)
 	f_data.flags = REMOVABLE_CLEANING
 	target.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 

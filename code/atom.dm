@@ -189,7 +189,9 @@ TYPEINFO(/atom)
 		if (temp_flags & (HAS_BAD_SMOKE))
 			ClearBadsmokeRefs(src)
 
-		fingerprints_full = null
+		if(!isnull(src.forensic_holder))
+			qdel(src.forensic_holder)
+			src.forensic_holder = null
 		tag = null
 
 		if(length(src.statusEffects))
@@ -637,8 +639,8 @@ TYPEINFO(/atom/movable)
 		if (length(src.attached_objs))
 			for (var/atom/movable/M as anything in attached_objs)
 				M.set_loc(src.loc)
-		if (islist(src.tracked_blood))
-			src.track_blood()
+		// if (islist(src.tracked_blood))
+		// 	src.track_blood()
 		actions.interrupt(src, INTERRUPT_MOVE)
 	//note : move is still called when we are steping into a wall. sometimes these are unnecesssary i think
 

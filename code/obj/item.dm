@@ -448,20 +448,24 @@ ABSTRACT_TYPE(/obj/item)
 /obj/item/proc/Eat(var/mob/M as mob, var/mob/user, var/by_matter_eater=FALSE, var/force_edible = FALSE)
 	if (!iscarbon(M) && !ismobcritter(M))
 		return FALSE
-	if (M?.bioHolder && !M.bioHolder.HasEffect("mattereater"))
-		if(ON_COOLDOWN(M, "eat", EAT_COOLDOWN))
-			return FALSE
 	var/edibility_override = SEND_SIGNAL(M, COMSIG_MOB_ITEM_CONSUMED_PRE, user, src) || SEND_SIGNAL(src, COMSIG_ITEM_CONSUMED_PRE, M, user)
 	var/can_matter_eat = by_matter_eater && (M == user) && M.bioHolder.HasEffect("mattereater")
 	var/edible_check = src.edible || (src.material?.getEdible()) || (edibility_override & FORCE_EDIBILITY)
 	if (!edible_check && !can_matter_eat)
 		return FALSE
+	if (M?.bioHolder)
+		if(!M.bioHolder.HasEffect("mattereater"))
+			if(ON_COOLDOWN(M, "eat", EAT_COOLDOWN))
+				return FALSE
 
 	if (M == user)
 		src.eat_msg(M)
 		if (src.material && (src.material.getEdible() || edibility_override))
 			src.material.triggerEat(M, src)
 
+		if (M.bioHolder)
+			var/datum/forensic_data/dna/dna_evid = new(M.bioHolder.dna_signature, DNA_FORM_SALIVA, TIME)
+			src.add_evidence(dna_evid, FORENSIC_GROUP_DNA)
 		if (src.reagents && src.reagents.total_volume)
 			src.reagents.reaction(M, INGEST)
 			SPAWN(0.5 SECONDS) // Necessary.
@@ -524,6 +528,9 @@ ABSTRACT_TYPE(/obj/item)
 		user.u_equip(src)
 		if (!istype(src, /obj/item/reagent_containers/food) && isliving(user))
 			var/mob/living/L = M
+			if(L.bioHolder)
+				var/datum/forensic_data/dna/dna_evid = new(L.bioHolder.dna_signature, DNA_FORM_SALIVA, TIME)
+				src.add_evidence(dna_evid, FORENSIC_GROUP_DNA)
 			if (L.organHolder.stomach)
 				L.organHolder.stomach.consume(src)
 				return

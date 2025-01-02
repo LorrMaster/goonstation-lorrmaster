@@ -1,4 +1,5 @@
 var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder uID stuff
+var/global/list/datum/forensic_id/gun_profile_list = new/list()
 
 /obj/item/gun
 	name = "gun"
@@ -91,6 +92,8 @@ var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder
 	var/camera_recoil_sway_min = 0 //! Minimum recoil variance
 	var/camera_recoil_sway_max = 20 //! Maximum recoil variance
 
+	var/datum/forensic_id/gun_profile = new(9, CHAR_LIST_GUN)
+	var/static/datum/forensic_display/disp_gun = new("Gun profile: @F") // /obj/item/gun::disp_gun
 
 	buildTooltipContent()
 		. = ..() + src.current_projectile?.get_tooltip_content()
@@ -99,8 +102,7 @@ var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder
 	New()
 		src.AddComponent(/datum/component/log_item_pickup, first_time_only=FALSE, authorized_job=null, message_admins_too=FALSE)
 		SPAWN(2 SECONDS)
-			src.forensic_ID = src.CreateID()
-			forensic_IDs.Add(src.forensic_ID)
+			gun_profile_list.Add(src.gun_profile)
 		return ..()
 
 	// equip handling for weapons that fit on your back
@@ -332,7 +334,12 @@ var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder
 			P.shooter = null
 			P.mob_shooter = user
 
-		P.forensic_ID = src.forensic_ID // Was missing (Convair880).
+		var/datum/forensic_data/basic/g_data = new(src.gun_profile, src.disp_gun)
+		P.add_evidence(g_data)
+		if(isobj(P.implanted))
+			var/obj/O = P.implanted
+			O.forensic_holder = P.forensic_holder
+
 		if(BOUNDS_DIST(user, target) == 0)
 			P.was_pointblank = 1
 			hit_with_existing_projectile(P, target) // Includes log entry.
@@ -415,7 +422,11 @@ var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder
 
 	var/obj/projectile/P = shoot_projectile_ST_pixel_spread(user, current_projectile, target, POX, POY, spread, alter_proj = new/datum/callback(src, PROC_REF(alter_projectile)), called_target = called_target)
 	if (P)
-		P.forensic_ID = src.forensic_ID
+		var/datum/forensic_data/basic/g_data = new(src.gun_profile, src.disp_gun)
+		P.add_evidence(g_data)
+		if(isobj(P.implanted))
+			var/obj/O = P.implanted
+			O.forensic_holder = P.forensic_holder
 
 	if(user && !suppress_fire_msg)
 		if(!src.silenced)

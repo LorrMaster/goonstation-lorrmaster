@@ -187,7 +187,9 @@ ABSTRACT_TYPE(/obj/item/gun/kinetic)
 						var/number_of_casings = max(1, src.current_projectile.shot_number)
 						//DEBUG_MESSAGE("Ejected [number_of_casings] casings from [src].")
 						for (var/i in 1 to number_of_casings)
-							new src.current_projectile.casing(T, src.forensic_ID)
+							var/atom/C = new src.current_projectile.casing(T)
+							var/datum/forensic_data/basic/g_data = new(src.gun_profile, src.disp_gun)
+							C.add_evidence(g_data)
 			else
 				if (src.casings_to_eject < 0)
 					src.casings_to_eject = 0
@@ -203,7 +205,9 @@ ABSTRACT_TYPE(/obj/item/gun/kinetic)
 						var/number_of_casings = max(1, src.current_projectile.shot_number)
 						//DEBUG_MESSAGE("Ejected [number_of_casings] casings from [src].")
 						for (var/i in 1 to number_of_casings)
-							new src.current_projectile.casing(T, src.forensic_ID)
+							var/atom/C = new src.current_projectile.casing(T)
+							var/datum/forensic_data/basic/g_data = new(src.gun_profile, src.disp_gun)
+							C.add_evidence(g_data)
 			else
 				if (src.casings_to_eject < 0)
 					src.casings_to_eject = 0
@@ -267,7 +271,9 @@ ABSTRACT_TYPE(/obj/item/gun/kinetic)
 			if(T)
 				//DEBUG_MESSAGE("Ejected [src.casings_to_eject] [src.current_projectile.casing] from [src].")
 				while (src.casings_to_eject > 0)
-					new src.current_projectile.casing(T, src.forensic_ID)
+					var/atom/C = new src.current_projectile.casing(T)
+					var/datum/forensic_data/basic/g_data = new(src.gun_profile, src.disp_gun)
+					C.add_evidence(g_data)
 					src.casings_to_eject--
 		return
 
@@ -473,12 +479,11 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 				playsound(src.loc, "sound/weapons/casings/casing-xl-0[rand(1,6)].ogg", 15, 0.1)
 
 
-/obj/item/casing/New(loc, forensic_ID)
+/obj/item/casing/New(loc)
 	. = ..()
 	src.pixel_y += rand(-12,12)
 	src.pixel_x += rand(-12,12)
 	src.set_dir(pick(alldirs))
-	src.forensic_ID = forensic_ID
 
 //no caliber and ALL
 /obj/item/gun/kinetic/vgun

@@ -87,7 +87,8 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 		if (!fluid_ma)
 			fluid_ma = new(src)
 
-		src.forensic_holder.cannot_clean = TRUE // Need to remove the fluid to clean any evidence
+		// Ignore this for now
+		// ADD_FLAG(src.forensic_holder.removal_flags_ignore, REMOVABLE_CLEANING) // Need to remove the fluid to clean any vlood
 
 
 	proc/set_up(var/newloc, var/do_enters = 1)
@@ -660,7 +661,6 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 			I.alpha = F.finalalpha
 		if ((src.submerged_images && length(src.submerged_images)))
 			src.show_submerged_image(F.my_depth_level)
-
 	..()
 
 /obj/ExitedFluid(obj/fluid/F as obj)

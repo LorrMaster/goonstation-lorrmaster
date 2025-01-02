@@ -267,7 +267,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		if(distancescan)
 			if(!(BOUNDS_DIST(user, target) == 0) && IN_RANGE(user, target, 3))
 				user.visible_message(SPAN_NOTICE("<b>[user]</b> takes a distant forensic scan of [target]."))
-				last_scan = scan_forensic(target, visible = 1)
+				last_scan = scan_forensic(target, user, visible = 1)
 				boutput(user, last_scan)
 				src.add_fingerprint(user)
 
@@ -281,11 +281,9 @@ TYPEINFO(/obj/item/device/detective_scanner)
 			scans = new/list(maximum_scans)
 		if(!A.forensic_holder)
 			return
-		last_scan = scan_forensic(A, visible = 1, scanner = src) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+		last_scan = scan_forensic(A, user, visible = 1, scanner = src) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		boutput(user, last_scan)
 		var/scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
-		// var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-		// A.forensic_holder.add_evidence(f_data, FORENSIC_GROUP_SCAN, null)
 		return
 		var/index = (number_of_scans % maximum_scans) + 1 // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
 		scans[index] = last_scan
@@ -434,16 +432,19 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 		SPAN_ALERT("You have analyzed [target]'s vitals."))
 		playsound(src.loc , 'sound/items/med_scanner.ogg', 20, 0)
 		boutput(user, scan_health(target, src.reagent_scan, src.disease_detection, src.organ_scan, visible = 1))
-
-		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-		f_data.flags = REMOVABLE_CLEANING
-		target.add_evidence(f_data, FORENSIC_GROUP_SCAN)
-		if(ishuman(target))
-			var/mob/living/carbon/human/H = target
-			H.apply_scanner_evidence(src.forensic_lead)
-		else if(isliving(target))
+		target.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
+		if(isliving(target))
 			var/mob/living/L = target
-			L.organHolder?.apply_scanner_evidence(src.forensic_lead)
+			if(ishuman(L))
+				var/mob/living/carbon/human/H = L
+				H.apply_scanner_evidence(src.forensic_lead)
+			else if(L.organHolder)
+				L.organHolder.apply_scanner_evidence(src.forensic_lead)
+			if(L.bioHolder)
+				var/datum/forensic_data/multi/s_data = L.get_retina_scan()
+				s_data.evidence_C = L.bioHolder.dna_signature
+				s_data.display = s_data.disp_pair_double
+				src.add_evidence(s_data, FORENSIC_GROUP_HEALTH_ANALYZER)
 
 		scan_health_overhead(target, user)
 
@@ -460,9 +461,7 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 				user.visible_message(SPAN_ALERT("<b>[user]</b> has analyzed [P.occupant]'s vitals."),\
 					SPAN_ALERT("You have analyzed [P.occupant]'s vitals."))
 				boutput(user, scan_health(P.occupant, src.reagent_scan, src.disease_detection, src.organ_scan))
-				var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-				f_data.flags = REMOVABLE_CLEANING
-				A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+				A.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
 				update_medical_record(P.occupant)
 				return
 		..()
@@ -546,9 +545,7 @@ TYPEINFO(/obj/item/device/reagentscanner)
 
 		user.visible_message(SPAN_NOTICE("<b>[user]</b> scans [A] with [src]!"),\
 		SPAN_NOTICE("You scan [A] with [src]!"))
-		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-		f_data.flags = REMOVABLE_CLEANING
-		A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		A.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
 
 		src.scan_results = scan_reagents(A, visible = TRUE)
 		tooltip_rebuild = TRUE
@@ -698,9 +695,7 @@ TYPEINFO(/obj/item/device/analyzer/atmospheric)
 		if (istype(A, /obj) || isturf(A))
 			user.visible_message(SPAN_NOTICE("<b>[user]</b> takes an atmospheric reading of [A]."))
 			boutput(user, scan_atmospheric(A, visible = 1))
-			var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-			f_data.flags = REMOVABLE_CLEANING
-			A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+			A.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
 		src.add_fingerprint(user)
 		return
 
@@ -1199,9 +1194,7 @@ TYPEINFO(/obj/item/device/appraisal)
 		boutput(user, SPAN_NOTICE("[out_text]Estimated value: <strong>[sell_value] credit\s.</strong>"))
 		if (sell_value > 0)
 			playsound(src, 'sound/machines/chime.ogg', 10, TRUE)
-		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
-		f_data.flags = REMOVABLE_CLEANING
-		A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		A.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
 
 		if (user.client && !user.client.preferences?.flying_chat_hidden)
 			var/image/chat_maptext/chat_text = null
