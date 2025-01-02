@@ -2287,7 +2287,7 @@ TYPEINFO(/obj/item/cargotele)
 		boutput(user, SPAN_NOTICE("Teleporting [cargo] to [src.target]..."))
 		playsound(user.loc, 'sound/machines/click.ogg', 50, 1)
 		SETUP_GENERIC_PRIVATE_ACTIONBAR(user, cargo, src.teleport_delay, PROC_REF(finish_teleport), list(cargo, user), null, null, null, null)
-		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, tstamp = TIME)
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead)
 		f_data.flags = REMOVABLE_CLEANING
 		cargo.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		return TRUE

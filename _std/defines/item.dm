@@ -16,8 +16,8 @@
 #define CONDUCT						(1<<6)
 /// can mousedrop reagents into from a reagent_container
 #define ACCEPTS_MOUSEDROP_REAGENTS	(1<<7)
-/// doesn't record fingerprints
-#define NOFPRINT					(1<<8)
+/// If an item cannot be crushed by the crusher
+#define UNCRUSHABLE					(1<<8)
 /// item has priority to check when entering or leaving
 #define ON_BORDER					(1<<9)
 /// can pass through a closed door
@@ -46,8 +46,6 @@
 #define FLUID_DENSE_ALWAYS			(1<<21)
 /// If click delay should be applied even if atom is in user's contents (e.g.: postit notes)
 #define CLICK_DELAY_IN_CONTENTS		(1<<22)
-/// If an item cannot be crushed by the crusher
-#define UNCRUSHABLE					(1<<23)
 
 //Item function flags
 

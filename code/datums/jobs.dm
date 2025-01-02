@@ -529,6 +529,7 @@ ABSTRACT_TYPE(/datum/job/security)
 		high_priority_job = FALSE //nope
 		cant_spawn_as_con = TRUE
 		wages = PAY_UNTRAINED
+		trait_list = list("training_forensic")
 		access_string = "Security Assistant"
 		receives_implants = list(/obj/item/implant/health/security)
 		slot_back = list(/obj/item/storage/backpack/security)
@@ -567,7 +568,7 @@ ABSTRACT_TYPE(/datum/job/security)
 	name = "Detective"
 	limit = 1
 	wages = PAY_TRADESMAN
-	trait_list = list("training_drinker")
+	trait_list = list("training_drinker", "training_forensic")
 	access_string = "Detective"
 	receives_badge = TRUE
 	cant_spawn_as_rev = TRUE
@@ -1175,6 +1176,7 @@ ABSTRACT_TYPE(/datum/job/civilian)
 	linkcolor = "#FF0000"
 	limit = 0
 	wages = PAY_TRADESMAN
+	trait_list = list("training_forensic")
 	access_string = "Forensic Technician"
 	cant_spawn_as_rev = TRUE
 	slot_belt = list(/obj/item/device/pda2/security)

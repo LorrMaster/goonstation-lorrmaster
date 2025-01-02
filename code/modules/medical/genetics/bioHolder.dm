@@ -375,6 +375,7 @@ var/list/datum/bioEffect/mutini_effects = list()
 
 	// Default ids for various mob limbs
 	var/datum/forensic_id/fingerprint_default = new()
+	var/datum/forensic_id/retina_default = new()
 	var/datum/forensic_id/dna_signature = new()
 
 	New(var/mob/owneri)

@@ -55,9 +55,10 @@
 		size = 6
 
 		scan_atom(atom/A as mob|obj|turf|area)
+			var/mob/user = usr
 			if(..())
 				return
-			. = scan_forensic(A, visible = 1) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+			. = scan_forensic(A, user, visible = 1) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 
 	//Reagent scanning program
 	reagent_scan

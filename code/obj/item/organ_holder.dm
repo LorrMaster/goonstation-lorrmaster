@@ -75,10 +75,6 @@
 	///How cut up are our flanks?
 	var/flanks_stage = REGION_CLOSED
 
-	// default forensics IDs when creating organs
-	var/datum/forensic_id/retina_default = new()
-	var/datum/forensic_id/footprints_default = new()
-
 	New(var/mob/living/L, var/ling)
 		..()
 		if (!ishuman(L))
@@ -1432,9 +1428,8 @@
 				O.on_transplant(src.donor)
 			if (is_full_robotic() && !istype(src.donor:mutantrace, /datum/mutantrace/cyberman))
 				donor.unlock_medal("Spaceship of Theseus", 1)
-			if(I.forensic_holder)
-				var/datum/forensic_data/dna/f_data = new(donor.bioHolder?.dna_signature, DNA_FORM_BLOOD)
-				I.forensic_holder.add_evidence(f_data, FORENSIC_GROUP_DNA)
+			var/datum/forensic_data/dna/f_data = new(donor.bioHolder?.dna_signature, DNA_FORM_BLOOD)
+			I.add_evidence(f_data, FORENSIC_GROUP_DNA)
 			return 1
 
 	//checks if this organholder has all cyberorgans instead of meat ones.
@@ -1498,26 +1493,37 @@
 					lungs_changed = 2
 
 	proc/get_retina_scan()
-		var/retinas = ""
-		if(!src.left_eye)
-			retinas += "_____"
+		var/datum/forensic_data/multi/r_data = new()
+		if(src.left_eye)
+			r_data.evidence_A = src.left_eye.retina_scan
 		else
-			retinas += src.left_eye.retina_scan.id
-		retinas += "   "
-		if(!src.right_eye)
-			retinas += "_____"
+			r_data.evidence_A = r_data.retina_empty
+		if(src.right_eye)
+			r_data.evidence_B = src.right_eye.retina_scan
 		else
-			retinas += src.right_eye.retina_scan.get_retina_mirror()
-		return retinas
+			r_data.evidence_B = r_data.retina_empty
+		r_data.mirror_B = TRUE
+		r_data.flags = REMOVABLE_DATA
+		r_data.display = r_data.disp_pair
+		return r_data
+
 	proc/apply_scanner_evidence(var/datum/forensic_id/scan_id)
 		// apply the scan evidence to every organ in the body (maybe ignore robotic organs?)
 		if (islist(src.organ_list))
 			for (var/i in src.organ_list)
 				var/obj/item/organ/O = src.organ_list[i]
 				if (istype(O) && !O.robotic)
-					var/datum/forensic_data/basic/f_data = new(scan_id, tstamp = TIME)
+					var/datum/forensic_data/basic/f_data = new(scan_id)
 					f_data.flags = REMOVABLE_CLEANING
 					O.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+			if(src.skull)
+				var/datum/forensic_data/basic/f_data = new(scan_id)
+				f_data.flags = REMOVABLE_CLEANING
+				src.skull.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+			if(src.butt)
+				var/datum/forensic_data/basic/f_data = new(scan_id)
+				f_data.flags = REMOVABLE_CLEANING
+				src.butt.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 /*=================================*/
 /*---------- Human Procs ----------*/

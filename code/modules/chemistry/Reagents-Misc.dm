@@ -1224,23 +1224,64 @@ datum
 			transparency = 150
 			fluid_flags = FLUID_BANNED
 
+			reaction_obj(var/obj/O, var/volume)
+				if(isitem(O))
+					var/obj/item/I = O
+					// var/effect_time = 30 SECONDS
+					return luminol_apply_item(I, volume)
+				return 1
+			/*
 			reaction_turf(var/turf/T, var/volume)
+				var/effect_time = (volume * 3) SECONDS // 30 SECONDS
 				for (var/obj/decal/bloodtrace/B in T)
 					B.invisibility = INVIS_NONE
-					SPAWN(30 SECONDS)
+					SPAWN(effect_time)
 						B?.invisibility = INVIS_ALWAYS
 				for (var/obj/item/I in T)
-					if (I.get_forensic_trace("bDNA"))
-						var/image/blood_overlay = image('icons/obj/decals/blood/blood.dmi', "itemblood")
-						blood_overlay.appearance_flags = PIXEL_SCALE | RESET_COLOR
-						blood_overlay.color = "#3399FF"
-						blood_overlay.alpha = 100
-						blood_overlay.blend_mode = BLEND_INSET_OVERLAY
-						I.appearance_flags |= KEEP_TOGETHER
-						I.UpdateOverlays(blood_overlay, "blood_traces")
-						SPAWN(30 SECONDS)
-							I?.appearance_flags &= ~KEEP_TOGETHER
-							I?.UpdateOverlays(null, "blood_traces")
+					luminol_apply_item(I, effect_time) // Need ones of these for turf
+			*/
+
+			proc/luminol_apply_item(var/obj/item/I, var/volume)
+				if(!I.forensic_holder)
+					return 1
+				var/datum/forensic_group/group = I.forensic_holder.get_group(FORENSIC_GROUP_DNA)
+				if(!istype(group, /datum/forensic_group/dna))
+					return 1
+				var/datum/forensic_group/dna/dna_group = group
+				if(dna_group.contains_blood(include_trace = TRUE) == FALSE)
+					return 1
+				var/fadetime = 0
+				if(dna_group.luminol_time > TIME)
+					var/remaining_units = fadetime_to_units(dna_group.luminol_time - TIME)
+					fadetime = units_to_fadetime(remaining_units + volume) SECONDS
+				else
+					fadetime = units_to_fadetime(volume) SECONDS
+				dna_group.luminol_time = fadetime + TIME
+
+				var/image/blood_overlay = image('icons/obj/decals/blood/blood.dmi', "itemblood")
+				blood_overlay.appearance_flags = PIXEL_SCALE | RESET_COLOR
+				blood_overlay.color = "#3399FF"
+				blood_overlay.luminosity = 2
+				blood_overlay.alpha = 100
+				blood_overlay.blend_mode = BLEND_INSET_OVERLAY
+				I.appearance_flags |= KEEP_TOGETHER
+				I.UpdateOverlays(blood_overlay, "blood_traces")
+				SPAWN(fadetime)
+					I?.appearance_flags &= ~KEEP_TOGETHER
+					I?.UpdateOverlays(null, "blood_traces")
+
+			proc/units_to_fadetime(var/amt) // Calculate when the glow effect should end.
+				// Wiki said ~30s, youtube says max 5 mins. This my arbitrary resulting eqn.
+				// y = ((1-e^(-0.00175x))*280)+20
+				// Points (x units, y seconds): (0u, 30s) | (30u, 34s) | (100u, 65s) | (infinity, 300s)
+				var/fadetime = ((1 - (eulers ** (-0.00175 * amt))) * 280) + 20
+				return fadetime
+
+			proc/fadetime_to_units(var/fadetime)
+				// Calculate how many units there are left based on the remaining effect time
+				fadetime /= 10 // Put it in seconds
+				var/units = log(((fadetime - 20) / 280) + 1) / -0.00175
+				return units
 
 		oil
 			name = "oil"

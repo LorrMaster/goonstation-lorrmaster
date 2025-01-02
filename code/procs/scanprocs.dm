@@ -540,10 +540,26 @@
 	return eth_eq
 
 
-/proc/scan_forensic(var/atom/A as turf|obj|mob, visible = 0, var/obj/item/device/detective_scanner/scanner = null)
+/proc/scan_forensic(var/atom/A as turf|obj|mob, var/mob/user, visible = 0, var/obj/item/device/detective_scanner/scanner = null)
 	if(!A.forensic_holder)
 		return
-	return A.forensic_holder.scan_display(A, scanner)
+	var/datum/forensic_scan_builder/scan_builder = new()
+	scan_builder.scanner = scanner
+	scan_builder.base_accuracy = -1
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		if(H.traitHolder.hasTrait("training_forensic"))
+			scan_builder.base_accuracy = 1
+		if(scan_builder.base_accuracy > 0)
+			if(istype(H.head, /obj/item/clothing/head/det_hat))
+				scan_builder.base_accuracy *= 0.9
+			else if(istype(H.glasses, /obj/item/clothing/glasses/scuttlebot_vr))
+				scan_builder.base_accuracy *= 0.9
+			else if(istype(H.head, /obj/item/clothing/head/deerstalker))
+				scan_builder.base_accuracy *= 0.9
+			if(ispug(H))
+				scan_builder.base_accuracy *= 0.9
+	return scan_builder.compile_scan(A)
 
 // Made this a global proc instead of 10 or so instances of duplicate code spread across the codebase (Convair880).
 /proc/scan_atmospheric(var/atom/A as turf|obj, var/pda_readout = 0, var/simple_output = 0, var/visible = 0, var/alert_output = 0)

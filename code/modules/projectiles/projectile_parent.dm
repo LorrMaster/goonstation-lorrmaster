@@ -730,6 +730,7 @@ ABSTRACT_TYPE(/datum/projectile)
 
 	/// for on_pre_hit. Causes it to early-return TRUE if the thing checked was already cleared for pass-thru
 	var/atom/last_thing_hit
+	// var/datum/forensic_id/gun_profile = null // forensic profile for the gun that shot the projectile, if there is one
 
 	/// Set to TRUE if you want particles to spawn when you hit a non living thing
 	var/has_impact_particles = FALSE

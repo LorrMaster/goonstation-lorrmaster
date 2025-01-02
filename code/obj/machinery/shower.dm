@@ -194,16 +194,15 @@
 				A?.clean_forensic()
 			if (ismob(A))
 				var/mob/M = A
-				if (!isdead(M))
-					M.clean_forensic()
-					M.delStatus("marker_painted")
-					boutput(M,SPAN_BOLD("You feel [pick(clean_desc)]."))
-					if(ishuman(M))
-						var/mob/living/carbon/human/H = M
-						H.sims?.affectMotive("Hygiene", 100)
-					if(prob(1))
-						random_brute_damage(M, 1)
-					cleaned_a_nerd = TRUE
+				M.clean_forensic()
+				M.delStatus("marker_painted")
+				boutput(M,SPAN_BOLD("You feel [pick(clean_desc)]."))
+				if(ishuman(M))
+					var/mob/living/carbon/human/H = M
+					H.sims?.affectMotive("Hygiene", 100)
+				if(prob(1))
+					random_brute_damage(M, 1)
+				cleaned_a_nerd = TRUE
 
 		if(cleaned_a_nerd)
 			playsound(src.loc, 'sound/effects/screech.ogg', 50, 0, 0, 0.7)

@@ -142,6 +142,7 @@ ADMIN_INTERACT_PROCS(/obj/deployable_turret, proc/admincmd_shoot, proc/admincmd_
 	var/deconstructable = TRUE
 	var/can_toggle_activation = TRUE // whether you can enable or disable the turret with a screwdriver, used for map setpiece turrets
 	var/emagged = FALSE
+	var/datum/forensic_id/turret_profile = new(12, CHAR_LIST_GUN)
 
 	New(loc, direction, forensics_id)
 		..()
@@ -229,7 +230,9 @@ ADMIN_INTERACT_PROCS(/obj/deployable_turret, proc/admincmd_shoot, proc/admincmd_
 				muzzle_flash_any(src, 0, "muzzle_flash")
 				if (src.current_projectile.casing)
 					picked_turf = pick(casing_turfs)
-					var/obj/item/casing/turret_casing = new src.current_projectile.casing(picked_turf, src.forensic_ID)
+					var/obj/item/casing/turret_casing = new src.current_projectile.casing(picked_turf)
+					var/datum/forensic_data/basic/g_data = new(src.turret_profile, /obj/item/gun::disp_gun)
+					turret_casing.add_evidence(g_data)
 					// prevent infinite casing stacks
 					if (length(picked_turf.contents) > 10)
 						SPAWN(30 SECONDS)
