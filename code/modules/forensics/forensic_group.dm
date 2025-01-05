@@ -97,6 +97,7 @@ datum/forensic_group/basic_list
 datum/forensic_group/basic_list/scanner
 	category = FORENSIC_GROUP_SCAN
 	group_flags = REMOVABLE_CLEANING
+	group_accuracy = 0.75
 
 	get_header()
 		return "Scan Particles"
@@ -130,7 +131,7 @@ datum/forensic_group/basic_list/sleuth_color
 				var/detect = pick("detect","notice","note","find","pick up","smell","locate","track","discover","acertain","inhale","sense")
 				c_text = "You also [detect] [intensity] [scent] of [color]."
 			data_text += "<li>[SPAN_NOTICE(c_text)] [time]</li>"
-			return data_text
+		return data_text
 	proc/get_intensity(var/list/intensity_list, var/list/time_since_list, var/time_since)
 		for(var/i=2, i<= intensity_list.len; i++)
 			if(time_since < time_since_list[i] MINUTES)
@@ -181,6 +182,7 @@ datum/forensic_group/multi_list/footprints
 datum/forensic_group/multi_list/retinas
 	category = FORENSIC_GROUP_RETINA
 	group_flags = REMOVABLE_DATA
+	group_accuracy = 0
 
 	get_header()
 		return "Retina Scans"
@@ -204,6 +206,7 @@ datum/forensic_group/multi_list/log_health_analyzer // Health analyzer stores re
 datum/forensic_group/fingerprints
 	category = FORENSIC_GROUP_FINGERPRINT
 	group_flags = REMOVABLE_CLEANING
+	group_accuracy = 1.25
 	var/list/datum/forensic_data/fingerprint/prints_list = list()
 
 	apply_evidence(var/datum/forensic_data/data)

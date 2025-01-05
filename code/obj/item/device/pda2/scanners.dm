@@ -28,6 +28,7 @@
 	health_scan
 		name = "Health Scan"
 		size = 8
+		var/static/datum/forensic_display/pda_health_disp = new("HLTH-@F")
 
 		scan_atom(atom/A as mob|obj|turf|area)
 			if (..())
@@ -45,6 +46,21 @@
 			var/mob/living/carbon/C = A
 
 			. = scan_health(C, 0, 1, visible = 1)
+
+			var/datum/forensic_data/basic/f_data = new(src.master.scan_lead, src.pda_health_disp, REMOVABLE_CLEANING)
+			C.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+			if(ishuman(C))
+				var/mob/living/carbon/human/H = C
+				H.apply_scanner_evidence(src.master.scan_lead, src.pda_health_disp)
+			else if(C.organHolder)
+				C.organHolder.apply_scanner_evidence(src.master.scan_lead, src.pda_health_disp)
+			if(C.bioHolder)
+				// Maybe apply this to the cartridge instead?
+				var/datum/forensic_data/multi/s_data = C.get_retina_scan()
+				s_data.evidence_C = C.bioHolder.dna_signature
+				s_data.display = s_data.disp_pair_double
+				src.master.add_evidence(s_data, FORENSIC_GROUP_HEALTH_ANALYZER)
+
 			scan_health_overhead(C, usr)
 			update_medical_record(C)
 
@@ -53,23 +69,29 @@
 	forensic_scan
 		name = "Forensic Scan"
 		size = 6
+		var/static/datum/forensic_display/pda_forensic_disp = new("FRNSC-@F") // PDA version leaves behind evidence
 
 		scan_atom(atom/A as mob|obj|turf|area)
 			var/mob/user = usr
 			if(..())
 				return
 			. = scan_forensic(A, user, visible = 1) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+			var/datum/forensic_data/basic/f_data = new(src.master.scan_lead, src.pda_forensic_disp, REMOVABLE_CLEANING)
+			A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 	//Reagent scanning program
 	reagent_scan
 		name = "Reagent Scan"
 		size = 6
+		var/static/datum/forensic_display/pda_regent_disp = new("REGNT-@F")
 
 		scan_atom(atom/A)
 			var/mob/user = usr
 			if (..())
 				return
 			. = scan_reagents(A, visible = TRUE)
+			var/datum/forensic_data/basic/f_data = new(src.master.scan_lead, src.pda_regent_disp, REMOVABLE_CLEANING)
+			A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 			if (user.traitHolder.hasTrait("training_bartender"))
 				var/eth_eq = get_ethanol_equivalent(user, A.reagents)
 				if (eth_eq)
@@ -79,16 +101,20 @@
 	plant_scan
 		name = "Plant Scan"
 		size = 6
+		var/static/datum/forensic_display/pda_plant_disp = new("PLANT-@F")
 
 		scan_atom(atom/A as mob|obj|turf|area)
 			if(..())
 				return
 			. = scan_plant(A, usr, visible = 1) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+			var/datum/forensic_data/basic/f_data = new(src.master.scan_lead, src.pda_plant_disp, REMOVABLE_CLEANING)
+			A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 	electronics
 		name = "Device Analyzer"
 		size = 16
 		var/last_address = "02000000"
+		var/static/datum/forensic_display/pda_device_disp = new("DVCE-@F")
 
 		on_set_scan(obj/item/device/pda2/pda)
 			pda.AddComponent(
@@ -135,6 +161,8 @@
 
 			signal.data["address_tag"] = "TRANSRKIT"
 			signal.data["command"] = "add"
+			var/datum/forensic_data/basic/f_data = new(src.master.scan_lead, src.pda_device_disp, REMOVABLE_CLEANING)
+			O.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 			signal.data_file = theScan
 			post_signal(signal, "ruckkit")

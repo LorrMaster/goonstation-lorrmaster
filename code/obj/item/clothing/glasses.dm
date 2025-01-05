@@ -23,7 +23,6 @@
 			return
 		return ..()
 
-
 /obj/item/clothing/glasses/crafted
 	name = "glasses"
 	icon_state = "crafted"
@@ -108,8 +107,10 @@ TYPEINFO(/obj/item/clothing/glasses/toggleable/meson)
 		..()
 		if(!isliving(user))
 			return
-		if (slot == SLOT_GLASSES && on)
-			user.meson(src)
+		if (slot == SLOT_GLASSES)
+			src.add_evidence(user.get_retina_scan(), FORENSIC_GROUP_RETINA)
+			if(on)
+				user.meson(src)
 
 	unequipped(var/mob/living/user)
 		..()
@@ -152,6 +153,9 @@ TYPEINFO(/obj/item/clothing/glasses/toggleable/meson)
 	equipped(mob/user, slot)
 		. = ..()
 		APPLY_ATOM_PROPERTY(user, PROP_MOB_GHOSTVISION, src)
+		if (isliving(user) && slot == SLOT_GLASSES)
+			var/mob/living/L = user
+			src.add_evidence(L.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	unequipped(mob/user)
 		. = ..()
@@ -245,6 +249,9 @@ TYPEINFO(/obj/item/clothing/glasses/sunglasses/tanning)
 		..()
 		if (slot == SLOT_GLASSES)
 			get_image_group(src.image_group).add_mob(user)
+			if (isliving(user))
+				var/mob/living/L = user
+				src.add_evidence(L.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	unequipped(var/mob/user)
 		if(src.equipped_in_slot == SLOT_GLASSES)
@@ -281,6 +288,9 @@ TYPEINFO(/obj/item/clothing/glasses/thermal)
 			APPLY_ATOM_PROPERTY(user, PROP_MOB_THERMALVISION_MK2, src)
 		else
 			APPLY_ATOM_PROPERTY(user, PROP_MOB_THERMALVISION, src)
+		if (isliving(user) && slot == SLOT_GLASSES)
+			var/mob/living/L = user
+			src.add_evidence(L.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	unequipped(mob/user)
 		. = ..()
@@ -350,6 +360,7 @@ TYPEINFO(/obj/item/clothing/glasses/visor)
 			return
 		if (slot == SLOT_GLASSES)
 			user.vision.set_scan(1)
+			src.add_evidence(user.get_retina_scan(), FORENSIC_GROUP_RETINA)
 		return
 
 	unequipped(var/mob/living/user)
@@ -451,6 +462,7 @@ TYPEINFO(/obj/item/clothing/glasses/visor)
 			user.network_device = src
 			//user.verbs += /mob/proc/jack_in
 			Station_VNet.Enter_Vspace(H, src,src.network)
+			src.add_evidence(H.get_retina_scan(), FORENSIC_GROUP_RETINA)
 		return
 
 	unequipped(var/mob/user)
@@ -482,6 +494,8 @@ TYPEINFO(/obj/item/clothing/glasses/visor)
 				user.mind.transfer_to(connected_scuttlebot)
 		else
 			boutput(user, SPAN_ALERT("You put on the goggles but they show no signal. The scuttlebot is likely destroyed."))
+		if (slot == SLOT_GLASSES)
+			src.add_evidence(H.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		if (istype(target, /mob/living/critter/robotic/scuttlebot))
@@ -561,6 +575,9 @@ TYPEINFO(/obj/item/clothing/glasses/healthgoggles)
 			get_image_group(CLIENT_IMAGE_GROUP_HEALTH_MON_ICONS).add_mob(user)
 			if (src.health_scan)
 				APPLY_ATOM_PROPERTY(user,PROP_MOB_EXAMINE_HEALTH,src)
+			if (isliving(user))
+				var/mob/living/L = user
+				src.add_evidence(L.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	unequipped(var/mob/user)
 		if(src.equipped_in_slot == SLOT_GLASSES)
@@ -622,6 +639,9 @@ TYPEINFO(/obj/item/clothing/glasses/spectro)
 	equipped(mob/user, slot)
 		. = ..()
 		APPLY_ATOM_PROPERTY(user, PROP_MOB_SPECTRO, src)
+		if (isliving(user) && slot == SLOT_GLASSES)
+			var/mob/living/L = user
+			src.add_evidence(L.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	unequipped(mob/user)
 		. = ..()
@@ -646,6 +666,9 @@ TYPEINFO(/obj/item/clothing/glasses/spectro)
 		if (slot == SLOT_GLASSES)
 			get_image_group(CLIENT_IMAGE_GROUP_GHOSTDRONE).add_mob(user)
 			active = TRUE
+			if (isliving(user))
+				var/mob/living/L = user
+				src.add_evidence(L.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	unequipped(var/mob/user)
 		..()
@@ -666,6 +689,7 @@ TYPEINFO(/obj/item/clothing/glasses/noir)
 		if(istype(H) && slot == SLOT_GLASSES)
 			if(H.client)
 				animate_fade_grayscale(H.client, 5)
+			src.add_evidence(H.get_retina_scan(), FORENSIC_GROUP_RETINA)
 	unequipped(var/mob/user, var/slot)
 		..()
 		var/mob/living/carbon/human/H = user
@@ -695,6 +719,9 @@ TYPEINFO(/obj/item/clothing/glasses/nightvision/sechud/flashblocking)
 	equipped(mob/user, slot)
 		. = ..()
 		APPLY_ATOM_PROPERTY(user, PROP_MOB_NIGHTVISION, src)
+		if (isliving(user) && slot == SLOT_GLASSES)
+			var/mob/living/L = user
+			src.add_evidence(L.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	unequipped(mob/user)
 		. = ..()
@@ -791,6 +818,9 @@ TYPEINFO(/obj/item/clothing/glasses/nightvision/sechud/flashblocking)
 		..()
 		if (slot == SLOT_GLASSES)
 			get_image_group("[CLIENT_IMAGE_GROUP_PACKETVISION][src.freq]").add_mob(user)
+			if (isliving(user))
+				var/mob/living/L = user
+				src.add_evidence(L.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	unequipped(var/mob/user)
 		if(src.equipped_in_slot == SLOT_GLASSES)
@@ -820,8 +850,12 @@ TYPEINFO(/obj/item/clothing/glasses/toggleable/atmos)
 
 	equipped(mob/user, slot)
 		..()
-		if (slot == SLOT_GLASSES && src.on)
-			processing_items |= src
+		if (slot == SLOT_GLASSES)
+			if (src.on)
+				processing_items |= src
+			if (isliving(user))
+				var/mob/living/L = user
+				src.add_evidence(L.get_retina_scan(), FORENSIC_GROUP_RETINA)
 
 	unequipped(mob/user)
 		if(src.equipped_in_slot == SLOT_GLASSES)

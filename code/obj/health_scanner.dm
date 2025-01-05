@@ -33,10 +33,6 @@ TYPEINFO(/obj/health_scanner)
 	proc/find_partners(var/in_range = 0)
 		return // dummy proc that the scanner and screen will define themselves
 
-	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
-		var/id_note = "<li>Scanner particle ID: 1234567890</li>"
-		scan_builder.add_scan_text(id_note)
-
 /obj/health_scanner/wall
 	name = "health status screen"
 	desc = "A screen that shows health information received from connected floor scanners."
@@ -87,7 +83,7 @@ TYPEINFO(/obj/health_scanner)
 	icon_state = "floorscan1"
 	plane = PLANE_FLOOR
 	var/time_between_scans = 3 SECONDS
-	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "HLTH-")
+	var/datum/forensic_id/forensic_lead = new("HLTH-", "", 5, CHAR_LIST_NUM)
 
 	New()
 		..()
@@ -150,5 +146,5 @@ TYPEINFO(/obj/health_scanner)
 		SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, new_signal, null, "pda")
 
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
-		var/id_note = "<li>Scanner particle ID: [forensic_lead.id]</li>"
+		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_scan_text(id_note)

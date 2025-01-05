@@ -123,6 +123,7 @@ var/list/admin_verbs = list(
 		/client/proc/POM,
 		/client/proc/show_rules_to_player,
 		/client/proc/view_fingerprints,
+		/client/proc/view_forensics,
 		/client/proc/cmd_admin_intercom_announce,
 		/client/proc/cmd_admin_intercom_announce_freq,
 		/client/proc/cmd_admin_intercom_help,
@@ -1031,7 +1032,7 @@ var/list/fun_images = list()
 	var/datum/forensic_scan_builder/scan_builder = new()
 	scan_builder.base_accuracy = 0
 	scan_builder.is_admin = TRUE
-	return scan_builder.compile_scan(O)
+	boutput(src, scan_builder.compile_scan(O))
 
 /client/proc/view_fingerprints(obj/O as obj in world)
 	set name = "View Object Fingerprints"

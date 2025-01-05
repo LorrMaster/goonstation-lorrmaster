@@ -857,7 +857,7 @@ TYPEINFO(/obj/machinery/manufacturer)
 		return FALSE
 
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
-		var/id_note = "<li>Fabricator pattern ID: [src.forensic_lead.id]</li>"
+		var/id_note = "Fabricator pattern ID: [src.forensic_lead.id]"
 		scan_builder.add_scan_text(id_note)
 	/*
 	Handling for shocking the user

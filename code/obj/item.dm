@@ -1043,6 +1043,12 @@ ADMIN_INTERACT_PROCS(/obj/item, proc/admin_set_stack_amount)
 	user.update_equipped_modifiers()
 	if (src.storage && !src.storage.opens_if_worn) // also used in equipped() code if a wearing to a slot won't call equipped()
 		src.storage.hide_hud(user)
+	if(slot == SLOT_HEAD || slot == SLOT_EARS) // Not sure if this is the right place to put this
+		if(ishuman(user))
+			var/mob/living/carbon/human/H = user
+			if(!H.is_bald() && H.bioHolder)
+				var/datum/forensic_data/dna/dna_data = new(H.bioHolder.dna_signature, DNA_FORM_HAIR)
+				src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 
 /obj/item/proc/unequipped(var/mob/user)
 	SHOULD_CALL_PARENT(1)

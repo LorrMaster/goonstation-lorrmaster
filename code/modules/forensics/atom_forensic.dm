@@ -70,12 +70,12 @@
 				bleed(L, amount, 5, rand(1,3), src)
 	*/
 
-/atom/proc/apply_stain_effect()
+/atom/proc/apply_stain_effect(var/stain_color)
 	if (isitem(src))
 		var/obj/item/I = src
 		var/image/blood_overlay = image('icons/obj/decals/blood/blood.dmi', "itemblood")
 		blood_overlay.appearance_flags = PIXEL_SCALE | RESET_COLOR
-		blood_overlay.color = src.forensic_holder.stain_color
+		blood_overlay.color = stain_color
 		blood_overlay.alpha = min(blood_overlay.alpha, 200)
 		blood_overlay.blend_mode = BLEND_INSET_OVERLAY
 		I.appearance_flags |= KEEP_TOGETHER
@@ -87,7 +87,7 @@
 /atom/proc/clean_forensic()
 	if(src.forensic_holder)
 		if(src.forensic_holder.is_stained)
-			src.forensic_holder.stain_color = "#FFFFFF"
+			src.forensic_holder.stain_color = null
 			src.forensic_holder.is_stained = FALSE
 		src.forensic_holder.remove_evidence(REMOVABLE_CLEANING)
 	SEND_SIGNAL(src, COMSIG_ATOM_CLEANED)

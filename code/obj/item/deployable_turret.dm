@@ -142,7 +142,7 @@ ADMIN_INTERACT_PROCS(/obj/deployable_turret, proc/admincmd_shoot, proc/admincmd_
 	var/deconstructable = TRUE
 	var/can_toggle_activation = TRUE // whether you can enable or disable the turret with a screwdriver, used for map setpiece turrets
 	var/emagged = FALSE
-	var/datum/forensic_id/turret_profile = new(12, CHAR_LIST_GUN)
+	var/datum/forensic_id/turret_profile = new("=", "=", 10, CHAR_LIST_GUN)
 
 	New(loc, direction, forensics_id)
 		..()

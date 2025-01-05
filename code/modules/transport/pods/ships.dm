@@ -715,6 +715,7 @@ ABSTRACT_TYPE(/obj/structure/vehicleframe)
 				boutput(user, "With the cockpit and exterior indicators secured, the control system automatically starts up.")
 
 				var/obj/machinery/vehicle/V = new vehicle_type( src.loc )
+				V.forensic_holder = src.forensic_holder
 				if (src.armor_type == /obj/item/podarmor/armor_custom)
 					V.name = src.vehicle_name
 					V.setMaterial(src.material)

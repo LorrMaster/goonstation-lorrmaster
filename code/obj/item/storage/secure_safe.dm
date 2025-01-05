@@ -162,10 +162,9 @@ ABSTRACT_TYPE(/obj/item/storage/secure)
 
 /obj/item/storage/secure/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	if(src.locked && src.code)
-		var/note_code = "<li>Code Analysis: " + copytext(src.code, 1, 2)
+		var/note_code = "Code Analysis: " + copytext(src.code, 1, 2)
 		for(var/i=2, i<= src.code_len, i++)
 			note_code += "*"
-		note_code += "</li>"
 		scan_builder.add_scan_text(note_code)
 
 /obj/item/storage/secure/proc/add_input(var/key)

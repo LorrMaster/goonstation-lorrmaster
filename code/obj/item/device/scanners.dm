@@ -283,8 +283,9 @@ TYPEINFO(/obj/item/device/detective_scanner)
 			return
 		last_scan = scan_forensic(A, user, visible = 1, scanner = src) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		boutput(user, last_scan)
-		var/scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
 		return
+		/*
+		var/scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
 		var/index = (number_of_scans % maximum_scans) + 1 // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
 		scans[index] = last_scan
 		scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
@@ -304,6 +305,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 					break
 			active = 1
 			work()
+		*/
 
 	proc/work(var/turf/T)
 		if(!active) return
@@ -336,7 +338,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 	name = "cool forensic scanner"
 	desc = "Used to scan objects for DNA and fingerprints. This model seems to have an upgrade that lets it scan for prints at a distance. You feel cool holding it."
 	distancescan = 1
-	timestamp_modifier = 0.75
+	timestamp_modifier = 0.7
 
 ///////////////////////////////////// Health analyzer ////////////////////////////////////////
 
@@ -363,7 +365,7 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 	var/organ_scan = 0
 	var/image/scanner_status
 	hide_attack = ATTACK_PARTIALLY_HIDDEN
-	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "HLTH-")
+	var/datum/forensic_id/forensic_lead = new("HLTH-", "", 5, CHAR_LIST_NUM)
 
 	New()
 		..()
@@ -432,7 +434,14 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 		SPAN_ALERT("You have analyzed [target]'s vitals."))
 		playsound(src.loc , 'sound/items/med_scanner.ogg', 20, 0)
 		boutput(user, scan_health(target, src.reagent_scan, src.disease_detection, src.organ_scan, visible = 1))
-		target.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
+
+		scan_health_overhead(target, user)
+
+		update_medical_record(target)
+
+		// Apply scanner evidence to the target and each of their limbs/organs
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+		target.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		if(isliving(target))
 			var/mob/living/L = target
 			if(ishuman(L))
@@ -446,10 +455,6 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 				s_data.display = s_data.disp_pair_double
 				src.add_evidence(s_data, FORENSIC_GROUP_HEALTH_ANALYZER)
 
-		scan_health_overhead(target, user)
-
-		update_medical_record(target)
-
 		if (isdead(target))
 			user.unlock_medal("He's dead, Jim", 1)
 		return
@@ -461,7 +466,8 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 				user.visible_message(SPAN_ALERT("<b>[user]</b> has analyzed [P.occupant]'s vitals."),\
 					SPAN_ALERT("You have analyzed [P.occupant]'s vitals."))
 				boutput(user, scan_health(P.occupant, src.reagent_scan, src.disease_detection, src.organ_scan))
-				A.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
+				var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+				A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 				update_medical_record(P.occupant)
 				return
 		..()
@@ -534,7 +540,7 @@ TYPEINFO(/obj/item/device/reagentscanner)
 	var/scan_results = null
 	hide_attack = ATTACK_PARTIALLY_HIDDEN
 	tooltip_flags = REBUILD_DIST
-	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "REGNT-")
+	var/datum/forensic_id/forensic_lead = new("REGNT-", "", 5, CHAR_LIST_NUM)
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		return
@@ -545,7 +551,8 @@ TYPEINFO(/obj/item/device/reagentscanner)
 
 		user.visible_message(SPAN_NOTICE("<b>[user]</b> scans [A] with [src]!"),\
 		SPAN_NOTICE("You scan [A] with [src]!"))
-		A.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+		A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 		src.scan_results = scan_reagents(A, visible = TRUE)
 		tooltip_rebuild = TRUE
@@ -606,7 +613,7 @@ TYPEINFO(/obj/item/device/analyzer/atmospheric)
 	var/hudarrow_color = "#0df0f0"
 	///We keep track of the airgroup so we can acquire a new breach after the old one is patched, even if the user is standing on space at the time
 	var/datum/air_group/tracking_airgroup = null
-	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "ATMOS-")
+	var/datum/forensic_id/forensic_lead = new("ATMOS-", "", 5, CHAR_LIST_NUM)
 
 	// Distance upgrade action code
 	pixelaction(atom/target, params, mob/user, reach)
@@ -695,7 +702,8 @@ TYPEINFO(/obj/item/device/analyzer/atmospheric)
 		if (istype(A, /obj) || isturf(A))
 			user.visible_message(SPAN_NOTICE("<b>[user]</b> takes an atmospheric reading of [A]."))
 			boutput(user, scan_atmospheric(A, visible = 1))
-			A.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
+			var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+			A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		src.add_fingerprint(user)
 		return
 
@@ -1121,7 +1129,7 @@ TYPEINFO(/obj/item/device/appraisal)
 	m_amt = 150
 	icon_state = "CargoA"
 	item_state = "electronic"
-	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "APRSE-")
+	var/datum/forensic_id/forensic_lead = new("APRSE-", "", 5, CHAR_LIST_NUM)
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		return
@@ -1206,7 +1214,8 @@ TYPEINFO(/obj/item/device/appraisal)
 		boutput(user, SPAN_NOTICE("[out_text]Estimated value: <strong>[sell_value] credit\s.</strong>"))
 		if (sell_value > 0)
 			playsound(src, 'sound/machines/chime.ogg', 10, TRUE)
-		A.add_evidence(src.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+		A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 		if (user.client && !user.client.preferences?.flying_chat_hidden)
 			var/image/chat_maptext/chat_text = null

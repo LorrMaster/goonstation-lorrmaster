@@ -92,8 +92,9 @@ var/global/list/datum/forensic_id/gun_profile_list = new/list()
 	var/camera_recoil_sway_min = 0 //! Minimum recoil variance
 	var/camera_recoil_sway_max = 20 //! Maximum recoil variance
 
-	var/datum/forensic_id/gun_profile = new(9, CHAR_LIST_GUN)
+	var/datum/forensic_id/gun_profile = new("=", "=", 7, CHAR_LIST_GUN)
 	var/static/datum/forensic_display/disp_gun = new("Gun profile: @F") // /obj/item/gun::disp_gun
+	var/static/datum/forensic_id/lead_gun_residue = new("Gunshot residue found.")
 
 	buildTooltipContent()
 		. = ..() + src.current_projectile?.get_tooltip_content()
@@ -119,6 +120,11 @@ var/global/list/datum/forensic_id/gun_profile_list = new/list()
 		if (user.back.storage.check_can_hold(src) == STORAGE_CAN_HOLD)
 			user.back.Attackby(src, user)
 			return TRUE
+
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		..()
+		if(gun_profile)
+			scan_builder.add_scan_text("Gun profile of [src]: [gun_profile.id]")
 
 ///CHECK_LOCK
 ///Call to run a weaponlock check vs the users implant
@@ -288,7 +294,10 @@ var/global/list/datum/forensic_id/gun_profile_list = new/list()
 
 	if (ishuman(user) && src.add_residue) // Additional forensic evidence for kinetic firearms (Convair880).
 		var/mob/living/carbon/human/H = user
-		H.gunshot_residue = 1
+		var/datum/forensic_data/basic/a_data = new(src.lead_gun_residue, flags = REMOVABLE_CLEANING)
+		var/datum/forensic_data/basic/b_data = new(src.lead_gun_residue, flags = REMOVABLE_CLEANING)
+		H.add_evidence(a_data)
+		src.add_evidence(b_data)
 
 	if (!src.silenced)
 		for (var/mob/O in AIviewers(target, null))
@@ -447,7 +456,10 @@ var/global/list/datum/forensic_id/gun_profile_list = new/list()
 		var/mob/M = user
 		if (ishuman(M) && src.add_residue) // Additional forensic evidence for kinetic firearms (Convair880).
 			var/mob/living/carbon/human/H = user
-			H.gunshot_residue = 1
+			var/datum/forensic_data/basic/a_data = new(src.lead_gun_residue, flags = REMOVABLE_CLEANING)
+			var/datum/forensic_data/basic/b_data = new(src.lead_gun_residue, flags = REMOVABLE_CLEANING)
+			H.add_evidence(a_data)
+			src.add_evidence(b_data)
 
 	src.UpdateIcon()
 	return TRUE

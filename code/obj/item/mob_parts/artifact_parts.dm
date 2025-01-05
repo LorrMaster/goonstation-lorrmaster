@@ -199,6 +199,9 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg/eldritch)
 			return
 		src.holder.removeAbility(/datum/targetable/artifact_limb_ability/eldritch_run)
 
+	get_foot_pattern()
+		return "ssll"
+
 	left
 		name = "eldritch left leg"
 		slot = "l_leg"
@@ -250,6 +253,9 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/arm/martian)
 ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg/martian)
 /obj/item/parts/artifact_parts/leg/martian
 	artifact_type = "martian"
+
+	get_foot_pattern()
+		return "llll"
 
 	left
 		name = "martian left leg"
@@ -317,6 +323,9 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg/precursor)
 		if (!..())
 			return
 		UnregisterSignal(src.holder, COMSIG_MOVABLE_MOVED)
+
+	get_foot_pattern()
+		return null
 
 	proc/precursor_move_L(mob/living/carbon/human/H, oldLoc, direction)
 		if (H.lying)

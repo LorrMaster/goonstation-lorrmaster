@@ -10,7 +10,7 @@
 	throw_speed = 5
 	throw_range = 10
 	hide_attack = ATTACK_PARTIALLY_HIDDEN
-	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "GENE-")
+	var/datum/forensic_id/forensic_lead = new("GENE-", "", 5, CHAR_LIST_NUM)
 
 /obj/item/device/analyzer/genetic/attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 	var/datum/computer/file/genetics_scan/GS = create_new_dna_sample_file(target)

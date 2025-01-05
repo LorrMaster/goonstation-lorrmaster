@@ -365,6 +365,14 @@
 			qdel(pda)//Destroy PDA if in one
 		qdel(src)
 
+	equipped(var/mob/living/user, var/slot)
+		..()
+		if(!isliving(user))
+			return
+		if (slot == SLOT_WEAR_MASK && user.bioHolder)
+			var/datum/forensic_data/dna/dna_data = new(user.bioHolder.dna_signature, DNA_FORM_SALIVA)
+			src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
+
 
 /obj/item/clothing/mask/cigarette/nicofree
 	name = "nicotine-free cigarette"
@@ -434,7 +442,6 @@
 			src.flavor = pick("rum","menthol","chocolate","coffee","juice_lemon","juice_orange","juice_lime","juice_peach","bourbon","vermouth","yuck","mucus")
 		src.name = "[reagent_id_to_name(src.flavor)]-flavoured blunt wrap"
 		reagents.add_reagent(src.flavor, 20)
-
 
 /obj/item/clothing/mask/cigarette/cigarillo
 	name = "cigarillo"

@@ -318,6 +318,7 @@
 		AM = new store_type(T)
 		AM.set_dir(src.dir)
 		AM.was_built_from_frame(user, 1)
+		AM.forensic_holder = src.forensic_holder
 
 		if (src.material && !AM.material)
 			AM.setMaterial(src.material)
@@ -436,6 +437,7 @@
 	pressure_resistance = 50
 	var/list/scanned = list()
 	var/viewstat = 0
+	var/datum/forensic_id/forensic_lead = new("DVCE-", "", 5, CHAR_LIST_NUM)
 
 	syndicate
 		is_syndicate = TRUE
@@ -474,6 +476,9 @@
 			if (MECHANICS_ANALYSIS_SUCCESS)
 				scan_output = SPAN_NOTICE("Item scan successful.")
 				playsound(A.loc, 'sound/machines/tone_beep.ogg', 30, FALSE)
+				if(!is_syndicate)
+					var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+					A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 			if (MECHANICS_ANALYSIS_INCOMPATIBLE, 0) // 0 is returned by SEND_SIGNAL if the component is not present, so we use it here too
 				scan_output = SPAN_ALERT("The structure of [A] is not compatible with [parent_item].")
 			if (MECHANICS_ANALYSIS_ALREADY_SCANNED)
@@ -493,6 +498,10 @@
 			SPAN_NOTICE("[user] waves [src] at you. You feel [pick("funny", "weird", "odd", "strange", "off")].")
 		)
 		animate_scanning(target, "#FFFF00")
+
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		var/id_note = "Scanner particle ID: [forensic_lead.id]"
+		scan_builder.add_scan_text(id_note)
 
 ////////////////////////////////////////////////////////////////no
 /obj/machinery/rkit
@@ -797,6 +806,9 @@
 					upload_blueprint(O, "TRANSRKIT", 1)
 				S.scanned -= X
 				add_count++
+		if(!S.is_syndicate)
+			var/datum/forensic_data/basic/f_data = new(S.forensic_lead, flags = REMOVABLE_CLEANING)
+			src.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		if (add_count==  1)
 			boutput(user, SPAN_NOTICE("[add_count] new items entered into kit."))
 			pda_message(null, "Notice: Item entered into database.")

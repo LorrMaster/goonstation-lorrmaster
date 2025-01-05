@@ -374,7 +374,9 @@ var/list/datum/bioEffect/mutini_effects = list()
 	var/fingerprints
 
 	// Default ids for various mob limbs
+	// Note: Cyborg arms should eventually use numbers instead of letters
 	var/datum/forensic_id/fingerprint_default = new()
+	var/datum/forensic_id/footprint_default = new()
 	var/datum/forensic_id/retina_default = new()
 	var/datum/forensic_id/dna_signature = new()
 
@@ -383,6 +385,7 @@ var/list/datum/bioEffect/mutini_effects = list()
 		Uid = CreateUid()
 		bioUids[Uid] = null
 		fingerprint_default.build_id_fingerprint()
+		footprint_default.build_id_footprint("sllll")
 		dna_signature.build_id_dna()
 		build_fingerprints()
 		mobAppearance = new/datum/appearanceHolder()

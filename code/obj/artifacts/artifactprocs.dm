@@ -264,7 +264,6 @@
 			return
 		var/datum/artifact/A = src.artifact
 		var/datum/artifact/activator_key/K = ACT.artifact
-
 		if (K.activated)
 			if (K.universal || A.artitype == K.artitype)
 				if (K.activator && !A.activated)
@@ -333,12 +332,13 @@
 		src.visible_message("<b>[user.name]</b> presses \the [THISPART] against \the [src].</span>")
 		src.ArtifactStimulus("silitouch", 1)
 		return 0
-
-	if (istype(W, /obj/item/parts/human_parts))
+	else if (istype(W, /obj/item/parts/human_parts))
 		var/obj/item/parts/human_parts/THISPART = W
 		src.visible_message("<b>[user.name]</b> smooshes \the [THISPART] against \the [src].</span>")
 		src.ArtifactStimulus("carbtouch", 1)
 		return 0
+	else
+		W.add_fingerprint(user)
 
 	if (istype(W, /obj/item/grab))
 		var/obj/item/grab/GRAB = W
@@ -499,6 +499,7 @@
 			src.ArtifactStimulus("silitouch", 1)
 		src.ArtifactStimulus("force", 1)
 		user.visible_message("<b>[user.name]</b> touches [src].")
+		src.add_fingerprint(user)
 		if (istype(src.artifact,/datum/artifact))
 			if (length(A.touch_descriptors) > 0)
 				boutput(user, "[pick(A.touch_descriptors)]")

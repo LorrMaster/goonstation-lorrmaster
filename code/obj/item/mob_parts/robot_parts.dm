@@ -138,6 +138,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts)
 				orig_holder.TakeDamage("chest",20,0)
 				take_bleeding_damage(orig_holder, null, 15, DAMAGE_CUT)
 
+	get_foot_pattern()
+		return "snnns"
+
 	proc/ropart_take_damage(var/bluntdmg = 0,var/burnsdmg = 0)
 		src.dmg_blunt += bluntdmg
 		src.dmg_burns += burnsdmg
@@ -854,6 +857,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/left)
 	kind_of_limb = (LIMB_ROBOT | LIMB_LIGHT)
 	breaks_cuffs = FALSE
 
+	get_foot_pattern()
+		return "snns"
+
 /obj/item/parts/robot_parts/leg/left/treads
 	name = "left cyborg tread"
 	desc = "A large wheeled unit like tank tracks. This will help heavier cyborgs to move quickly."
@@ -866,6 +872,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/left)
 	movement_modifier = /datum/movement_modifier/robottread_left
 	robot_movement_modifier = /datum/movement_modifier/robot_part/tread_left
 	kind_of_limb = (LIMB_ROBOT | LIMB_TREADS)
+
+	get_foot_pattern()
+		return "s=n=n=n=s"
 
 ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 /obj/item/parts/robot_parts/leg/right
@@ -892,6 +901,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 	kind_of_limb = (LIMB_ROBOT | LIMB_LIGHT)
 	breaks_cuffs = FALSE
 
+	get_foot_pattern()
+		return "snns"
+
 /obj/item/parts/robot_parts/leg/right/treads
 	name = "right cyborg tread"
 	desc = "A large wheeled unit like tank tracks. This will help heavier cyborgs to move quickly."
@@ -904,6 +916,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 	movement_modifier = /datum/movement_modifier/robottread_right
 	robot_movement_modifier = /datum/movement_modifier/robot_part/tread_right
 	kind_of_limb = (LIMB_ROBOT | LIMB_TREADS)
+
+	get_foot_pattern()
+		return "s=n=n=n=s"
 
 /obj/item/parts/robot_parts/leg/left/thruster
 	name = "left thruster assembly"
@@ -922,6 +937,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 		if(src.holder && (src.holder.loc == T))
 			T?.hotspot_expose(700, 50)
 
+	get_foot_pattern()
+		return null
+
 /obj/item/parts/robot_parts/leg/right/thruster
 	name = "right thruster assembly"
 	desc = "Is it really a good idea to give thrusters to cyborgs..? Probably not."
@@ -938,6 +956,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 		var/turf/T = get_turf(src.holder)
 		if(src.holder && (src.holder.loc == T))
 			T?.hotspot_expose(700, 50)
+
+	get_foot_pattern()
+		return null
 
 /obj/item/parts/robot_parts/robot_frame
 	name = "robot frame"

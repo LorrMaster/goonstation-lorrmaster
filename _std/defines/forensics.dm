@@ -1,16 +1,63 @@
+/*
+TODO:
+ - Forensic scan reports need improvements
+ - Saliva on food, drinks
+ - Lots of work to do with blood in general
+	- Simplify getting DNA from blood regents
+ - Store types of IDs into a dictionary and check for duplicates
+ - Replace "interesting" text with new system
+ - Update security logs to use the new system
+	- Not sure how in-depth this should be
+ - Maybe atoms should start with no forensics_holder, then create them as needed?
+ - Fingerprints tied to limbs
+	- Robo arms use numbers for their fingerprints
+ - Remove & replace all the old forensics stuff in general
+
+Bugs:
+ - Forensics does not carry over to final stage of ship construction
+ - Forensics does not carry over to implanted bullets
+ - Blood tracks leave behind the wearer's DNA even if they were not bleeding
+ - All mob parts have footprints and display them
+
+Lower Priority
+ - Imports should specify a trader, or potential traders
+ - Leave behind hair while in pods, bed, barber, etc
+ - Go through machinery for potential forensic notes to add
+ - Bullet holes, burn marks from lasers (include goggles for laser eyes)
+ - Hold towels / handkerchief to prevent fingerprints
+ - Evidence for stackables
+ 	- Attach cleanables to floor tiles
+ - Luminol should glow and work on mobs/turf
+		- Rework luminol timer.
+
+Require Discussion
+ - How much admin stuff is needed?
+	- Save everything or just care about player names?
+ - System of access logs for airlocks
+	- Should probably not be included initially
+	- Doesn't have to be exact
+ - Remove security access from detective
+*/
+
+// New glove masks?:
+// - Fix fingerless
+// - More than one region, with set number of characters per region
+// - Random characters?
+// - Reveal a single character in a "bunch"
+	// -?g??-
 
 #define FORENSIC_GROUP_NONE 0
 #define FORENSIC_GROUP_ADMIN 1
-#define FORENSIC_GROUP_NOTE 2
+#define FORENSIC_GROUP_NOTE 2 // Basically a misc section
 #define FORENSIC_GROUP_FINGERPRINT 3
 #define FORENSIC_GROUP_DNA 4
 #define FORENSIC_GROUP_SCAN 5
 #define FORENSIC_GROUP_COMPUTER_LOG 6
-#define FORENSIC_GROUP_TRACKS 7
+#define FORENSIC_GROUP_TRACKS 7 // Footprints and the like
 #define FORENSIC_GROUP_RETINA 8
-#define FORENSIC_GROUP_HEALTH_FLOOR 9
-#define FORENSIC_GROUP_HEALTH_ANALYZER 10
-#define FORENSIC_GROUP_SLEUTH_COLOR 11
+#define FORENSIC_GROUP_HEALTH_FLOOR 9 // DNA + Footprints
+#define FORENSIC_GROUP_HEALTH_ANALYZER 10 // DNA + retina scan
+#define FORENSIC_GROUP_SLEUTH_COLOR 11 // Pug sleuthing
 
 /proc/forensic_group_create(var/category) // Create a new group from its unique variable
 	// Is there a better way to do this? IDK.
@@ -44,6 +91,8 @@
 #define REMOVABLE_REPAIR (1 << 6) // Can this evidence be removed by healing / repairing the object?
 #define REMOVABLE_ALL REMOVABLE_CLEANING | REMOVABLE_DATA | REMOVABLE_REPAIR
 
+#define FORENSIC_BASE_ACCURACY 0.35 // Base modifier for how accurate timestamp estimates are
+
 #define DNA_FORM_NONE 1
 #define DNA_FORM_BLOOD 2
 #define DNA_FORM_HAIR 3
@@ -72,7 +121,7 @@
 // chars_fingerprint is limited to 'round-ish' letters (with a few exceptions)
 #define CHAR_LIST_FINGERPRINT list("a","b","c","d","e","g","n","o","p","r","s","u","v","x","y")
 #define CHAR_LIST_FIBERS list("c","f","h","i","j","k","l","n","o","r","s","t","u","v","y","z")
-#define CHAR_LIST_GUN list("=","=","=","=","=","=","=","=","=","=","-","-","-","-","-","0","8","U","V","C","S","#","_","%","&","+","*","~")
+#define CHAR_LIST_GUN list("=","=","=","=","=","-","-","-","0","8","U","V","C","S","#","_","%","&","+","*","~")
 
 #define CHAR_LIST_RETINA_L list("(","{",@"[","|") // ("(","{",@"[","|","<",@"/",@"\")
 #define CHAR_LIST_RETINA_R list(")","}",@"]","|") // (")","}",@"]","|",">",@"\",@"/")
@@ -88,7 +137,6 @@
 // arm: sll
 // Synthetic Leg: lllll
 // Flippers: sssslll
-// Shackles: =-(shoe id)-=
 // Hooves: ll_ll
 //--------------------| Fingerprints |--------------
 // Changling arms: letters+symbols (different for each arm)

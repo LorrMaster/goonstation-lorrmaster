@@ -2425,25 +2425,25 @@
 		return src.organHolder.get_retina_scan()
 	else
 		var/datum/forensic_data/multi/r_data = new()
-		r_data.evidence_A = r_data.retina_empty
-		r_data.evidence_B = r_data.retina_empty
+		r_data.evidence_A = r_data.organ_empty
+		r_data.evidence_B = r_data.organ_empty
 		r_data.flags = REMOVABLE_DATA
 		r_data.display = r_data.disp_pair
 		return r_data
 
 /mob/living/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	// Collect data on fingerprints, DNA, retina scan, ethanol
-	var/note_fingerprints = "<li>[src]'s Fingerprints: [src.bioHolder.fingerprint_default.id]</li>"
-	var/note_dna = "<li>[src]'s DNA: [src.bioHolder.dna_signature.id]</li>"
+	var/note_fingerprints = "[src]'s Fingerprints: [src.bioHolder.fingerprint_default.id]"
+	var/note_dna = "[src]'s DNA: [src.bioHolder.dna_signature.id]"
 	scan_builder.add_scan_text(note_fingerprints)
 	scan_builder.add_scan_text(note_dna)
 
 	var/datum/forensic_data/multi/retina_scan = src.get_retina_scan()
-	scan_builder.add_scan_text("<li>[src]'s Retina Scan:" + retina_scan.scan_display() + "</li>")
+	scan_builder.add_scan_text("[src]'s Retina Scan: " + retina_scan.scan_display())
 	if(src.reagents)
 		var/note_ethanol = null
-		if (src.reagents.has_reagent("Ethanol") && src.reagents.get_reagent_amount("cloak_juice") < 5)
-			note_ethanol = "<li>Ethanol in bloodstream: [src.reagents.get_reagent_amount("ethanol")] units</li>"
+		if (src.reagents.has_reagent("ethanol") && src.reagents.get_reagent_amount("cloak_juice") < 5)
+			note_ethanol = "Ethanol in bloodstream: [src.reagents.get_reagent_amount("ethanol")] units"
 		else
-			note_ethanol = "<li>No ethanol in bloodstream.</li>"
+			note_ethanol = "No ethanol in bloodstream."
 		scan_builder.add_scan_text(note_ethanol)

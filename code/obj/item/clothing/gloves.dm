@@ -40,8 +40,8 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	/// Glove fingertip color, for coloring some overlays
 	var/fingertip_color = null
 
-	var/datum/forensic_id/fiber_id = new/datum/forensic_id(7, CHAR_LIST_FIBERS)
-	var/datum/forensic_id/fiber_mask = new/datum/forensic_id
+	var/datum/forensic_id/fiber_id = null
+	var/datum/forensic_id/fiber_mask = null
 
 	setupProperties()
 		..()
@@ -53,7 +53,9 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	New()
 		..() // your parents miss you
 		flags |= HAS_EQUIP_CLICK
-		fiber_mask.build_glove_mask(peek_range = 9, peek_count = 2)
+		if(src.material_prints)
+			src.fiber_id = new/datum/forensic_id("[capitalize(src.material_prints)]: ", "", 7, CHAR_LIST_FIBERS)
+			build_fiber_mask()
 		SPAWN(2 SECONDS)
 			src.glove_ID = src.CreateID()
 			if (glove_IDs) // fix for Cannot execute null.Add(), maybe??
@@ -213,8 +215,44 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	proc/get_fingertip_color()
 		return src.color || src.fingertip_color
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
-		var/id_note = "<li>Glove ID: [fiber_id.id]</li>"
+		var/id_note = "[fiber_id.id]"
 		scan_builder.add_scan_text(id_note)
+
+	proc/build_glove_mask(var/peek_range = 0, var/peek_count = 0)
+		// 000?? ?xx?? ??000 00000 00000 ==> "...?? ?xx?? ??..."
+		// peek_range: number of values & question marks
+		// peek_count: number of values to reveal
+		if(peek_range == 0 || peek_count == 0)
+			src.fiber_mask = null
+		else if(peek_count >= FINGERPRINT_LENGTH)
+			src.fiber_mask = /datum/forensic_data/fingerprint::empty_mask
+		else if(peek_count > peek_range)
+			peek_count = peek_range
+
+		var/mask = ""
+		var/hide_count = FINGERPRINT_LENGTH - peek_range
+		var/peek_start = rand(0, hide_count) + 1
+		for(var/i=1, i< peek_start, i++)
+			mask += "0"
+		for(var/i=peek_start, i< peek_range + peek_start, i++)
+			mask += "?"
+		if(peek_count == 1)
+			var/index = rand(1,peek_range) - 1
+			mask = replacetext(mask, "?", "x", peek_start + index, peek_start + index + 1)
+		else
+			var/list/rand_list = new/list()
+			for(var/i=0, i< peek_range, i++)
+				rand_list += i
+			for(var/i=1, i<= peek_count, i++)
+				var/index = rand(1, rand_list.len)
+				mask = replacetext(mask, "?", "x", peek_start + rand_list[index], peek_start + rand_list[index] + 1) // List index out-of-bounds
+				rand_list.Cut(index, index + 1)
+		for(var/i=peek_range + peek_start, i<= FINGERPRINT_LENGTH, i++)
+			mask += "0"
+		src.fiber_mask = new(mask)
+
+	proc/build_fiber_mask()
+		return
 
 
 /obj/item/clothing/gloves/long // adhara stuff
@@ -231,16 +269,25 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("heatprot", 5)
 		setProperty("chemprot", 15)
 
+	build_fiber_mask()
+		build_glove_mask(peek_range = 9, peek_count = 2)
+		return
+
 /obj/item/clothing/gloves/fingerless
 	desc = "These gloves lack fingers. Good for a space biker look, but not so good for concealing your fingerprints."
 	name = "fingerless gloves"
 	icon_state = "fgloves"
 	item_state = "finger-"
 	hide_prints = 0
+	material_prints = "short black fibers"
 
 	setupProperties()
 		..()
 		setProperty("conductivity", 1)
+
+	build_fiber_mask()
+		build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
+		return
 
 /obj/item/clothing/gloves/black
 	desc = "These thick leather gloves are fire-resistant."
@@ -294,10 +341,16 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	protective_temperature = 310
 	scramble_prints = 1
 	fingertip_color = "#f3f3f3"
+	material_prints = "latex rubber prints"
+
 	setupProperties()
 		..()
 		setProperty("conductivity", 0.7)
 		setProperty("chemprot", 15)
+
+	build_fiber_mask()
+		build_glove_mask(peek_range = 7, peek_count = 3)
+		return
 
 /obj/item/clothing/gloves/latex/blue
 	color = "#91d5e9"
@@ -446,9 +499,14 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	setupProperties()
 		..()
 		setProperty("conductivity", 0)
+
 	New()
 		..()
 		setSpecialOverride(/datum/item_special/spark/gloves, src)
+
+	build_fiber_mask()
+		build_glove_mask(peek_range = 9, peek_count = 2)
+		return
 
 
 /obj/item/clothing/gloves/yellow
@@ -464,6 +522,10 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	setupProperties()
 		..()
 		setProperty("conductivity", 0)
+
+	build_fiber_mask()
+		build_glove_mask(peek_range = 9, peek_count = 2)
+		return
 
 	proc/unsulate()
 		src.desc = "Flimsy synthrubber work gloves styled in a drab yellow color. They are not electrically insulated, and provide no protection against any shocks."
@@ -542,7 +604,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	name = "transparent gloves"
 	icon_state = "transparent"
 	item_state = "transparent"
-	material_prints = "insulative fibers"
+	material_prints = "black leather fibers"
 	no_prints = TRUE
 	var/deployed = FALSE
 	nodescripition = TRUE
@@ -550,7 +612,6 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	custom_suicide = TRUE
 	suicide_in_hand = FALSE
 	HELP_MESSAGE_OVERRIDE(null)
-
 
 	get_help_message(dist, mob/user)
 		var/keybind = "Default: CTRL + Z"
@@ -655,6 +716,10 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	setupProperties()
 		..()
 		setProperty("conductivity", 0)
+
+	build_fiber_mask()
+		build_glove_mask(peek_range = 9, peek_count = 2)
+		return
 
 	proc/use_power(var/amount)
 		var/turf/T = get_turf(src)
@@ -807,6 +872,10 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	setupProperties()
 		..()
 		setProperty("conductivity", 1)
+
+	build_fiber_mask()
+		build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
+		return
 
 
 //Fun isn't something one considers when coding in ss13, but this did put a smile on my face
