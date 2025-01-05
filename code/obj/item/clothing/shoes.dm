@@ -90,7 +90,7 @@
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		..()
 		var/note_footprints = "[src.shoe_print_l.id] [src.shoe_print_r.id]"
-		scan_builder.add_scan_text("<li>[src]'s shoeprints: [note_footprints]</li>")
+		scan_builder.add_scan_text("[src]'s shoeprints: [note_footprints]")
 
 
 /obj/item/clothing/shoes/rocket
@@ -192,6 +192,15 @@
 			src.name = "orange shoes"
 			src.icon_state = "orange"
 			src.desc = "Shoes, now in prisoner orange! Can be made into shackles."
+
+	get_shoe_pattern()
+		switch(rand(1,3))
+			if(1)
+				return "=-llsll-="
+			if(2)
+				return "=-lslll-="
+			if(3)
+				return "=-lllsl-="
 
 	attackby(H as obj, loc)
 		if (istype(H, /obj/item/handcuffs) && !src.chained)

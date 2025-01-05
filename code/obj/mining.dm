@@ -2199,7 +2199,7 @@ TYPEINFO(/obj/item/cargotele)
 	w_class = W_CLASS_SMALL
 	flags = TABLEPASS | SUPPRESSATTACK
 	c_flags = ONBELT
-	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "TELE-")
+	var/datum/forensic_id/forensic_lead = new("TELE-", "", 5, CHAR_LIST_NUM)
 
 	New()
 		. = ..()
@@ -2287,9 +2287,6 @@ TYPEINFO(/obj/item/cargotele)
 		boutput(user, SPAN_NOTICE("Teleporting [cargo] to [src.target]..."))
 		playsound(user.loc, 'sound/machines/click.ogg', 50, 1)
 		SETUP_GENERIC_PRIVATE_ACTIONBAR(user, src, src.teleport_delay, PROC_REF(finish_teleport), list(cargo, user), null, null, null, null)
-		var/datum/forensic_data/basic/f_data = new(src.forensic_lead)
-		f_data.flags = REMOVABLE_CLEANING
-		cargo.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		return TRUE
 
 
@@ -2312,9 +2309,19 @@ TYPEINFO(/obj/item/cargotele)
 		if(!mob_teled)
 			logTheThing(LOG_STATION, user, "uses a cargo transporter to send [cargo.name][S && S.locked ? " (locked)" : ""][S && S.welded ? " (welded)" : ""] ([cargo.type]) to [log_loc(src.target)].")
 
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+		target.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+		cargo.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		for(var/atom/A in cargo.contents)
+			f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+			A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+
+
+		elecflash(cargo)
 		cargo.set_loc(get_turf(src.target))
 		target.receive_cargo(cargo)
-		elecflash(src)
+
 		if (isrobot(user))
 			var/mob/living/silicon/robot/R = user
 			R.cell.charge -= cost * SILICON_POWER_COST_MOD

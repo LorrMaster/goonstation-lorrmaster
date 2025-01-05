@@ -58,6 +58,9 @@
 	///List of pending crates (used only for transception antenna, nadir cargo system)
 	var/list/pending_crates = list()
 
+	// var/datum/forensic_display/import_lead_display = new("Imported from @F.")
+	var/datum/forensic_id/unknown_import_lead = new("Off-station import.")
+
 	New()
 		..()
 
@@ -682,6 +685,11 @@
 			return
 
 		shipped_thing.set_loc(spawnpoint)
+		var/datum/forensic_data/basic/import_data = new(src.unknown_import_lead)
+		shipped_thing.add_evidence(import_data)
+		for(var/atom/A in shipped_thing.contents)
+			import_data = new(src.unknown_import_lead)
+			A.add_evidence(import_data)
 
 		var/datum/signal/pdaSignal = get_free_signal()
 		pdaSignal.data = list("address_1"="00000000", "command"="text_message", "sender_name"="CARGO-MAILBOT", "group"=list(MGD_CARGO, MGA_SHIPPING), "sender"="00000000", "message"="Shipment arriving to Cargo Bay: [shipped_thing.name].")

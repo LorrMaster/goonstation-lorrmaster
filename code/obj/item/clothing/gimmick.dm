@@ -1336,6 +1336,10 @@ TYPEINFO(/obj/item/clothing/gloves/ring/gold)
 	mat_changename = 0 // okay let's just be "gold ring" and not "flimsy soft good gold ring" tia
 	default_material = "gold"
 
+	build_fiber_mask()
+		build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
+		return
+
 /obj/item/clothing/gloves/ring/titanium // fancy loot crate ring that gives you hulk, basically. real overpowered?  :T
 	name = "titanium ring"
 	desc = "A little ring with a strange green gem, worn on the ring finger. You absolutely can't wear rings on any other fingers. It's just not possible."
@@ -1355,6 +1359,10 @@ TYPEINFO(/obj/item/clothing/gloves/ring/gold)
 		if (!user.bioHolder || !user.bioHolder.HasEffect("hulk"))
 			boutput(user, "Your muscles shrink back down.")
 		return ..()
+
+	build_fiber_mask()
+		build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
+		return
 
 /obj/item/clothing/head/veil
 	name = "lace veil"

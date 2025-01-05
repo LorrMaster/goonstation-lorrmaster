@@ -547,10 +547,13 @@
 	scan_builder.scanner = scanner
 	scan_builder.base_accuracy = -1
 	if(ishuman(user))
+		// Calculate this person's scan accuracy
 		var/mob/living/carbon/human/H = user
 		if(H.traitHolder.hasTrait("training_forensic"))
 			scan_builder.base_accuracy = 1
 		if(scan_builder.base_accuracy > 0)
+			if(scanner)
+				scan_builder.base_accuracy *= scanner.timestamp_modifier
 			if(istype(H.head, /obj/item/clothing/head/det_hat))
 				scan_builder.base_accuracy *= 0.9
 			else if(istype(H.glasses, /obj/item/clothing/glasses/scuttlebot_vr))

@@ -895,6 +895,9 @@
 			set_loc(holder)
 		..()
 
+	get_foot_pattern()
+		return "lllll"
+
 /obj/item/parts/human_parts/leg/left/synth
 	name = "synthetic left leg"
 	desc = "A left leg. Looks like a rope composed of vines. And tofu??"
@@ -914,6 +917,9 @@
 		if (holder != null)
 			set_loc(holder)
 		..()
+
+	get_foot_pattern()
+		return "lllll"
 
 /obj/item/parts/human_parts/leg/right/synth
 	name = "synthetic right leg"
@@ -1257,6 +1263,9 @@
 		handfoot_overlay_1_state = "[src.partlistPart]"
 		. = ..()
 
+	get_foot_pattern()
+		return "ll__ll"
+
 //// LIMBS ////
 /obj/item/parts/human_parts/arm/mutant/cow/left
 	name = "left cow arm"
@@ -1322,6 +1331,9 @@
 /obj/item/parts/human_parts/leg/mutant/pug
 	icon = 'icons/mob/pug/fawn.dmi'
 	partIcon = 'icons/mob/pug/fawn.dmi'
+
+	get_foot_pattern()
+		return "llOll"
 
 /obj/item/parts/human_parts/leg/mutant/pug/left
 	name = "left pug leg"

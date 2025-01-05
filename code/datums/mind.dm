@@ -72,7 +72,7 @@ datum/mind
 			src.handwriting = pick(handwriting_styles)
 			var/color_string = pick_string("colors.txt", "colors")
 			if(!colors_total[color_string])
-				colors_total[color_string] = new/datum/forensic_id(id_prefix = color_string)
+				colors_total[color_string] = new/datum/forensic_id(color_string)
 			src.color = colors_total[color_string]
 			SEND_SIGNAL(src, COMSIG_MIND_ATTACH_TO_MOB, M)
 

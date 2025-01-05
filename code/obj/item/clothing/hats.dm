@@ -1044,7 +1044,6 @@ TYPEINFO(/obj/item/clothing/head/that/gold)
 	desc = "A commitment."
 	icon_state = "syndicate_top"
 	item_state = "syndicate_top"
-	interesting = "It kinda stinks now..."
 	c_flags = SPACEWEAR // can't take it off, so may as well make it spaceworthy
 	contraband = 10 //let's set off some alarms, boys
 	is_syndicate = 1 //no easy replication thanks
@@ -1142,6 +1141,11 @@ TYPEINFO(/obj/item/clothing/head/that/gold)
 				return 0
 		else
 			return 0
+
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		..()
+		var/note = "It kinda stinks now..."
+		scan_builder.add_scan_text(note)
 
 
 /obj/item/clothing/head/bighat/syndicate/biggest

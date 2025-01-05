@@ -6,23 +6,26 @@
 // Forensic data within the groups represent an individual fingerprint, blood sample, bullet hole, or whatever else you want to store
 datum/forensic_holder
 	var/list/datum/forensic_group/evidence_list = new/list() // Forensic evidence is stored here
-	var/list/datum/forensic_group/hidden_list = new/list() // Evidence that is only visible to admins
+	var/list/datum/forensic_group/hidden_list = new/list() // Evidence that is only visible to admins (can probably be merged with above)
 	var/datum/spreader_track/spreader = null // My lazy way of storing info for footprints
-	var/timestamp_mult = 1.0 // Changes this item's timestamp accuracy. Lower the better.
+	var/accuracy_mult = 1.0 // Changes this item's timestamp accuracy. Lower the better.
 
 	var/removal_flags_ignore = 0 // These ways of removing evidence have no power here
 	var/no_fingerprints = FALSE // If true, figerprints are not allowed
-	var/is_stained = FALSE // Used to activate blood/stained overlay visuals
-	var/stain_color = "#FFFFFF" // What color is the stain if it exists
+	var/is_stained = FALSE // Used to activate blood/stained overlay visuals. Might want to move somewhere else
+	var/stain_color = null // What color is the stain if it exists.
 
 	proc/get_scan_text(var/datum/forensic_scan_builder/scan_builder)
 		// Get all the evidence and put together the text of a forensic scan
 		var/list/datum/forensic_group/ev_list = src.evidence_list
 		if(scan_builder.is_admin)
 			ev_list = src.hidden_list
+		var/prev_accuracy = scan_builder.base_accuracy
+		scan_builder.base_accuracy *= src.accuracy_mult
 		for(var/i=1, i<= ev_list.len, i++) // Add all the text to its correct list
 			var/datum/forensic_group/ev_group = ev_list[i]
-			scan_builder.add_scan_text(ev_group.get_text(scan_builder), ev_group.get_header(), src)
+			scan_builder.add_scan_text(ev_group.get_text(scan_builder), ev_group.get_header(), src, multi_line = TRUE)
+		scan_builder.base_accuracy = prev_accuracy
 
 	proc/get_group(var/category = FORENSIC_GROUP_NOTE, var/hidden = FALSE)
 		// Should I change this to a dictionary lookup?
@@ -66,14 +69,21 @@ datum/forensic_holder
 		for(var/i=src.evidence_list.len; i>= 1; i--)
 			src.evidence_list[i].remove_evidence(src, removal_flags)
 		return
-	proc/is_tracking()
+	proc/move_evidence(var/datum/forensic_holder/target, var/move_flags = ~0)
+		// TODO for merging two holders together
+		return
+	proc/copy_evidence(var/datum/forensic_holder/target, var/copy_flags = ~0)
+		// TODO for when one thing becomes two things
+		// copy_datum_vars()
+		return
+	proc/is_tracking() // Is this object spreading blood?
 		return src.spreader != null
 	proc/track_blood(turf/T, var/datum/forensic_data/multi/tracks = null)
 		src.spreader.create_track(T, tracks)
 		if(src.spreader.tracks_left == 0)
 			qdel(src.spreader)
 			src.spreader = null
-	proc/add_tracked_blood(var/b_dna, var/b_type, var/b_color, var/b_count, var/sample_reagent)
+	// proc/add_tracked_blood(var/b_dna, var/b_type, var/b_color, var/b_count, var/sample_reagent)
 
 
 datum/forensic_scan_builder // Used to gather up all the evidence and assemble the text for forensic scans
@@ -97,11 +107,13 @@ datum/forensic_scan_builder // Used to gather up all the evidence and assemble t
 			src.current_area.get_scan_text(src)
 		return assemble_scan()
 
-	proc/add_scan_text(var/scan_text, var/header = "Notes", var/datum/forensic_holder/area = null)
+	proc/add_scan_text(var/scan_text, var/header = "Notes", var/datum/forensic_holder/area = null, var/multi_line = FALSE)
 		if(!scan_text)
 			return
 		if(!area)
 			area = src.current_area
+		if(!multi_line)
+			scan_text = "<li>[scan_text]</li>"
 		var/datum/forensic_header_data/text_holder = null
 		for(var/k=1, k<= src.scan_list.len, k++)
 			if(cmptextEx(header, src.scan_list[k].header) && src.scan_list[k].holder == area)
@@ -132,7 +144,7 @@ datum/forensic_scan_builder // Used to gather up all the evidence and assemble t
 			for(var/k=2, k<= area_headers.len, k++)
 				if(!area_headers[k].get_order(area_headers[h].header))
 					h = k
-			area_text_final += "<li>" + SPAN_NOTICE(area_headers[h].header) + ": </li>" + area_headers[h].scan_text
+			area_text_final += "[SPAN_NOTICE(area_headers[h].header)]:" + area_headers[h].scan_text
 			area_headers.Cut(h, h+1)
 		if(!area_text_final)
 			area_text_final = "No evidence detected."
@@ -206,22 +218,10 @@ datum/spreader_track // Hopefully temp way for forensic holder to create tracks 
 		var/obj/decal/cleanable/blood/dynamic/tracks/B = null
 		if (T.messy > 0)
 			B = locate(/obj/decal/cleanable/blood/dynamic) in T
-		boutput(world, "Tracking blood")
 		if (!B)
 			if (T.active_liquid)
 				return
 			B = make_cleanable(/obj/decal/cleanable/blood/dynamic/tracks, T)
-/*
-		var/list/states = src.get_step_image_states()
-
-		if (states[1] || states[2])
-			if (states[1])
-				B.add_volume(src.stain_color, src.tracked_blood["sample_reagent"], 0.5, 0.5, src.tracked_blood, states[1], T, 0)
-			if (states[2])
-				B.add_volume(src.stain_color, src.tracked_blood["sample_reagent"], 0.5, 0.5, src.tracked_blood, states[2], T, 0)
-		else
-			B.add_volume(src.stain_color, src.tracked_blood["sample_reagent"], 1, 1, src.tracked_blood, "smear2", T, 0)
-*/
 		if(B.forensic_holder)
 			if(footprint)
 				B.add_evidence(footprint, FORENSIC_GROUP_TRACKS)
@@ -234,5 +234,17 @@ datum/spreader_track // Hopefully temp way for forensic holder to create tracks 
 
 		tracks_left--
 		return
+
+		/*
+		var/list/states = src.get_step_image_states()
+
+		if (states[1] || states[2])
+			if (states[1])
+				B.add_volume(src.stain_color, src.tracked_blood["sample_reagent"], 0.5, 0.5, src.tracked_blood, states[1], T, 0)
+			if (states[2])
+				B.add_volume(src.stain_color, src.tracked_blood["sample_reagent"], 0.5, 0.5, src.tracked_blood, states[2], T, 0)
+		else
+			B.add_volume(src.stain_color, src.tracked_blood["sample_reagent"], 1, 1, src.tracked_blood, "smear2", T, 0)
+		*/
 
 /mob/var/static/datum/forensic_id/drag_mob_print = new("~~~~~")

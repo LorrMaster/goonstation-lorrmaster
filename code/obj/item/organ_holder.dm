@@ -74,6 +74,7 @@
 	var/abdominal_stage = REGION_CLOSED
 	///How cut up are our flanks?
 	var/flanks_stage = REGION_CLOSED
+	var/datum/forensic_id/dna_signature = null // The forensic DNA of the organ
 
 	New(var/mob/living/L, var/ling)
 		..()
@@ -1497,32 +1498,29 @@
 		if(src.left_eye)
 			r_data.evidence_A = src.left_eye.retina_scan
 		else
-			r_data.evidence_A = r_data.retina_empty
+			r_data.evidence_A = r_data.organ_empty
 		if(src.right_eye)
 			r_data.evidence_B = src.right_eye.retina_scan
 		else
-			r_data.evidence_B = r_data.retina_empty
+			r_data.evidence_B = r_data.organ_empty
 		r_data.mirror_B = TRUE
 		r_data.flags = REMOVABLE_DATA
 		r_data.display = r_data.disp_pair
 		return r_data
 
-	proc/apply_scanner_evidence(var/datum/forensic_id/scan_id)
+	proc/apply_scanner_evidence(var/datum/forensic_id/scan_id, var/datum/forensic_display/scan_disp = /datum/forensic_data/basic::disp_empty)
 		// apply the scan evidence to every organ in the body (maybe ignore robotic organs?)
 		if (islist(src.organ_list))
 			for (var/i in src.organ_list)
 				var/obj/item/organ/O = src.organ_list[i]
 				if (istype(O) && !O.robotic)
-					var/datum/forensic_data/basic/f_data = new(scan_id)
-					f_data.flags = REMOVABLE_CLEANING
+					var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
 					O.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 			if(src.skull)
-				var/datum/forensic_data/basic/f_data = new(scan_id)
-				f_data.flags = REMOVABLE_CLEANING
+				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
 				src.skull.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 			if(src.butt)
-				var/datum/forensic_data/basic/f_data = new(scan_id)
-				f_data.flags = REMOVABLE_CLEANING
+				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
 				src.butt.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 /*=================================*/

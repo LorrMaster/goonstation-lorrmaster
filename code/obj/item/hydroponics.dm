@@ -400,7 +400,7 @@ TYPEINFO(/obj/item/plantanalyzer)
 	icon_state = "plantanalyzer"
 	w_class = W_CLASS_TINY
 	c_flags = ONBELT
-	var/datum/forensic_id/forensic_lead = new(5, CHAR_LIST_NUM, "PLANT-")
+	var/datum/forensic_id/forensic_lead = new("PLANT-", "", 5, CHAR_LIST_NUM)
 
 	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
 		if (BOUNDS_DIST(A, user) > 0)

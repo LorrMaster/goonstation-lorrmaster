@@ -34,6 +34,8 @@
 	var/beacon_freq = FREQ_NAVBEACON //Beacon frequency for locating beacons (I love beacons)
 	var/net_id = null //Hello dude intercepting our radio transmissions, here is a number that is not just \ref
 	var/scannable = TRUE // Whether this PDA is picked up when scanning for PDAs on the messenger
+	// PDA scanners have their forensic prefix (HLTH-xxxxx) added in as part of the display during scanning
+	var/datum/forensic_id/scan_lead = new("", "-PDA", 5, CHAR_LIST_NUM)
 
 	var/tmp/list/pdasay_autocomplete = list()
 
@@ -98,6 +100,11 @@
 
 	registered_owner()
 		.= registered
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		var/id_note = "Scanner particle ID: [src.scan_lead.id]"
+		scan_builder.add_scan_text(id_note)
 
 
 /*

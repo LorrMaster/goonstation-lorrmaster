@@ -28,11 +28,16 @@ TYPEINFO(/obj/machinery/photocopier)
 
 	var/net_id = ""
 	var/frequency = FREQ_FREE
+	var/static/datum/forensic_display/lead_display = new("Photocopy (Printer ID: @F)")
+	var/datum/forensic_id/lead_printer
+	var/datum/forensic_id/lead_scanner = new("PCOPY-", "", 5, CHAR_LIST_NUM)
 
 	New()
 		..()
 		src.net_id = generate_net_id(src)
 		MAKE_DEFAULT_RADIO_PACKET_COMPONENT(src.net_id, null, frequency)
+		lead_printer = new()
+		src.lead_printer.id += lead_printer.build_id(1, CHAR_LIST_UPPER_LIMIT) + lead_printer.build_id(3, CHAR_LIST_NUM)
 
 	get_desc(dist)
 		var/desc_string = ""
@@ -208,6 +213,12 @@ TYPEINFO(/obj/machinery/photocopier)
 			boutput(user, SPAN_NOTICE("You reset the security settings on the [src]."))
 		return 1
 
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		var/printer_note = "Photocopier printer ID: [src.lead_printer.id]"
+		var/scanner_note = "Photocopier scanner ID: [src.lead_scanner.id]"
+		scan_builder.add_scan_text(printer_note)
+		scan_builder.add_scan_text(scanner_note)
+
 	proc/interact_settings(var/mob/user) // Aditional settings in a seperate menu
 		var/isUserSilicon = issilicon(user) || isAI(user)
 		var/list/sel_list = list("Reset Memory", "Print Network Data")
@@ -359,16 +370,22 @@ TYPEINFO(/obj/machinery/photocopier)
 				effect_printing("print")
 				var/obj/item/paper/P = create_paper(src.print_info)
 				P.set_loc(get_turf(src))
+				var/datum/forensic_data/basic/f_data = new(src.lead_printer, lead_display)
+				P.add_evidence(f_data)
 				try_put_in_folder(P)
 			if ("photo")
 				effect_printing("print")
 				var/obj/item/photo/P = create_photo(src.print_info)
 				P.set_loc(get_turf(src))
+				var/datum/forensic_data/basic/f_data = new(src.lead_printer, lead_display)
+				P.add_evidence(f_data)
 				try_put_in_folder(P)
 			if ("paper_photo")
 				effect_printing("print")
 				var/obj/item/paper/printout/P = create_paper_photo(src.print_info)
 				P.set_loc(get_turf(src))
+				var/datum/forensic_data/basic/f_data = new(src.lead_printer, lead_display)
+				P.add_evidence(f_data)
 				try_put_in_folder(P)
 			if ("butt")
 				effect_printing("print")
@@ -378,10 +395,14 @@ TYPEINFO(/obj/machinery/photocopier)
 				P.info = "{<b>butt butt butt butt butt butt<br>butt butt<br>butt</b>}" //6 butts then 2 butts then 1 butt haha
 				P.icon = 'icons/obj/items/organs/butt.dmi'
 				P.icon_state = "butt"
+				var/datum/forensic_data/basic/f_data = new(src.lead_printer, lead_display)
+				P.add_evidence(f_data)
 			if ("poster_wanted")
 				effect_printing("print")
 				var/obj/item/poster/titled_photo/W = create_wanted_poster(src.print_info)
 				W.set_loc(get_turf(src))
+				var/datum/forensic_data/basic/f_data = new(src.lead_printer, lead_display)
+				W.add_evidence(f_data)
 				try_put_in_folder(W)
 			if("booklet")
 				effect_printing("print")
@@ -390,12 +411,16 @@ TYPEINFO(/obj/machinery/photocopier)
 				if(src.sheets_left == 0)
 					var/obj/item/paper_booklet/B = create_booklet()
 					B.set_loc(get_turf(src))
+					var/datum/forensic_data/basic/f_data = new(src.lead_printer, lead_display)
+					B.add_evidence(f_data)
 			if("folder")
 				effect_printing("print")
 				var/sheet_index = sheets_per_item - sheets_left
 				var/list/sheet_info = src.print_info["page_[sheet_index]"]
 				var/obj/item/P = create_subitem(sheet_info)
 				P.set_loc(get_turf(src))
+				var/datum/forensic_data/basic/f_data = new(src.lead_printer, lead_display)
+				P.add_evidence(f_data)
 				try_put_in_folder(P)
 			if ("cash_fake")
 				effect_printing("print_cash")
@@ -599,6 +624,11 @@ TYPEINFO(/obj/machinery/photocopier)
 				F.set_loc(get_turf(src))
 			else
 				scan_folder(F, user)
+		else
+			return
+		var/datum/forensic_data/basic/f_data = new(src.lead_scanner, flags = REMOVABLE_CLEANING)
+		w.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+
 	proc/scan_setup(var/obj/item/w, var/mob/user) // Run this before scanning items using an animation
 		src.reset_all()
 		src.use_state = 2
@@ -615,6 +645,8 @@ TYPEINFO(/obj/machinery/photocopier)
 		else if(istype(w, /obj/item/photo))
 			var/obj/item/photo/P = w
 			sheet_info = scan_photo_data(P)
+		var/datum/forensic_data/basic/f_data = new(src.lead_scanner, flags = REMOVABLE_CLEANING)
+		w.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		return sheet_info
 	proc/scan_paper(var/obj/item/paper/P, var/mob/user)
 		scan_setup(P, user)

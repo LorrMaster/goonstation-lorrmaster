@@ -116,6 +116,13 @@ ABSTRACT_TYPE(/datum/artifact/)
 		SHOULD_CALL_PARENT(TRUE)
 		src.artitype.post_setup(holder)
 		OTHER_START_TRACKING_CAT(holder, TR_CAT_ARTIFACTS)
+		var/random = rand()
+		if(random < 0.5)
+			holder.forensic_holder?.accuracy_mult *= 3
+		else if(random < 0.9)
+			holder.forensic_holder?.accuracy_mult *= rand() * 2
+		else
+			holder.forensic_holder?.accuracy_mult = 0
 
 	disposing()
 		if(src.artitype)
@@ -163,7 +170,6 @@ ABSTRACT_TYPE(/datum/artifact/)
 	proc/effect_touch(var/obj/O,var/mob/living/user)
 		if (!O || !user)
 			return 1
-		O.add_fingerprint(user)
 		return 0
 
 	/// What the artifact does when it is activated and you smack a person with it.
@@ -171,7 +177,6 @@ ABSTRACT_TYPE(/datum/artifact/)
 	proc/effect_melee_attack(var/obj/O,var/mob/living/user,var/mob/living/target)
 		if (!O || !user || !target)
 			return 1
-		O.add_fingerprint(user)
 		ArtifactLogs(user, target, O, "weapon", null, 0)
 		return 0
 

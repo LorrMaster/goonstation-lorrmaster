@@ -93,8 +93,6 @@
 	var/makeup = null // for when you wanna look pretty
 	var/makeup_color = null
 
-	var/gunshot_residue = 0 // Fire a kinetic firearm and get forensic evidence all over you (Convair880).
-
 	var/datum/hud/human/hud
 	var/mini_health_hud = 0
 
@@ -3686,7 +3684,7 @@ mob/living/carbon/human/has_genetics()
 	else
 		var/datum/forensic_data/multi/f_data = get_footprints()
 		var/note_footprints = f_data.scan_display()
-		scan_builder.add_scan_text("<li>[src]'s footprints: [note_footprints]</li>")
+		scan_builder.add_scan_text("[src]'s footprints: [note_footprints]")
 	if(src.gloves)
 		scan_builder.add_target(src.gloves)
 
@@ -3704,37 +3702,33 @@ mob/living/carbon/human/has_genetics()
 			if(src.limbs.l_leg)
 				f_data.evidence_A = src.limbs.l_leg.footprint
 			else
-				f_data.evidence_A = f_data.retina_empty
+				f_data.evidence_A = f_data.organ_empty
 			if(src.limbs.r_leg)
 				f_data.evidence_B = src.limbs.r_leg.footprint
 			else
-				f_data.evidence_B = f_data.retina_empty
+				f_data.evidence_B = f_data.organ_empty
 	f_data.display = f_data.disp_pair
 	return f_data
 
-/mob/living/carbon/human/proc/apply_scanner_evidence(var/datum/forensic_id/scan_id)
+/mob/living/carbon/human/proc/apply_scanner_evidence(var/datum/forensic_id/scan_id, var/datum/forensic_display/scan_disp = /datum/forensic_data/basic::disp_empty)
 	// Apply the evidence to every non-robo limb/organ in the body. Only works with scan particles for now.
 	src.organHolder?.apply_scanner_evidence(scan_id)
 	if(src.limbs)
 		if(src.limbs.r_arm)
 			if(!isrobolimb(src.limbs.r_arm))
-				var/datum/forensic_data/basic/f_data = new(scan_id)
-				f_data.flags = REMOVABLE_CLEANING
+				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
 				src.limbs.r_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		if(src.limbs.l_arm)
 			if(!isrobolimb(src.limbs.l_arm))
-				var/datum/forensic_data/basic/f_data = new(scan_id)
-				f_data.flags = REMOVABLE_CLEANING
+				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
 				src.limbs.l_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		if(src.limbs.r_leg)
 			if(!isrobolimb(src.limbs.r_leg))
-				var/datum/forensic_data/basic/f_data = new(scan_id)
-				f_data.flags = REMOVABLE_CLEANING
+				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
 				src.limbs.r_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 		if(src.limbs.l_leg)
 			if(!isrobolimb(src.limbs.l_leg))
-				var/datum/forensic_data/basic/f_data = new(scan_id)
-				f_data.flags = REMOVABLE_CLEANING
+				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
 				src.limbs.l_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 

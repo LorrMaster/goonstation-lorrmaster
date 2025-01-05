@@ -104,7 +104,8 @@
 
 			if(HA.organ_scan)
 				boutput(user, "<br><span style='color:purple'><b>[src]</b> - [src.get_damage()]</span>")
-				src.add_evidence(HA.forensic_lead.create_basic(REMOVABLE_CLEANING), FORENSIC_GROUP_SCAN)
+				var/datum/forensic_data/basic/f_data = new(HA.forensic_lead, flags = REMOVABLE_CLEANING)
+				src.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 				return
 			if (HA.organ_upgrade && !HA.organ_scan)
 				boutput(user, "<br><span style='color:purple'><b>You need to turn on the organ scan function to get a reading.</span>")
