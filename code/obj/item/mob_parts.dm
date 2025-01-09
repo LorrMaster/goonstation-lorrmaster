@@ -99,7 +99,7 @@ ABSTRACT_TYPE(/obj/item/parts)
 	/// Can break cuffs/shackles instantly if both limbs have this set. Has to be this high because limb pathing is a fuck.
 	var/breaks_cuffs = FALSE
 	var/datum/forensic_id/dna_signature = null
-	var/datum/forensic_id/footprint = null // Every part currently has a footprint. Need to differentiate between them.
+	var/datum/forensic_id/limb_print = null // Footprints / fingerprints
 
 	New(atom/new_holder)
 		..()
@@ -107,14 +107,12 @@ ABSTRACT_TYPE(/obj/item/parts)
 			src.holder = new_holder
 			if(!isrobolimb(src))
 				src.dna_signature = src.holder.bioHolder?.dna_signature
-				src.footprint = src.holder.bioHolder?.footprint_default
-		if(!footprint)
-			var/pattern = get_foot_pattern()
-			if(!pattern)
-				src.footprint = /datum/forensic_data/multi::organ_empty
-			else
-				src.footprint = new/datum/forensic_id
-				src.footprint.build_id_footprint(get_foot_pattern())
+				if(src.slot == "r_arm" || src.slot == "l_arm")
+					src.limb_print = src.holder.bioHolder?.fingerprint_default
+				if(src.slot == "r_leg" || src.slot == "l_leg")
+					src.limb_print = src.holder.bioHolder?.footprint_default
+		if(!limb_print)
+			build_limb_print()
 
 		src.limb_data = new src.limb_type(src)
 		if (holder && movement_modifier)
@@ -400,21 +398,26 @@ ABSTRACT_TYPE(/obj/item/parts)
 		if (src.skintoned)
 			return src.skin_tone
 		return src.fingertip_color
-	proc/get_foot_pattern()
-		// What kind of footprints this limb makes
-		// Need to make this different for arms, treads, artifacts, cyborg limbs... ughhh...
-		// Arms should use fingerprints as their footprint?
-		// Eldrich legs: sls / Martian legs: lsl
-		// Precursor: None
-		return "sllll"
+	proc/build_limb_print()
+		// What kind of fingerprint/footprint this limb makes
+		return
 
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		..()
 		if(src.dna_signature)
 			var/note_dna = "[src]'s DNA: [src.dna_signature.id]"
 			scan_builder.add_scan_text(note_dna)
-		var/note_footprint = "[src]'s Footprint: [src.footprint.id]"
-		scan_builder.add_scan_text(note_footprint)
+		var/note_print = null
+		if(src.limb_print)
+			if(slot == "r_arm" || slot == "l_arm")
+				note_print = "[src]'s Fingerprint: [src.limb_print.id]"
+			else if(slot == "r_leg" || slot == "l_leg")
+				note_print = "[src]'s Footprint: [src.limb_print.id]"
+			else if(slot == "head")
+				note_print = "[src]'s Bite mark: [src.limb_print.id]"
+
+		if(note_print)
+			scan_builder.add_scan_text(note_print)
 
 
 /obj/item/proc/streak_object(var/list/directions, var/streak_splatter) //stolen from gibs

@@ -313,8 +313,10 @@
 	on_holder_examine()
 		if (src.show_on_examine)
 			return "has [bicon(src)] \an [initial(src.name)] attached as a"
-	get_foot_pattern()
-		return "sll"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_fingerprint(CHAR_LIST_FINGERPRINT)
+		return
 
 	proc/foreign_limb_effect()
 		if(rebelliousness < 10 && prob(20))
@@ -402,6 +404,10 @@
 	object_flags = NO_ARM_ATTACH
 	var/rebelliousness = 0
 
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("sllll")
+		return
 	on_holder_examine()
 		if (src.show_on_examine)
 			return "has [bicon(src)] \an [initial(src.name)] attached as a"
@@ -895,9 +901,6 @@
 			set_loc(holder)
 		..()
 
-	get_foot_pattern()
-		return "lllll"
-
 /obj/item/parts/human_parts/leg/left/synth
 	name = "synthetic left leg"
 	desc = "A left leg. Looks like a rope composed of vines. And tofu??"
@@ -918,8 +921,10 @@
 			set_loc(holder)
 		..()
 
-	get_foot_pattern()
-		return "lllll"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("lllll")
+		return
 
 /obj/item/parts/human_parts/leg/right/synth
 	name = "synthetic right leg"
@@ -940,6 +945,11 @@
 		if (holder != null)
 			set_loc(holder)
 		..()
+
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("lllll")
+		return
 
 
 /obj/item/parts/human_parts/arm/left/synth/bloom
@@ -1263,8 +1273,9 @@
 		handfoot_overlay_1_state = "[src.partlistPart]"
 		. = ..()
 
-	get_foot_pattern()
-		return "ll__ll"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("ll__ll")
 
 //// LIMBS ////
 /obj/item/parts/human_parts/arm/mutant/cow/left
@@ -1332,8 +1343,9 @@
 	icon = 'icons/mob/pug/fawn.dmi'
 	partIcon = 'icons/mob/pug/fawn.dmi'
 
-	get_foot_pattern()
-		return "llOll"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("llOll")
 
 /obj/item/parts/human_parts/leg/mutant/pug/left
 	name = "left pug leg"
@@ -2115,6 +2127,10 @@
 	side = "left"
 	handlistPart = "hand_left"
 
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_fingerprint(CHAR_LIST_HEX)
+
 /obj/item/parts/human_parts/arm/mutant/virtual/right
 	name = "left virtual arm"
 	desc = "A simulated right arm"
@@ -2122,6 +2138,10 @@
 	slot = "r_arm"
 	side = "right"
 	handlistPart = "hand_right"
+
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_fingerprint(CHAR_LIST_HEX)
 
 /obj/item/parts/human_parts/leg/mutant/virtual/left
 	name = "left virtual leg"
@@ -2132,6 +2152,10 @@
 	partlistPart = "foot_left"
 	step_image_state = "footprintsL"
 
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("snnnn")
+
 /obj/item/parts/human_parts/leg/mutant/virtual/right
 	name = "right virtual leg"
 	desc = "A simulated right leg."
@@ -2140,6 +2164,10 @@
 	side = "right"
 	partlistPart = "foot_right"
 	step_image_state = "footprintsR"
+
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("snnnn")
 
 /// ITHILLID LIMBS ///
 ///// PARENT /////

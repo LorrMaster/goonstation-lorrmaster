@@ -4,7 +4,6 @@
 	var/tmp/fingerprintslast = null
 	var/tmp/blood_DNA = null
 	var/tmp/blood_type = null
-	var/tmp/forensics_blood_color = null // only exists because human overlays are a headache, preserves color from add_blood
 
 	// -------------------- New Stuff -----------
 	var/datum/forensic_holder/forensic_holder = new()
@@ -21,16 +20,35 @@
 	if (!ismob(M) || isnull(M.key))
 		return
 	var/mob/living/carbon/human/H = M
+	if(!H.limbs) // I don't think this should ever be the case?
+		return
+
 	var/datum/forensic_data/fingerprint/fp = new()
-	fp.print = H.bioHolder.fingerprint_default
+	// istype(H.r_hand, /obj/item/magtractor)
+	if(H.hand == 0 && H.limbs.r_arm)
+		if(isitemlimb(H.limbs.r_arm))
+			return
+		else
+			fp.print = H.limbs.r_arm.limb_print
+	else if(H.hand == 1 && H.limbs.l_arm)
+		if(isitemlimb(H.limbs.l_arm))
+			return
+		else
+			fp.print = H.limbs.l_arm.limb_print
+	else
+		return
+	if(!fp.print)
+		fp.print = H.bioHolder.fingerprint_default
+		boutput(world, "Fingerprint not found.")
+
 	if(H.gloves && !ignore_gloves)
 		fp.glove_print = H.gloves.fiber_id
 		fp.print_mask = H.gloves.fiber_mask
 	ADD_FLAG(fp.flags, REMOVABLE_CLEANING)
 	if(is_fake)
 		ADD_FLAG(fp.flags, IS_JUNK)
-	else
-		add_adminprint(M)
+	//else
+		//add_adminprint(M)
 	src.forensic_holder.add_evidence(fp, FORENSIC_GROUP_FINGERPRINT, admin_only)
 	if(M.mind && !ignore_sleuth)
 		var/datum/forensic_data/basic/color_data = new(M.mind.color)
@@ -40,10 +58,10 @@
 /atom/proc/add_adminprint(mob/living/M)
 	if (!ismob(M) || isnull(M.key))
 		return
-	//var/datum/player = M.mind?.get_player()
-	//if(M.mind.get_player())
-		//var/datum/forensic_data/basic/color_data = new(M.mind.color)
-		//src.forensic_holder.add_evidence(color_data, FORENSIC_GROUP_ADMIN)
+	var/datum/player/pl = M.mind?.get_player()
+	if(pl)
+		var/datum/forensic_data/adminprint/a_print = new(pl)
+		src.forensic_holder?.add_evidence(a_print, FORENSIC_GROUP_ADMINPRINT)
 
 /atom/proc/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 	if(!src.forensic_holder)

@@ -3679,31 +3679,49 @@ mob/living/carbon/human/has_genetics()
 	if(src.shoes)
 		scan_builder.add_target(src.shoes)
 	else
-		var/datum/forensic_data/multi/f_data = get_footprints()
+		var/datum/forensic_data/multi/f_data = get_footprints(ignore_chair = TRUE)
 		var/note_footprints = f_data.scan_display()
 		scan_builder.add_scan_text("[src]'s footprints: [note_footprints]")
 	if(src.gloves)
 		scan_builder.add_target(src.gloves)
-
-/mob/living/carbon/human/proc/get_footprints(var/timestamp = 0)
-	var/datum/forensic_data/multi/f_data = new()
-	// Need to account for having one set of treads, and other potential half-shoelessness
-	if(src.shoes)
-		f_data.evidence_A = src.shoes.shoe_print_l
-		f_data.evidence_B = src.shoes.shoe_print_r
-	else if(src.limbs)
-		if(!src.limbs.l_leg && !src.limbs.r_leg)
-			f_data.evidence_A = src.drag_mob_print
-			f_data.evidence_B = src.drag_mob_print
+	else if(src.limbs.l_arm && src.limbs.r_arm)
+		if(src.limbs.l_arm.limb_data == src.limbs.r_arm.limb_data)
+			scan_builder.add_scan_text("[src]'s fingerprints: [src.limbs.l_arm.limb_data]")
 		else
-			if(src.limbs.l_leg)
-				f_data.evidence_A = src.limbs.l_leg.footprint
-			else
-				f_data.evidence_A = f_data.organ_empty
-			if(src.limbs.r_leg)
-				f_data.evidence_B = src.limbs.r_leg.footprint
-			else
-				f_data.evidence_B = f_data.organ_empty
+			scan_builder.add_scan_text("Right arm's fingerprint: [src.limbs.r_arm.limb_data]")
+			scan_builder.add_scan_text("Left arm's fingerprint: [src.limbs.l_arm.limb_data]")
+	else if(src.limbs.r_arm)
+		scan_builder.add_scan_text("Right arm's fingerprint: [src.limbs.r_arm.limb_data]")
+	else if(src.limbs.l_arm)
+		scan_builder.add_scan_text("Left arm's fingerprint: [src.limbs.l_arm.limb_data]")
+
+/mob/living/carbon/human/proc/get_footprints(var/ignore_chair = FALSE)
+	if(!ignore_chair)
+		var/status = src.hasStatus("buckled")
+		if(status && istype(status, /datum/statusEffect/buckled))
+			var/datum/statusEffect/buckled/b_status = status
+			if(istype(b_status.buckled_to))
+				return b_status.buckled_to.get_chairprint()
+	var/datum/forensic_data/multi/f_data = new()
+	if(!src.limbs) // Just in case
+		f_data.evidence_A = src.drag_mob_print
+		f_data.evidence_B = src.drag_mob_print
+	if(!src.limbs.l_leg && !src.limbs.r_leg)
+		f_data.evidence_A = src.drag_mob_print
+		f_data.evidence_B = src.drag_mob_print
+	else
+		if(!src.limbs.l_leg || src.limbs.l_leg.limb_print == null)
+			f_data.evidence_A = f_data.organ_empty
+		else if(src.shoes && !istread(src.limbs.l_leg))
+			f_data.evidence_A = src.shoes.shoe_print_l
+		else
+			f_data.evidence_A = src.limbs.l_leg.limb_print
+		if(!src.limbs.r_leg || src.limbs.r_leg.limb_print == null)
+			f_data.evidence_B = f_data.organ_empty
+		else if(src.shoes && !istread(src.limbs.r_leg))
+			f_data.evidence_B = src.shoes.shoe_print_r
+		else
+			f_data.evidence_B = src.limbs.r_leg.limb_print
 	f_data.display = f_data.disp_pair
 	return f_data
 

@@ -445,6 +445,7 @@ ABSTRACT_TYPE(/obj/item)
 		SPAN_NOTICE("You take a bite of [src]!"))
 
 //disgusting proc. merge with foods later. PLEASE
+// as someone else trying to add an eating effect. I agree.
 /obj/item/proc/Eat(var/mob/M as mob, var/mob/user, var/by_matter_eater=FALSE, var/force_edible = FALSE)
 	if (!iscarbon(M) && !ismobcritter(M))
 		return FALSE
@@ -462,9 +463,8 @@ ABSTRACT_TYPE(/obj/item)
 		src.eat_msg(M)
 		if (src.material && (src.material.getEdible() || edibility_override))
 			src.material.triggerEat(M, src)
-
 		if (M.bioHolder)
-			var/datum/forensic_data/dna/dna_evid = new(M.bioHolder.dna_signature, DNA_FORM_SALIVA, TIME)
+			var/datum/forensic_data/dna/dna_evid = new(M.bioHolder.dna_signature, DNA_FORM_SALIVA)
 			src.add_evidence(dna_evid, FORENSIC_GROUP_DNA)
 		if (src.reagents && src.reagents.total_volume)
 			src.reagents.reaction(M, INGEST)
@@ -507,6 +507,9 @@ ABSTRACT_TYPE(/obj/item)
 		SPAN_ALERT("<b>[user]</b> feeds you [src]!"))
 	logTheThing(LOG_COMBAT, user, "feeds [constructTarget(M,"combat")] [src] [log_reagents(src)]")
 
+	if (M.bioHolder)
+		var/datum/forensic_data/dna/dna_evid = new(M.bioHolder.dna_signature, DNA_FORM_SALIVA, TIME)
+		src.add_evidence(dna_evid, FORENSIC_GROUP_DNA)
 	if (src.material && (src.material.getEdible() || edibility_override))
 		src.material.triggerEat(M, src)
 

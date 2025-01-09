@@ -1,23 +1,18 @@
 /*
 TODO:
  - Forensic scan reports need improvements
- - Saliva on food, drinks
  - Lots of work to do with blood in general
 	- Simplify getting DNA from blood regents
  - Store types of IDs into a dictionary and check for duplicates
  - Replace "interesting" text with new system
  - Update security logs to use the new system
 	- Not sure how in-depth this should be
- - Maybe atoms should start with no forensics_holder, then create them as needed?
- - Fingerprints tied to limbs
-	- Robo arms use numbers for their fingerprints
  - Remove & replace all the old forensics stuff in general
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction
  - Forensics does not carry over to implanted bullets
  - Blood tracks leave behind the wearer's DNA even if they were not bleeding
- - All mob parts have footprints and display them
 
 Lower Priority
  - Imports should specify a trader, or potential traders
@@ -29,25 +24,19 @@ Lower Priority
  	- Attach cleanables to floor tiles
  - Luminol should glow and work on mobs/turf
 		- Rework luminol timer.
-
-Require Discussion
- - How much admin stuff is needed?
-	- Save everything or just care about player names?
- - System of access logs for airlocks
-	- Should probably not be included initially
-	- Doesn't have to be exact
- - Remove security access from detective
 */
 
-// New glove masks?:
-// - Fix fingerless
-// - More than one region, with set number of characters per region
-// - Random characters?
-// - Reveal a single character in a "bunch"
-	// -?g??-
+// ...-??y?-...
+// ..y..-?-?-?
+// ?-?-..g..-?
+
+// Mask minigames:
+// Reveal one char and its position in the bunch: (1/4)
+// Reveal the order of three characters (1/8)
+// Reveal which bunch a char is in (1/4)
 
 #define FORENSIC_GROUP_NONE 0
-#define FORENSIC_GROUP_ADMIN 1
+#define FORENSIC_GROUP_ADMINPRINT 1
 #define FORENSIC_GROUP_NOTE 2 // Basically a misc section
 #define FORENSIC_GROUP_FINGERPRINT 3
 #define FORENSIC_GROUP_DNA 4
@@ -58,6 +47,8 @@ Require Discussion
 #define FORENSIC_GROUP_HEALTH_FLOOR 9 // DNA + Footprints
 #define FORENSIC_GROUP_HEALTH_ANALYZER 10 // DNA + retina scan
 #define FORENSIC_GROUP_SLEUTH_COLOR 11 // Pug sleuthing
+#define FORENSIC_GROUP_PROJ_HIT 12
+#define FORENSIC_GROUP_BITE 13
 
 /proc/forensic_group_create(var/category) // Create a new group from its unique variable
 	// Is there a better way to do this? IDK.
@@ -81,6 +72,8 @@ Require Discussion
 			G = new/datum/forensic_group/multi_list/log_health_analyzer
 		if(FORENSIC_GROUP_SLEUTH_COLOR)
 			G = new/datum/forensic_group/basic_list/sleuth_color
+		if(FORENSIC_GROUP_BITE)
+			G = new/datum/forensic_group/basic_list/bite
 	return G
 
 #define IS_HIDDEN (1 << 1) // Only admins can see this evidence
@@ -100,9 +93,12 @@ Require Discussion
 #define DNA_FORM_BONE 5
 #define DNA_FORM_SALIVA 6
 
-#define PROJECTILE_THROUGH 1
-#define PROJECTILE_EMBEDDED 2
-#define PROJECTILE_BOUNCE 3
+#define PROJ_BULLET_THROUGH 1
+#define PROJ_BULLET_EMBEDDED 2
+#define PROJ_BULLET_BOUNCE 3
+#define PROJ_LASER_BURN_MARK 4
+#define PROJ_LASER_REFLECT 5
+
 
 #define HEADER_NOTES "Notes"
 #define HEADER_FINGERPRINTS "Fingerprints"
@@ -119,9 +115,10 @@ Require Discussion
 #define CHAR_LIST_LOWER_LIMIT CHAR_LIST_LOWER - list("i","j","l","o")
 
 // chars_fingerprint is limited to 'round-ish' letters (with a few exceptions)
-#define CHAR_LIST_FINGERPRINT list("a","b","c","d","e","g","n","o","p","r","s","u","v","x","y")
+#define CHAR_LIST_FINGERPRINT list("a","b","c","d","e","g","n","o","p","q","r","s","u","v","x","y")
 #define CHAR_LIST_FIBERS list("c","f","h","i","j","k","l","n","o","r","s","t","u","v","y","z")
 #define CHAR_LIST_GUN list("=","=","=","=","=","-","-","-","0","8","U","V","C","S","#","_","%","&","+","*","~")
+#define CHAR_LIST_BITE list("O","O","O","o","o","o","o","o","u","u","u","U","U","-","n","c","c","C","w","W","M","m","Y","Q","~","#","d","p","b","q")
 
 #define CHAR_LIST_RETINA_L list("(","{",@"[","|") // ("(","{",@"[","|","<",@"/",@"\")
 #define CHAR_LIST_RETINA_R list(")","}",@"]","|") // (")","}",@"]","|",">",@"\",@"/")
@@ -132,16 +129,8 @@ Require Discussion
 #define CHAR_LIST_RETINA_SYNTH list("b","d","p","P","q")
 #define CHAR_LIST_RETINA_ARTIFACT list("Y","H","K","A")
 
-//-----------------------| Footprints |------------------
-// Leg: sllll
-// arm: sll
-// Synthetic Leg: lllll
-// Flippers: sssslll
-// Hooves: ll_ll
 //--------------------| Fingerprints |--------------
-// Changling arms: letters+symbols (different for each arm)
-// Cyborg light: numbers
-// Cyborg standard: hex
+// Changling arms: letters with repeat? (different for each arm)
 //--------------------| Serial Numbers |--------------
 // Cyborg: S# XXXX-XXXX-XXXX-XXXX
 // Items: XXXX-XXXX

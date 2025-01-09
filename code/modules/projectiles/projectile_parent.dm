@@ -126,6 +126,8 @@
 
 	/// Simulate standard atmos for any mobs inside
 	var/has_atmosphere = FALSE
+	var/static/datum/forensic_id/lead_kinetic = new("Kinetic Impact")
+	var/static/datum/forensic_id/lead_energy = new("Energy Impact")
 
 	disposing()
 		special_data = null
@@ -229,6 +231,7 @@
 
 		//Trigger material on attack.
 		proj_data?.material?.triggerOnAttack(src, src.shooter, A)
+		collide_forensics(A)
 
 		if (istype(A,/turf))
 			// if we hit a turf apparently the bullet is magical and hits every single object in the tile, nice shooting tex
@@ -284,6 +287,19 @@
 				die()
 		else
 			die()
+
+	proc/collide_forensics(var/atom/A) // Determine what kind of forensic evidence the projectile leaves behind
+		if(src.proj_data.ie_type == "T")
+			// Tasers leave behind no evidence
+			return
+		if(src.proj_data.ie_type == "K") // Kinetic
+			var/datum/forensic_data/basic/k_data = new(lead_kinetic, flags = REMOVABLE_REPAIR)
+			A.add_evidence(k_data)
+			return
+		if(src.proj_data.ie_type == "E") // Energy
+			var/datum/forensic_data/basic/e_data = new(lead_energy, flags = REMOVABLE_REPAIR)
+			A.add_evidence(e_data)
+			return
 
 	proc/die()
 		has_died = TRUE

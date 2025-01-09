@@ -2365,7 +2365,7 @@
 		sortList(OL, /proc/cmp_text_asc)
 
 		while(TRUE)
-			var/IP = input(output_target, "Select item to view fingerprints, cancel to close window.", "[src]'s inventory") as null|anything in OL
+			var/IP = input(output_target, "Select item to view forensics, cancel to close window.", "[src]'s inventory") as null|anything in OL
 
 			if (!IP || !output_target || !ismob(output_target))
 				return
@@ -2382,7 +2382,7 @@
 				output_target.show_text("Selected object reference is invalid (item deleted?). Try freshing the list.", "red")
 
 			if (output_target.client)
-				output_target.client.view_fingerprints(OL[IP])
+				output_target.client.view_forensics(OL[IP])
 
 	return
 #undef REFRESH

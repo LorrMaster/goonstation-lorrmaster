@@ -55,6 +55,7 @@
 	var/obj/item/ears = null //can be either obj/item/clothing/ears/ or obj/item/device/radio/headset, but those paths diverge a lot
 	var/obj/item/clothing/mask/wear_mask = null
 	var/obj/item/clothing/glasses/glasses = null
+	var/datum/forensic_id/bite_mark = null // Pattern left behind when eating and such
 
 	appearance_flags = KEEP_TOGETHER | PIXEL_SCALE
 
@@ -77,6 +78,8 @@
 			src.UpdateIcon(/*makeshitup*/ 1)
 		if (!src.chat_text)
 			src.chat_text = new(null, src)
+		src.bite_mark = new()
+		bite_mark.build_id_bite()
 
 	throw_at(atom/target, range, speed, list/params, turf/thrown_from, mob/thrown_by, throw_type = 1,
 			allow_anchored = UNANCHORED, bonus_throwforce = 0, end_throw_callback = null)

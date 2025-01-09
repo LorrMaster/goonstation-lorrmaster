@@ -35,11 +35,14 @@
 	var/list/scoot_sounds = null
 	var/parts_type = /obj/item/furniture_parts/stool
 	material_amt = 0.1
+	var/datum/forensic_id/chairprint = null // What footprint a player buckled to a stool makes. Because wheelchairs.
 
 	New()
 		START_TRACKING
 		if (!src.anchored && src.securable) // we're able to toggle between being secured to the floor or not, and we started unsecured
 			src.p_class = 2 // so make us easy to move
+		src.chairprint = new()
+		src.chairprint.build_id_footprint(get_chairprint_pattern())
 		..()
 
 	ex_act(severity)
@@ -123,6 +126,12 @@
 		if (src.buckled_guy)
 			src.buckled_guy.end_chair_flip_targeting()
 
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		var/datum/forensic_data/multi/f_data = get_chairprint()
+		var/note_chairprints = f_data.scan_display()
+		scan_builder.add_scan_text("[src]'s chairprints: [note_chairprints]")
+
 	proc/toggle_secure(mob/user as mob)
 		if (user)
 			user.visible_message("<b>[user]</b> [src.anchored ? "loosens" : "tightens"] the castors of [src].[istype(src.loc, /turf/space) ? " It doesn't do much, though, since [src] is in space and all." : null]")
@@ -154,12 +163,27 @@
 		. = ..()
 		if (. && islist(scoot_sounds) && scoot_sounds.len && prob(75))
 			playsound( get_turf(src), pick( scoot_sounds ), 50, 1 )
+	proc/get_chairprint()
+		var/datum/forensic_data/multi/f_data = new()
+		if(!src.chairprint)
+			f_data.evidence_A = f_data.organ_empty
+			f_data.evidence_B = f_data.organ_empty
+		else
+			f_data.evidence_A = src.chairprint
+			f_data.evidence_B = null // Treat most stools as only having one "footprint"
+		f_data.display = f_data.disp_pair
+		return f_data
+	proc/get_chairprint_pattern()
+		return "l__l__l__l"
 
 /obj/stool/pet_bed
 	name = "pet bed"
 	icon_state = "petbed"
 	desc = "A soft bed designed for small animals to snuggle up in."
 	parts_type = /obj/item/furniture_parts/stool/pet_bed
+
+	get_chairprint_pattern()
+		return "~~l~~l~~"
 
 /obj/stool/pet_bed/jones
 	name = "cat bed"
@@ -173,6 +197,9 @@
 	icon_state = "beebed"
 	desc = "A soft little bed the general size and shape of a space bee."
 	parts_type = /obj/item/furniture_parts/stool/bee_bed
+
+	get_chairprint_pattern()
+		return "~~l~~l~~"
 
 /obj/stool/bee_bed/heisenbee
 	name = "heisenbed"
@@ -189,11 +216,17 @@
 	desc = "Like a stool, but in a bar."
 	parts_type = /obj/item/furniture_parts/stool/bar
 
+	get_chairprint_pattern()
+		return "__lnl__"
+
 /obj/stool/neon
 	name = "neon bar stool"
 	icon_state = "neonstool"
 	desc = "Like a bar stool, but in electric blue."
 	parts_type = /obj/item/furniture_parts/stool/neon
+
+	get_chairprint_pattern()
+		return "__lnl__"
 
 TYPEINFO(/obj/stool/wooden)
 	mat_appearances_to_ignore = list("wood")
@@ -212,6 +245,9 @@ TYPEINFO(/obj/stool/wooden)
 	icon_state = "sleek_stool"
 	desc = "Like a bar stool, but sleek and stylish."
 	parts_type = /obj/item/furniture_parts/stool/sleek
+
+	get_chairprint_pattern()
+		return "__lnl__"
 
 /* ================================================= */
 /* -------------------- Benches -------------------- */
@@ -1210,6 +1246,21 @@ TYPEINFO(/obj/stool/chair/comfy/wheelchair)
 		. = ..()
 		unbuckle()
 
+	get_chairprint()
+		var/datum/forensic_data/multi/f_data = new()
+		if(!src.chairprint)
+			f_data.evidence_A = f_data.organ_empty
+			f_data.evidence_B = f_data.organ_empty
+		else
+			f_data.evidence_A = src.chairprint
+			f_data.evidence_B = src.chairprint
+		f_data.display = f_data.disp_pair
+		return f_data
+
+	get_chairprint_pattern()
+		return "l--n--n--n--l"
+
+
 /* ======================================================= */
 /* -------------------- Dining Chairs -------------------- */
 /* ======================================================= */
@@ -1224,8 +1275,6 @@ TYPEINFO(/obj/stool/chair/dining/wood)
 	foldable = 0
 	anchored = UNANCHORED
 	//deconstructable = 0
-
-
 
 	wood
 		name = "wooden chair"
@@ -1492,6 +1541,8 @@ TYPEINFO(/obj/stool/chair/dining/wood)
 		playsound(src, 'sound/items/Screwdriver.ogg', 100, TRUE)
 		src.anchored = !(src.anchored)
 		return
+	get_chairprint_pattern()
+		return "n__n__n__n"
 
 /* ========================================================= */
 /* ---------------------- Pool Chairs ---------------------- */

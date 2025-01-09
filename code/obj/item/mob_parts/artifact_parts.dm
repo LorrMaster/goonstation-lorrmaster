@@ -159,8 +159,16 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/arm)
 		src.bodyImage = image('icons/mob/human.dmi', src.handlistPart)
 		return src.bodyImage
 
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_fingerprint(CHAR_LIST_FINGERPRINT)
+
 ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg)
 /obj/item/parts/artifact_parts/leg
+
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("sllll")
 
 ABSTRACT_TYPE(/obj/item/parts/artifact_parts/arm/eldritch)
 /obj/item/parts/artifact_parts/arm/eldritch
@@ -199,8 +207,9 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg/eldritch)
 			return
 		src.holder.removeAbility(/datum/targetable/artifact_limb_ability/eldritch_run)
 
-	get_foot_pattern()
-		return "ssll"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("ssll")
 
 	left
 		name = "eldritch left leg"
@@ -254,8 +263,9 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg/martian)
 /obj/item/parts/artifact_parts/leg/martian
 	artifact_type = "martian"
 
-	get_foot_pattern()
-		return "llll"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("llll")
 
 	left
 		name = "martian left leg"
@@ -293,6 +303,10 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/arm/precursor)
 			return
 		src.holder.removeAbility(/datum/targetable/artifact_limb_ability/precursor_heal)
 
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_fingerprint(CHAR_LIST_HEX)
+
 	left
 		name = "precursor left arm"
 		slot = "l_arm"
@@ -324,8 +338,9 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg/precursor)
 			return
 		UnregisterSignal(src.holder, COMSIG_MOVABLE_MOVED)
 
-	get_foot_pattern()
-		return null
+	build_limb_print()
+		// Precursor limbs do not produce footprints
+		src.limb_print = null
 
 	proc/precursor_move_L(mob/living/carbon/human/H, oldLoc, direction)
 		if (H.lying)
