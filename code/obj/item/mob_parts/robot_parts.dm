@@ -138,9 +138,6 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts)
 				orig_holder.TakeDamage("chest",20,0)
 				take_bleeding_damage(orig_holder, null, 15, DAMAGE_CUT)
 
-	get_foot_pattern()
-		return "snnns"
-
 	proc/ropart_take_damage(var/bluntdmg = 0,var/burnsdmg = 0)
 		src.dmg_blunt += bluntdmg
 		src.dmg_burns += burnsdmg
@@ -593,6 +590,10 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/arm)
 		else if (isrobot(src.holder))
 			src.robot_emag_effect()
 
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_fingerprint(CHAR_LIST_HEX)
+
 	proc/human_emag_effect()
 		var/mob/living/carbon/human/H = src.holder
 		var/mob/living/target = H //default to hitting ourselves
@@ -831,6 +832,10 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg)
 			return "has [bicon(src)] \an [initial(src.name)] attached as a"
 		return
 
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("snnns")
+
 ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/left)
 /obj/item/parts/robot_parts/leg/left
 	name = "cyborg left leg"
@@ -856,8 +861,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/left)
 	kind_of_limb = (LIMB_ROBOT | LIMB_LIGHT)
 	breaks_cuffs = FALSE
 
-	get_foot_pattern()
-		return "snns"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("snns")
 
 /obj/item/parts/robot_parts/leg/left/treads
 	name = "left cyborg tread"
@@ -872,8 +878,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/left)
 	robot_movement_modifier = /datum/movement_modifier/robot_part/tread_left
 	kind_of_limb = (LIMB_ROBOT | LIMB_TREADS)
 
-	get_foot_pattern()
-		return "s=n=n=n=s"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("s==n==n==n==s")
 
 ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 /obj/item/parts/robot_parts/leg/right
@@ -900,8 +907,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 	kind_of_limb = (LIMB_ROBOT | LIMB_LIGHT)
 	breaks_cuffs = FALSE
 
-	get_foot_pattern()
-		return "snns"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("snns")
 
 /obj/item/parts/robot_parts/leg/right/treads
 	name = "right cyborg tread"
@@ -916,8 +924,9 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 	robot_movement_modifier = /datum/movement_modifier/robot_part/tread_right
 	kind_of_limb = (LIMB_ROBOT | LIMB_TREADS)
 
-	get_foot_pattern()
-		return "s=n=n=n=s"
+	build_limb_print()
+		src.limb_print = new()
+		src.limb_print.build_id_footprint("s==n==n==n==s")
 
 /obj/item/parts/robot_parts/leg/left/thruster
 	name = "left thruster assembly"
@@ -936,8 +945,8 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 		if(src.holder && (src.holder.loc == T))
 			T?.hotspot_expose(700, 50)
 
-	get_foot_pattern()
-		return null
+	build_limb_print()
+		src.limb_print = null
 
 /obj/item/parts/robot_parts/leg/right/thruster
 	name = "right thruster assembly"
@@ -956,8 +965,8 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 		if(src.holder && (src.holder.loc == T))
 			T?.hotspot_expose(700, 50)
 
-	get_foot_pattern()
-		return null
+	build_limb_print()
+		src.limb_print = null
 
 /obj/item/parts/robot_parts/robot_frame
 	name = "robot frame"

@@ -1251,12 +1251,14 @@
 		maxDuration = null
 		var/mob/living/L
 		var/sleepcount = 5 SECONDS
+		var/obj/stool/buckled_to = null // Moving while buckled temporarily unbuckles you, so I added this here
 
 		onAdd(optional=null)
 			. = ..()
 			if (isliving(owner))
 				L = owner
 				sleepcount = 5 SECONDS
+				src.buckled_to = L.buckled
 			else
 				owner.delStatus("buckled")
 

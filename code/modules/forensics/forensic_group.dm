@@ -9,7 +9,7 @@ Forensic Data -> A fingerprint
 #define FINGERPRINTS_COOLDOWN 10
 
 ABSTRACT_TYPE(/datum/forensic_group)
-datum/forensic_group
+/datum/forensic_group
 	// Photographic Analysis, Audio Analysis
 
 	var/category = FORENSIC_GROUP_NONE // An identifier for the group type. Must be unique for each group.
@@ -28,7 +28,7 @@ datum/forensic_group
 	proc/matching_flags(var/flags_A, var/flags_B)
 		return (flags_A & !IS_JUNK) == (flags_B & !IS_JUNK)
 
-datum/forensic_group/notes
+/datum/forensic_group/notes
 	category = FORENSIC_GROUP_NOTE
 	group_flags = REMOVABLE_CLEANING | REMOVABLE_DATA
 	var/list/datum/forensic_data/basic/notes_list = new/list()
@@ -60,7 +60,7 @@ datum/forensic_group/notes
 				return
 		src.notes_list += E
 
-datum/forensic_group/basic_list
+/datum/forensic_group/basic_list
 	var/list/datum/forensic_data/basic/evidence_list = new/list()
 
 	apply_evidence(var/datum/forensic_data/data)
@@ -94,7 +94,7 @@ datum/forensic_group/basic_list
 			data_text += "<li>" + src.evidence_list[i].scan_display() + src.evidence_list[i].get_time_estimate(scan_accuracy) + "</li>"
 		return data_text
 
-datum/forensic_group/basic_list/scanner
+/datum/forensic_group/basic_list/scanner
 	category = FORENSIC_GROUP_SCAN
 	group_flags = REMOVABLE_CLEANING
 	group_accuracy = 0.75
@@ -102,7 +102,15 @@ datum/forensic_group/basic_list/scanner
 	get_header()
 		return "Scan Particles"
 
-datum/forensic_group/basic_list/sleuth_color
+/datum/forensic_group/basic_list/bite
+	category = FORENSIC_GROUP_BITE
+	group_flags = REMOVABLE_REPAIR
+	group_accuracy = 0.9
+
+	get_header()
+		return "Bite Marks"
+
+/datum/forensic_group/basic_list/sleuth_color
 	category = FORENSIC_GROUP_SLEUTH_COLOR
 	group_flags = REMOVABLE_CLEANING
 
@@ -138,7 +146,7 @@ datum/forensic_group/basic_list/sleuth_color
 				return intensity_list[i]
 		return intensity_list[1]
 
-datum/forensic_group/multi_list // Two or three pieces of evidence grouped together
+/datum/forensic_group/multi_list // Two or three pieces of evidence grouped together
 	var/list/datum/forensic_data/multi/evidence_list = new/list()
 
 	apply_evidence(var/datum/forensic_data/data)
@@ -172,14 +180,14 @@ datum/forensic_group/multi_list // Two or three pieces of evidence grouped toget
 			data_text += "<li>" + src.evidence_list[i].scan_display() + src.evidence_list[i].get_time_estimate(scan_accuracy) + "</li>"
 		return data_text
 
-datum/forensic_group/multi_list/footprints
+/datum/forensic_group/multi_list/footprints
 	category = FORENSIC_GROUP_TRACKS
 	group_flags = REMOVABLE_CLEANING
 
 	get_header()
 		return "Footprints"
 
-datum/forensic_group/multi_list/retinas
+/datum/forensic_group/multi_list/retinas
 	category = FORENSIC_GROUP_RETINA
 	group_flags = REMOVABLE_DATA
 	group_accuracy = 0
@@ -187,7 +195,7 @@ datum/forensic_group/multi_list/retinas
 	get_header()
 		return "Retina Scans"
 
-datum/forensic_group/multi_list/log_health_floor // Floor health scanner stores footprints & dna from scanned patients
+/datum/forensic_group/multi_list/log_health_floor // Floor health scanner stores footprints & dna from scanned patients
 	category = FORENSIC_GROUP_HEALTH_FLOOR
 	group_flags = REMOVABLE_DATA
 	group_accuracy = 0
@@ -195,7 +203,7 @@ datum/forensic_group/multi_list/log_health_floor // Floor health scanner stores 
 	get_header()
 		return @"Scan Log: DNA | Footprints"
 
-datum/forensic_group/multi_list/log_health_analyzer // Health analyzer stores retina & dna from scanned patients
+/datum/forensic_group/multi_list/log_health_analyzer // Health analyzer stores retina & dna from scanned patients
 	category = FORENSIC_GROUP_HEALTH_ANALYZER
 	group_flags = REMOVABLE_DATA
 	group_accuracy = 0
@@ -203,7 +211,7 @@ datum/forensic_group/multi_list/log_health_analyzer // Health analyzer stores re
 	get_header()
 		return @"Scan Log: DNA | Retina Scan"
 
-datum/forensic_group/fingerprints
+/datum/forensic_group/fingerprints
 	category = FORENSIC_GROUP_FINGERPRINT
 	group_flags = REMOVABLE_CLEANING
 	group_accuracy = 1.25
@@ -243,7 +251,7 @@ datum/forensic_group/fingerprints
 	get_header()
 		return HEADER_FINGERPRINTS
 
-datum/forensic_group/dna
+/datum/forensic_group/dna
 	category = FORENSIC_GROUP_DNA
 	group_flags = REMOVABLE_CLEANING
 	var/list/datum/forensic_data/dna/dna_list = list()
@@ -310,3 +318,29 @@ datum/forensic_group/dna
 			if(src.dna_trace_list[i].form == DNA_FORM_BLOOD)
 				return TRUE
 		return FALSE
+
+/datum/forensic_group/adminprint
+	category = FORENSIC_GROUP_ADMINPRINT
+	var/list/datum/forensic_data/adminprint/aprint_list = list()
+	var/datum/forensic_data/adminprint/last_print = null
+
+	apply_evidence(var/datum/forensic_data/data)
+		if(!istype(data, /datum/forensic_data/adminprint))
+			return
+		var/datum/forensic_data/adminprint/aprint = data
+		for(var/i=1; i<= aprint_list.len; i++)
+			if(aprint_list[i].is_same(aprint))
+				aprint_list[i].time_end = TIME
+				last_print = aprint_list[i]
+				return
+		aprint_list += aprint
+		last_print = aprint
+
+	get_text(var/datum/forensic_scan_builder/scan_builder)
+		if(scan_builder.is_admin == FALSE)
+			return ""
+		else
+
+	get_header() // The label that this evidence will be displayed under for scans
+		return SPAN_ALERT("Admin Viewer:")
+

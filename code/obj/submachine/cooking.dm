@@ -105,9 +105,8 @@ TYPEINFO(/obj/submachine/chef_sink)
 				//simpler handwashing if hygiene isn't a concern
 				playsound(src.loc, 'sound/impact_sounds/Liquid_Slosh_1.ogg', 15, 1)
 				user.visible_message(SPAN_NOTICE("[user] washes [his_or_her(user)] hands."))
-				H.blood_DNA = null
-				H.blood_type = null
-				H.forensics_blood_color = null
+				H.limbs.r_arm?.clean_forensic()
+				H.limbs.l_arm?.clean_forensic()
 				H.set_clothing_icon_dirty()
 		..()
 
@@ -153,9 +152,8 @@ TYPEINFO(/obj/submachine/chef_sink)
 		if(user.traitHolder.hasTrait("training_medical") || user.traitHolder.hasTrait("training_chef"))
 			cleanup_rate = 3
 		user.sims.affectMotive("Hygiene", cleanup_rate)
-		user.blood_DNA = null
-		user.blood_type = null
-		user.forensics_blood_color = null
+		user.limbs.r_arm?.clean_forensic()
+		user.limbs.l_arm?.clean_forensic()
 		user.set_clothing_icon_dirty()
 
 		src.onRestart()
@@ -210,9 +208,7 @@ TYPEINFO(/obj/submachine/chef_sink)
 		if(!checkStillValid())
 			..()
 			return
-		victim.blood_DNA = null
-		victim.blood_type = null
-		victim.forensics_blood_color = null
+		victim.clean_forensic()
 		victim.set_clothing_icon_dirty()
 
 		src.onRestart()

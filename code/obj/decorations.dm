@@ -461,6 +461,7 @@ TYPEINFO(/obj/shrub/syndicateplant)
 	density = 1
 	layer = EFFECTS_LAYER_UNDER_1
 	dir = EAST
+	var/scan_text = null
 
 	destroy()
 		src.set_dir(NORTHEAST)
@@ -490,7 +491,7 @@ TYPEINFO(/obj/shrub/syndicateplant)
 		else
 			boutput(user, SPAN_ALERT("I don't think the Captain is going to be too happy about this..."))
 			user.visible_message(SPAN_ALERT("<b>[user] violently grazes on [src]!</b>"), SPAN_NOTICE("You voraciously devour the bonzai, what a feast!"))
-			src.interesting = "Inexplicably, the genetic code of the bonsai tree has the words 'fuck [user.real_name]' encoded in it over and over again."
+			src.scan_text = "Inexplicably, the genetic code of the bonsai tree has the words 'fuck [user.real_name]' encoded in it over and over again."
 			src.destroy()
 			user.changeStatus("food_deep_burp", 2 MINUTES)
 			user.changeStatus("food_hp_up", 2 MINUTES)
@@ -513,20 +514,26 @@ TYPEINFO(/obj/shrub/syndicateplant)
 			src.destroy()
 			boutput(user, SPAN_ALERT("I don't think the Captain is going to be too happy about this..."))
 			src.visible_message(SPAN_ALERT("<b>[user] ravages [src] with [W].</b>"))
-			src.interesting = "Inexplicably, the genetic code of the bonsai tree has the words 'fuck [user.real_name]' encoded in it over and over again."
+			src.scan_text = "Inexplicably, the genetic code of the bonsai tree has the words 'fuck [user.real_name]' encoded in it over and over again."
 		return
 
 	meteorhit(obj/O as obj)
 		src.visible_message(SPAN_ALERT("<b>The meteor smashes right through [src]!</b>"))
 		src.destroy()
-		src.interesting = "Looks like it was crushed by a giant fuck-off meteor."
+		src.scan_text = "Looks like it was crushed by a giant fuck-off meteor."
 		return
 
 	ex_act(severity)
 		src.visible_message(SPAN_ALERT("<b>[src] is ripped to pieces by the blast!</b>"))
 		src.destroy()
-		src.interesting = "Looks like it was blown to pieces by some sort of explosive."
+		src.scan_text = "Looks like it was blown to pieces by some sort of explosive."
 		return
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		if(src.scan_text)
+			scan_builder.add_scan_text(scan_text)
+
 
 /obj/captain_bottleship
 	name = "\improper Captain's ship in a bottle"
@@ -537,6 +544,7 @@ TYPEINFO(/obj/shrub/syndicateplant)
 	density = 0
 	layer = EFFECTS_LAYER_1
 	var/destroyed = 0
+	var/scan_text = null
 
 	// stole all of this from the captain's shrub lol
 	update_icon()
@@ -567,20 +575,25 @@ TYPEINFO(/obj/shrub/syndicateplant)
 			src.UpdateIcon()
 			boutput(user, SPAN_ALERT("I don't think the Captain is going to be too happy about this..."))
 			src.visible_message(SPAN_ALERT("<b>[user] ravages the [src] with [W].</b>"))
-			src.interesting = "Inexplicably, the signal flags on the shattered mast just say 'fuck [user.real_name]'."
+			src.scan_text = "Inexplicably, the signal flags on the shattered mast just say 'fuck [user.real_name]'."
 		return
 
 	meteorhit(obj/O as obj)
 		src.visible_message(SPAN_ALERT("<b>The meteor smashes right through [src]!</b>"))
 		src.UpdateIcon()
-		src.interesting = "Looks like it was crushed by a giant fuck-off meteor."
+		src.scan_text = "Looks like it was crushed by a giant fuck-off meteor."
 		return
 
 	ex_act(severity)
 		src.visible_message(SPAN_ALERT("<b>[src] is shattered and pulverized by the blast!</b>"))
 		src.UpdateIcon()
-		src.interesting = "Looks like it was blown to pieces by some sort of explosive."
+		src.scan_text = "Looks like it was blown to pieces by some sort of explosive."
 		return
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		if(src.scan_text)
+			scan_builder.add_scan_text(scan_text)
 
 /obj/potted_plant
 	name = "potted plant"
@@ -1689,7 +1702,6 @@ obj/decoration/gibberBroken
 	stamina_cost = 4
 	stamina_crit_chance = 0
 	var/image/proj_image = null
-	var/last_proj_update_time = null
 
 	New()
 		..()

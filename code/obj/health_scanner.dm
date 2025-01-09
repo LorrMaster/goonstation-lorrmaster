@@ -131,7 +131,7 @@ TYPEINFO(/obj/health_scanner)
 				H.add_evidence(scan_data, FORENSIC_GROUP_SCAN)
 				H.apply_scanner_evidence(src.forensic_lead)
 
-				var/datum/forensic_data/multi/print_data = H.get_footprints(TIME)
+				var/datum/forensic_data/multi/print_data = H.get_footprints()
 				print_data.evidence_C = H.bioHolder.dna_signature
 				print_data.display = print_data.disp_pair_double
 				print_data.flags = REMOVABLE_DATA

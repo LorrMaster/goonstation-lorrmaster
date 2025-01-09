@@ -63,7 +63,7 @@ datum/forensic_data/basic // Evidence that can just be stored as a single ID. Fl
 datum/forensic_data/multi // Two or three different pieces of evidence that are linked together. Flags not included.
 	var/static/datum/forensic_display/disp_double = new("@A [SPAN_NOTICE("|")] @B")
 	var/static/datum/forensic_display/disp_pair = new("@A @B")
-	var/static/datum/forensic_display/disp_pair_double = new("@C [SPAN_NOTICE("|")] @A @B")
+	var/static/datum/forensic_display/disp_pair_double = new("@C [SPAN_NOTICE("|")] @A @B") // Easier to get pair A&B first
 	var/static/datum/forensic_id/organ_empty = new("_____")
 	var/datum/forensic_display/display = null // @A, @B, @C
 	var/datum/forensic_id/evidence_A = null
@@ -79,18 +79,29 @@ datum/forensic_data/multi // Two or three different pieces of evidence that are 
 		src.display = disp
 	scan_display()
 		var/scan_text = display.display_text
-		scan_text = replacetextEx(scan_text, "@A", evidence_A.id)
-		if(mirror_B)
+		if(!evidence_A)
+			scan_text = replacetextEx(scan_text, "@A", "")
+		else
+			scan_text = replacetextEx(scan_text, "@A", evidence_A.id)
+		if(!evidence_B)
+			scan_text = replacetextEx(scan_text, "@B", "")
+		else if(mirror_B)
 			scan_text = replacetextEx(scan_text, "@B", evidence_B.get_retina_mirror())
 		else
 			scan_text = replacetextEx(scan_text, "@B", evidence_B.id)
-		if(evidence_C)
-			scan_text = replacetextEx(scan_text, "@C", evidence_C.id)
-		else
+		if(!evidence_C)
 			scan_text = replacetextEx(scan_text, "@C", "")
+		else
+			scan_text = replacetextEx(scan_text, "@C", evidence_C.id)
 		return scan_text
 	proc/is_same(datum/forensic_data/multi/other)
 		return src.evidence_A == other.evidence_A && src.evidence_B == other.evidence_B && src.evidence_C == other.evidence_C
+
+datum/forensic_data/text
+	var/evidence = ""
+
+	proc/is_same(datum/forensic_data/text/other)
+		return cmptextEx(src.evidence, other.evidence)
 
 datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 	flags = REMOVABLE_CLEANING
@@ -130,12 +141,7 @@ datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 	proc/is_same(datum/forensic_data/fingerprint/other)
 		return src.print == other.print && src.glove_print == other.glove_print
 
-datum/forensic_data/dna //
-	// var/static/datum/forensic_id/form_blood = new("(blood)")
-	// var/static/datum/forensic_id/form_hair = new("(hair)")
-	// var/static/datum/forensic_id/form_tissue = new("(tissue)")
-	// var/static/datum/forensic_id/form_bone = new("(bone)")
-	// var/static/datum/forensic_id/form_saliva = new("(saliva)")
+datum/forensic_data/dna // An individual dna sample
 	flags = REMOVABLE_CLEANING
 	var/datum/forensic_id/pattern = null
 	var/form = DNA_FORM_NONE // Where did the DNA come from? Use DNA_FORM_NONE if not relevant
@@ -149,8 +155,8 @@ datum/forensic_data/dna //
 			src.accuracy_mult *= 0.75
 
 	scan_display()
-		if(HAS_FLAG(src.flags, IS_TRACE))
-			// color should be set to #"3399FF" to represent luminol. Not sure how to do this.
+		if(HAS_FLAG(src.flags, IS_TRACE)) // Luminol regent
+			// Color should be set to "#3399FF" to represent luminol. Not sure how to do this.
 			return pattern.id + " (" + SPAN_HINT("blood traces") + ")"
 		switch(src.form)
 			if(DNA_FORM_NONE)
@@ -171,26 +177,28 @@ datum/forensic_data/dna //
 	proc/is_same(datum/forensic_data/dna/other)
 		return src.pattern == other.pattern && src.form == other.form
 
-datum/forensic_data/projectile_hit // Bullet holes, laser marks, and the like
-	accuracy_mult = 1.25
+datum/forensic_data/projectile_hit // Bullet holes, laser marks, and the like (Replaced by notes for now)
+	accuracy_mult = 1
 	var/datum/forensic_id/proj_id = null // Which bullet created this, if it still exists
 	var/turf/start_turf // Where the projectile was fired / last deflected
 	var/turf/hit_turf // Where it was when it hit
-	var/penatration = 0 // Did the projectile pass through, get halted, or bounce off?
+	var/impact_type = 0 // What the projectile did to the crime scene. Pass through, bounce, burn marks, etc.
 	var/deflection_angle = 0 // What direction did the projectile leave (if relevant)
-	var/cone_of_tolerance // Base accuracy in determining the angle of the bullet in degrees
+	var/cone_of_tolerance = 10 // Base accuracy in determining the angle of the bullet in degrees
 
 	scan_display()
 		var/scan_text = "Bullet ID: [proj_id.id]"
-		switch(src.penatration)
-			if(PROJECTILE_BOUNCE)
+		switch(src.impact_type)
+			if(PROJ_BULLET_THROUGH)
 				return scan_text
-			if(PROJECTILE_EMBEDDED)
+			if(PROJ_BULLET_EMBEDDED)
 				return scan_text
-			if(PROJECTILE_THROUGH)
+			if(PROJ_BULLET_BOUNCE)
+				return scan_text
+			if(PROJ_LASER_BURN_MARK)
 				return scan_text
 			else
-				return "Dev Coding Error: Bullet penetration is missing"
+				return "Dev Coding Error: Impact type missing"
 
 	// Bullet Obj
 		// Rifling, or which barrel the bullet came from
@@ -198,3 +206,19 @@ datum/forensic_data/projectile_hit // Bullet holes, laser marks, and the like
 	// Footprint
 		// The two footprint ids
 		// The original direction?
+
+datum/forensic_data/adminprint
+	accuracy_mult = 0
+	var/client/client
+
+	New(var/client/print_client)
+		..()
+		src.client = print_client
+
+	scan_display()
+		var/p_name = "Test: [client.ckey]"
+		return p_name
+
+	proc/is_same(datum/forensic_data/adminprint/other)
+		return src.client == other.client
+

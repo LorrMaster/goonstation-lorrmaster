@@ -5,8 +5,18 @@
 #define DNA_BUNCH_COUNT 4
 #define DNA_LENGTH DNA_BUNCH_SIZE * DNA_BUNCH_COUNT
 
+// Store forensic_ids into a dictionary to prevent *very small* chances of duplicates
+// Can also use to get the datum from the ID text
+var/global/list/id_scanners_all = new()
+var/global/list/id_fingerprints_all = new()
+var/global/list/id_gloves_all = new()
+var/global/list/id_dna_all = new()
+var/global/list/id_footprints_all = new()
+var/global/list/id_bites_all = new()
+var/global/list/id_retina_all = new()
+
 // -----| Forensic ID |-----
-datum/forensic_id // A piece of forensic evidence to be passed around and referenced
+/datum/forensic_id // A piece of forensic evidence to be passed around and referenced
 	// Important Note: If you want to change an object's ID, you have to create a new ID
 	// Editing an ID will change all the previous pieces of evidence that reference that ID
 	// Unless if you are doing time travel, in which case you can do as you please.
@@ -19,14 +29,45 @@ datum/forensic_id // A piece of forensic evidence to be passed around and refere
 		else
 			src.id = id_prefix + build_id(length, char_list) + id_suffix
 
+	proc/register_id(var/list/reg_list)
+		if(reg_list[src.id])
+			return reg_list[src.id]
+		reg_list[src.id] = src
+		return src
+
 /datum/forensic_id/proc/build_id(var/id_length, var/list/char_list = CHAR_LIST_NUM)
 	// Take a list of characters and build a random id with them
-	var/new_id = ""
+	var/list/new_id_list = new()
 	for(var/i=1, i<= id_length, i++)
-		new_id += pick(char_list)
-	return new_id
+		new_id_list += pick(char_list)
+	return list2text(new_id_list)
 
-/datum/forensic_id/proc/build_id_fingerprint(var/char_list = CHAR_LIST_FINGERPRINT, var/has_adermatoglyphia = FALSE)
+/datum/forensic_id/proc/build_id_norepeat(var/id_length, var/list/char_list = CHAR_LIST_NUM)
+	// Take a list of characters and build a random id with them without using repitition
+	if(id_length > char_list.len)
+		id_length = char_list.len
+	var/current_len = char_list.len
+	var/list/new_id_list = new()
+	for(var/i=1, i<= id_length, i++)
+		var/pick_index = rand(1, current_len)
+		new_id_list += char_list[pick_index]
+		char_list[pick_index] = char_list[current_len]
+		current_len--
+	return list2text(new_id_list)
+
+/datum/forensic_id/proc/build_id_fingerprint(var/list/char_list = CHAR_LIST_FINGERPRINT)
+	if(char_list.len < FINGERPRINT_LENGTH)
+		boutput(world, "Error: Not enough characters for fingerprint")
+		return null
+	var/base_fp = build_id_norepeat(16, char_list)
+	var/b_size = FINGERPRINT_BUNCH_SIZE
+	var/final_fp = copytext(base_fp, 1, b_size + 1)
+	for(var/i=1; i< FINGERPRINT_BUNCH_COUNT; i++)
+		final_fp += "-[copytext(base_fp, (b_size*i)+1, (b_size*(i+1))+1)]"
+	// boutput(world, "-[final_fp]-")
+	src.id = final_fp
+
+/datum/forensic_id/proc/build_id_fingerprint_old(var/list/char_list = CHAR_LIST_FINGERPRINT, var/has_adermatoglyphia = FALSE)
 	var/fp = ""
 	if(!has_adermatoglyphia)
 		fp += build_id(FINGERPRINT_BUNCH_SIZE, char_list)
@@ -54,20 +95,33 @@ datum/forensic_id // A piece of forensic evidence to be passed around and refere
 /datum/forensic_id/proc/build_id_footprint(var/pattern)
 	// The footprint pattern determines which symbols are swapped with what
 	// l = letter, s = symbol, h = high heels, other = no change
-	var/final_id = ""
+	var/list/id_list = new()
 	for(var/i=1, i<= length(pattern), i++)
 		var/char = copytext(pattern, i, i+1)
 		switch(char)
 			if("l")
-				final_id += pick(CHAR_LIST_LOWER)
+				id_list += pick(CHAR_LIST_LOWER)
 			if("s")
-				final_id += pick(CHAR_LIST_SYMBOLS)
+				id_list += pick(CHAR_LIST_SYMBOLS)
 			if("n")
-				final_id += pick(CHAR_LIST_NUM)
+				id_list += pick(CHAR_LIST_NUM)
 			if("h") // high heels
-				final_id += pick("o","+","#","a","c","n","u","=","v","x","z","e")
+				id_list += pick("o","+","#","a","c","n","u","=","v","x","z","e")
 			else
-				final_id += char
+				id_list += char
+	src.id = list2text(id_list)
+
+/datum/forensic_id/proc/build_id_bite()
+	// OUCH! It bit me!
+	var/final_id = build_id(4, CHAR_LIST_BITE)
+	final_id += reverse_text(final_id)
+	var/asym_rand = rand()
+	if(asym_rand >= 0.4)
+		var/rand_index = rand(1,length(final_id))
+		final_id = splicetext(final_id, rand_index, rand_index+1, pick(CHAR_LIST_BITE))
+	if(asym_rand >= 0.8)
+		var/rand_index = rand(1,length(final_id))
+		final_id = splicetext(final_id, rand_index, rand_index+1, pick(CHAR_LIST_BITE))
 	src.id = final_id
 
 /datum/forensic_id/proc/build_id_retina(var/list/outer_L, var/list/outer_R, var/list/center_list, var/outer_count = 2)

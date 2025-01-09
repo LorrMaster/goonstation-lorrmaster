@@ -583,7 +583,8 @@
 		src.gloves.apply_blood(L.bioHolder, L.get_blood_color())
 		src.update_bloody_gloves()
 	else
-		src.apply_blood(L.bioHolder, L.get_blood_color())
+		src.limbs.l_arm?.apply_blood(L.bioHolder, L.get_blood_color())
+		src.limbs.r_arm?.apply_blood(L.bioHolder, L.get_blood_color())
 		src.update_bloody_hands()
 	if (src.equipped())
 		var/obj/item/I = src.equipped()

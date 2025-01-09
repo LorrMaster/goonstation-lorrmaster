@@ -84,6 +84,14 @@ datum/forensic_holder
 			qdel(src.spreader)
 			src.spreader = null
 	// proc/add_tracked_blood(var/b_dna, var/b_type, var/b_color, var/b_count, var/sample_reagent)
+	proc/get_last_adminprint()
+		// Return the key of the last player that placed a fingerprint on this object. Meant for admin use.
+		var/datum/forensic_group/group = get_group(FORENSIC_GROUP_ADMINPRINT)
+		if(!istype(group, /datum/forensic_group/adminprint))
+			boutput(world, "Error: wrong type with FORENSIC_GROUP_ADMINPRINT")
+			return null
+		var/datum/forensic_group/adminprint/a_group = group
+		return a_group.last_print.client
 
 
 datum/forensic_scan_builder // Used to gather up all the evidence and assemble the text for forensic scans
