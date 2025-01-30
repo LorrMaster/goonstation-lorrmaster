@@ -104,30 +104,22 @@
 	switch (attack_type)
 		if ("feast") // Only used by the feast ability.
 			var/mob/living/carbon/human/HH = target
-
 			if (!HH || !ishuman(HH))
 				return 0
 
 			var/healing = 0
-
 			damage += rand(5,15)
 			healing = damage - 5
 
 			if (prob(40))
 				HH.spread_blood_clothes(HH)
 				M.spread_blood_hands(HH)
-
 				var/obj/decal/cleanable/blood/gibs/G = null // For forensics.
 				G = make_cleanable(/obj/decal/cleanable/blood/gibs,HH.loc)
-				if (HH.bioHolder && HH.bioHolder.Uid && HH.bioHolder.bloodType)
-					G.blood_DNA = HH.bioHolder.Uid
-					G.blood_type = HH.bioHolder.bloodType
-
+				G.reagents.set_blood_bioholder(HH.bioHolder)
 				M.visible_message(SPAN_ALERT("<B>[M] messily [pick("rips", "tears")] out and [pick("eats", "devours", "wolfs down", "chows on")] some of [HH]'s [pick("guts", "intestines", "entrails")]!</B>"))
-
 			else
 				HH.spread_blood_clothes(HH)
-
 				M.visible_message(SPAN_ALERT("<B>[M] [pick("chomps on", "chews off a chunk of", "gnaws on")] [HH]'s [pick("right arm", "left arm", "head", "right leg", "left leg")]!</B>"))
 
 			if (isnpcmonkey(HH))
@@ -197,9 +189,7 @@
 					M.spread_blood_hands(HH)
 					var/obj/decal/cleanable/blood/gibs/G = null // For forensics.
 					G = make_cleanable(/obj/decal/cleanable/blood/gibs, HH.loc)
-					if (HH.bioHolder && HH.bioHolder.Uid && HH.bioHolder.bloodType)
-						G.blood_DNA = HH.bioHolder.Uid
-						G.blood_type = HH.bioHolder.bloodType
+					G.reagents?.set_blood_bioholder(HH.bioHolder)
 					M.visible_message(SPAN_ALERT("<B>[M] sinks its teeth into [target]! !</B>"))
 				HH.add_fingerprint(M) // Just put 'em on the mob itself, like pulling does. Simplifies forensic analysis a bit.
 				M.werewolf_audio_effects(HH, "feast")

@@ -1782,14 +1782,7 @@
 	src.icon = null
 	APPLY_ATOM_PROPERTY(src, PROP_MOB_INVISIBILITY, "transform", INVIS_ALWAYS)
 
-	var/bdna = null // For forensics (Convair880).
-	var/btype = null
-
 	if (ishuman(src))
-		if (src.bioHolder)
-			bdna = src.bioHolder.Uid // Ditto (Convair880).
-			btype = src.bioHolder.bloodType
-
 		animation = new(src.loc)
 		animation.master = src
 		flick("gibbed", animation)
@@ -1806,14 +1799,11 @@
 			organ.on_removal()
 	if (!custom_gib_handler)
 		if (iscarbon(src) || (ismobcritter(src) & !isrobocritter(src)))
-			if (bdna && btype)
-				. = gibs(src.loc, ejectables, bdna, btype, source=src) // For forensics (Convair880).
-			else
-				. = gibs(src.loc, ejectables, source=src)
+			. = gibs(src.loc, ejectables, src.bioHolder, source=src) // For forensics (Convair880).
 		else
 			. = robogibs(src.loc)
 	else
-		. = call(custom_gib_handler)(src.loc, ejectables, bdna, btype)
+		. = call(custom_gib_handler)(src.loc, ejectables, src.bioHolder)
 
 	// splash our fluids around
 	if(src.reagents && src.reagents.total_volume)
@@ -1955,14 +1945,7 @@
 	src.icon = null
 	APPLY_ATOM_PROPERTY(src, PROP_MOB_INVISIBILITY, "transform", INVIS_ALWAYS)
 
-	var/bdna = null // For forensics (Convair880).
-	var/btype = null
-
 	if (ishuman(src))
-		if (src.bioHolder)
-			bdna = src.bioHolder.Uid // Ditto (Convair880).
-			btype = src.bioHolder.bloodType
-
 		animation = new(src.loc)
 		animation.master = src
 		flick("gibbed", animation)
@@ -1971,11 +1954,7 @@
 		var/mob/dead/observer/newmob = ghostize()
 		newmob?.corpse = null
 
-	if (bdna && btype)
-		partygibs(src.loc, bdna, btype) // For forensics (Convair880).
-	else
-		partygibs(src.loc)
-
+	partygibs(src.loc, src.bioHolder) // For forensics (Convair880).
 	playsound(src.loc, 'sound/musical_instruments/Bikehorn_1.ogg', 100, 1)
 
 	if (animation)
@@ -1998,14 +1977,7 @@
 	src.icon = null
 	APPLY_ATOM_PROPERTY(src, PROP_MOB_INVISIBILITY, "transform", INVIS_ALWAYS)
 
-	var/bdna = null // For forensics (Convair880).
-	var/btype = null
-
 	if (ishuman(src))
-		if (src.bioHolder)
-			bdna = src.bioHolder.Uid // Ditto (Convair880).
-			btype = src.bioHolder.bloodType
-
 		animation = new(src.loc)
 		animation.master = src
 		flick("owlgibbed", animation)
@@ -2019,10 +1991,7 @@
 		var/mob/dead/observer/newmob = ghostize()
 		newmob?.corpse = null
 
-	if (bdna && btype)
-		gibs(src.loc, null, bdna, btype) // For forensics (Convair880).
-	else
-		gibs(src.loc)
+	gibs(src.loc, null, src.bioHolder) // For forensics (Convair880).
 
 	playsound(src.loc, 'sound/voice/animal/hoot.ogg', 100, 1)
 
@@ -2178,15 +2147,9 @@
 	src.icon = null
 	APPLY_ATOM_PROPERTY(src, PROP_MOB_INVISIBILITY, "transform", INVIS_ALWAYS)
 
-	var/bdna = null
-	var/btype = null
 	var/datum/organHolder/organHolder = null
-
 	if (ishuman(src))
 		var/mob/living/carbon/human_src = src
-		if (src.bioHolder)
-			bdna = src.bioHolder.Uid
-			btype = src.bioHolder.bloodType
 		if (human_src.organHolder)
 			organHolder = human_src.organHolder
 
@@ -2217,10 +2180,7 @@
 
 		ejectables += (the_butt)
 
-	if (bdna && btype)
-		gibs(src.loc, ejectables, bdna, btype)
-	else
-		gibs(src.loc, ejectables)
+	gibs(src.loc, ejectables, src.bioHolder)
 
 	playsound(src.loc, 'sound/voice/farts/superfart.ogg', 100, 1, channel=VOLUME_CHANNEL_EMOTE)
 	var/turf/src_turf = get_turf(src)

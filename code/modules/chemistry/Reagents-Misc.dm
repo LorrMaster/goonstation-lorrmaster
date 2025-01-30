@@ -3258,10 +3258,6 @@ datum
 			viscosity = 0.4
 			depletion_rate = 0.4
 
-/*			var
-				blood_DNA = null
-				blood_type = "O-"*/
-
 			reaction_turf(var/turf/T, var/volume)
 				var/list/covered = holder.covered_turf()
 				if (length(covered) > 9)
@@ -3273,10 +3269,6 @@ datum
 					if (!locate(/obj/decal/cleanable/blood) in T)
 						playsound(T, 'sound/impact_sounds/Slimy_Splat_1.ogg', 50, TRUE)
 						var/obj/decal/cleanable/blood/blood = make_cleanable(/obj/decal/cleanable/blood,T)
-						var/datum/bioHolder/bioHolder = src.data
-						if(bioHolder)
-							blood.blood_type = bioHolder.bloodType
-							blood.blood_DNA = bioHolder.Uid
 						blood.reagents.add_reagent(src.id, volume, src.data)
 
 			reaction_mob(var/mob/M, var/method=TOUCH, var/volume_passed, paramslist = 0)
@@ -3294,10 +3286,6 @@ datum
 						if (isvampire(M))
 							var/datum/abilityHolder/vampire/V = M.get_ability_holder(/datum/abilityHolder/vampire)
 							if (V && istype(V))
-								// Blood as a reagent doesn't track DNA and blood type yet (or anymore).
-								/*if (M.bioHolder && (src.blood_DNA == M.bioHolder.Uid))
-									M.show_text("Injecting your own blood? Who are you kidding?", "red")
-									return*/
 								if (src.congealed)
 									boutput(M, SPAN_ALERT("EUGH! This blood is totally congealed and worthless."))
 									return 1

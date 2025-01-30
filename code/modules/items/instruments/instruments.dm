@@ -825,12 +825,7 @@ TYPEINFO(/obj/item/instrument/bikehorn/dramatic)
 			playsound(S, S.gender == "female" ? 'sound/voice/screams/female_scream.ogg' : 'sound/voice/screams/male_scream.ogg', 50, 0, 0, S.get_age_pitch())
 			playsound(S, 'sound/effects/bubbles.ogg', 50, FALSE)
 			playsound(S, 'sound/impact_sounds/Flesh_Tear_2.ogg', 50, FALSE)
-			var/bdna = null // For forensics (Convair880).
-			var/btype = null
-			if (S.bioHolder.Uid && S.bioHolder.bloodType)
-				bdna = S.bioHolder.Uid
-				btype = S.bioHolder.bloodType
-			gibs(S.loc, null, bdna, btype)
+			gibs(S.loc, null, S.bioHolder)
 
 			S.set_mutantrace(/datum/mutantrace/skeleton)
 			S.real_name = "[S.name]'s skeleton"

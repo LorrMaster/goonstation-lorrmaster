@@ -52,15 +52,7 @@
 			boutput(affected_mob, SPAN_ALERT("Your skin feels as if it's about to burst off..."))
 			affected_mob.take_toxin_damage(10 * mult)
 			if(probmult(40)) //So everyone can feel like robot Seth Brundle
-
-				var/bdna = null // For forensics (Convair880).
-				var/btype = null
-				if (affected_mob.bioHolder.Uid && affected_mob.bioHolder.bloodType)
-					bdna = affected_mob.bioHolder.Uid
-					btype = affected_mob.bioHolder.bloodType
-
 				var/turf/T = get_turf(affected_mob)
-
 				if (isnpcmonkey(affected_mob) || jobban_isbanned(affected_mob, "Cyborg") || isvirtual(affected_mob))
 					//affected_mob.ghostize()
 					var/robopath = pick(/obj/machinery/bot/guardbot,/obj/machinery/bot/secbot,/obj/machinery/bot/medbot,/obj/machinery/bot/firebot,/obj/machinery/bot/cleanbot,/obj/machinery/bot/floorbot)
@@ -70,7 +62,7 @@
 					qdel(affected_mob)
 				else if (ishuman(affected_mob))
 					logTheThing(LOG_COMBAT, affected_mob, "was transformed into a cyborg by the disease [name] at [log_loc(affected_mob)].")
-					gibs(T, null, bdna, btype)
+					gibs(T, null, affected_mob.bioHolder)
 					affected_mob:Robotize_MK2(1)
 
 // Looks identical to the evil one. Hope you trust the doctor who shoved this in you!

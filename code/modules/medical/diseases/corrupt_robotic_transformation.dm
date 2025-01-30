@@ -66,15 +66,8 @@
 			boutput(affected_mob, SPAN_ALERT("Your skin feels as if it's about to burst off..."))
 			affected_mob.take_toxin_damage(10 * mult)
 			if(probmult(35)) //So everyone can feel like robot Seth Brundle
-
-				var/bdna = null // For forensics (Convair880).
-				var/btype = null
-				if (affected_mob.bioHolder.Uid && affected_mob.bioHolder.bloodType)
-					bdna = affected_mob.bioHolder.Uid
-					btype = affected_mob.bioHolder.bloodType
-
 				var/turf/T = get_turf(affected_mob)
-				gibs(T, null, bdna, btype)
+				gibs(T, null, affected_mob.bioHolder)
 
 				if (isnpcmonkey(affected_mob))
 					affected_mob.ghostize()

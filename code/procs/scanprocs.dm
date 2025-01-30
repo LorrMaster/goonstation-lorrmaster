@@ -562,6 +562,10 @@
 				scan_builder.base_accuracy *= 0.9
 			if(ispug(H))
 				scan_builder.base_accuracy *= 0.9
+	if(isturf(A))
+		var/turf/T = A
+		if(T.active_liquid)
+			A = T.active_liquid // If the turf has a fluid, scan the fluid instead
 	return scan_builder.compile_scan(A)
 
 // Made this a global proc instead of 10 or so instances of duplicate code spread across the codebase (Convair880).

@@ -1,4 +1,4 @@
-/proc/bonegibs(turf/T, list/ejectables, bdna, btype)
+/proc/bonegibs(turf/T, list/ejectables, datum/bioHolder/bio)
 	var/list/dirlist = list(list(NORTH, NORTHEAST, NORTHWEST), \
 		                    list(SOUTH, SOUTHEAST, SOUTHWEST), \
 		                    list(WEST, NORTHWEST, SOUTHWEST),  \
@@ -21,6 +21,9 @@
 		var/obj/item/material_piece/bone/P  = new PT
 		P.set_loc(T)
 		P.streak_object(alldirs)
+		if(bio?.dna_signature)
+			var/datum/forensic_data/dna/f_data = new(bio.dna_signature, DNA_FORM_BONE)
+			P.add_evidence(f_data, FORENSIC_GROUP_DNA)
 		produce += P
 
 	return produce

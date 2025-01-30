@@ -1123,16 +1123,16 @@ ABSTRACT_TYPE(/obj/item/shipcomponent/secondary_system/thrusters)
 	icon_state = "lock"
 	code = ""
 	configure_mode = 0 //If true, entering a valid code sets that as the code.
-	var/bdna = null
+	var/datum/forensic_id/lock_dna = null
 
 	show_lock_panel(mob/living/user)
 		if (isliving(user))
-			if (isnull(bdna))
+			if (!lock_dna)
 				boutput(user, SPAN_NOTICE("[ship]'s locking mechanism recognizes you as its key!"))
 				playsound(src.loc, 'sound/machines/ping.ogg', 50, 0)
-				bdna = user?.bioHolder?.Uid
+				lock_dna = user?.bioHolder?.dna_signature
 				ship.locked = 0
-			else if ((bdna == user.bioHolder?.Uid) || (bdna == user.blood_DNA) )
+			else if (lock_dna == user?.bioHolder?.dna_signature)
 				ship.locked = !ship.locked
 				boutput(user, SPAN_ALERT("[ship] is now [ship.locked ? "locked" : "unlocked"]!"))
 			else
@@ -1141,10 +1141,10 @@ ABSTRACT_TYPE(/obj/item/shipcomponent/secondary_system/thrusters)
 					var/obj/item/parts/human_parts/limb
 					var/mob/living/carbon/human/H = user
 					limb = H.l_hand
-					if(limb && ((istype(limb) && limb.original_DNA == bdna) || (limb.blood_DNA == bdna)))
+					if(limb && istype(limb) && limb.dna_signature == lock_dna)
 						valid_dna_source = limb
 					limb = H.r_hand
-					if(!valid_dna_source && limb && ((istype(limb) && limb.original_DNA == bdna) || (limb.blood_DNA == bdna)))
+					if(!valid_dna_source && limb && istype(limb) && limb.dna_signature == lock_dna)
 						valid_dna_source = limb
 
 				if(valid_dna_source)

@@ -201,7 +201,7 @@ TYPEINFO(/obj/item/saw/syndie)
 
 		var/mob/living/carbon/human/H = target
 		if(prob(35))
-			gibs(target.loc, blood_DNA=H.bioHolder.Uid, blood_type=H.bioHolder.bloodType, headbits=FALSE, source=H)
+			gibs(target.loc, bio=H.bioHolder, headbits=FALSE, source=H)
 
 		if (H.organHolder && active)
 			if (H.organHolder.appendix)

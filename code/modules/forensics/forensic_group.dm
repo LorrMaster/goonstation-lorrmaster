@@ -100,7 +100,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	group_accuracy = 0.75
 
 	get_header()
-		return "Scan Particles"
+		return HEADER_SCANNER
 
 /datum/forensic_group/basic_list/bite
 	category = FORENSIC_GROUP_BITE
@@ -239,7 +239,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		if(HAS_ANY_FLAGS((src.group_flags & REMOVABLE_ALL), removal_flags))
 			prints_list = null
-			parent.remove_group(category)
+			parent.cut_group(category)
 
 	get_text(var/datum/forensic_scan_builder/scan_builder)
 		var/fp_text = ""
@@ -292,7 +292,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 				ADD_FLAG(E.flags, IS_TRACE)
 				apply_evidence(E) // reapply this blood evidence as trace evidence
 		if(dna_list.len == 0 && dna_trace_list.len == 0)
-			parent.remove_group(category)
+			parent.cut_group(category)
 
 	get_text(var/datum/forensic_scan_builder/scan_builder)
 		var/data_text = ""

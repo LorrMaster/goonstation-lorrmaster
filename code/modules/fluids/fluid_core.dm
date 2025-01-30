@@ -87,10 +87,6 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 		if (!fluid_ma)
 			fluid_ma = new(src)
 
-		// Ignore this for now
-		// ADD_FLAG(src.forensic_holder.removal_flags_ignore, REMOVABLE_CLEANING) // Need to remove the fluid to clean any vlood
-
-
 	proc/set_up(var/newloc, var/do_enters = 1)
 		if (is_setup) return
 		if (!newloc) return
@@ -197,11 +193,7 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 
 	proc/get_blood_bioholder()
 		// Used for getting blood's dna and such
-		var/datum/reagent/blood/blood_reagent = src.group.reagents.reagent_list["blood"]
-		if (!blood_reagent)
-			blood_reagent = src.group.reagents.reagent_list["bloodc"]
-		var/datum/bioHolder/bioholder = blood_reagent?.data
-		return bioholder
+		return src.group.reagents.get_blood_bioholder()
 
 	//incorporate touch_modifier?
 	Crossed(atom/movable/A)
@@ -567,6 +559,11 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 
 		if ((color_changed || last_icon != icon_state) && last_spread_was_blocked)
 			src.update_perspective_overlays()
+
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		if(src.group.reagents)
+			src.group.reagents.forensic_scan_reagents(scan_builder)
+		return
 
 	proc/update_perspective_overlays() // fancy perspective overlaying
 		if (icon_state != "15") return

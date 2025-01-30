@@ -573,7 +573,7 @@
 		return ..() && !trample?.disabled
 
 
-/proc/funnygibs(atom/location, var/list/ejectables, var/bDNA, var/btype)
+/proc/funnygibs(atom/location, var/list/ejectables, var/datum/bioHolder/bio)
 	SPAWN(0)
 		playsound(location, 'sound/musical_instruments/Bikehorn_1.ogg', 100, TRUE)
 		playsound(location, 'sound/impact_sounds/Flesh_Break_2.ogg', 50, TRUE)
@@ -583,8 +583,7 @@
 
 	for (var/i in cardinal)
 		blood = make_cleanable(/obj/decal/cleanable/blood/splatter/extra, location)
-		blood.blood_DNA = bDNA
-		blood.blood_type = btype
+		blood.reagents.set_blood_bioholder(bio)
 		blood.color = random_saturated_hex_color()
 		blood.streak_cleanable(i, 1)
 		bloods += blood
@@ -592,8 +591,7 @@
 	var/extra = rand(2,4)
 	for (var/i = 1, i <= extra, i++)
 		blood = make_cleanable(/obj/decal/cleanable/blood/splatter/extra, location)
-		blood.blood_DNA = bDNA
-		blood.blood_type = btype
+		blood.reagents.set_blood_bioholder(bio)
 		blood.color = random_saturated_hex_color()
 		blood.streak_cleanable(cardinal, 1)
 		bloods += blood

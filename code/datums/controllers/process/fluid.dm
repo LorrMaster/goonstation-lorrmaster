@@ -144,8 +144,6 @@
 								B.sample_reagent = "blood"
 								B.add_volume(F.color, do_fluid_react = 0)
 								B.handle_reagent_list(FG.reagents.reagent_list)
-								B.blood_DNA = F.blood_DNA
-								B.blood_type = F.blood_type
 
 						FG.evaporate()
 						if (FG?.qdeled)

@@ -79,6 +79,11 @@
 		// target.forensic_holder?.
 		// target.add_fingerprint_direct(optionslist[selected])
 
+	proc/read_prints_new(mob/user, atom/target)
+		if(target.forensic_holder)
+			if(ishuman(target))
+				return
+
 	// TODO maybe handle dupe glove prints more gracefully? if we see the same glove ID on 2 different people, list both names? idk
 	proc/read_prints(mob/user, atom/target)
 		// Yes, this currently lets you get the name of people through glove IDs. It's a traitor item so I think it's fine. Gnarly if sec finds one though.

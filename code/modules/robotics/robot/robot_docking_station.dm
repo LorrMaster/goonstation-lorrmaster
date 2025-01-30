@@ -366,12 +366,7 @@ TYPEINFO(/obj/machinery/recharge_station)
 				src.go_out()
 
 				SPAWN(0)
-					var/bdna = null // For forensics (Convair880).
-					var/btype = null
-					if (H.bioHolder.Uid && H.bioHolder.bloodType)
-						bdna = H.bioHolder.Uid
-						btype = H.bioHolder.bloodType
-					gibs(src.loc, null, bdna, btype)
+					gibs(src.loc, null, H.bioHolder)
 					if (isnpcmonkey(H))
 						H.ghostize()
 						var/robopath = pick(/obj/machinery/bot/guardbot,/obj/machinery/bot/secbot,
