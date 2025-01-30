@@ -146,14 +146,8 @@
 
 	else if (isdead(src) && !src.client)
 		var/atom/A = src.loc
-
-		var/bdna = null // For forensics (Convair880).
-		var/btype = null
-		if (src.bioHolder && src.bioHolder.Uid && src.bioHolder.bloodType) //ZeWaka: Fix for null.bioHolder
-			bdna = src.bioHolder.Uid
-			btype = src.bioHolder.bloodType
 		SPAWN(0)
-			gibs(A, null, bdna, btype)
+			gibs(A, null, src.bioHolder)
 
 		qdel(src)
 		return

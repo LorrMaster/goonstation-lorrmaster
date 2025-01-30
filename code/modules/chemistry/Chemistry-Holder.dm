@@ -1230,6 +1230,32 @@ proc/chem_helmet_check(mob/living/carbon/human/H, var/what_liquid="hot")
 	proc/is_airborne()
 		return FALSE
 
+	proc/get_blood_bioholder()
+		var/datum/reagent/blood/blood_reagent = src.reagent_list["blood"]
+		if (!blood_reagent)
+			blood_reagent = src.reagent_list["bloodc"]
+		var/datum/bioHolder/bio = blood_reagent?.data
+		if(istype(bio))
+			return bio
+		return null
+
+	proc/set_blood_bioholder(var/datum/bioHolder/bio, var/blood_id = "blood")
+		if(!blood_id)
+			blood_id = "blood"
+		var/datum/reagent/blood/blood_reagent = src.reagent_list[blood_id]
+		blood_reagent?.data = bio // Check if I need to copy this
+
+	proc/forensic_scan_reagents(var/datum/forensic_scan_builder/scan_builder)
+		var/datum/bioHolder/bio = src.get_blood_bioholder()
+		if(bio)
+			var/datum/forensic_data/dna/dna_data = new(bio.dna_signature, DNA_FORM_BLOOD)
+			scan_builder.add_scan_text("[dna_data.scan_display()][dna_data.get_time_estimate(scan_builder.base_accuracy)]", HEADER_DNA)
+		var/datum/reagent/vomit/v_reagent = src.reagent_list["vomit"]
+		bio = v_reagent?.data
+		if(bio && istype(bio))
+			var/datum/forensic_data/dna/dna_data = new(bio.dna_signature, DNA_FORM_VOMIT)
+			scan_builder.add_scan_text("[dna_data.scan_display()][dna_data.get_time_estimate(scan_builder.base_accuracy)]", HEADER_DNA)
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 

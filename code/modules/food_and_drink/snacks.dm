@@ -841,16 +841,11 @@ ABSTRACT_TYPE(/obj/item/reagent_containers/food/snacks/soup)
 					M.changeStatus("knockdown", 4 SECONDS)
 					if (ishuman(M))
 						var/mob/living/carbon/human/H = M
-
 						var/obj/decal/cleanable/blood/gibs/G = null // For forensics (Convair880).
 						G = make_cleanable( /obj/decal/cleanable/blood/gibs,M.loc)
-						if (H.bioHolder.Uid && H.bioHolder.bloodType)
-							G.blood_DNA = H.bioHolder.Uid
-							G.blood_type = H.bioHolder.bloodType
-
+						G.reagents.set_blood_bioholder(H.bioHolder)
 						if (prob(5) && H.organHolder && H.organHolder.heart)
 							H.organHolder.drop_organ("heart")
-
 							H.visible_message(SPAN_ALERT("<b>Wait, is that their heart!?</b>"))
 				if(21)
 					if (!M.bioHolder.HasEffect("stinky"))

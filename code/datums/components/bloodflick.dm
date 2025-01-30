@@ -31,11 +31,11 @@ TYPEINFO(/datum/component/bloodflick)
 	..()
 
 /datum/component/bloodflick/proc/flickblood()
-	if (!src.weapon.blood_DNA)
+	if (!src.weapon.forensic_holder.is_stained)
 		return
 	// if all the blood is wet, flicking it off cleans it.
-	if (!src.hasdry)
-		src.weapon.clean_forensic()
+	if (!src.hasdry && src.weapon.forensic_holder)
+		src.weapon.clean_forensic() // Guess it just cleans everything for now
 	// if there's wet blood on it, flick it off
 	if (src.haswet)
 		src.haswet = FALSE

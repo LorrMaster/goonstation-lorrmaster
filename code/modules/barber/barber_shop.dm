@@ -241,6 +241,9 @@
 	arm_icon_state = "arm-barber"
 	parts_type = /obj/item/furniture_parts/barber_chair
 
+	get_chairprint_pattern()
+		return "__lnnl__"
+
 /obj/barber_pole
 	name = "barber pole"
 	icon = 'icons/obj/barber_shop.dmi'

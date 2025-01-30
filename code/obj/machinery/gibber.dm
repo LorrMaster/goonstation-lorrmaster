@@ -136,9 +136,6 @@ TYPEINFO(/obj/machinery/gibber)
 		boutput(user, SPAN_ALERT("Nothing is loaded inside."))
 		return
 	else
-		var/bdna = null // For forensics (Convair880).
-		var/btype = null
-
 		user.visible_message(SPAN_ALERT("[user] presses a button on the [src]. Its engines begin to rev up!"),
 				SPAN_ALERT("You press the button on the [src]. The engines rev up."))
 		src.operating = 1
@@ -147,9 +144,6 @@ TYPEINFO(/obj/machinery/gibber)
 		var/decomp = 0
 		if(ishuman(src.occupant))
 			decomp = src.occupant:decomp_stage
-
-			bdna = src.occupant.bioHolder.Uid // Ditto (Convair880).
-			btype = src.occupant.bioHolder.bloodType
 
 		if(user != src.occupant) //for suiciding with gibber
 			logTheThing(LOG_COMBAT, user, "grinds [constructTarget(src.occupant,"combat")] in a gibber at [log_loc(src)].")
@@ -180,9 +174,7 @@ TYPEINFO(/obj/machinery/gibber)
 				generated_meat.throw_at(dispense_direction, rand(1,4), 3, throw_type = THROW_NORMAL)
 			else
 				var/obj/decal/cleanable/blood/gibs/mess = new /obj/decal/cleanable/blood/gibs(get_turf(src))
-				if (bdna && btype)
-					mess.blood_DNA = bdna
-					mess.blood_type = btype
+				mess.reagents.set_blood_bioholder(src.occupant.bioHolder)
 				mess.throw_at(dispense_direction, rand(1,3), 3, throw_type = THROW_NORMAL)
 
 			playsound(src.loc, pick(meat_grinding_sounds), 80, 1)

@@ -55,58 +55,58 @@
 		. +=  "<br><b class='alert'>[src.name] is [bicon(src.handcuffs)] handcuffed!</b>"
 
 	if (src.w_uniform && !(src.wear_suit?.hides_from_examine & C_UNIFORM))
-		. += "<br><span class='[src.w_uniform.blood_DNA ? "alert" : "notice"]'>[src.name] is wearing [bicon(src.w_uniform)] \an [src.w_uniform.name].</span>"
+		. += "<br><span class='[src.w_uniform.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] is wearing [bicon(src.w_uniform)] \an [src.w_uniform.name].</span>"
 
 	if (src.wear_suit)
-		. += "<br><span class='[src.wear_suit.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.wear_suit)] \an [src.wear_suit.name] on.</span>"
+		. += "<br><span class='[src.wear_suit.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.wear_suit)] \an [src.wear_suit.name] on.</span>"
 
 	if (src.ears && !(src.wear_suit?.hides_from_examine & C_EARS) && !(src.head?.hides_from_examine & C_EARS))
 		if (istype(src.ears, /obj/item/clothing/))
-			. += "<br><span class='[src.ears.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.ears)] \an [src.ears.name] by [t_his] mouth.</span>"
+			. += "<br><span class='[src.ears.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.ears)] \an [src.ears.name] by [t_his] mouth.</span>"
 		else
-			. += "<br><span class='[src.ears.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.ears)] [src.ears.blood_DNA ? "a bloody [src.ears.name]" : "\an [src.ears.name]"] by [t_his] mouth.</span>"
+			. += "<br><span class='[src.ears.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.ears)] [src.ears.forensic_holder?.is_stained ? "a bloody [src.ears.name]" : "\an [src.ears.name]"] by [t_his] mouth.</span>"
 
 	if (src.head)
-		. += "<br><span class='[src.head.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.head)] \an [src.head.name] on [t_his] head.</span>"
+		. += "<br><span class='[src.head.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.head)] \an [src.head.name] on [t_his] head.</span>"
 
 	if (src.wear_mask && !(src.wear_suit?.hides_from_examine & C_MASK) && !(src.head?.hides_from_examine & C_MASK))
 		if (istype(src.l_hand, /obj/item/clothing/))
-			. += "<br><span class='[src.wear_mask.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.wear_mask)] [src.wear_mask.blood_DNA ? "a bloody [src.wear_mask.name]" : "\an [src.wear_mask.name]"] on [t_his] face.</span>"
+			. += "<br><span class='[src.wear_mask.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.wear_mask)] [src.wear_mask.forensic_holder?.is_stained ? "a bloody [src.wear_mask.name]" : "\an [src.wear_mask.name]"] on [t_his] face.</span>"
 		else
-			. += "<br><span class='[src.wear_mask.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.wear_mask)] \an [src.wear_mask.name] on [t_his] face.</span>"
+			. += "<br><span class='[src.wear_mask.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.wear_mask)] \an [src.wear_mask.name] on [t_his] face.</span>"
 
 	if (src.glasses && !(src.wear_suit?.hides_from_examine & C_GLASSES) && !(src.head?.hides_from_examine & C_GLASSES))
 		if (face_visible())
-			. += "<br><span class='[src.glasses.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.glasses)] \an [src.glasses.name] on [t_his] face.</span>"
+			. += "<br><span class='[src.glasses.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.glasses)] \an [src.glasses.name] on [t_his] face.</span>"
 
 	if (src.l_hand)
 		if (istype(src.l_hand, /obj/item/clothing/))
-			. += "<br><span class='[src.l_hand.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.l_hand)] \an [src.l_hand.name] in [t_his] left hand.</span>"
+			. += "<br><span class='[src.l_hand.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.l_hand)] \an [src.l_hand.name] in [t_his] left hand.</span>"
 		else
-			. += "<br><span class='[src.l_hand.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.l_hand)] [src.l_hand.blood_DNA ? "a bloody [src.l_hand.name]" : "\an [src.l_hand.name]"] in [t_his] left hand.</span>"
+			. += "<br><span class='[src.l_hand.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.l_hand)] [src.l_hand.forensic_holder?.is_stained ? "a bloody [src.l_hand.name]" : "\an [src.l_hand.name]"] in [t_his] left hand.</span>"
 
 	if (src.r_hand)
 		if (istype(src.r_hand, /obj/item/clothing/))
-			. += "<br><span class='[src.r_hand.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.r_hand)] \an [src.r_hand.name] in [t_his] right hand.</span>"
+			. += "<br><span class='[src.r_hand.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.r_hand)] \an [src.r_hand.name] in [t_his] right hand.</span>"
 		else
-			. += "<br><span class='[src.r_hand.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.r_hand)] [src.r_hand.blood_DNA ? "a bloody [src.r_hand.name]" : "\an [src.r_hand.name]"] in [t_his] right hand.</span>"
+			. += "<br><span class='[src.r_hand.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.r_hand)] [src.r_hand.forensic_holder?.is_stained ? "a bloody [src.r_hand.name]" : "\an [src.r_hand.name]"] in [t_his] right hand.</span>"
 
 	if (src.belt)
-		. += "<br><span class='[src.belt.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.belt)] [src.belt.blood_DNA ? "a bloody [src.belt.name]" : "\an [src.belt.name]"] on [t_his] belt.</span>"
+		. += "<br><span class='[src.belt.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.belt)] [src.belt.forensic_holder?.is_stained ? "a bloody [src.belt.name]" : "\an [src.belt.name]"] on [t_his] belt.</span>"
 
 	if (src.gloves && !src.gloves.nodescripition)
 		if(!(src.wear_suit && src.wear_suit?.hides_from_examine & C_GLOVES))
-			. += "<br><span class='[src.gloves.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.gloves)] [src.gloves.name] on [t_his] hands.</span>"
-	else if (src.blood_DNA)
+			. += "<br><span class='[src.gloves.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.gloves)] [src.gloves.name] on [t_his] hands.</span>"
+	else if (src.forensic_holder?.is_stained)
 		. += "<br>[SPAN_ALERT("[src.name] has bloody hands!")]"
 
 	if (src.shoes && !(src.wear_suit?.hides_from_examine & C_SHOES))
-		. += "<br><span class='[src.shoes.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.shoes)] [src.shoes.name] on [t_his] feet.</span>"
+		. += "<br><span class='[src.shoes.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.shoes)] [src.shoes.name] on [t_his] feet.</span>"
 	else if (islist(src.tracked_blood))
 		. += "<br>[SPAN_ALERT("[src.name] has bloody feet!")]"
 
 	if (src.back)
-		. += "<br><span class='[src.back.blood_DNA ? "alert" : "notice"]'>[src.name] has [bicon(src.back)] [src.back.blood_DNA ? "a bloody [src.back.name]" : "\an [src.back.name]"] on [t_his] back.</span>"
+		. += "<br><span class='[src.back.forensic_holder?.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.back)] [src.back.forensic_holder?.is_stained ? "a bloody [src.back.name]" : "\an [src.back.name]"] on [t_his] back.</span>"
 
 	if (src.wear_id)
 		if (istype(src.wear_id, /obj/item/card/id))

@@ -12,6 +12,8 @@
 	var/tracked_blood = null // list(bDNA, btype, color, count)
 
 /atom/proc/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	if(src.reagents)
+		src.reagents.forensic_scan_reagents(scan_builder)
 	return
 /atom/proc/add_evidence(var/datum/forensic_data/data, var/category = FORENSIC_GROUP_NOTE)
 	if(src.forensic_holder)
@@ -233,9 +235,6 @@
 			var/mob/living/carbon/human/H = src
 			var/datum/forensic_data/multi/f_print = H.get_footprints(TIME)
 			B.add_evidence(f_print, FORENSIC_GROUP_TRACKS)
-		if(src.bioHolder)
-			var/datum/forensic_data/dna/blood_dna = new(src.bioHolder.dna_signature, DNA_FORM_BLOOD, TIME)
-			B.add_evidence(blood_dna, FORENSIC_GROUP_DNA)
 
 	if (src.tracked_blood && isnum(src.tracked_blood["count"])) // mirror from below
 		src.tracked_blood["count"] --

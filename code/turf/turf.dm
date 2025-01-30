@@ -617,6 +617,27 @@ proc/generate_space_color()
 	else if (A.y >= (world.maxy - 1))
 		edge_step(A, 0, 3)
 
+/turf/space/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+	..()
+	// Recieve static if you scan space
+	if(istype_exact(src, /turf/space) && !scan_builder.is_admin)
+		var/space_scan = ""
+		var/static_num = rand(3,7)
+		for(var/i=1; i <= static_num; i++)
+			var/static_size = rand(5,12)
+			var/list/static_list = new()
+			for(var/k=1; k <= static_size; k++)
+				var/r = rand()
+				if(r < 0.4)
+					static_list += pick(CHAR_LIST_SYMBOLS)
+				else if(r < 0.8)
+					static_list += pick(CHAR_LIST_NUM)
+				else
+					static_list += pick(CHAR_LIST_UPPER_LIMIT)
+			space_scan += "<li>[list2text(static_list)]</li>"
+		scan_builder.add_scan_text(space_scan, HEADER_SCANNER, src.forensic_holder, TRUE)
+
+
 /turf/hitby(atom/movable/AM, datum/thrown_thing/thr)
 	. = ..()
 	if(src.density)

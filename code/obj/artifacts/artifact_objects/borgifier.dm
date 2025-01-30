@@ -82,13 +82,8 @@
 					humanuser.update_body()
 				sleep(0.4 SECONDS)
 
-			var/bdna = null // For forensics (Convair880).
-			var/btype = null
-			if (user.bioHolder.Uid && user.bioHolder.bloodType)
-				bdna = user.bioHolder.Uid
-				btype = user.bioHolder.bloodType
 			var/turf/T = get_turf(user)
-			gibs(T, null, bdna, btype)
+			gibs(T, null, user.bioHolder)
 
 			ArtifactLogs(user, null, O, "touched", "robotizing user", 0) // Added (Convair880).
 

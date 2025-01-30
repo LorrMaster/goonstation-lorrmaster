@@ -127,9 +127,7 @@
 			src.waste_effect(1)
 		else
 			var/obj/decal/cleanable/blood/blood_decal = make_cleanable(/obj/decal/cleanable/blood, get_turf(src.owner))
-			if (src.owner.bioHolder)
-				blood_decal.blood_DNA = src.owner.bioHolder.Uid
-				blood_decal.blood_type = src.owner.bioHolder.bloodType
+			blood_decal.reagents.set_blood_bioholder(src.owner.bioHolder, ischangeling(src.owner))
 			src.waste_effect(0.4)
 
 	proc/waste_effect(severity)

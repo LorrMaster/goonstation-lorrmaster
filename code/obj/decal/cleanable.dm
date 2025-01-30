@@ -123,14 +123,15 @@ proc/make_cleanable(var/type,var/loc)
 					M.visible_message(SPAN_ALERT("<b>[M]</b> slips on [src]!"),\
 					SPAN_ALERT("You slip on [src]!"))
 
-					if (src.slipped_in_blood)
+					if (src.slipped_in_blood && src.reagents)
 						var/b_color = "#FFFFFF"
+						var/datum/bioHolder/bio = src.reagents.get_blood_bioholder()
 						if (src.color)
 							b_color = src.color
 						else if (src.sample_reagent) // Gibs have no color but do have reagents
 							var/datum/reagent/R = reagents_cache[src.sample_reagent]
 							b_color = rgb(R.fluid_r, R.fluid_g, R.fluid_b)
-						M.apply_blood(null, b_color)
+						M.apply_blood(bio, b_color)
 
 	attackby(obj/item/W, mob/user)
 		if (src.can_sample && W.is_open_container() && W.reagents)
@@ -329,24 +330,26 @@ proc/make_cleanable(var/type,var/loc)
 		if (src.dry == FRESH_BLOOD && src.reagents.total_volume >= 5 && src.can_track)
 			if (ishuman(AM))
 				var/mob/living/carbon/human/H = AM
+				var/datum/bioHolder/bio = src.reagents.get_blood_bioholder()
 				if (H.lying)
 					if (H.wear_suit)
-						H.wear_suit.apply_blood(null, src.get_blood_color())
+						H.wear_suit.apply_blood(bio, src.get_blood_color())
 						H.update_bloody_suit()
 					else if (H.w_uniform)
-						H.w_uniform.apply_blood(null, src.get_blood_color())
+						H.w_uniform.apply_blood(bio, src.get_blood_color())
 						H.update_bloody_uniform()
 				else
 					if (H.shoes)
-						H.shoes.apply_blood(null, src.get_blood_color())
+						H.shoes.apply_blood(bio, src.get_blood_color())
 						H.update_bloody_shoes()
 					else
-						H.apply_blood(null, src.get_blood_color())
+						H.apply_blood(bio, src.get_blood_color())
 				if (H.m_intent != "walk")
 					src.add_tracked_blood(H)
 					H.update_bloody_feet()
 			else if (isliving(AM))// || isobj(AM))
-				AM.apply_blood(null, src.get_blood_color())
+				var/datum/bioHolder/bio = src.reagents.get_blood_bioholder()
+				AM.apply_blood(bio, src.get_blood_color())
 				if (!AM.anchored)
 					src.add_tracked_blood(AM)
 
@@ -521,9 +524,10 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 
 		src.Dry(rand(vis_amount*80,vis_amount*120))
 		var/counter = 0
+		var/datum/bioHolder/bio = src.reagents.get_blood_bioholder()
 		for (var/obj/item/I in get_turf(src))
 			if (prob(vis_amount*10))
-				I.apply_blood(null, src.get_blood_color())
+				I.apply_blood(bio, src.get_blood_color())
 			if(counter++>25)break
 
 		var/turf/simulated/floor/T = src.loc

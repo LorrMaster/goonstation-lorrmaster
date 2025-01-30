@@ -1,4 +1,4 @@
-/proc/vegetablegibs(turf/T, list/ejectables, bdna, btype)
+/proc/vegetablegibs(turf/T, list/ejectables, bio)
 	var/list/vegetables = list(/obj/item/reagent_containers/food/snacks/plant/soy/soylent, \
 		                       /obj/item/reagent_containers/food/snacks/plant/lettuce, \
 		                       /obj/item/reagent_containers/food/snacks/plant/cucumber, \

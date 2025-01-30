@@ -622,10 +622,7 @@ TYPEINFO(/obj/item/syndie_fishing_rod)
 			if (damage_on_reel >= 25)
 				target.changeStatus("knockdown", sqrt(damage_on_reel) / 3 SECONDS)
 				target.force_laydown_standup()
-				if (target.bioHolder && target.bioHolder.Uid && target.bioHolder.bloodType)
-					gibs(target.loc, blood_DNA=target.bioHolder.Uid, blood_type=target.bioHolder.bloodType, headbits=FALSE, source=target)
-				else
-					gibs(target.loc, headbits=FALSE, source=target)
+				gibs(target.loc, bio=target.bioHolder, headbits=FALSE, source=target)
 			return TRUE
 		else
 			step_towards(target, user)
@@ -732,10 +729,7 @@ TYPEINFO(/obj/item/syndie_fishing_rod)
 		M.emote("scream")
 		M.TakeDamage("chest", 25, 0, 0, DAMAGE_CUT)
 		M.visible_message("\The [src] tears a bunch of gore out of [M.name]!")
-		if (M.bioHolder && M.bioHolder.Uid && M.bioHolder.bloodType)
-			gibs(M.loc, blood_DNA=M.bioHolder.Uid, blood_type=M.bioHolder.bloodType, headbits=FALSE, source=M)
-		else
-			gibs(M.loc, headbits=FALSE, source=M)
+		gibs(M.loc, bio=M.bioHolder, headbits=FALSE, source=M)
 		var/mob/living/carbon/human/H = M
 		if (istype(H))
 			if (H.organHolder)

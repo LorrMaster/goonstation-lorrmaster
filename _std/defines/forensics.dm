@@ -1,8 +1,10 @@
 /*
 TODO:
  - Forensic scan reports need improvements
- - Lots of work to do with blood in general
-	- Simplify getting DNA from blood regents
+ - Improve getting DNA from blood regents
+	- Multiple bioholders
+	- Vomit bioholders
+	- Fix dna sample duplicates
  - Store types of IDs into a dictionary and check for duplicates
  - Replace "interesting" text with new system
  - Update security logs to use the new system
@@ -12,9 +14,10 @@ TODO:
 Bugs:
  - Forensics does not carry over to final stage of ship construction
  - Forensics does not carry over to implanted bullets
- - Blood tracks leave behind the wearer's DNA even if they were not bleeding
+ - Blood tracks leave behind the wearer's DNA even if they were not bleeding (fixed?)
 
 Lower Priority
+ - DNA scramblers change DNA and fingerprints of regrown limbs, but not the current ones
  - Imports should specify a trader, or potential traders
  - Leave behind hair while in pods, bed, barber, etc
  - Go through machinery for potential forensic notes to add
@@ -37,18 +40,19 @@ Lower Priority
 
 #define FORENSIC_GROUP_NONE 0
 #define FORENSIC_GROUP_ADMINPRINT 1
-#define FORENSIC_GROUP_NOTE 2 // Basically a misc section
-#define FORENSIC_GROUP_FINGERPRINT 3
-#define FORENSIC_GROUP_DNA 4
-#define FORENSIC_GROUP_SCAN 5
-#define FORENSIC_GROUP_COMPUTER_LOG 6
-#define FORENSIC_GROUP_TRACKS 7 // Footprints and the like
-#define FORENSIC_GROUP_RETINA 8
-#define FORENSIC_GROUP_HEALTH_FLOOR 9 // DNA + Footprints
-#define FORENSIC_GROUP_HEALTH_ANALYZER 10 // DNA + retina scan
-#define FORENSIC_GROUP_SLEUTH_COLOR 11 // Pug sleuthing
-#define FORENSIC_GROUP_PROJ_HIT 12
-#define FORENSIC_GROUP_BITE 13
+#define FORENSIC_GROUP_PRODUCER 2 // Hold data that this object creates. For the fingerprinter to find.
+#define FORENSIC_GROUP_NOTE 3 // Basically a misc section
+#define FORENSIC_GROUP_FINGERPRINT 4
+#define FORENSIC_GROUP_DNA 5
+#define FORENSIC_GROUP_SCAN 6
+#define FORENSIC_GROUP_COMPUTER_LOG 7
+#define FORENSIC_GROUP_TRACKS 8 // Footprints and the like
+#define FORENSIC_GROUP_RETINA 9
+#define FORENSIC_GROUP_HEALTH_FLOOR 10 // DNA + Footprints
+#define FORENSIC_GROUP_HEALTH_ANALYZER 11 // DNA + retina scan
+#define FORENSIC_GROUP_SLEUTH_COLOR 12 // Pug sleuthing
+#define FORENSIC_GROUP_PROJ_HIT 13
+#define FORENSIC_GROUP_BITE 14
 
 /proc/forensic_group_create(var/category) // Create a new group from its unique variable
 	// Is there a better way to do this? IDK.
@@ -92,6 +96,7 @@ Lower Priority
 #define DNA_FORM_TISSUE 4
 #define DNA_FORM_BONE 5
 #define DNA_FORM_SALIVA 6
+#define DNA_FORM_VOMIT 7
 
 #define PROJ_BULLET_THROUGH 1
 #define PROJ_BULLET_EMBEDDED 2
@@ -103,13 +108,13 @@ Lower Priority
 #define HEADER_NOTES "Notes"
 #define HEADER_FINGERPRINTS "Fingerprints"
 #define HEADER_DNA "DNA Samples"
+#define HEADER_SCANNER "Scan Particles"
 
 #define CHAR_LIST_UPPER list("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
 #define CHAR_LIST_LOWER list("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z")
 #define CHAR_LIST_NUM list("0","1","2","3","4","5","6","7","8","9")
 #define CHAR_LIST_SYMBOLS list("#","_","%","&","+","=","-","*","~") // "<", ">"
 #define CHAR_LIST_HEX list("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F")
-
 // Remove letters that can be confused with numbers at a glance
 #define CHAR_LIST_UPPER_LIMIT CHAR_LIST_UPPER - list("D","I","O","Q")
 #define CHAR_LIST_LOWER_LIMIT CHAR_LIST_LOWER - list("i","j","l","o")

@@ -15,7 +15,6 @@ datum/forensic_data
 		src.perc_offset = (rand() - 0.5) * 2
 		src.accuracy_mult *= ((rand() - 0.5) * 0.15) + 1
 	proc/scan_display() // The text to display when scanned
-		// rename to scan_report
 		return ""
 	proc/should_remove(var/remove_flags) // Compare removable flags
 		return HAS_ANY_FLAGS((src.flags & REMOVABLE_ALL), remove_flags)
@@ -26,7 +25,9 @@ datum/forensic_data
 			return "" // Negative accuracy -> do not report a time
 
 		var/t_end = (TIME - src.time_end) / (1 MINUTES)
-		if(accuracy == 0) // perfect accuracy is zero
+		if(t_end == 0)
+			return SPAN_SUBTLE(SPAN_ITALIC(" (Current)"))
+		else if(accuracy == 0) // perfect accuracy is zero
 			return SPAN_SUBTLE(SPAN_ITALIC(" ([round(t_end)] mins ago)"))
 		else
 			accuracy = t_end * FORENSIC_BASE_ACCURACY * accuracy * accuracy_mult // Base accuracy: +-25% (20 mins -> 15-25 mins)
@@ -171,6 +172,8 @@ datum/forensic_data/dna // An individual dna sample
 				return pattern.id + " (bone)"
 			if(DNA_FORM_SALIVA)
 				return pattern.id + " (saliva)"
+			if(DNA_FORM_VOMIT)
+				return pattern.id + " (vomit)"
 			else
 				return pattern.id
 

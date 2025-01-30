@@ -382,14 +382,6 @@ this is already used where it needs to be used, you can probably ignore it.
 		if (ischangeling(M))
 			B.ling_blood = 1
 
-		if (M.bioHolder)
-			B.blood_DNA = M.bioHolder.Uid
-			B.blood_type = M.bioHolder.bloodType
-
-		else
-			B.blood_DNA = "--unidentified substance--"
-			B.blood_type = "--unidentified substance--"
-
 		B.add_volume(blood_color_to_pass, M.blood_id, num_amount, vis_amount, blood_reagent_data=M.get_blood_bioholder())
 		return
 
@@ -429,9 +421,6 @@ this is already used where it needs to be used, you can probably ignore it.
 
 		if (ischangeling(M))
 			B.ling_blood = 1
-
-		B.blood_DNA = M.bioHolder.Uid
-		B.blood_type = M.bioHolder.bloodType
 
 		if (isvampire(M))
 			M.change_vampire_blood(-5) //num_amount // gunna go with a set number as a test

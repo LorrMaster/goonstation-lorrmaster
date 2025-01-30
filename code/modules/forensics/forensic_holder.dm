@@ -41,7 +41,7 @@ datum/forensic_holder
 				break
 		return group
 
-	proc/remove_group(var/category = FORENSIC_GROUP_NONE)
+	proc/cut_group(var/category)
 		for(var/i=1, i<= src.evidence_list.len, i++)
 			if(src.evidence_list[i].category == category)
 				src.evidence_list.Cut(i, i+1)
@@ -69,6 +69,11 @@ datum/forensic_holder
 		for(var/i=src.evidence_list.len; i>= 1; i--)
 			src.evidence_list[i].remove_evidence(src, removal_flags)
 		return
+	proc/remove_group(var/category, var/removal_flags = REMOVABLE_ALL)
+		for(var/i=1, i<= src.evidence_list.len, i++)
+			if(src.evidence_list[i].category == category)
+				src.evidence_list[i].remove_evidence(src, removal_flags)
+				return
 	proc/move_evidence(var/datum/forensic_holder/target, var/move_flags = ~0)
 		// TODO for merging two holders together
 		return
