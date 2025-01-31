@@ -127,13 +127,14 @@ var/global/current_state = GAME_STATE_INVALID
 	// try to roll a gamemode 10 times before giving up
 	var/attempts_left = 10
 	var/list/failed_modes = list()
+	var/readied_count = src.roundstart_player_count(FALSE)
 	while(attempts_left > 0)
 		switch(master_mode)
 			if("random","secret") src.mode = config.pick_random_mode(failed_modes)
 			if("action")
 				src.mode = config.pick_mode(pick("nuclear","wizard","blob"))
 			if("intrigue")
-				src.mode = config.pick_mode(pick(prob(300);"traitor", prob(200);"mixed_rp", prob(75);"changeling",prob(75);"vampire", prob(50);"spy_theft", prob(50);"arcfiend", prob(50);"salvager", prob(50);"extended", prob(50);"gang"))
+				src.mode = config.pick_mode(pick(prob(300);"traitor", prob(200);"mixed_rp", prob(75);"changeling",prob(75);"vampire", prob(50);"spy_theft", prob(50);"arcfiend", prob(50);"salvager", prob(readied_count > 20 ? 50 : 0);"extended", prob(50);"gang"))
 			if("pod_wars") src.mode = config.pick_mode("pod_wars")
 			else src.mode = config.pick_mode(master_mode)
 
@@ -316,6 +317,21 @@ var/global/current_state = GAME_STATE_INVALID
 	else if (total_clients() >= SEMIOVERLOAD_PLAYERCOUNT)
 		world.tick_lag = SEMIOVERLOADED_WORLD_TICKLAG
 
+/datum/controller/gameticker/proc/roundstart_player_count(loud = TRUE)
+	var/readied_count = 0
+	var/unreadied_count = 0
+	for (var/client/C in global.clients)
+		var/mob/new_player/mob = C.mob
+		if (istype(mob))
+			if (mob.ready)
+				readied_count++
+			else
+				unreadied_count++
+	var/total = readied_count + (unreadied_count/2)
+	if (loud)
+		logTheThing(LOG_GAMEMODE, "Found [readied_count] readied players and [unreadied_count] unreadied ones, total count being fed to gamemode datum: [total]")
+	return total
+
 //Okay this is kinda stupid, but mapSwitcher.autoVoteDelay which is now set to 30 seconds, (used to be 5 min).
 //The voting will happen 30 seconds into the pre-game lobby. This is probably fine to leave. But if someone changes that var then it might start before the lobby timer ends.
 /datum/controller/gameticker/proc/handle_mapvote()
@@ -422,6 +438,7 @@ var/global/current_state = GAME_STATE_INVALID
 				if(player.mind.assigned_role != "MODE")
 					player.Equip_Rank(player.mind.assigned_role)
 				spawn_rules_controller.apply_to(player)
+				player.apply_roundstart_events()
 
 	proc/process()
 		if(current_state != GAME_STATE_PLAYING)
@@ -900,6 +917,8 @@ var/global/current_state = GAME_STATE_INVALID
 	if(ptl_cash)
 		logTheThing(LOG_DEBUG, null, "PTL Cash: [ptl_cash]")
 
+	var/is_inspector_report = (length(score_tracker.inspector_report) > 0)
+	var/is_tickets_or_fines = (length(creds.citation_tab_data[CITATION_TAB_SECTION_TICKETS]) || length(creds.citation_tab_data[CITATION_TAB_SECTION_FINES]))
 
 	SPAWN(0)
 		for(var/mob/E in mobs)
@@ -909,13 +928,16 @@ var/global/current_state = GAME_STATE_INVALID
 				E.addAbility(/datum/targetable/crew_credits)
 				if (E.client.preferences.view_score)
 					creds.ui_interact(E)
-				else if (E.client.preferences.view_tickets && (length(creds.citation_tab_data[CITATION_TAB_SECTION_TICKETS]) || length(creds.citation_tab_data[CITATION_TAB_SECTION_FINES])))
+				else if (E.client.preferences.view_tickets && is_tickets_or_fines)
 					creds.ui_interact(E)
-				E.show_inspector_report()
+				if(is_inspector_report)
+					E.show_inspector_report()
+					E.addAbility(/datum/targetable/inspector_report)
 				SPAWN(0)
 					E.mind.personal_summary.generate_xp(E.key)
 					E.mind.personal_summary.ui_interact(E)
 					E.addAbility(/datum/targetable/personal_summary)
+
 	logTheThing(LOG_DEBUG, null, "Did credits")
 
 	if(global.lag_detection_process.automatic_profiling_on)
