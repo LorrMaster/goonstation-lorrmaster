@@ -22,7 +22,6 @@
 #define ROLE_SALVAGER "salvager"
 #define ROLE_ANTAGONIST_CRITTER "antagonist_critter"
 #define ROLE_MISC "misc"
-#define ROLE_BASKETBALL_WIZARD "bball_wizard"
 
 // special antagonist roles
 #define ROLE_MACHO_MAN "macho_man"

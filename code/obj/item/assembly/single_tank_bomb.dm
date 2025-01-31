@@ -48,6 +48,7 @@
 	var/obj/item/device/prox_sensor/part1 = null
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/tank/plasma/part3 = null
+	status = 0
 	flags = TABLEPASS | CONDUCT
 
 /obj/item/assembly/proximity_bomb/dropped()
@@ -72,7 +73,7 @@
 	return
 
 /obj/item/assembly/proximity_bomb/attackby(obj/item/W, mob/user)
-	if (iswrenchingtool(W))
+	if (iswrenchingtool(W) && !(src.status))
 		var/obj/item/assembly/prox_ignite/R = new /obj/item/assembly/prox_ignite(  )
 		R.part1 = src.part1
 		R.part2 = src.part2
@@ -92,8 +93,23 @@
 		src.part3 = null
 		qdel(src)
 		return
+	if (!(isweldingtool(W) && W:try_weld(user,0,-1,1,0)))
+		return
+	if (!( src.status ))
+		src.status = 1
+		user.show_message(SPAN_NOTICE("A pressure hole has been bored to the plasma tank valve. The plasma tank can now be ignited."), 1)
+	else
+		src.status = 0
+		boutput(user, SPAN_NOTICE("The hole has been closed."))
+
+	src.bomb_logs(user, src, "proximity", src.status == 1 ? 0 : 1, 0)
+	src.part2.status = src.status
+	src.add_fingerprint(user)
+	return
 
 /obj/item/assembly/proximity_bomb/attack_self(mob/user as mob)
+
+	playsound(src.loc, 'sound/weapons/armbomb.ogg', 100, 1)
 	src.part1.AttackSelf(user, 1)
 	src.add_fingerprint(user)
 	return
@@ -104,12 +120,20 @@
 		O.show_message("[bicon(src)] *beep* *beep*", 3, "*beep* *beep*", 2)
 		//Foreach goto(19)
 
-	src.part1.armed = FALSE
-	src.c_state(0)
-	if (src.force_dud == 1)
-		src.bomb_logs(usr, src, "proximity", 0, 1)
-		return
-	src.part3.ignite()
+	if (src.status)
+		src.part1.armed = FALSE
+		src.c_state(0)
+		if (src.force_dud == 1)
+			src.bomb_logs(usr, src, "proximity", 0, 1)
+			return
+		src.part3.ignite()
+	else
+		if (!src.status && src.force_dud == 0)
+			src.part1.armed = FALSE
+			src.c_state(0)
+			src.part3.release()
+
+	return
 
 /obj/item/assembly/proximity_bomb/c_state(n)
 
@@ -151,6 +175,7 @@
 	var/obj/item/device/timer/part1 = null
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/tank/plasma/part3 = null
+	status = 0
 	flags = TABLEPASS | CONDUCT
 
 /obj/item/assembly/time_bomb/c_state(n)
@@ -173,7 +198,7 @@
 	return
 
 /obj/item/assembly/time_bomb/attackby(obj/item/W, mob/user)
-	if (iswrenchingtool(W))
+	if (iswrenchingtool(W) && !(src.status))
 		var/obj/item/assembly/time_ignite/R = new /obj/item/assembly/time_ignite(  )
 		R.part1 = src.part1
 		R.part2 = src.part2
@@ -193,9 +218,25 @@
 		src.part3 = null
 		qdel(src)
 		return
+	if (!(isweldingtool(W) && W:try_weld(user,0,-1,1,0)))
+		return
+	if (!( src.status ))
+		src.status = 1
+		user.show_message(SPAN_NOTICE("A pressure hole has been bored to the plasma tank valve. The plasma tank can now be ignited."), 1)
+	else
+		src.status = 0
+		boutput(user, SPAN_NOTICE("The hole has been closed."))
+
+	src.part2.status = src.status
+	src.bomb_logs(user, src, "timer", src.status == 1 ? 0 : 1, 0)
+	src.add_fingerprint(user)
+	return
 
 /obj/item/assembly/time_bomb/attack_self(mob/user as mob)
-	src.part1?.AttackSelf(user, 1)
+
+	if (src.part1)
+		src.part1.AttackSelf(user, 1)
+		playsound(src.loc, 'sound/weapons/armbomb.ogg', 100, 1)
 	src.add_fingerprint(user)
 	return
 
@@ -203,10 +244,15 @@
 	//boutput(world, "tiptank [src] got signal")
 	for(var/mob/O in hearers(1, null))
 		O.show_message("[bicon(src)] *beep* *beep*", 3, "*beep* *beep*", 2)
-	if (src.force_dud == 1)
-		src.bomb_logs(usr, src, "timer", 0, 1)
-		return
-	src.part3.ignite()
+	if (src.status)
+		if (src.force_dud == 1)
+			src.bomb_logs(usr, src, "timer", 0, 1)
+			return
+		src.part3.ignite()
+	else
+		if (!src.status && src.force_dud == 0)
+			src.part3.release()
+	return
 
 /obj/item/assembly/time_bomb/return_air(direct = FALSE)
 	return src.part3?.return_air()
@@ -220,6 +266,7 @@
 	var/obj/item/device/radio/signaler/part1 = null
 	var/obj/item/device/igniter/part2 = null
 	var/obj/item/tank/plasma/part3 = null
+	status = 0
 	flags = TABLEPASS | CONDUCT
 
 /obj/item/assembly/radio_bomb/examine()
@@ -238,7 +285,7 @@
 	return
 
 /obj/item/assembly/radio_bomb/attackby(obj/item/W, mob/user)
-	if (iswrenchingtool(W))
+	if (iswrenchingtool(W) && !(src.status))
 		var/obj/item/assembly/rad_ignite/R = new /obj/item/assembly/rad_ignite(  )
 		R.part1 = src.part1
 		R.part2 = src.part2
@@ -258,9 +305,26 @@
 		src.part3 = null
 		qdel(src)
 		return
+	if (!(isweldingtool(W) && W:try_weld(user,0,-1,1,0)))
+		return
+	if (!( src.status ))
+		src.status = 1
+		user.show_message(SPAN_NOTICE("A pressure hole has been bored to the plasma tank valve. The plasma tank can now be ignited."), 1)
+	else
+		src.status = 0
+		boutput(user, SPAN_NOTICE("The hole has been closed."))
+
+	src.bomb_logs(user, src, "radio", src.status == 1 ? 0 : 1, 0)
+	src.part2.status = src.status
+	src.part1.b_stat = !( src.status )
+	src.add_fingerprint(user)
+	return
 
 /obj/item/assembly/radio_bomb/attack_self(mob/user as mob)
-	src.part1?.AttackSelf(user, 1)
+
+	if (src.part1)
+		playsound(src.loc, 'sound/weapons/armbomb.ogg', 100, 1)
+		src.part1.AttackSelf(user, 1)
 	src.add_fingerprint(user)
 	return
 
@@ -268,10 +332,15 @@
 	//boutput(world, "riptank [src] got signal")
 	for(var/mob/O in hearers(1, null))
 		O.show_message("[bicon(src)] *beep* *beep*", 3, "*beep* *beep*", 2)
-	if (src.force_dud == 1)
-		src.bomb_logs(usr, src, "radio", 0, 1)
-		return
-	src.part3.ignite()
+	if (src.status)
+		if (src.force_dud == 1)
+			src.bomb_logs(usr, src, "radio", 0, 1)
+			return
+		src.part3.ignite()
+	else
+		if (!src.status && src.force_dud == 0)
+			src.part3.release()
+	return
 
 /obj/item/assembly/radio_bomb/return_air(direct = FALSE)
 	return src.part3?.return_air()

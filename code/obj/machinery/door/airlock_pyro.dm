@@ -402,18 +402,18 @@ TYPEINFO(/obj/machinery/door/airlock/pyro/glass/reinforced)
 	if (need_rebuild)
 		if (istype(source)) // Rebuild resp. update nearby group geometry.
 			if (source.parent)
-				air_master.groups_to_rebuild[source.parent] = null
+				air_master.groups_to_rebuild |= source.parent
 			else
-				air_master.tiles_to_update[source] = null
+				air_master.tiles_to_update |= source
 
 		if (istype(target))
 			if (target.parent)
-				air_master.groups_to_rebuild[target.parent] = null
+				air_master.groups_to_rebuild |= target.parent
 			else
-				air_master.tiles_to_update[target] = null
+				air_master.tiles_to_update |= target
 	else
-		if (istype(source)) air_master.tiles_to_update[source] = null
-		if (istype(target)) air_master.tiles_to_update[target] = null
+		if (istype(source)) air_master.tiles_to_update |= source
+		if (istype(target)) air_master.tiles_to_update |= target
 
 	if (istype(source))
 		source.selftilenotify() //for fluids

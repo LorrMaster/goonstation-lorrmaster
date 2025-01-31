@@ -2531,7 +2531,7 @@
 	var/mob/living/carbon/human/H
 
 	getTooltip()
-		. = "You are recovering from being in critical condition. Max stamina reduced by 50 and stamina regen reduced by 2. Maybe you should find some painkillers..."
+		. = "You are recovering from being in critical condition. Max stamina reduced by 50 and stamina regen reduced by 2."
 
 	onAdd(optional=null)
 		. = ..()
@@ -3127,14 +3127,12 @@
 
 		onAdd()
 			..()
-			if (src.owner.hasStatus("art_nightmare_curse"))
-				return
 			get_image_group(CLIENT_IMAGE_GROUP_ART_CURSER_NIGHTMARE).add_mob(src.owner)
 			src.spawn_creature()
 			var/mob/living/carbon/human/H = src.owner
 			H.client?.animate_color(normalize_color_to_matrix("#7e4599"), 3 SECONDS)
 			SPAWN(1 SECOND)
-				H.apply_color_matrix(normalize_color_to_matrix("#7e4599"), "art_curser_nightmare_overlay")
+				H.apply_color_matrix(normalize_color_to_matrix("#7e4599"), "art_curser_nightmare_overlay-[ref(src)]")
 
 		onUpdate(timePassed)
 			..()
@@ -3151,10 +3149,9 @@
 		onRemove()
 			get_image_group(CLIENT_IMAGE_GROUP_ART_CURSER_NIGHTMARE).remove_mob(src.owner)
 			var/mob/living/carbon/human/H = src.owner
-			if (!H.hasStatus("art_nightmare_curse"))
-				H.client?.animate_color(time = 3 SECONDS)
-				SPAWN(3 SECONDS)
-					H.remove_color_matrix("art_curser_nightmare_overlay")
+			H.client?.animate_color(time = 3 SECONDS)
+			SPAWN(3 SECONDS)
+				H.remove_color_matrix("art_curser_nightmare_overlay-[ref(src)]")
 			for (var/mob/living/critter/art_curser_nightmare/creature as anything in src.created_creatures)
 				if (!QDELETED(creature))
 					qdel(creature)
@@ -3310,12 +3307,3 @@
 		if((T.turf_flags & HAS_KUDZU) && !ON_COOLDOWN(src.owner, "kudzuwalk_heal", 2 SECONDS) && isliving(owner))
 			var/mob/living/L = owner
 			L.HealDamage("All", 0.5, 0.5, 0.25)
-
-/datum/statusEffect/robospeed
-	id = "robospeed"
-	name = "Hastened"
-	desc = "MAXIMUM OVERDRIVE (You're faster.)."
-	icon_state = "janktank"
-	unique = TRUE
-	movement_modifier = /datum/movement_modifier/healbot
-	effect_quality = STATUS_QUALITY_POSITIVE

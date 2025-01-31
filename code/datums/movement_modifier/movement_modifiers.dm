@@ -323,6 +323,3 @@
 
 /datum/movement_modifier/syndie_fishing
 	multiplicative_slowdown = 1.5
-
-/datum/movement_modifier/healbot
-	additive_slowdown = -0.4
