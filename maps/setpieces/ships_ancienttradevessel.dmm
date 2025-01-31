@@ -70,6 +70,7 @@
 	color = "#332222";
 	currentgen = 10000;
 	desc = "An alien power source that looks like it could fit in a pod. Huh.";
+	move_speed = 10;
 	name = "Anomalous Engine";
 	portaldelay = 15;
 	powergenerated = 10000;
@@ -248,11 +249,11 @@
 	icon_state = "ancient-4";
 	name = "curio rack"
 	},
+/obj/item/soulskull{
+	pixel_y = 9
+	},
 /obj/item/clothing/head/headband/nyan/black{
 	pixel_y = 12
-	},
-/obj/item/mutation_orb/cow_orb{
-	pixel_y = 15
 	},
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins/boss_chamber{
@@ -405,24 +406,6 @@
 /area/iomoon/robot_ruins{
 	name = "Strange Vessel"
 	})
-"jf" = (
-/obj/rack/iomoon,
-/obj/item/parts/robot_parts/chest/ancient,
-/obj/item/parts/robot_parts/arm/left/ancient{
-	pixel_x = 6
-	},
-/obj/item/parts/robot_parts/arm/right/ancient{
-	pixel_x = -6
-	},
-/obj/item/parts/robot_parts/head/ancient{
-	pixel_y = 4
-	},
-/turf/unsimulated/iomoon/ancient_floor{
-	icon_state = "ancientfloor3"
-	},
-/area/iomoon/robot_ruins{
-	name = "Strange Vessel"
-	})
 "jh" = (
 /obj/fakeobject{
 	density = 1;
@@ -477,29 +460,12 @@
 	name = "Strange Vessel"
 	})
 "kM" = (
-/obj/decal/glow{
-	anchored = 1;
-	brightness = 2;
-	color_b = 0.8;
-	color_g = 1;
-	color_r = 0;
-	desc = "Some manner of glowing power conveyor.";
-	icon = 'icons/obj/machines/heavy_fiber.dmi';
-	name = "power conduit"
+/obj/item/paper/businesscard/skulls,
+/turf/unsimulated/iomoon/ancient_floor{
+	icon_state = "ancientfloor2"
 	},
-/obj/fakeobject{
-	density = 1;
-	desc = "It seems to hold objects of interest.";
-	icon = 'icons/obj/artifacts/artifacts.dmi';
-	icon_state = "ancient-4";
-	name = "curio rack"
-	},
-/obj/item/mutation_orb/cat_orb{
-	pixel_y = 15
-	},
-/turf/unsimulated/iomoon/ancient_floor,
-/area/iomoon/robot_ruins/boss_chamber{
-	name = "Power Core"
+/area/iomoon/robot_ruins{
+	name = "Strange Vessel"
 	})
 "kX" = (
 /obj/decal/glow{
@@ -555,7 +521,9 @@
 /obj/iomoon_boss/bot_spawner{
 	pixel_y = 3
 	},
-/obj/item/parts/robot_parts/head/ancient/guardian,
+/obj/item/power_stones/Soul{
+	pixel_y = 12
+	},
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins/boss_chamber{
 	name = "Power Core"
@@ -659,23 +627,15 @@
 	pixel_x = 9;
 	pixel_y = 1
 	},
-/obj/map/light/yellow,
 /turf/simulated/floor/ancient,
 /area/iomoon/robot_ruins/boss_chamber{
 	name = "Power Core"
 	})
 "lR" = (
+/obj/spawner/ancient_robot_artifact,
+/obj/item/scrapweapons/weapons/club/plasmaglass,
+/obj/item/scrapweapons/weapons/club/plasmaglass,
 /obj/rack/iomoon,
-/obj/item/parts/robot_parts/chest/ancient/stonecutter,
-/obj/item/parts/robot_parts/head/ancient/stonecutter{
-	pixel_y = 5
-	},
-/obj/item/parts/robot_parts/arm/right/ancient/stonecutter{
-	pixel_x = -5
-	},
-/obj/item/parts/robot_parts/arm/left/ancient/stonecutter{
-	pixel_x = 5
-	},
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins/boss_chamber{
 	name = "Power Core"
@@ -717,14 +677,10 @@
 	icon_state = "ancient-4";
 	name = "curio rack"
 	},
-/obj/item/parts/robot_parts/chest/ancient/actuator,
-/obj/item/parts/robot_parts/arm/left/ancient/actuator{
-	pixel_x = -7
+/obj/item/toy/plush/small/stress_ball{
+	color = "blue";
+	pixel_y = 9
 	},
-/obj/item/parts/robot_parts/arm/left/ancient/actuator{
-	pixel_x = 7
-	},
-/obj/item/parts/robot_parts/head/ancient/actuator,
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins/boss_chamber{
 	name = "Power Core"
@@ -820,17 +776,8 @@
 	name = "Power Core"
 	})
 "oC" = (
+/mob/living/critter/skeleton/multihat,
 /obj/item/clothing/mask/bandana/nt,
-/obj/fakeobject/skeleton{
-	icon_state = "skeleton_s"
-	},
-/obj/item/halberd,
-/obj/item/clothing/suit/armor{
-	pixel_y = -3
-	},
-/obj/item/clothing/head/helmet/viking{
-	pixel_y = 14
-	},
 /turf/unsimulated/iomoon/ancient_floor{
 	icon_state = "ancientfloor2"
 	},
@@ -881,7 +828,7 @@
 /obj/spawner/ancient_robot_artifact,
 /obj/random_item_spawner/junk/lots,
 /obj/item/shipcomponent/mainweapon/UFO{
-	current_projectile = new/datum/projectile/special/inferno;
+	current_projectile = new /datum/projectile/special/inferno;
 	name = "Ancient Blaster"
 	},
 /turf/unsimulated/iomoon/ancient_floor,
@@ -1064,17 +1011,7 @@
 	icon_state = "ancient-4";
 	name = "curio rack"
 	},
-/obj/item/implant/artifact/ancient/ancient_good{
-	pixel_y = 12
-	},
-/obj/item/parts/robot_parts/chest/ancient/actuator,
-/obj/item/parts/robot_parts/arm/left/ancient/actuator{
-	pixel_x = -7
-	},
-/obj/item/parts/robot_parts/arm/left/ancient/actuator{
-	pixel_x = 7
-	},
-/obj/item/parts/robot_parts/head/ancient/actuator,
+/obj/item/staff/thunder,
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins/boss_chamber{
 	name = "Power Core"
@@ -1190,6 +1127,7 @@
 "sJ" = (
 /obj/map/light/dimred,
 /obj/iomoon_puzzle/ancient_robot_door{
+	dir = 2;
 	tag = "ancientship_corridorS"
 	},
 /turf/unsimulated/iomoon/ancient_floor{
@@ -1222,7 +1160,8 @@
 "tk" = (
 /obj/map/light/dimred,
 /obj/iomoon_puzzle/button{
-	id = "ancientship_labN"
+	id = "ancientship_labN";
+	timer = 3
 	},
 /turf/unsimulated/iomoon/ancient_floor{
 	icon_state = "ancientfloor3"
@@ -1417,7 +1356,8 @@
 	})
 "yW" = (
 /obj/iomoon_puzzle/button{
-	id = "ancientship_labS"
+	id = "ancientship_labS";
+	timer = 3
 	},
 /obj/map/light/dimred,
 /turf/unsimulated/iomoon/ancient_floor{
@@ -1873,9 +1813,8 @@
 /obj/iomoon_boss/bot_spawner{
 	pixel_y = 3
 	},
-/obj/item/toy/plush/small/stress_ball{
-	color = "blue";
-	pixel_y = 9
+/obj/item/power_stones/Time{
+	pixel_y = 11
 	},
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins/boss_chamber{
@@ -2034,8 +1973,12 @@
 	icon_state = "ancient-4";
 	name = "curio rack"
 	},
-/obj/item/mutation_orb/hair_orb{
-	pixel_y = 15
+/obj/item/soulskull{
+	pixel_y = 9
+	},
+/obj/item/clothing/mask/cigarette/cigar/gold{
+	pixel_x = 7;
+	pixel_y = 5
 	},
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins/boss_chamber{
@@ -2083,7 +2026,6 @@
 	pixel_x = 9;
 	pixel_y = 1
 	},
-/obj/map/light/yellow,
 /turf/simulated/floor/ancient,
 /area/iomoon/robot_ruins/boss_chamber{
 	name = "Power Core"
@@ -2126,10 +2068,6 @@
 /obj/item/stamp/syndicate{
 	pixel_x = -10;
 	pixel_y = -10
-	},
-/obj/item/clothing/mask/cigarette/cigar/gold{
-	pixel_x = 7;
-	pixel_y = 5
 	},
 /turf/unsimulated/iomoon/ancient_floor{
 	icon_state = "ancientfloor2"
@@ -2336,7 +2274,6 @@
 	})
 "Pg" = (
 /obj/marker/supplymarker,
-/obj/item/paper/businesscard/skulls,
 /turf/unsimulated/iomoon/ancient_floor{
 	icon_state = "ancientfloor2"
 	},
@@ -2346,6 +2283,7 @@
 "Pl" = (
 /obj/map/light/dimred,
 /obj/iomoon_puzzle/ancient_robot_door{
+	dir = 2;
 	tag = "ancientship_martiancages"
 	},
 /turf/unsimulated/iomoon/ancient_floor{
@@ -2556,17 +2494,11 @@
 	name = "Power Core"
 	})
 "Sl" = (
+/obj/spawner/ancient_robot_artifact,
+/obj/item/artifact/instrument,
+/obj/item/scrapweapons/weapons/spear/plasmaglass,
+/obj/item/scrapweapons/weapons/spear/plasmaglass,
 /obj/rack/iomoon,
-/obj/item/parts/robot_parts/head/ancient/stonecutter{
-	pixel_y = 5
-	},
-/obj/item/parts/robot_parts/arm/right/ancient/stonecutter{
-	pixel_x = -5
-	},
-/obj/item/parts/robot_parts/chest/ancient/stonecutter,
-/obj/item/parts/robot_parts/arm/left/ancient/stonecutter{
-	pixel_x = 5
-	},
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins/boss_chamber{
 	name = "Power Core"
@@ -2781,22 +2713,6 @@
 /area/iomoon/robot_ruins{
 	name = "Strange Vessel"
 	})
-"Xm" = (
-/obj/rack/iomoon,
-/obj/item/parts/robot_parts/chest/ancient,
-/obj/item/parts/robot_parts/arm/left/ancient{
-	pixel_x = 6
-	},
-/obj/item/parts/robot_parts/arm/right/ancient{
-	pixel_x = -6
-	},
-/obj/item/parts/robot_parts/head/ancient/worker,
-/turf/unsimulated/iomoon/ancient_floor{
-	icon_state = "ancientfloor3"
-	},
-/area/iomoon/robot_ruins{
-	name = "Strange Vessel"
-	})
 "Xo" = (
 /mob/living/critter/rockworm,
 /turf/unsimulated/iomoon/ancient_floor{
@@ -2901,7 +2817,6 @@
 	anchored = 1;
 	pixel_y = 1
 	},
-/obj/map/light/purple,
 /turf/unsimulated/iomoon/ancient_floor{
 	icon_state = "ancientfloor3"
 	},
@@ -2993,8 +2908,8 @@
 	icon_state = "ancient-4";
 	name = "curio rack"
 	},
-/obj/item/mutation_orb/fire_orb{
-	pixel_y = 15
+/obj/item/soulskull{
+	pixel_y = 9
 	},
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins/boss_chamber{
@@ -3071,7 +2986,6 @@
 	anchored = 1;
 	pixel_y = 1
 	},
-/obj/map/light/yellow,
 /turf/unsimulated/iomoon/ancient_floor,
 /area/iomoon/robot_ruins{
 	name = "Strange Vessel"
@@ -3413,7 +3327,7 @@ tN
 tN
 UF
 UF
-Xm
+zm
 lt
 zm
 BP
@@ -3429,7 +3343,7 @@ yz
 BP
 zm
 lt
-jf
+zm
 UF
 UF
 tN
@@ -3879,7 +3793,7 @@ tE
 UF
 WX
 BP
-Od
+kM
 Qc
 SC
 UF
@@ -4089,7 +4003,7 @@ tN
 UF
 iI
 pm
-kM
+YA
 ew
 Dx
 Gu

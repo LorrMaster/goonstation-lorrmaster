@@ -1179,6 +1179,8 @@ TYPEINFO(/obj/item/chair/folded)
 
 TYPEINFO(/obj/stool/chair/comfy/wheelchair)
 	mats = 15
+
+TYPEINFO(/obj/stool/chair/comfy/wheelchair)
 	mat_appearances_to_ignore = list("steel")
 /obj/stool/chair/comfy/wheelchair
 	name = "wheelchair"

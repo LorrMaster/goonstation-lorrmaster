@@ -239,9 +239,7 @@ export const BioEffect = (props) => {
               disabled={onCooldown(equipmentCooldown, 'Reclaimer')}
               icon="times"
               color="bad"
-              onClick={() =>
-                act(isStorage ? 'reclaimStored' : 'reclaimOccupant', { ref })
-              }
+              onClick={() => act('reclaim', { ref })}
             >
               Reclaim
             </Button>

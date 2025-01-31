@@ -98,6 +98,15 @@
 	icon_state = "console00"
 */
 
+/obj/machinery/computer/general_alert
+	name = "general alert computer"
+	icon_state = "alert:0"
+	circuit_type = /obj/item/circuitboard/general_alert
+	var/list/priority_alarms = list()
+	var/list/minor_alarms = list()
+	var/receive_frequency = FREQ_ALARM
+	var/respond_frequency = FREQ_PDA
+
 /obj/machinery/computer/hangar
 	name = "Hangar"
 	icon_state = "teleport"
@@ -196,12 +205,14 @@
 		src.AddOverlays(screen_image, "screen_image")
 	. = ..()
 
-/obj/machinery/computer/set_broken()
-	. = ..()
-	if (.) return
+/obj/machinery/computer/proc/set_broken()
+	if (status & BROKEN) return
 	var/datum/effects/system/harmless_smoke_spread/smoke = new /datum/effects/system/harmless_smoke_spread()
 	smoke.set_up(5, 0, src)
 	smoke.start()
+	icon_state = "[src.base_icon_state]b"
+	light.disable()
+	status |= BROKEN
 
 /obj/machinery/computer/bullet_act(obj/projectile/P)
 	. = ..()

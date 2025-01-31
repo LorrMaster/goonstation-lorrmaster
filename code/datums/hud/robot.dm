@@ -90,12 +90,11 @@
 				remove_screen(prev)
 				remove_screen(next)
 				return
-			var/list/tools = master.get_tools()
 			var x = 1, y = 10, sx = 1, sy = 10
 			if (!boxes)
 				return
-			if (items_screen + 6 > length(tools))
-				items_screen = max(length(tools) - 6, 1)
+			if (items_screen + 6 > master.module.tools.len)
+				items_screen = max(master.module.tools.len - 6, 1)
 			if (items_screen < 1)
 				items_screen = 1
 			boxes.screen_loc = "[x], [y] to [x+sx-1], [y-sy+1]"
@@ -125,7 +124,7 @@
 
 			var/sid = 1
 			var/i_max = items_screen + 7
-			if (i_max <= length(tools))
+			if (i_max <= master.module.tools.len)
 				next.icon_state = "down"
 				next.color = COLOR_MATRIX_IDENTITY
 			else
@@ -133,9 +132,9 @@
 				next.color = COLOR_MATRIX_GRAYSCALE
 
 			for (var/i = items_screen, i < i_max, i++)
-				if (i > length(tools))
+				if (i > master.module.tools.len)
 					break
-				var/obj/item/I = tools[i]
+				var/obj/item/I = master.module.tools[i]
 				var/atom/movable/screen/hud/S = screen_tools[sid]
 
 				if (!I) // if the item has been deleted, just show an empty slot.
@@ -173,11 +172,10 @@
 				update_equipment()
 				return
 			var/content_id = items_screen + i - 1
-			var/list/tools = master.get_tools()
-			if (content_id > length(tools) || content_id < 1)
+			if (content_id > master.module.tools.len || content_id < 1)
 				boutput(usr, SPAN_ALERT("An error occurred. Please notify a coder immediately. (Content ID: [content_id].)"))
-			var/obj/item/O = tools[content_id]
-			if(!O || (O.loc != master.module && O.loc != master))
+			var/obj/item/O = master.module.tools[content_id]
+			if(!O || O.loc != master.module)
 				return
 			if(!master.module_states[1] && istype(master.part_arm_l,/obj/item/parts/robot_parts/arm/))
 				master.equip_slot(1, O)

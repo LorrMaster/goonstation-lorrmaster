@@ -33,15 +33,9 @@ ABSTRACT_TYPE(/obj/item/reagent_containers/food/snacks/ingredient)
 			blood--
 		..()
 
-	on_temperature_cook()
-		src.visible_message("[src] begins to brown in the heat!")
-		playsound(src.loc, 'sound/impact_sounds/burn_sizzle.ogg', 50, TRUE, pitch = 0.8)
-
-
 /obj/item/reagent_containers/food/snacks/ingredient/meat/humanmeat
 	name = "human meat"
 	desc = "A slab of meat from a human."
-	heats_into = /obj/item/reagent_containers/food/snacks/steak_h
 	var/subjectname = "Human"
 	var/subjectjob = "Human Being"
 
@@ -62,7 +56,6 @@ ABSTRACT_TYPE(/obj/item/reagent_containers/food/snacks/ingredient)
 /obj/item/reagent_containers/food/snacks/ingredient/meat/monkeymeat
 	name = "monkeymeat"
 	desc = "A slab of meat from a monkey."
-	heats_into = /obj/item/reagent_containers/food/snacks/steak_m
 
 /obj/item/reagent_containers/food/snacks/ingredient/meat/lesserSlug
 	name = "lesser slug"
@@ -160,7 +153,6 @@ ABSTRACT_TYPE(/obj/item/reagent_containers/food/snacks/ingredient)
 	initial_volume = 20
 	food_color = "#228822"
 	initial_reagents = list("synthflesh"=2)
-	heats_into = /obj/item/reagent_containers/food/snacks/steak_s
 
 /obj/item/reagent_containers/food/snacks/ingredient/meat/mysterymeat
 	name = "mystery meat"
@@ -187,7 +179,6 @@ ABSTRACT_TYPE(/obj/item/reagent_containers/food/snacks/ingredient)
 	icon_state = "meat-changeling"
 	initial_volume = 30
 	initial_reagents = list("neurotoxin" = 20, "bloodc" = 10)
-	heats_into = /obj/item/reagent_containers/food/snacks/steak_ling
 
 /obj/item/reagent_containers/food/snacks/ingredient/meat/mysterymeat/grody
 	name = "meaty bit"
@@ -224,11 +215,6 @@ ABSTRACT_TYPE(/obj/item/reagent_containers/food/snacks/ingredient)
 		icon_state = "bacon-raw"
 		blood = 2
 		real_name = "bacon"
-		heats_into = /obj/item/reagent_containers/food/snacks/ingredient/meat/bacon
-
-		on_temperature_cook()
-			src.visible_message("The bacon sizzles enticingly!")
-			playsound(src.loc, 'sound/impact_sounds/burn_sizzle.ogg', 50, TRUE, pitch = 0.8)
 
 /obj/item/reagent_containers/food/snacks/ingredient/meat/mysterymeat/nugget
 	name = "chicken nugget"
@@ -478,11 +464,6 @@ TYPEINFO(/obj/item/reagent_containers/food/snacks/ingredient/honey)
 	icon_state = "dough"
 	food_color = "#FFFFFF"
 	custom_food = 0
-
-	clamp_act(mob/clamper, obj/item/clamp)
-		new /obj/item/reagent_containers/food/snacks/ingredient/pizza_base(src.loc)
-		qdel(src)
-		return TRUE
 
 	attackby(obj/item/W, mob/user)
 		if (istype(W, /obj/item/reagent_containers/food/snacks/ingredient/sugar))

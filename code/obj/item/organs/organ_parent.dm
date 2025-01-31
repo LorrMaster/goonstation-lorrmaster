@@ -159,7 +159,6 @@
 
 	disposing()
 		if (src.holder)
-			src.remove_organ_abilities()
 			for(var/thing in holder.organ_list)
 				if(thing == "all")
 					continue
@@ -272,24 +271,21 @@
 			src.blood_type = src.donor.bioHolder?.bloodType
 		src.blood_color = src.donor?.bioHolder?.bloodColor
 		src.blood_reagent = src.donor?.blood_id
-		src.remove_organ_abilities()
-
-		src.donor = null
-		src.in_body = FALSE
-		if (src.surgery_contexts)
-			src.surgery_contexts = null
-		return
-
-	proc/remove_organ_abilities()
-		if (islist(src.organ_abilities) && length(src.organ_abilities))
+		if (islist(src.organ_abilities) && length(src.organ_abilities))// && src.donor.abilityHolder)
 			var/datum/abilityHolder/aholder
-			if (src.donor?.abilityHolder)
+			if (src.donor && src.donor.abilityHolder)
 				aholder = src.donor.abilityHolder
-			else if (src.holder?.donor?.abilityHolder)
+			else if (src.holder && src.holder.donor && src.holder.donor.abilityHolder)
 				aholder = src.holder.donor.abilityHolder
 			if (istype(aholder))
 				for (var/abil in src.organ_abilities)
 					src.remove_ability(aholder, abil)
+		src.donor = null
+		src.in_body = FALSE
+		if (src.surgery_contexts)
+			src.surgery_contexts = null
+
+		return
 
 	emag_act(var/mob/user, var/obj/item/card/emag/E)
 		if (!src.robotic)

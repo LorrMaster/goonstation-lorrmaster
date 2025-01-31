@@ -336,9 +336,6 @@
 /obj/cable{
 	icon_state = "2-8"
 	},
-/obj/cable{
-	icon_state = "2-4"
-	},
 /turf/simulated/floor/airless/plating/damaged3,
 /area/station/solar/small_backup2)
 "abz" = (
@@ -1324,6 +1321,9 @@
 /area/station/turret_protected/ai_upload)
 "aeD" = (
 /obj/machinery/power/apc/autoname_north,
+/obj/cable/yellow{
+	icon_state = "0-4"
+	},
 /obj/cable{
 	icon_state = "0-2"
 	},
@@ -1357,6 +1357,9 @@
 /obj/cable/yellow{
 	icon_state = "1-4"
 	},
+/obj/cable/yellow{
+	icon_state = "1-8"
+	},
 /turf/simulated/floor/airless/plating/damaged3,
 /area/station/solar/small_backup2)
 "aeJ" = (
@@ -1383,7 +1386,6 @@
 /obj/machinery/computer/solar_control/small_backup2{
 	dir = 8
 	},
-/obj/machinery/power/terminal,
 /turf/simulated/floor/plating/airless,
 /area/station/solar/small_backup2)
 "aeM" = (
@@ -24173,12 +24175,13 @@
 /area/station/security/main)
 "bwa" = (
 /obj/table/reinforced/auto,
+/obj/item/storage/box/revimp_kit{
+	pixel_x = -3
+	},
 /obj/item/chem_grenade/pepper{
 	pixel_x = 11;
 	pixel_y = 3
 	},
-/obj/item/storage/box/panic_buttons,
-/obj/item/device/panicbutton,
 /turf/simulated/floor/carpet{
 	icon_state = "red2"
 	},
@@ -25439,10 +25442,7 @@
 /obj/item/paper/book/from_file/space_law,
 /obj/item/storage/box/trackimp_kit{
 	pixel_x = 8;
-	pixel_y = 8
-	},
-/obj/item/storage/box/revimp_kit{
-	pixel_x = 4
+	pixel_y = 3
 	},
 /turf/simulated/floor/carpet{
 	icon_state = "red2"
@@ -51166,14 +51166,14 @@
 /turf/simulated/wall/auto/reinforced/supernorn,
 /area/station/mining/magnet)
 "dav" = (
+/obj/cable/yellow{
+	icon_state = "0-2"
+	},
 /obj/cable,
 /obj/machinery/power/apc{
 	dir = 8;
 	name = "W APC";
 	pixel_x = -24
-	},
-/obj/cable{
-	icon_state = "0-2"
 	},
 /turf/simulated/floor/airless/plating/damaged3,
 /area/station/mining/magnet)
@@ -51417,7 +51417,7 @@
 /turf/simulated/floor/plating,
 /area/station/hangar/qm)
 "dbq" = (
-/obj/cable{
+/obj/cable/yellow{
 	icon_state = "1-2"
 	},
 /turf/simulated/floor/plating/airless,
@@ -51647,9 +51647,9 @@
 /turf/simulated/floor/plating,
 /area/station/maintenance/solar/south)
 "dci" = (
-/obj/machinery/power/smes,
-/obj/cable{
-	icon_state = "0-8"
+/obj/machinery/computer/magnet{
+	dir = 8;
+	icon_state = "QMreq"
 	},
 /turf/simulated/floor/plating/airless,
 /area/station/mining/magnet)
@@ -51939,9 +51939,6 @@
 	},
 /obj/machinery/computer/solar_control/small_backup1{
 	dir = 8
-	},
-/obj/machinery/power/terminal{
-	dir = 1
 	},
 /turf/simulated/floor/airless/plating/damaged3,
 /area/station/mining/magnet)
@@ -54813,12 +54810,7 @@
 	dir = 8
 	},
 /obj/table/wood/round/auto,
-/obj/item/clothing/shoes/swat{
-	pixel_y = -5
-	},
-/obj/item/paper/pipebombs{
-	pixel_y = 5
-	},
+/obj/item/clothing/shoes/swat,
 /turf/simulated/floor/carpet{
 	dir = 8;
 	icon_state = "green2"
@@ -58227,13 +58219,6 @@
 /obj/mapping_helper/access/maint,
 /turf/simulated/floor,
 /area/station/hallway/primary/northwest)
-"gEl" = (
-/obj/machinery/computer/magnet{
-	dir = 8;
-	icon_state = "QMreq"
-	},
-/turf/simulated/floor/airless/plating/damaged3,
-/area/station/mining/magnet)
 "gEY" = (
 /obj/machinery/firealarm/west,
 /obj/disposalpipe/segment,
@@ -63216,12 +63201,6 @@
 /obj/mapping_helper/wingrille_spawn/auto/reinforced,
 /turf/simulated/floor,
 /area/station/maintenance/outer/ne)
-"lfp" = (
-/obj/cable{
-	icon_state = "4-8"
-	},
-/turf/simulated/floor/airless/plating/damaged3,
-/area/station/mining/magnet)
 "lgq" = (
 /obj/cable/orange{
 	icon_state = "0-8"
@@ -64889,13 +64868,6 @@
 	},
 /turf/simulated/floor/blueblack,
 /area/station/hallway/primary/west)
-"mJx" = (
-/obj/machinery/power/smes,
-/obj/cable{
-	icon_state = "0-8"
-	},
-/turf/simulated/floor/airless/plating/damaged3,
-/area/station/solar/small_backup2)
 "mKE" = (
 /obj/table/auto,
 /obj/decal/cleanable/cobweb{
@@ -65525,8 +65497,8 @@
 	},
 /area/station/security/detectives_office)
 "nrh" = (
-/obj/cable{
-	icon_state = "1-4"
+/obj/cable/yellow{
+	icon_state = "1-2"
 	},
 /turf/simulated/floor/airless/plating/damaged3,
 /area/station/mining/magnet)
@@ -68662,8 +68634,8 @@
 /obj/machinery/door/airlock/pyro/security{
 	name = "Trial Chamber"
 	},
+/obj/mapping_helper/access/security,
 /obj/decal/stripe_delivery,
-/obj/mapping_helper/access/brig,
 /turf/simulated/floor,
 /area/station/chapel/sanctuary)
 "qBp" = (
@@ -70016,6 +69988,9 @@
 /area/space)
 "rSO" = (
 /obj/mesh/catwalk,
+/obj/cable/yellow{
+	icon_state = "1-2"
+	},
 /obj/cable/yellow{
 	icon_state = "2-4"
 	},
@@ -71691,12 +71666,6 @@
 /obj/mapping_helper/access/maint,
 /turf/simulated/floor/plating,
 /area/station/hallway/primary/east)
-"txe" = (
-/obj/cable{
-	icon_state = "4-8"
-	},
-/turf/simulated/floor/plating/airless,
-/area/station/solar/small_backup2)
 "tys" = (
 /obj/table/reinforced/auto,
 /obj/machinery/firealarm/east,
@@ -136730,7 +136699,7 @@ cYA
 cYA
 cYA
 cYA
-lfp
+cYB
 dwN
 lIC
 cGZ
@@ -136911,7 +136880,7 @@ wwk
 oic
 oic
 aeJ
-txe
+afw
 afw
 afw
 afw
@@ -137032,7 +137001,7 @@ cYA
 cYA
 cYA
 cYA
-lfp
+cYB
 ddx
 dau
 aaB
@@ -137213,7 +137182,7 @@ aaB
 aaB
 adr
 aeK
-txe
+afw
 afw
 afx
 afw
@@ -137333,7 +137302,7 @@ wDH
 cXi
 cYA
 cYA
-gEl
+cYB
 dci
 ddy
 dbs
@@ -137515,7 +137484,7 @@ aaa
 aaa
 aea
 aeL
-mJx
+afx
 afw
 afw
 afw

@@ -26,7 +26,7 @@ TYPEINFO(/obj/item/barrier)
 	var/use_two_handed = 0
 
 	var/status = 0
-	var/obj/itemspecialeffect/barrier/E = null
+	var/obj/itemspecialeffect/barrier/E = 0
 
 	New()
 		..()
@@ -55,6 +55,14 @@ TYPEINFO(/obj/item/barrier)
 	dropped(mob/M)
 		..()
 		destroy_deployed_barrier(M)
+
+	move_callback(var/mob/living/M, var/turf/source, var/turf/target)
+		//don't delete the barrier while we are restrained from deploying the barrier
+		if (M.restrain_time > TIME)
+			return
+
+		if (source != target)
+			destroy_deployed_barrier(M)
 
 	proc/toggle(mob/user, new_state = null)
 		if(!user && ismob(src.loc))
@@ -114,8 +122,14 @@ TYPEINFO(/obj/item/barrier)
 			src.visible_message("[src] sparks briefly as it overloads!")
 
 	proc/destroy_deployed_barrier(var/mob/living/M)
-		src.E?.deactivate(M)
-		src.E = null
+		if (E)
+			var/obj/itemspecialeffect/barrier/EE = E
+			E = 0
+			if (islist(M?.move_laying))
+				M?.move_laying -= src
+			else
+				M?.move_laying = null
+			EE.deactivate()
 
 /obj/item/syndicate_barrier
 	name = "Aegis Riot Barrier"

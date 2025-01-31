@@ -12,7 +12,6 @@
 	var/filter_id = null
 	var/list/sniffFilters = list()
 	var/last_intercept = 0
-	var/list/packet_stamps = list()
 	var/list/packet_data = list()
 	var/max_logs = 8
 
@@ -23,12 +22,12 @@
 
 	attack_ai(mob/user as mob)
 		if(mode)
-			src.ui_interact(user)
+			src.interacted(user)
 		return
 
 	attack_hand(mob/user)
 		if(mode)
-			src.ui_interact(user)
+			src.interacted(user)
 			return
 
 		else
@@ -70,37 +69,65 @@
 			..()
 
 	attack_self(mob/user as mob)
-		src.ui_interact(user)
+		return interacted(user)
 
-	ui_interact(mob/user, datum/tgui/ui)
-		ui = tgui_process.try_update_ui(user, src, ui)
-		if (!ui)
-			ui = new(user, src, "PacketSniffer")
-			ui.open()
+	proc/interacted(mob/user as mob)
 
-	ui_data(mob/user)
-		. = list(
-			"packet_stamps" = src.packet_stamps,
-			"packet_data" = src.packet_data,
-			"filter" = src.filter_id
-		)
+		var/dat = "<html><head><title>Packet Sniffer</title></head><body>"
 
-	ui_act(action, params)
-		. = ..()
-		if (.)
-			return
-		. = TRUE
-		switch (action)
-			if ("set_filter")
-				src.set_filter()
+		dat += "Current sender filter: <a href='byond://?src=\ref[src];filtid=1'>[src.filter_id ? src.filter_id : "NONE"]</a><br>"
 
-	proc/set_filter()
-		var/filt_id = tgui_input_text(usr, "Please enter new 8 digit hex value filter net id", src.name, src.filter_id, 8)
-		if(length(filt_id) != 8 || !is_hex(filt_id))
-			src.filter_id = null
-			return
+		dat += "<hr><b>Packet log:</b><hr>"
+		if(packet_data.len)
+			for(var/a in packet_data)
+				dat += "<tt>[a]</tt><br>"
+		else
+			dat += "<b>NONE</b>"
 
-		src.filter_id = filt_id
+		dat += "<hr>"
+		user.Browse(dat,"window=packets")
+		onclose(user,"packets")
+		return
+
+	Topic(href, href_list)
+		..()
+
+		if (!issilicon(usr) && !isAIeye(usr))
+			if (!(src in usr.contents) && !(src.master in usr.contents) && !(istype(src.loc, /turf) && (BOUNDS_DIST(src, usr) == 0)))
+				return
+			if (usr.stat || usr.restrained())
+				return
+
+			src.add_fingerprint(usr)
+		src.add_dialog(usr)
+
+		if(href_list["filtid"])
+			var/t = input(usr, "Please enter new filter net id", src.name, src.filter_id) as text
+			if (!t)
+				src.filter_id = null
+				src.updateIntDialog()
+				return
+
+			if (!issilicon(usr) && !isAIeye(usr))//Only check range for organics
+				if (!in_interact_range(src, usr) || usr.stat || usr.restrained())
+					return
+
+			if(length(t) != 8 || !is_hex(t))
+				src.filter_id = null
+				src.updateIntDialog()
+				return
+
+			src.filter_id = t
+			src.updateIntDialog()
+
+		return
+
+	proc/updateIntDialog()
+		if(mode)
+			src.updateUsrDialog()
+		else
+			src.updateSelfDialog()
+		return
 
 	receive_signal(datum/signal/signal)
 		if(!mode || !src.link)
@@ -126,8 +153,7 @@
 		if(!src.last_intercept || src.last_intercept + 40 <= world.time)
 			playsound(src.loc, 'sound/machines/twobeep.ogg', 25, 1)
 		//src.packet_data = signal.data:Copy()
-		src.packet_stamps += "\[[time2text(world.timeofday,"mm:ss")]:[(world.timeofday%10)]\]"
-		var/newdat
+		var/newdat = "<b>\[[time2text(world.timeofday,"mm:ss")]:[(world.timeofday%10)]\]:</b>"
 		for (var/i in signal.data)
 			newdat += "[strip_html(i)][isnull(signal.data[i]) ? "; " : "=[strip_html(signal.data[i])]; "]"
 
@@ -137,7 +163,7 @@
 
 		src.packet_data += newdat
 		if (length(src.packet_data) > src.max_logs)
-			src.packet_stamps.Cut(1, 2)
 			src.packet_data.Cut(1,2)
 		src.last_intercept = world.time
+		src.updateIntDialog()
 		return

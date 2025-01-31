@@ -44,27 +44,18 @@
 				gang.next_spray_paint_restock = timestring
 
 
-/datum/controller/process/gang_locker_tick
+/datum/controller/process/gang_launder_money
 	setup()
-		name = "Gang Locker Tick"
+		name = "Gang_Money_laundering"
 		schedule_interval = GANG_LAUNDER_DELAY
 	doWork()
 		for_by_tcl(locker, /obj/ganglocker)
 			if (!locker)
-				continue
-			if (!locker.is_hiding)
-				var/should_hide = TRUE
-				for(var/mob/M in range(1, locker.loc))
-					if(M.get_gang() == locker.gang)
-						should_hide = FALSE
-						break
-				if (should_hide)
-					locker.toggle_hide(TRUE)
-
+				return
 			if (locker.stored_cash < 1)
 				locker.default_screen_overlay = image('icons/obj/large_storage.dmi', "gang_overlay_yellow")
 				locker.UpdateIcon()
-				continue
+				return
 
 			var/launder_rate = GANG_LAUNDER_RATE
 			if (locker.superlaunder_stacks > 0)
@@ -76,7 +67,7 @@
 			if (points < 1)
 				locker.default_screen_overlay = image('icons/obj/large_storage.dmi', "gang_overlay_yellow")
 				locker.UpdateIcon()
-				continue
+				return
 
 			if (locker.superlaunder_stacks)
 				locker.default_screen_overlay = image('icons/obj/large_storage.dmi', "gang_overlay_superlaunder")

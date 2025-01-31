@@ -24,13 +24,6 @@
 			occupant = null
 		..()
 
-	get_help_message(dist, mob/user)
-		. = ..()
-		if(src.status & BROKEN)
-			return "Use <b>2 glass sheets</b> to repair [src]."
-		else
-			return ""
-
 	examine()
 		. = ..()
 		. += "Home turf: [get_area(src.homeloc)]."
@@ -128,10 +121,15 @@
 		.= 1
 
 	set_broken()
-		. = ..()
-		if (.) return
+		if (status & BROKEN)
+			return
+		var/datum/effects/system/harmless_smoke_spread/smoke = new /datum/effects/system/harmless_smoke_spread()
+		smoke.set_up(5, 0, src)
+		smoke.start()
 		src.go_out()
 		icon_state = "PAG_broken"
+		light.disable()
+		status |= BROKEN
 
 	attack_hand(mob/user)
 		if (src.status & BROKEN)

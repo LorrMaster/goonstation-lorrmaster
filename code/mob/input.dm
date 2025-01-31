@@ -1,5 +1,4 @@
 
-/mob/var/prev_loc = 0
 /mob/var/move_dir = 0
 /mob/var/next_move = 0
 
@@ -156,7 +155,6 @@
 						qdel(G)
 
 				var/turf/old_loc = src.loc
-				src.prev_loc = old_loc
 
 				//use commented bit if you wanna have world fps different from client. But its not perfect!
 				var/glide = (world.icon_size / ceil(delay / world.tick_lag)) //* (world.tick_lag / CLIENTSIDE_TICK_LAG_SMOOTH))
@@ -267,7 +265,7 @@
 							if (!src?.client?.flying && !src.hasStatus("resting")) //no flop if laying or noclipping
 								//just fall over in place when in space (to prevent zooming)
 								var/turf/current_turf = get_turf(src)
-								if (!(istype(current_turf, /turf/space)))
+								if (!(current_turf.turf_flags & CAN_BE_SPACE_SAMPLE))
 									src.throw_at(get_step(src, move_dir), 1, 1)
 								src.setStatus("resting", duration = INFINITE_STATUS)
 								src.force_laydown_standup()

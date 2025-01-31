@@ -130,13 +130,12 @@ ADMIN_INTERACT_PROCS(/obj/geode, proc/break_open)
 ABSTRACT_TYPE(/obj/geode/fluid)
 /obj/geode/fluid
 	var/reagent_id = null
-	var/temperature = 20 + T0C
 	New()
 		..()
 		var/amt = rand(100, 300)
 		src.create_reagents(amt)
 		if (src.reagent_id)
-			src.reagents.add_reagent(src.reagent_id, amt, temp_new = temperature)
+			src.reagents.add_reagent(src.reagent_id, amt)
 		src.AddComponent(/datum/component/reagent_overlay, 'icons/obj/geodes.dmi', "trickles", 1)
 
 	break_open()
@@ -158,7 +157,6 @@ ABSTRACT_TYPE(/obj/geode/fluid)
 	//hehehehe
 	cyanide
 		reagent_id = "cyanide"
-		temperature = 50 + T0C
 	ants
 		reagent_id = "ants"
 		weight = 20

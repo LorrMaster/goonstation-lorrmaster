@@ -75,7 +75,7 @@ var/global/obj/fluid/ocean_fluid_obj = null
 
 				t = get_step(T,dir)
 
-				if (istype(t, /turf/space))
+				if (t.turf_flags & CAN_BE_SPACE_SAMPLE)
 					adjacent_space += 1
 					continue
 

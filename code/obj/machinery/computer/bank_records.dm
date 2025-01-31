@@ -147,8 +147,6 @@
 				dat += {"
 				</tbody>
 			</table>
-			<hr>
-			New bank records can be added by scanning in an unregistered person with a security RecordTrak.
 				"}
 		user.Browse(dat.Join(), "window=secure_bank;size=500x700;title=Bank Records")
 		onclose(user, "secure_bank")

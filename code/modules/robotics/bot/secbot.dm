@@ -848,7 +848,7 @@
 			if (src.threatlevel >= 4)
 				src.EngageTarget(C)
 				break
-			if(C.traitHolder.hasTrait("wasitsomethingisaid") && src.threatlevel >= 1)
+			if(C.traitHolder.hasTrait("wasitsomethingisaid"))
 				src.EngageTarget(C)
 			else
 				continue
