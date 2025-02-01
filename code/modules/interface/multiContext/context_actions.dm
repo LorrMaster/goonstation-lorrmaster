@@ -1486,8 +1486,7 @@
 					var/image/wadblood = image('icons/obj/surgery.dmi', icon_state = "implantpaper-blood")
 					wadblood.color = patient.blood_color
 					newcase.AddOverlays(wadblood, "blood")
-					newcase.blood_DNA = patient.bioHolder.Uid
-					newcase.blood_type = patient.bioHolder.bloodType
+					newcase.apply_blood(patient.bioHolder, patient.blood_color)
 				else
 					var/obj/item/implant/artifact/imp = I
 					if (imp.cant_take_out)

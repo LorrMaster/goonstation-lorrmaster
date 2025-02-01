@@ -2954,11 +2954,10 @@
 	if(specialType)
 		if(!locate(specialType) in src.loc)
 			var/atom/A = new specialType(src.loc)
-			A.blood_DNA = src.bioHolder.Uid
+			// Note: Need to handle vomit DNA here when ready - LorrMaster
 	else
 		if(!locate(custom_vomit_type) in src.loc)
 			var/obj/decal/cleanable/vomit = make_cleanable(custom_vomit_type,src.loc)
-			vomit.blood_DNA = src.bioHolder.Uid
 
 	src.nutrition -= nutrition
 

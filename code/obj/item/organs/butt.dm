@@ -25,7 +25,7 @@ TYPEINFO(/obj/item/clothing/head/butt)
 	rand_pos = 1
 	var/mob/living/carbon/human/donor = null
 	var/donor_name = null
-	var/donor_DNA = null
+	var/datum/forensic_id/donor_dna_signature = null
 	var/datum/organHolder/holder = null
 	var/sound/sound_fart = null // this is the life I live, making it so you can change the fart sound of your butt (that you can wear on your head) so that you can make artifact butts with weird farts
 	default_material = "butt"
@@ -48,7 +48,7 @@ TYPEINFO(/obj/item/clothing/head/butt)
 			src.donor_name = src.donor.real_name
 			src.name = "[src.donor_name]'s [initial(src.name)]"
 			src.real_name = "[src.donor_name]'s [initial(src.name)]" // Gotta do this somewhere!
-			src.donor_DNA = src.donor.bioHolder ? src.donor.bioHolder.Uid : null
+			src.donor_dna_signature = src.donor.bioHolder ? src.donor.bioHolder.dna_signature : null
 			if (src.toned && src.donor.bioHolder) //NO RACIALLY INSENSITIVE ASSHATS ALLOWED
 				src.s_tone = src.donor.bioHolder.mobAppearance.s_tone
 				if (src.s_tone)

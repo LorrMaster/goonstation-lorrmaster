@@ -1271,8 +1271,8 @@ TYPEINFO(/obj/machinery/clonegrinder)
 					var/image/wadblood = image('icons/obj/surgery.dmi', icon_state = "implantpaper-blood")
 					wadblood.color = target.blood_color
 					newcase.UpdateOverlays(wadblood, "blood")
-					newcase.blood_DNA = target.bioHolder.Uid
-					newcase.blood_type = target.bioHolder.bloodType
+					newcase.apply_blood(target.bioHolder, target.blood_color)
+
 
 		target.set_loc(grinder)
 		grinder.occupant = target
