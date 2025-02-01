@@ -225,8 +225,6 @@ turf/simulated/floor/plating/airless/ocean_canpass()
 		if (possible_cleanable.qdeled || possible_cleanable.disposed) return
 		if (istype(possible_cleanable, /obj/decal/cleanable/blood/dynamic))
 			var/obj/decal/cleanable/blood/dynamic/blood = possible_cleanable
-			var/blood_dna = blood.blood_DNA
-			var/blood_type = blood.blood_type
 			var/is_tracks = istype(possible_cleanable,/obj/decal/cleanable/blood/dynamic/tracks)
 			if(is_tracks && !grab_any_amount)
 				return 0
@@ -242,10 +240,6 @@ turf/simulated/floor/plating/airless/ocean_canpass()
 					var/amt = blood.reagents.total_volume
 					blood.clean_forensic()
 					src.fluid_react_single(reagent,is_tracks ? 0 : amt)
-
-				if (src.active_liquid)
-					src.active_liquid.blood_DNA = blood_dna
-					src.active_liquid.blood_type = blood_type
 				return 1
 		return 0
 

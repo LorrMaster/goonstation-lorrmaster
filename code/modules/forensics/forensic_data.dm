@@ -143,6 +143,7 @@ datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 		return src.print == other.print && src.glove_print == other.glove_print
 
 datum/forensic_data/dna // An individual dna sample
+	var/static/datum/forensic_id/dna_unknown = new("unknown")
 	flags = REMOVABLE_CLEANING
 	var/datum/forensic_id/pattern = null
 	var/form = DNA_FORM_NONE // Where did the DNA come from? Use DNA_FORM_NONE if not relevant
@@ -151,6 +152,8 @@ datum/forensic_data/dna // An individual dna sample
 	New(var/datum/forensic_id/dna, var/form = DNA_FORM_NONE)
 		..()
 		src.pattern = dna
+		if(!src.pattern)
+			src.pattern = dna_unknown
 		src.form = form
 		if(form == DNA_FORM_BLOOD)
 			src.accuracy_mult *= 0.75

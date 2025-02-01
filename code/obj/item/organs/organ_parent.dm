@@ -29,7 +29,7 @@
 	var/mob/living/carbon/human/donor_original = null // So people'll know if a lizard's wearing someone else's tail
 	var/datum/appearanceHolder/donor_AH //
 	var/donor_name = null // so you don't get dumb "Unknown's skull mask" shit
-	var/donor_DNA = null
+	var/datum/forensic_id/donor_dna_signature = null
 	var/datum/organHolder/holder = null
 	var/list/organ_abilities = null
 
@@ -146,8 +146,7 @@
 			else if (src.donor.name)
 				src.donor_name = src.donor.name
 				src.name = "[src.donor_name]'s [initial(src.name)]"
-			src.donor_DNA = src.donor.bioHolder ? src.donor.bioHolder.Uid : null
-			src.blood_DNA = src.donor_DNA
+			src.donor_dna_signature = src.donor.bioHolder ? src.donor.bioHolder.dna_signature : null
 			src.blood_type = src.donor.bioHolder?.bloodType
 			src.blood_color = src.donor.bioHolder?.bloodColor
 			src.blood_reagent = src.donor.blood_id
@@ -182,8 +181,6 @@
 			return FALSE
 		playsound(T, 'sound/impact_sounds/Slimy_Splat_1.ogg', 100, TRUE)
 		var/obj/decal/cleanable/cleanable = make_cleanable(src.created_decal, T)
-		cleanable.blood_DNA = src.blood_DNA
-		cleanable.blood_type = src.blood_type
 		if(istype(cleanable, /obj/decal/cleanable/blood))
 			var/obj/decal/cleanable/blood/blood = cleanable
 			blood.set_sample_reagent_custom(src.blood_reagent, 10)
@@ -266,10 +263,9 @@
 				if (src.donor.robotic_organs <= 0)
 					I.icon_state = null
 
-		if (!src.donor_DNA && src.donor && src.donor.bioHolder)
-			src.donor_DNA = src.donor.bioHolder.Uid
-			src.blood_DNA = src.donor_DNA
-			src.blood_type = src.donor.bioHolder?.bloodType
+		if (src.donor.bioHolder)
+			src.donor_dna_signature = src.donor.bioHolder.dna_signature
+			src.apply_blood(src.donor.bioHolder, src.donor.blood_color)
 		src.blood_color = src.donor?.bioHolder?.bloodColor
 		src.blood_reagent = src.donor?.blood_id
 		src.remove_organ_abilities()
