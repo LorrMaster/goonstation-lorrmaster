@@ -55,12 +55,18 @@ TYPEINFO(/obj/machinery/glass_recycler)
 	flags = NOSPLASH | FLUID_SUBMERGE | TGUI_INTERACTIVE
 	event_handler_flags = NO_MOUSEDROP_QOL
 
+	var/static/datum/forensic_display/lead_display = new("Recently recycled (Pattern ID: @F)")
+	var/datum/forensic_id/forensic_lead = new("GLASS-")
+
 	deconstruct_flags = DECON_SCREWDRIVER | DECON_WRENCH | DECON_WELDER | DECON_WIRECUTTERS
 
 	New()
 		..()
 		src.get_products()
 		UnsubscribeProcess()
+		if(src.forensic_lead != null)
+			src.forensic_lead.id += forensic_lead.build_id(1, CHAR_LIST_UPPER_LIMIT) + forensic_lead.build_id(3, CHAR_LIST_NUM)
+
 
 	MouseDrop_T(atom/movable/O as obj, mob/user as mob)
 		if (!istype(O, /obj/item)) // dont recycle the floor!
@@ -182,6 +188,8 @@ TYPEINFO(/obj/machinery/glass_recycler)
 			return
 
 		var/obj/item/G = new target_product.product_path(get_turf(src))
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, src.lead_display)
+		G.add_evidence(f_data, FORENSIC_GROUP_NOTE)
 		src.glass_amt -= target_product.product_cost
 
 		src.visible_message(SPAN_NOTICE("[src] manufactures \a [G]!"))
@@ -225,6 +233,10 @@ TYPEINFO(/obj/machinery/glass_recycler)
 				var/product_type = params["type"]
 				create(product_type, usr)
 				. = TRUE
+
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+		var/id_note = "Recycler pattern ID: [src.forensic_lead.id]"
+		scan_builder.add_scan_text(id_note)
 
 
 /obj/machinery/glass_recycler/chemistry //Chemistry doesn't really need all of the drinking glass options and such so I'm limiting it down a notch.

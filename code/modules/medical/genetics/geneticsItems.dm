@@ -24,6 +24,8 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 		if(target == user)
 			user.visible_message(SPAN_ALERT("<b>[user.name] injects [himself_or_herself(user)] with [src]!</b>"))
 			src.injected(user,user)
+			var/datum/forensic_data/dna/dna_data = new(user.bioHolder?.dna_signature, DNA_FORM_TISSUE)
+			src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 		else
 			logTheThing(LOG_COMBAT, user, "tries to inject [constructTarget(target,"combat")] with [src.name] at [log_loc(user)]")
 			actions.start(new/datum/action/bar/icon/genetics_injector(target,src), user)
@@ -147,6 +149,8 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 		..()
 		owner.visible_message(SPAN_ALERT("<b>[owner.name] injects [target.name] with [injector].</b>"))
 		injector.injected(owner,target)
+		var/datum/forensic_data/dna/dna_data = new(target.bioHolder?.dna_signature, DNA_FORM_TISSUE)
+		injector.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 
 // Traitor item
 /obj/item/speed_injector
@@ -200,6 +204,8 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 			payload = null
 		else
 			boutput(user, SPAN_ALERT("You stab [target], but nothing happens."))
+		var/datum/forensic_data/dna/dna_data = new(target.bioHolder?.dna_signature, DNA_FORM_TISSUE)
+		src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 		return
 
 #define SCRAMBLER_MODE_COPY "copy"
@@ -230,6 +236,8 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 			return
 
 		logTheThing(LOG_COMBAT, user, "injects [constructTarget(target,"combat")] with [src.name] at [log_loc(user)]")
+		var/datum/forensic_data/dna/dna_data = new(target.bioHolder?.dna_signature, DNA_FORM_TISSUE)
+		src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 
 		if(use_mode == SCRAMBLER_MODE_COPY)
 			user.tri_message(target,\

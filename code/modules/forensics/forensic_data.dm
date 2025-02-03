@@ -1,13 +1,13 @@
 
 // Note: multiple forensic_holders should not share forensic_data, each should have their own instance of the evidence
 
-ABSTRACT_TYPE(/datum/forensic_data)
 datum/forensic_data
 	var/time_start = 0 // What time the evidence was first applied, or 0 if not relavent
 	var/time_end = 0 // When the evidence was most recently applied
 	var/perc_offset = 0 // Error offset multiplier for time estimations
 	var/accuracy_mult = 1 // Individual accuracy multiplier for this piece of evidence
 	var/flags = 0
+	// var/user = null // The player responsible for this evidence (for admins)
 	New()
 		..()
 		src.time_start = TIME
@@ -110,6 +110,7 @@ datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 	var/datum/forensic_id/glove_print = null // The glove fibres & ID
 	var/datum/forensic_id/print_mask = null // The mask that the gloves apply to the print
 	var/static/datum/forensic_id/empty_mask = new("") // Used to mark fingerless gloves that can still leave behind fibers
+	var/static/datum/forensic_id/null_mask = new("0123-4567-89AB-CDEF")
 
 	scan_display()
 		if(!src.print)
@@ -138,6 +139,24 @@ datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 				bunch_char = 0
 				bunch_num++
 		return final_print + "...";
+
+	proc/maskprint()
+		var/final_print = ""
+		if(!final_print)
+			final_print = null_mask.id
+		for(var/i=1, i<= length(print_mask.id), i++)
+			var/char_i = copytext(print_mask.id, i, i+1)
+			var/index = -1
+			if(isnum(char_i))
+				index = text2num_safe(char_i) + 1
+			else if(is_uppercase_letter(char_i))
+				index = text2ascii(char_i) - 55 + 1
+			index = index + floor(index / FINGERPRINT_BUNCH_SIZE)
+			if(index <= 0 || index > length(print.id))
+				final_print += char_i
+			else
+				final_print += copytext(print.id, i, i+1)
+		return
 
 	proc/is_same(datum/forensic_data/fingerprint/other)
 		return src.print == other.print && src.glove_print == other.glove_print

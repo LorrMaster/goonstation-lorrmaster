@@ -1025,6 +1025,9 @@ TYPEINFO(/obj/machinery/clonegrinder)
 		var/process_total = 0
 
 		if (istype(src.occupant))
+			if(src.occupant.bioHolder)
+				var/datum/forensic_data/dna/dna_data = new(src.occupant.bioHolder.dna_signature, DNA_FORM_BLOOD)
+				src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 			src.occupant.death(TRUE)
 			var/humanOccupant = (ishuman(src.occupant) && !ismonkey(src.occupant))
 			var/decomp = ishuman(src.occupant) ? src.occupant:decomp_stage : 0 // changed from only checking humanOccupant to running ishuman again so monkeys' decomp will be considered

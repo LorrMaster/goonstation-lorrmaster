@@ -1,6 +1,37 @@
 // i love enums
 #define FINGERPRINT_PLANT 0
 #define FINGERPRINT_READ 1
+#define EVIDENCE_PLANT 0
+#define EVIDENCE_READ 1
+
+/obj/item/device/fingerprinter2
+	name = "fingerprinter M2"
+	desc = "A grey-market tool used for scanning and planting forensic evidence."
+	icon_state = "reagentscan" // slightly sneaky. slightly.
+	is_syndicate = TRUE
+	w_class = W_CLASS_TINY
+	var/mode = EVIDENCE_READ
+	HELP_MESSAGE_OVERRIDE({"Toggle modes by using the fingerprinter in hand.
+							While on <b>"Read"</b> mode, use the tool on someone or something that has prints on it to add all the prints to the tool's print database.
+							While on <b>"Plant"</b> mode, use the tool on anything to add any prints from the database on it."})
+
+	New()
+		. = ..()
+		RegisterSignal(src, COMSIG_ITEM_ATTACKBY_PRE, PROC_REF(pre_attackby)) // use this instead of afterattack so we're silent
+		src.create_inventory_counter()
+		src.update_text()
+
+	proc/evidence_select()
+		// Choose the evidence to plant
+	proc/evidence_plant(mob/user, atom/target, datum/forensic_data/f_data)
+		// Plant the evidence
+	proc/pre_attackby(obj/item/source, atom/target, mob/user)
+		return TRUE // suppress attackby
+	proc/update_text()
+		if (src.mode == EVIDENCE_READ)
+			src.inventory_counter.update_text("<span style='color:#00ff00;font-size:0.7em;-dm-text-outline: 1px #000000'>READ</span>")
+		else
+			src.inventory_counter.update_text("<span stywle='color:#ff0000;font-size:0.7em;-dm-text-outline: 1px #000000'>PLANT</span>")
 
 // TODO make this cost 2 TC
 /obj/item/device/fingerprinter
@@ -123,3 +154,5 @@
 
 #undef FINGERPRINT_PLANT
 #undef FINGERPRINT_READ
+#undef EVIDENCE_PLANT
+#undef EVIDENCE_READ

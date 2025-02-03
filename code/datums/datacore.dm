@@ -48,8 +48,8 @@
 	G["pronouns"] = H.get_pronouns().name
 
 	G["age"] ="[H.bioHolder.age]"
-	G["fingerprint"] = "[H.bioHolder.fingerprints]"
-	G["dna"] = H.bioHolder.Uid
+	G["fingerprint"] = H.bioHolder.fingerprint_default.id // Need to worry about the actual limb's fingerprints later - LorrMaster
+	G["dna"] = H.bioHolder.dna_signature.id
 	G["p_stat"] = "Active"
 	G["m_stat"] = "Stable"
 	SPAWN(2 SECONDS)

@@ -13,8 +13,6 @@
 	stamina_crit_chance = 5
 	skintoned = TRUE
 	hitsound = 'sound/impact_sounds/meat_smack.ogg'
-	var/original_DNA = null
-	var/original_fprints = null
 	var/show_on_examine = FALSE
 
 	take_damage(brute, burn, tox, damage_type, disallow_limb_loss)
@@ -165,17 +163,15 @@
 		return 1
 
 	remove(var/show_message = 1)
-		if ((isnull(src.original_DNA) || isnull(src.original_fprints)) && ismob(src.original_holder))
+		if (isnull(src.dna_signature) && ismob(src.original_holder))
 			if (src.original_holder && src.original_holder.bioHolder) //ZeWaka: Fix for null.bioHolder
-				src.original_DNA = src.original_holder.bioHolder.Uid
-				src.original_fprints = src.original_holder.bioHolder.fingerprints
+				src.dna_signature = src.original_holder.bioHolder.dna_signature
 		return ..()
 
 	sever(mob/user)
-		if ((isnull(src.original_DNA) || isnull(src.original_fprints)) && ismob(src.original_holder))
+		if (isnull(src.dna_signature) && ismob(src.original_holder))
 			if (src.original_holder && src.original_holder.bioHolder) //ZeWaka: Fix for null.bioHolder
-				src.original_DNA = src.original_holder.bioHolder.Uid
-				src.original_fprints = src.original_holder.bioHolder.fingerprints
+				src.dna_signature = src.original_holder.bioHolder.dna_signature
 		return ..()
 
 	attach(mob/living/carbon/human/attachee, mob/attacher, both_legs)
@@ -185,10 +181,9 @@
 				if(isnull(src.original_holder)) // Limb never had an original owner?
 					src.original_holder = attachee // Now it does
 					if (src.original_holder?.bioHolder)
-						src.original_DNA = src.original_holder.bioHolder.Uid
-						src.original_fprints = src.original_holder.bioHolder.fingerprints
+						src.dna_signature = src.original_holder.bioHolder.dna_signature
 					return
-				if(src.original_DNA != attachee.bioHolder.Uid) // Limb isnt ours
+				if(src.dna_signature != attachee.bioHolder.dna_signature) // Limb isnt ours
 					src.limb_is_transplanted = TRUE
 				else // Maybe we got our old limb back?
 					src.limb_is_transplanted = FALSE
@@ -1002,18 +997,16 @@
 		. = ..()
 		src.visible_message(SPAN_ALERT("[src] rapidly keratinizes!"))
 		var/obj/item/parts/human_parts/arm/left/claw/newlimb = new(src.loc)
-		newlimb.original_DNA = src.original_DNA
 		newlimb.original_holder = src.original_holder
-		newlimb.original_fprints = src.original_fprints
+		newlimb.dna_signature = src.dna_signature
 		qdel(src)
 
 	remove(show_message)
 		. = ..()
 		src.visible_message(SPAN_ALERT("[src] rapidly keratinizes!"))
 		var/obj/item/parts/human_parts/arm/left/claw/newlimb = new(src.loc)
-		newlimb.original_DNA = src.original_DNA
 		newlimb.original_holder = src.original_holder
-		newlimb.original_fprints = src.original_fprints
+		newlimb.dna_signature = src.dna_signature
 		qdel(src)
 
 /obj/item/parts/human_parts/arm/right/abomination
@@ -1040,18 +1033,16 @@
 		. = ..()
 		src.visible_message(SPAN_ALERT("[src] rapidly keratinizes!"))
 		var/obj/item/parts/human_parts/arm/right/claw/newlimb = new(src.loc)
-		newlimb.original_DNA = src.original_DNA
 		newlimb.original_holder = src.original_holder
-		newlimb.original_fprints = src.original_fprints
+		newlimb.dna_signature = src.dna_signature
 		qdel(src)
 
 	remove(show_message)
 		. = ..()
 		src.visible_message(SPAN_ALERT("[src] rapidly keratinizes!"))
 		var/obj/item/parts/human_parts/arm/right/claw/newlimb = new(src.loc)
-		newlimb.original_DNA = src.original_DNA
 		newlimb.original_holder = src.original_holder
-		newlimb.original_fprints = src.original_fprints
+		newlimb.dna_signature = src.dna_signature
 		qdel(src)
 
 /obj/item/parts/human_parts/arm/left/zombie

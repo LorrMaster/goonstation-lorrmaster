@@ -1,6 +1,5 @@
 /*
 TODO:
- - Forensic scan reports need improvements
  - Improve getting DNA from blood regents
 	- Multiple bioholders
 	- Vomit bioholders
@@ -10,6 +9,8 @@ TODO:
  - Update security logs to use the new system
 	- Not sure how in-depth this should be
  - Remove & replace all the old forensics stuff in general
+ - Scan report changes
+	- Seperate each line to its own variable to allow line order variation
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction
@@ -29,14 +30,21 @@ Lower Priority
 		- Rework luminol timer.
 */
 
-// ...-??y?-...
-// ..y..-?-?-?
-// ?-?-..g..-?
+// mask: 0123456789ABCDEF
+// 	(..A..-?-?-?) | Fibers: xxxxxx	--> Replace A with 11th character
+// (...-??y?-...) | Fibers: xxxxxx
+// (?-?-..g..-?) | Fibers: xxxxxx
+// (...y...g...) | Fibers: xxxxxx
+// (..y..a..g..) | Fibers: xxxxxx
+// (...?????...) | Fibers: xxxxxx
+// abcd-egno-pqrs-uvxy | Fibers: xxxxxx
 
 // Mask minigames:
-// Reveal one char and its position in the bunch: (1/4)
-// Reveal the order of three characters (1/8)
-// Reveal which bunch a char is in (1/4)
+// None ==> Towel, black gloves
+// Reveal one char and its position in the bunch: (1/4) ==> insulated gloves
+// Reveal the order of two characters (1/2) ==> normal gloves
+// Reveal the order of three characters (1/8) ==> latex gloves
+// Reveal which bunch a char is in (1/4) ==>
 
 #define FORENSIC_GROUP_NONE 0
 #define FORENSIC_GROUP_ADMINPRINT 1
@@ -44,7 +52,7 @@ Lower Priority
 #define FORENSIC_GROUP_NOTE 3 // Basically a misc section
 #define FORENSIC_GROUP_FINGERPRINT 4
 #define FORENSIC_GROUP_DNA 5
-#define FORENSIC_GROUP_SCAN 6
+#define FORENSIC_GROUP_SCAN 6 // Scanner particles
 #define FORENSIC_GROUP_COMPUTER_LOG 7
 #define FORENSIC_GROUP_TRACKS 8 // Footprints and the like
 #define FORENSIC_GROUP_RETINA 9
@@ -52,10 +60,10 @@ Lower Priority
 #define FORENSIC_GROUP_HEALTH_ANALYZER 11 // DNA + retina scan
 #define FORENSIC_GROUP_SLEUTH_COLOR 12 // Pug sleuthing
 #define FORENSIC_GROUP_PROJ_HIT 13
-#define FORENSIC_GROUP_BITE 14
+#define FORENSIC_GROUP_BITE 14 // nom nom nom
 
 /proc/forensic_group_create(var/category) // Create a new group from its unique variable
-	// Is there a better way to do this? IDK.
+	// Is there a better way to do this? IDK
 	var/datum/forensic_group/G
 	switch(category)
 		if(FORENSIC_GROUP_NOTE)
@@ -139,9 +147,3 @@ Lower Priority
 //--------------------| Serial Numbers |--------------
 // Cyborg: S# XXXX-XXXX-XXXX-XXXX
 // Items: XXXX-XXXX
-// -----------------------| Tails |----------------------
-// Tails should lean towards some repition (pick 3, or something)
-// Tail Thin: <>-=+o,
-// Tail Fluffy: K,O,H, ???: (),{},[],
-// Tail End: (Tail Center) + (E,H,K,3,)
-// +>>>o>>- | oKHOHKHK+

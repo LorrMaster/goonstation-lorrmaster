@@ -1578,6 +1578,9 @@
 			return
 		if (!isnull(S) && syringe_mode == S.mode)
 			S.syringe_action(owner, target)
+			if(target.bioHolder)
+				var/datum/forensic_data/dna/dna_data = new(target.bioHolder.dna_signature, DNA_FORM_BLOOD)
+				S.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 
 /datum/action/bar/icon/pill
 	duration = 3 SECONDS

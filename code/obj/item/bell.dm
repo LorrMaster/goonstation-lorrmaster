@@ -9,6 +9,7 @@
 	throw_range = 15
 	w_class = W_CLASS_SMALL
 	var/sends_signal_to_hop_watch = FALSE
+	var/ring_count = 0 // number of times this bell has been rung
 
 /obj/item/bell/attack_hand(mob/user)
 	if ((!isturf(src.loc) && !user.is_in_hands(src)))
@@ -17,6 +18,7 @@
 		return
 	src.visible_message(SPAN_NOTICE("<b>[user]</b> rings \the [src]!"))
 	playsound(src, 'sound/effects/bell_ring.ogg', 30, FALSE)
+	src.ring_count++
 	if(sends_signal_to_hop_watch)
 		for_by_tcl(watch, /obj/item/pocketwatch)
 			watch.the_bell_has_been_rung()
@@ -28,6 +30,11 @@
 	if (user == usr && !user.restrained() && !user.stat && (user.contents.Find(src) || in_interact_range(src, user)))
 		if (!user.put_in_hand(src))
 			return ..()
+
+/obj/item/bell/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+	..()
+	var/note = "Times rung: [src.ring_count]"
+	scan_builder.add_scan_text(note)
 
 /obj/item/bell/hop
 	icon_state = "bell_hop" // get it?

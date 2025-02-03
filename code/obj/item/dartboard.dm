@@ -9,6 +9,7 @@
 	opacity = 0
 	var/last_score = 0
 	event_handler_flags = USE_FLUID_ENTER
+	var/hit_count = 0 // Number of darts that have hit this board
 
 	Crossed(atom/movable/M)
 		..()
@@ -17,10 +18,16 @@
 			M.pixel_x += rand(-8,8)
 			last_score = rand(1,60)
 			src.throwing = 0
+			src.hit_count++
 			playsound(src.loc, 'sound/effects/syringeproj.ogg', 100, 1)
 			src.visible_message(SPAN_NOTICE("Score: [last_score]."))
 		if (src.last_score == 50)
 			src.visible_message(SPAN_ALERT("It's a bullseye!"))
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		var/note = "Number of darts hit: [src.hit_count]"
+		scan_builder.add_scan_text(note)
 
 /obj/item/storage/box/lawndart_kit
 	name = "Lawn Darts box"

@@ -1005,10 +1005,11 @@
 	attack_hand(mob/user)
 		if(level == UNDERFLOOR && !ON_COOLDOWN(src, SEND_COOLDOWN_ID, src.cooldown_time))
 			if(ishuman(user) && user.bioHolder)
+				var/mob/living/carbon/human/H = user
 				LIGHT_UP_HOUSING
 				flick("comp_hscan1",src)
 				playsound(src.loc, 'sound/machines/twobeep2.ogg', 90, 0)
-				var/sendstr = (send_name ? user.real_name : user.bioHolder.fingerprints)
+				var/sendstr = (send_name ? user.real_name : get_user_prints(H))
 				SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_SIGNAL,sendstr)
 			else
 				boutput(user, SPAN_ALERT("The hand scanner can only be used by humanoids."))
@@ -1021,6 +1022,20 @@
 				user.drop_item()
 				src.set_loc(target)
 		return
+
+	proc/get_user_prints(var/mob/living/carbon/human/H)
+		if(H.hand == 0 && H.limbs.r_arm)
+			if(isitemlimb(H.limbs.r_arm))
+				return "???"
+			else
+				return H.limbs.r_arm.limb_print.id
+		else if(H.hand == 1 && H.limbs.l_arm)
+			if(isitemlimb(H.limbs.l_arm))
+				return "???"
+			else
+				return H.limbs.l_arm.limb_print.id
+		else
+			return  "???"
 
 
 #define GRAVITON_ITEM_COOLDOWN 10

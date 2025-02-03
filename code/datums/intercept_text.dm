@@ -64,7 +64,7 @@
 	var/mob/living/carbon/human/dude = src.pick_mob()
 	if (!dude)
 		return "CLASSIFIED"
-	var/print = "[dude.bioHolder.fingerprints]"
+	var/print = dude.bioHolder.fingerprint_default.id
 	return print
 
 /datum/intercept_text/proc/build_traitor(correct_mob)

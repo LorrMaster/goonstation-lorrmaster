@@ -165,6 +165,11 @@
 	..()
 	return
 
+/obj/displaycase/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+	..()
+	if(displayed)
+		scan_builder.add_target(displayed, area_header = "\The displayed [displayed] analysis:")
+
 //lets have an actual subtype instead of just varediting this
 /obj/displaycase/captain
 	displayed = /obj/item/gun/energy/antique
