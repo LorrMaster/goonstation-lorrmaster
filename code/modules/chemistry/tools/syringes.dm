@@ -105,6 +105,9 @@
 						actions.start(new/datum/action/bar/icon/syringe(target, src, src.icon, src.icon_state), user)
 					else
 						syringe_action(user, target)
+						if(L.bioHolder)
+							var/datum/forensic_data/dna/dna_data = new(L.bioHolder.dna_signature, DNA_FORM_BLOOD)
+							src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 					return
 
 				if (!target.reagents.total_volume)

@@ -1843,7 +1843,7 @@ TYPEINFO(/obj/machinery/manufacturer)
 			A = product
 			A.set_loc(get_output_location())
 
-		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, src.lead_display, TIME)
+		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, src.lead_display)
 		A.add_evidence(f_data, FORENSIC_GROUP_NOTE)
 		return A
 

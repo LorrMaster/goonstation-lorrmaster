@@ -7,13 +7,10 @@
 
 // Store forensic_ids into a dictionary to prevent *very small* chances of duplicates
 // Can also use to get the datum from the ID text
-var/global/list/id_scanners_all = new()
-var/global/list/id_fingerprints_all = new()
-var/global/list/id_gloves_all = new()
-var/global/list/id_dna_all = new()
-var/global/list/id_footprints_all = new()
-var/global/list/id_bites_all = new()
-var/global/list/id_retina_all = new()
+var/global/list/datum/forensic_id/registered_id_list = new()
+
+// lead_text = build_id(---)
+// lead = register_id(lead_text)
 
 // -----| Forensic ID |-----
 /datum/forensic_id // A piece of forensic evidence to be passed around and referenced
@@ -167,6 +164,14 @@ var/global/list/id_retina_all = new()
 				char = @"/"
 		mirror += char
 	return mirror
+
+/datum/forensic_id/proc/build_id_serial_number(var/length, var/list/char_list = CHAR_LIST_HEX)
+	var/serial_number = ""
+	length = ceil(length / 4)
+	serial_number += build_id(4, char_list)
+	for(var/i=1, i<= length - 1, i++)
+		serial_number += "-" + build_id(4, char_list)
+	src.id = serial_number
 
 
 // -----| Forensic Display |-----

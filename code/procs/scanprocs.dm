@@ -540,9 +540,11 @@
 	return eth_eq
 
 
-/proc/scan_forensic(var/atom/A as turf|obj|mob, var/mob/user, visible = 0, var/obj/item/device/detective_scanner/scanner = null)
+/proc/scan_forensic(var/atom/A as turf|obj|mob, var/mob/user, visible = TRUE, var/obj/item/device/detective_scanner/scanner = null)
 	if(!A.forensic_holder)
 		return
+	if(visible)
+		animate_scanning(A, "#c6df56", time = 10)
 	var/datum/forensic_scan_builder/scan_builder = new()
 	scan_builder.scanner = scanner
 	scan_builder.base_accuracy = -1

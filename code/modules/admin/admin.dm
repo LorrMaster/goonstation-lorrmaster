@@ -3452,11 +3452,12 @@ var/global/noir = 0
 						var/dat = "<B>Showing Fingerprints.</B><HR>"
 						dat += "<table cellspacing=5><tr><th>Name</th><th>Fingerprints</th></tr>"
 						for(var/mob/living/carbon/human/H in mobs)
-							if(H.ckey)
-								if(H.bioHolder.Uid)
-									dat += "<tr><td>[H]</td><td>[H.bioHolder.fingerprints]</td></tr>"
-								else if(!H.bioHolder.Uid)
-									dat += "<tr><td>[H]</td><td>H.bioHolder.Uid = null</td></tr>"
+							dat += "<tr><td>[H]</td><td>[H.bioHolder.fingerprint_default.id]</td></tr>"
+							//if(H.ckey)
+							//	if(H.bioHolder.Uid)
+							//		dat += "<tr><td>[H]</td><td>[H.bioHolder.fingerprints]</td></tr>"
+							//	else if(!H.bioHolder.Uid)
+							//		dat += "<tr><td>[H]</td><td>H.bioHolder.Uid = null</td></tr>"
 							LAGCHECK(LAG_LOW)
 						dat += "</table>"
 						usr.Browse(dat, "window=fingerprints;size=440x410")

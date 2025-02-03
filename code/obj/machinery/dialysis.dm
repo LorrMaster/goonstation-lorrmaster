@@ -161,6 +161,9 @@ TYPEINFO(/obj/machinery/dialysis)
 		APPLY_ATOM_PROPERTY(patient, PROP_MOB_BLOOD_ABSORPTION_RATE, src, 3)
 		src.power_usage = 500
 		src.patient_blood_id = src.patient.blood_id
+		if(src.patient.bioHolder)
+			var/datum/forensic_data/dna/dna_data = new(src.patient.bioHolder.dna_signature, DNA_FORM_BLOOD)
+			src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 		src.UpdateIcon()
 		SubscribeToProcess()
 

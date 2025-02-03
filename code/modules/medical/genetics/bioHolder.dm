@@ -373,8 +373,7 @@ var/list/datum/bioEffect/mutini_effects = list()
 	var/uid_hash
 	var/fingerprints
 
-	// Default ids for various mob limbs
-	// Note: Cyborg arms should eventually use numbers instead of letters
+	// Default ids to be used by limbs & organs
 	var/datum/forensic_id/fingerprint_default = new()
 	var/datum/forensic_id/footprint_default = new()
 	var/datum/forensic_id/retina_default = new()

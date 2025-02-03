@@ -275,13 +275,25 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		if (BOUNDS_DIST(A, user) > 0 || istype(A, /obj/ability_button)) // Scanning for fingerprints over the camera network is fun, but doesn't really make sense (Convair880).
 			return
 
-		user.visible_message(SPAN_ALERT("<b>[user]</b> has scanned [A]."))
+		playsound(src.loc , 'sound/machines/found.ogg', 20, 0)
+		var/visible = TRUE
+		if((ishuman(A) || ismonkey(A)) && user != A)
+			// Humans need to stand still for a scan
+			visible = FALSE
+			user.visible_message(SPAN_ALERT("<b>[user]</b> is attempting a forensics scan on [A]..."))
+			for(var/i=0; i<6; i++)
+				animate_scanning(A, "#c6df56", time = 5)
+				sleep(0.5 SECONDS)
+				if (BOUNDS_DIST(A, user) > 0)
+					user.visible_message(SPAN_ALERT("Scan of [A] failed."))
+					return
 
+		user.visible_message("<b>[user]</b> has scanned [A].")
 		if (scans == null)
 			scans = new/list(maximum_scans)
 		if(!A.forensic_holder)
 			return
-		last_scan = scan_forensic(A, user, visible = 1, scanner = src) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+		last_scan = scan_forensic(A, user, visible, scanner = src) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		boutput(user, last_scan)
 		return
 		/*
@@ -475,7 +487,6 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_scan_text(id_note)
-
 
 
 /obj/item/device/analyzer/healthanalyzer/upgraded

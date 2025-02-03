@@ -662,6 +662,9 @@ TYPEINFO(/obj/item/reagent_containers/mender)
 			multiply = min((looped+1)/8, 1)
 
 		M.apply_to(target,user, multiply, silent = (looped >= 1))
+		if(target.bioHolder)
+			var/datum/forensic_data/dna/dna_data = new(target.bioHolder.dna_signature, DNA_FORM_TISSUE)
+			M.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 
 	onEnd()
 		if(BOUNDS_DIST(user, target) > 0 || user == null || target == null || !user.find_in_hand(M))
@@ -676,7 +679,6 @@ TYPEINFO(/obj/item/reagent_containers/mender)
 				..()
 				user.show_text("[M] is finished healing and powers down automatically.", "blue")
 				return
-
 		looped++
 		src.onRestart()
 

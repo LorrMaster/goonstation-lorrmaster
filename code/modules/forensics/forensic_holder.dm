@@ -163,7 +163,7 @@ datum/forensic_scan_builder // Used to gather up all the evidence and assemble t
 			area_text_final = "No evidence detected."
 		return area_text_final
 
-	proc/add_target(var/atom/target, var/area_header = null, var/datum/forensic_holder/area = null)
+	proc/add_target(var/atom/target = null, var/area_header = null, var/datum/forensic_holder/area = null)
 		// Used to scan more than one target, or seperate the scanned target into multiple regions
 		// Examples: Scan worn gloves, fingerprints inside vs outside a pod, etc
 		if(!target && (!area || !area_header))

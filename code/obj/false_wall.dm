@@ -162,6 +162,10 @@ ADMIN_INTERACT_PROCS(/turf/simulated/wall/false_wall, proc/open, proc/close)
 		else
 			return src.Attackhand(user)
 
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		scan_builder.add_scan_text("Hidden door detected.")
+
 	proc/open()
 		if (src.operating)
 			return 0
