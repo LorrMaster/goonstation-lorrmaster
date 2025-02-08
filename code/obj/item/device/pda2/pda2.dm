@@ -35,7 +35,7 @@
 	var/net_id = null //Hello dude intercepting our radio transmissions, here is a number that is not just \ref
 	var/scannable = TRUE // Whether this PDA is picked up when scanning for PDAs on the messenger
 	// PDA scanners have their forensic prefix (HLTH-xxxxx) added in as part of the display during scanning
-	var/datum/forensic_id/scan_lead = new("", "-PDA", 5, CHAR_LIST_NUM)
+	var/datum/forensic_id/scan_lead = null
 
 	var/tmp/list/pdasay_autocomplete = list()
 
@@ -97,6 +97,10 @@
 	/// mailgroup-specific ringtones, added on the fly!
 	var/list/mailgroup_ringtones = list()
 	var/window_title = "Personal Data Assistant"
+
+	New()
+		..()
+		src.scan_lead = register_id(build_id(5, CHAR_LIST_NUM, "", "-PDA"))
 
 	registered_owner()
 		.= registered

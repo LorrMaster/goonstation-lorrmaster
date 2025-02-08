@@ -18,15 +18,9 @@ ABSTRACT_TYPE(/obj/item/turret_deployer)
 	var/associated_turret = null //what kind of turret should this spawn?
 	var/turret_health = 100
 
-	New(newLoc, forensics_id)
+	New(newLoc)
 		..()
 		icon_state = "[src.icon_tag]_deployer"
-		if (!src.forensic_ID)
-			if (forensics_id)
-				src.forensic_ID = forensics_id
-			else
-				src.forensic_ID = src.CreateID()
-				forensic_IDs.Add(src.forensic_ID)
 
 	get_desc()
 		. = "<br>[SPAN_NOTICE("It looks [damage_words]")]"
@@ -142,19 +136,13 @@ ADMIN_INTERACT_PROCS(/obj/deployable_turret, proc/admincmd_shoot, proc/admincmd_
 	var/deconstructable = TRUE
 	var/can_toggle_activation = TRUE // whether you can enable or disable the turret with a screwdriver, used for map setpiece turrets
 	var/emagged = FALSE
-	var/datum/forensic_id/turret_profile = new("=", "=", 10, CHAR_LIST_GUN)
+	var/datum/forensic_id/turret_profile = null
 
 	New(loc, direction, forensics_id)
 		..()
 		src.set_dir(direction || src.dir) // don't set the dir if we weren't passed one
 		src.set_initial_angle()
-
-		if (!src.forensic_ID)
-			if (forensics_id)
-				src.forensic_ID = forensics_id
-			else
-				src.forensic_ID = src.CreateID()
-				forensic_IDs.Add(src.forensic_ID)
+		src.turret_profile = register_id(build_id(10, CHAR_LIST_GUN, "=", "="))
 
 		src.icon_state = "[src.icon_tag]_base"
 		src.appearance_flags |= RESET_TRANSFORM
@@ -399,7 +387,7 @@ ADMIN_INTERACT_PROCS(/obj/deployable_turret, proc/admincmd_shoot, proc/admincmd_
 		qdel(src)
 
 	proc/spawn_deployer()
-		var/obj/item/turret_deployer/deployer = new src.associated_deployer(src.loc, src.forensic_ID)
+		var/obj/item/turret_deployer/deployer = new src.associated_deployer(src.loc)
 		deployer.turret_health = src.health // NO FREE REPAIRS, ASSHOLES
 		deployer.damage_words = src.damage_words
 		deployer.quick_deploy_fuel = src.quick_deploy_fuel

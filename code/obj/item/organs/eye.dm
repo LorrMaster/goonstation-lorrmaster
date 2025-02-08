@@ -29,7 +29,8 @@
 			src.UpdateIcon()
 
 	proc/build_retina()
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_CENTER)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_CENTER)
+		retina_scan = register_id(id_text)
 
 	proc/mirror_retina(var/obj/item/organ/eye/eye_pair)
 		if(!eye_pair)
@@ -148,7 +149,8 @@
 
 	build_retina()
 		// Synth eyes are round + line (Ex: p,b,q,P,d)
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_SYNTH)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_SYNTH)
+		retina_scan = register_id(id_text)
 
 TYPEINFO(/obj/item/organ/eye/cyber)
 	mats = 6
@@ -168,7 +170,9 @@ TYPEINFO(/obj/item/organ/eye/cyber)
 
 	build_retina() // cyber eye has two numbers in the center
 		var/list/center_list = list(("[rand(0,9)][rand(0,9)]"))
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
+
 	emp_act()
 		..()
 		if (!src.broken)
@@ -231,7 +235,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/sechud)
 
 	build_retina() // sechud eyes have an S
 		var/list/center_list = list("s[rand(0,9)]s","S[rand(0,9)]S","$[rand(0,9)]$")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
+
 	process()
 		if (src.broken)
 			processing_items.Remove(src)
@@ -265,7 +271,9 @@ TYPEINFO(/obj/item/organ/eye/cyber/thermal)
 
 	build_retina() // Thermal eyes have a T
 		var/list/center_list = list("t[rand(0,9)]t","T[rand(0,9)]T")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
+
 	on_transplant(mob/M)
 		. = ..()
 		APPLY_ATOM_PROPERTY(M, PROP_MOB_THERMALVISION, src)
@@ -293,7 +301,8 @@ TYPEINFO(/obj/item/organ/eye/cyber/meson)
 
 	build_retina()
 		var/list/center_list = list("&[rand(0,9)]&")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
 	on_transplant(var/mob/M)
 		..()
 		if (src.broken)
@@ -331,7 +340,8 @@ TYPEINFO(/obj/item/organ/eye/cyber/spectro)
 
 	build_retina()
 		var/list/center_list = list("%[rand(0,9)]%")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
 	on_transplant(mob/M)
 		. = ..()
 		APPLY_ATOM_PROPERTY(M, PROP_MOB_SPECTRO, src)
@@ -357,7 +367,8 @@ TYPEINFO(/obj/item/organ/eye/cyber/prodoc)
 	// stolen from original prodocs
 	build_retina()
 		var/list/center_list = list("+[rand(0,9)]+")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
 	process()
 		if (src.broken)
 			processing_items.Remove(src)
@@ -395,7 +406,8 @@ TYPEINFO(/obj/item/organ/eye/cyber/ecto)
 
 	build_retina()
 		var/list/center_list = list("g[rand(0,9)]g","G[rand(0,9)]G")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
 	on_transplant(mob/M)
 		. = ..()
 		APPLY_ATOM_PROPERTY(M, PROP_MOB_GHOSTVISION, src)
@@ -426,7 +438,8 @@ TYPEINFO(/obj/item/organ/eye/cyber/camera)
 
 	build_retina()
 		var/list/center_list = list("*[rand(0,9)]*")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
 	on_transplant(var/mob/M)
 		..()
 		src.camera.c_tag = "[M]'s Eye"
@@ -446,9 +459,10 @@ TYPEINFO(/obj/item/organ/eye/cyber/nightvision)
 	color_b = 0.7
 	iris_color = "#027e17"
 
-	build_retina(var/datum/forensic_id/retina_pair = null)
+	build_retina()
 		var/list/center_list = list("#[rand(0,9)]#")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
 	on_transplant(mob/M)
 		. = ..()
 		APPLY_ATOM_PROPERTY(M, PROP_MOB_NIGHTVISION, src)
@@ -475,7 +489,8 @@ TYPEINFO(/obj/item/organ/eye/cyber/laser)
 
 	build_retina()
 		var/list/center_list = list("z[rand(0,9)]z","Z[rand(0,9)]Z")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list)
+		retina_scan = register_id(id_text)
 	add_ability(var/datum/abilityHolder/aholder, var/abil)
 		if (!ispath(abil, /datum/targetable/organAbility/eyebeam) || !aholder)
 			return ..()
@@ -580,7 +595,8 @@ TYPEINFO(/obj/item/organ/eye/cyber/monitor)
 	icon_state = "eye-lizard"
 
 	build_retina() // Lizards have vertical cat-like eyes
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_CAT)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_CAT)
+		retina_scan = register_id(id_text)
 
 /obj/item/organ/eye/skeleton
 	name = "boney eye"
@@ -591,7 +607,8 @@ TYPEINFO(/obj/item/organ/eye/cyber/monitor)
 	change_iris = 0
 
 	build_retina() // Skeleton eyes are inside-out: ))O(( instead of ((O))
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_CENTER)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_CENTER)
+		retina_scan = register_id(id_text)
 
 /obj/item/organ/eye/cow
 	name = "cow eye"
@@ -600,7 +617,8 @@ TYPEINFO(/obj/item/organ/eye/cyber/monitor)
 	blood_reagent = "milk"
 
 	build_retina() // Cow eyes are horizontal
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_COW)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, CHAR_LIST_RETINA_COW)
+		retina_scan = register_id(id_text)
 
 /obj/item/organ/eye/pug
 	name = "pug eye"
@@ -612,4 +630,5 @@ TYPEINFO(/obj/item/organ/eye/cyber/monitor)
 			center_list = list("a-","c-","C-","D-","e-","Q-","u-","U-","v-","V-","0-")
 		else
 			center_list = list("a=","c=","C=","D=","e=","Q=","u=","U=","v=","V=","0=")
-		retina_scan.build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list, 1)
+		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list, 1)
+		retina_scan = register_id(id_text)

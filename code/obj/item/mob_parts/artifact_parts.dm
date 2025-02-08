@@ -160,15 +160,14 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/arm)
 		return src.bodyImage
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_fingerprint(CHAR_LIST_FINGERPRINT)
+		var/fp_text = build_id_separated(build_id_norepeat(16, CHAR_LIST_FINGERPRINT), 4)
+		src.limb_print = register_id(fp_text)
 
 ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg)
 /obj/item/parts/artifact_parts/leg
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("sllll")
+		src.limb_print = register_id(build_id_pattern("sllll"))
 
 ABSTRACT_TYPE(/obj/item/parts/artifact_parts/arm/eldritch)
 /obj/item/parts/artifact_parts/arm/eldritch
@@ -208,8 +207,7 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg/eldritch)
 		src.holder.removeAbility(/datum/targetable/artifact_limb_ability/eldritch_run)
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("ssll")
+		src.limb_print = register_id(build_id_pattern("ssll"))
 
 	left
 		name = "eldritch left leg"
@@ -264,8 +262,7 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg/martian)
 	artifact_type = "martian"
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("llll")
+		src.limb_print = register_id(build_id_pattern("llll"))
 
 	left
 		name = "martian left leg"
@@ -304,8 +301,8 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/arm/precursor)
 		src.holder.removeAbility(/datum/targetable/artifact_limb_ability/precursor_heal)
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_fingerprint(CHAR_LIST_HEX)
+		var/fp_text = build_id_separated(build_id_norepeat(16, CHAR_LIST_HEX), 4)
+		src.limb_print = register_id(fp_text)
 
 	left
 		name = "precursor left arm"

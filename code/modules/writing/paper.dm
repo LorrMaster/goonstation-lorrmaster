@@ -191,6 +191,7 @@
 			if(length(stamps) < PAPER_MAX_STAMPS)
 				stamp(stamp_x, stamp_y, stamp_r, stamp.current_state, stamp.icon_state)
 				update_static_data(usr, ui)
+				stamp.times_used++
 				boutput(usr, SPAN_NOTICE("[ui.user] stamps [src] with \the [stamp.name]!"))
 				playsound(usr.loc, 'sound/misc/stamp_paper.ogg', 50, 0.5)
 			else
@@ -694,12 +695,15 @@
 	var/available_modes = list("Granted", "Denied", "Void", "Current Time", "Your Name");
 	var/current_mode = "Granted"
 	var/current_state = null
+	var/times_used = 0 // Number of stamps this has created
+	var/forensic_offset = 0.5 // offset for stamp usage estimation
 
 /obj/item/stamp/New()
 	..()
 	if(special_mode)
 		available_modes += special_mode
 		current_mode = special_mode
+	forensic_offset = rand()
 
 /obj/item/stamp/proc/set_assignment(A)
 	if (istext(A))
@@ -757,6 +761,26 @@
 	user.visible_message(SPAN_ALERT("<b>[user] stamps 'VOID' on [his_or_her(user)] forehead!</b>"))
 	user.TakeDamage("head", 250, 0)
 	return 1
+
+/obj/item/stamp/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+	..()
+	// Estimate how many times this stamp has been used
+	var/note = null
+	var/accuracy = scan_builder.base_accuracy
+	if(accuracy < 0 || accuracy > FORENSIC_BASE_ACCURACY)
+		accuracy = FORENSIC_BASE_ACCURACY
+
+	if(src.times_used <= 0)
+		note = "Times stamped: [src.times_used]"
+	else
+		var/offset = src.times_used * accuracy
+		var/high_est = round(src.times_used + (offset * src.forensic_offset))
+		var/low_est = max(1, round(src.times_used - (offset * (1 - src.forensic_offset))))
+		if(high_est == low_est)
+			note = "Times stamped: [src.times_used]"
+		else
+			note = "Times stamped estimate: [low_est] to [high_est]"
+	scan_builder.add_scan_text(note)
 
 
 /obj/item/stamp // static staff stamps

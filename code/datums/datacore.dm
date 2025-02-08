@@ -49,6 +49,7 @@
 
 	G["age"] ="[H.bioHolder.age]"
 	G["fingerprint"] = H.bioHolder.fingerprint_default.id // Need to worry about the actual limb's fingerprints later - LorrMaster
+	G["fingerprint_L"] = H.bioHolder.fingerprint_default.id
 	G["dna"] = H.bioHolder.dna_signature.id
 	G["p_stat"] = "Active"
 	G["m_stat"] = "Stable"

@@ -262,8 +262,7 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 			src.bioHolder.CopyOther(target.bioHolder)
 			stored_name = target.real_name
 			randomize_look(target)
-			target.bioHolder.Uid = target.bioHolder.CreateUid() // forensics stuff, new blood dna and fingerprints
-			target.bioHolder.build_fingerprints()
+			target.bioHolder.randomize_dna() // Get new forensics (does not update limbs)
 			UpdateIcon()
 
 	proc/paste_identity(var/mob/living/carbon/user,var/mob/living/carbon/target)

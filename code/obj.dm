@@ -21,9 +21,6 @@
 	var/_health = 100
 	var/_max_health = 100
 
-	/// if gun/bullet related, forensic profile of it
-	var/forensic_ID = null
-
 	New()
 		. = ..()
 		if (HAS_FLAG(object_flags, HAS_DIRECTIONAL_BLOCKING))

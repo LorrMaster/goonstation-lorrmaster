@@ -73,6 +73,8 @@
 			else
 				logTheThing(LOG_COMBAT, user, "injects [target == user ? himself_or_herself(user) : constructTarget(target,"combat")] with [src] [log_reagents(src)]")
 				src.reagents.trans_to(target, src.amount_per_transfer_from_this)
+				var/datum/forensic_data/dna/dna_data = new(target.bioHolder?.dna_signature, DNA_FORM_TISSUE)
+				src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 				user.visible_message(SPAN_ALERT("[user] injects [target == user ? himself_or_herself(user) : target] with [src]!"),\
 				SPAN_ALERT("You inject [target == user ? "yourself" : target] with [src]!"))
 				playsound(target, 'sound/items/hypo.ogg', 40, FALSE)

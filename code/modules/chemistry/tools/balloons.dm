@@ -170,7 +170,9 @@
 							A.color = "#FFDD00"
 						if ("bee")
 							A.color = "#FFDD00"
-					H.losebreath ++
+					H.losebreath++
+					var/datum/forensic_data/dna/dna_data = new(H.bioHolder?.dna_signature, DNA_FORM_SALIVA)
+					A.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 					qdel(src)
 
 			if ("Inhale")

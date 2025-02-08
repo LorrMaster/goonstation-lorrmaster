@@ -56,7 +56,7 @@ TYPEINFO(/obj/machinery/glass_recycler)
 	event_handler_flags = NO_MOUSEDROP_QOL
 
 	var/static/datum/forensic_display/lead_display = new("Recently recycled (Pattern ID: @F)")
-	var/datum/forensic_id/forensic_lead = new("GLASS-")
+	var/datum/forensic_id/forensic_lead = null
 
 	deconstruct_flags = DECON_SCREWDRIVER | DECON_WRENCH | DECON_WELDER | DECON_WIRECUTTERS
 
@@ -64,8 +64,7 @@ TYPEINFO(/obj/machinery/glass_recycler)
 		..()
 		src.get_products()
 		UnsubscribeProcess()
-		if(src.forensic_lead != null)
-			src.forensic_lead.id += forensic_lead.build_id(1, CHAR_LIST_UPPER_LIMIT) + forensic_lead.build_id(3, CHAR_LIST_NUM)
+		src.forensic_lead = register_id(build_id_pattern("Lnnn", "GLASS-"))
 
 
 	MouseDrop_T(atom/movable/O as obj, mob/user as mob)

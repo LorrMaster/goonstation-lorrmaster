@@ -29,15 +29,15 @@ TYPEINFO(/obj/machinery/photocopier)
 	var/net_id = ""
 	var/frequency = FREQ_FREE
 	var/static/datum/forensic_display/lead_display = new("Photocopy (Printer ID: @F)")
-	var/datum/forensic_id/lead_printer
-	var/datum/forensic_id/lead_scanner = new("PCOPY-", "", 5, CHAR_LIST_NUM)
+	var/datum/forensic_id/lead_printer = null
+	var/datum/forensic_id/lead_scanner = null
 
 	New()
 		..()
 		src.net_id = generate_net_id(src)
 		MAKE_DEFAULT_RADIO_PACKET_COMPONENT(src.net_id, null, frequency)
-		lead_printer = new()
-		src.lead_printer.id += lead_printer.build_id(1, CHAR_LIST_UPPER_LIMIT) + lead_printer.build_id(3, CHAR_LIST_NUM)
+		src.lead_printer = register_id(build_id_pattern("Lnnn"))
+		src.lead_scanner = register_id(build_id(5, CHAR_LIST_NUM, "PCOPY-"))
 
 	get_desc(dist)
 		var/desc_string = ""

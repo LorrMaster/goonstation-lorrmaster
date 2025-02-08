@@ -278,15 +278,14 @@
 			die()
 
 	proc/collide_forensics(var/atom/A) // Determine what kind of forensic evidence the projectile leaves behind
-		if(src.proj_data.ie_type == "T")
-			// Tasers leave behind no evidence
-			return
+		// if(src.proj_data.ie_type == "T")
+		// Tasers leave behind no evidence
 		if(src.proj_data.ie_type == "K") // Kinetic
-			var/datum/forensic_data/basic/k_data = new(lead_kinetic, flags = REMOVABLE_REPAIR)
+			var/datum/forensic_data/basic/k_data = new(lead_kinetic, flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE)
 			A.add_evidence(k_data)
 			return
 		if(src.proj_data.ie_type == "E") // Energy
-			var/datum/forensic_data/basic/e_data = new(lead_energy, flags = REMOVABLE_REPAIR)
+			var/datum/forensic_data/basic/e_data = new(lead_energy, flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BURN)
 			A.add_evidence(e_data)
 			return
 

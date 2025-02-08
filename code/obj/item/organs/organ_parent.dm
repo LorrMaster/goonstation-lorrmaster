@@ -256,16 +256,15 @@
 		if (src.donor)
 			if (failure_disease)
 				src.donor.cure_disease(failure_disease)
-
 			if (src.robotic)
 				src.donor.robotic_organs--
 				var/image/I = src.donor.prodoc_icons["robotic_organs"]
 				if (src.donor.robotic_organs <= 0)
 					I.icon_state = null
+			if (src.donor.bioHolder)
+				src.donor_dna_signature = src.donor.bioHolder.dna_signature
+				src.apply_blood(src.donor.bioHolder, src.donor.blood_color)
 
-		if (src.donor.bioHolder)
-			src.donor_dna_signature = src.donor.bioHolder.dna_signature
-			src.apply_blood(src.donor.bioHolder, src.donor.blood_color)
 		src.blood_color = src.donor?.bioHolder?.bloodColor
 		src.blood_reagent = src.donor?.blood_id
 		src.remove_organ_abilities()

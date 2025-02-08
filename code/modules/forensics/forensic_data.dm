@@ -23,7 +23,6 @@ datum/forensic_data
 	proc/get_time_estimate(var/accuracy) // Return a text estimate for when this evidence might have occured
 		if(src.time_start == 0 || accuracy < 0)
 			return "" // Negative accuracy -> do not report a time
-
 		var/t_end = (TIME - src.time_end) / (1 MINUTES)
 		if(t_end == 0)
 			return SPAN_SUBTLE(SPAN_ITALIC(" (Current)"))
@@ -87,7 +86,7 @@ datum/forensic_data/multi // Two or three different pieces of evidence that are 
 		if(!evidence_B)
 			scan_text = replacetextEx(scan_text, "@B", "")
 		else if(mirror_B)
-			scan_text = replacetextEx(scan_text, "@B", evidence_B.get_retina_mirror())
+			scan_text = replacetextEx(scan_text, "@B", get_retina_mirror(evidence_B.id))
 		else
 			scan_text = replacetextEx(scan_text, "@B", evidence_B.id)
 		if(!evidence_C)

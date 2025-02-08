@@ -592,8 +592,8 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/arm)
 			src.robot_emag_effect()
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_fingerprint(CHAR_LIST_HEX)
+		var/fp_text = build_id_separated(build_id_norepeat(16, CHAR_LIST_HEX), 4)
+		src.limb_print = register_id(fp_text)
 
 	proc/human_emag_effect()
 		var/mob/living/carbon/human/H = src.holder
@@ -834,8 +834,7 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg)
 		return
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("snnns")
+		src.limb_print = register_id(build_id_pattern("snnns"))
 
 ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/left)
 /obj/item/parts/robot_parts/leg/left
@@ -863,8 +862,7 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/left)
 	breaks_cuffs = FALSE
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("snns")
+		src.limb_print = register_id(build_id_pattern("snns"))
 
 /obj/item/parts/robot_parts/leg/left/treads
 	name = "left cyborg tread"
@@ -880,8 +878,7 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/left)
 	kind_of_limb = (LIMB_ROBOT | LIMB_TREADS)
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("s==n==n==n==s")
+		src.limb_print = register_id(build_id_pattern("s==n==n==n==s"))
 
 ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 /obj/item/parts/robot_parts/leg/right
@@ -909,8 +906,7 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 	breaks_cuffs = FALSE
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("snns")
+		src.limb_print = register_id(build_id_pattern("snns"))
 
 /obj/item/parts/robot_parts/leg/right/treads
 	name = "right cyborg tread"
@@ -926,8 +922,7 @@ ABSTRACT_TYPE(/obj/item/parts/robot_parts/leg/right)
 	kind_of_limb = (LIMB_ROBOT | LIMB_TREADS)
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("s==n==n==n==s")
+		src.limb_print = register_id(build_id_pattern("s==n==n==n==s"))
 
 /obj/item/parts/robot_parts/leg/left/thruster
 	name = "left thruster assembly"
