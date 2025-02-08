@@ -22,6 +22,7 @@
 		SPAWN(2 SECONDS) // let the world load
 			for (var/atom/A as anything in get_turf(src))
 				if (src.object_to_call == A.name || src.object_to_call == A.interesting) // oh boo hoo, sue me for misuse of variables
+					// Congrats, your misuse of this variable is now its primary use!
 					object_to_call = A
 					break
 

@@ -92,7 +92,7 @@ var/global/list/datum/forensic_id/gun_profile_list = new/list()
 	var/camera_recoil_sway_min = 0 //! Minimum recoil variance
 	var/camera_recoil_sway_max = 20 //! Maximum recoil variance
 
-	var/datum/forensic_id/gun_profile = new("=", "=", 7, CHAR_LIST_GUN)
+	var/datum/forensic_id/gun_profile = null
 	var/static/datum/forensic_display/disp_gun = new("Gun profile: @F") // /obj/item/gun::disp_gun
 	var/static/datum/forensic_id/lead_gun_residue = new("Gunshot residue found.")
 
@@ -102,6 +102,7 @@ var/global/list/datum/forensic_id/gun_profile_list = new/list()
 
 	New()
 		src.AddComponent(/datum/component/log_item_pickup, first_time_only=FALSE, authorized_job=null, message_admins_too=FALSE)
+		src.gun_profile = register_id(build_id(7, CHAR_LIST_GUN, "=", "="))
 		SPAWN(2 SECONDS)
 			gun_profile_list.Add(src.gun_profile)
 		return ..()

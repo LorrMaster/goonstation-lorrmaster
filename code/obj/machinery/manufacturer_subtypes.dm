@@ -4,7 +4,6 @@
 /obj/machinery/manufacturer/general
 	name = "general manufacturer"
 	supplemental_desc = "This one produces tools and other hardware, as well as general-purpose items like replacement lights."
-	forensic_lead = new(id_prefix = "GEN-")
 	free_resources = list(/obj/item/material_piece/steel = 5,
 		/obj/item/material_piece/copper = 5,
 		/obj/item/material_piece/glass = 5)
@@ -83,19 +82,23 @@
 		/datum/manufacture/fiddle,
 		/datum/manufacture/whistle)
 
+	get_forensic_prefix()
+		return "GEN-"
+
 /obj/machinery/manufacturer/general/grody
 	name = "grody manufacturer"
 	desc = "It's covered in more gunk than a truck stop ashtray. Is this thing even safe?"
 	supplemental_desc = "This one has seen better days. There are bits and pieces of the internal mechanisms poking out the side."
-	forensic_lead = new(id_prefix = "G3N-")
 	free_resources = list()
 	malfunction = TRUE
 	wires = 15 & ~(1 << 3) // This cuts the malfunction wire, so the fab malfunctions immediately
 
+	get_forensic_prefix()
+		return "G3N-"
+
 /obj/machinery/manufacturer/robotics
 	name = "robotics fabricator"
 	supplemental_desc = "This one produces robot parts, cybernetic organs, and other robotics-related equipment."
-	forensic_lead = new(id_prefix = "ROBO-")
 	icon_state = "fab-robotics"
 	icon_base = "robotics"
 	free_resources = list(/obj/item/material_piece/steel = 5,
@@ -198,10 +201,12 @@
 		/datum/manufacture/corporate_laws,
 		/datum/manufacture/robocop_laws)
 
+	get_forensic_prefix()
+		return "ROBO-"
+
 /obj/machinery/manufacturer/medical
 	name = "medical fabricator"
 	supplemental_desc = "This one produces medical equipment and sterile clothing."
-	forensic_lead = new(id_prefix = "MED-")
 	icon_state = "fab-med"
 	icon_base = "med"
 	free_resources = list(/obj/item/material_piece/steel = 2,
@@ -255,10 +260,12 @@
 	)
 	hidden = list()
 
+	get_forensic_prefix()
+		return "MED-"
+
 /obj/machinery/manufacturer/science
 	name = "science fabricator"
 	supplemental_desc = "This one produces science equipment for experiments as well as expeditions."
-	forensic_lead = new(id_prefix = "SCI-")
 	icon_state = "fab-sci"
 	icon_base = "sci"
 	free_resources = list(/obj/item/material_piece/steel = 2,
@@ -309,10 +316,12 @@
 		/datum/manufacture/surgical_spoon
 	)
 
+	get_forensic_prefix()
+		return "SCI-"
+
 /obj/machinery/manufacturer/mining
 	name = "mining fabricator"
 	supplemental_desc = "This one produces mining equipment like concussive charges and powered tools."
-	forensic_lead = new(id_prefix = "MINE-")
 	icon_state = "fab-mining"
 	icon_base = "mining"
 	free_resources = list(/obj/item/material_piece/steel = 2,
@@ -361,10 +370,12 @@
 #endif
 		)
 
+	get_forensic_prefix()
+		return "MINE-"
+
 /obj/machinery/manufacturer/hangar
 	name = "ship component fabricator"
 	supplemental_desc = "This one produces modules for space pods or minisubs."
-	forensic_lead = new(id_prefix = "SHIP-")
 	icon_state = "fab-hangar"
 	icon_base = "hangar"
 	free_resources = list(/obj/item/material_piece/steel = 2,
@@ -407,10 +418,12 @@
 		/datum/manufacture/podgps
 	)
 
+	get_forensic_prefix()
+		return "SHIP-"
+
 /obj/machinery/manufacturer/uniform // add more stuff to this as needed, but it should be for regular uniforms the HoP might hand out, not tons of gimmicks. -cogwerks
 	name = "uniform manufacturer"
 	supplemental_desc = "This one can create a wide variety of one-size-fits-all jumpsuits, as well as backpacks and radio headsets."
-	forensic_lead = new(id_prefix = "UNI-")
 	icon_state = "fab-jumpsuit"
 	icon_base = "jumpsuit"
 	free_resources = list(/obj/item/material_piece/cloth/cottonfabric = 5,
@@ -473,12 +486,14 @@
 		/datum/manufacture/tricolor,
 		/datum/manufacture/hat_ltophat)
 
+	get_forensic_prefix()
+		return "UNI-"
+
 /// cogwerks - a gas extractor for the engine
 
 /obj/machinery/manufacturer/gas
 	name = "gas extractor"
 	supplemental_desc = "This one can create gas canisters, either empty or filled with gases extracted from certain minerals."
-	forensic_lead = new(id_prefix = "GAS-")
 	icon_state = "fab-atmos"
 	icon_base = "atmos"
 	accept_blueprints = FALSE
@@ -491,22 +506,26 @@
 		/datum/manufacture/plasma_can,
 		/datum/manufacture/red_o2_grenade)
 
+	get_forensic_prefix()
+		return "GAS-"
+
 // a blank manufacturer for mechanics
 
 /obj/machinery/manufacturer/mechanic
 	name = "reverse-engineering fabricator"
 	desc = "A specialized manufacturing unit designed to create new things (or copies of existing things) from blueprints."
-	forensic_lead = new(id_prefix = "REV-")
 	icon_state = "fab-hangar"
 	icon_base = "hangar"
 	free_resources = list(/obj/item/material_piece/steel = 2,
 		/obj/item/material_piece/copper = 2,
 		/obj/item/material_piece/glass = 2)
 
+	get_forensic_prefix()
+		return "REV-"
+
 /obj/machinery/manufacturer/personnel
 	name = "personnel equipment manufacturer"
 	supplemental_desc = "This one can produce blank ID cards and access implants."
-	forensic_lead = new(id_prefix = "PERS-")
 	icon_state = "fab-access"
 	icon_base = "access"
 	free_resources = list(/obj/item/material_piece/steel = 2,
@@ -515,12 +534,14 @@
 	available = list(/datum/manufacture/id_card, /datum/manufacture/implant_access,	/datum/manufacture/implanter)
 	hidden = list(/datum/manufacture/id_card_gold, /datum/manufacture/implant_access_infinite)
 
+	get_forensic_prefix()
+		return "PERS-"
+
 //combine personnel + uniform manufactuer here. this is 'cause destiny doesn't have enough room! arrg!
 //and i hate this, i do, but you're gonna have to update this list whenever you update /personnel or /uniform
 /obj/machinery/manufacturer/hop_and_uniform
 	name = "personnel manufacturer"
 	supplemental_desc = "This one is an multi-purpose model, and is able to produce uniforms, headsets, and identification equipment."
-	forensic_lead = new(id_prefix = "PERS-")
 	icon_state = "fab-access"
 	icon_base = "access"
 	free_resources = list(/obj/item/material_piece/steel = 5,
@@ -578,10 +599,12 @@
 		/datum/manufacture/tricolor,
 		/datum/manufacture/hat_ltophat)
 
+	get_forensic_prefix()
+		return "PERS-"
+
 /obj/machinery/manufacturer/qm // This manufacturer just creates different crated and boxes for the QM. Lets give their boring lives at least something more interesting.
 	name = "crate manufacturer"
 	supplemental_desc = "This one produces crates, carts, that sort of thing. Y'know, box stuff."
-	forensic_lead = new(id_prefix = "CRATE-")
 	icon_state = "fab-crates"
 	icon_base = "crates"
 	free_resources = list(/obj/item/material_piece/steel = 1,
@@ -596,10 +619,12 @@
 
 	hidden = list(/datum/manufacture/classcrate)
 
+	get_forensic_prefix()
+		return "CRATE-"
+
 /obj/machinery/manufacturer/zombie_survival
 	name = "\improper Uber-Extreme Survival Manufacturer"
 	desc = "This manufacturing unit seems to have been loaded with a bunch of nonstandard blueprints, apparently to be useful in surviving \"extreme scenarios\"."
-	forensic_lead = new(id_prefix = "ZOMB-")
 	icon_state = "fab-crates"
 	icon_base = "crates"
 	free_resources = list(/obj/item/material_piece/steel = 50,
@@ -642,10 +667,12 @@
 		/datum/manufacture/fireaxe,
 		/datum/manufacture/shovel)
 
+	get_forensic_prefix()
+		return "ZOMB-"
+
 /obj/machinery/manufacturer/engineering
 	name = "Engineering Specialist Manufacturer"
 	desc = "This one produces specialist engineering devices."
-	forensic_lead = new(id_prefix = "ENGI-")
 	icon_state = "fab-engineering"
 	icon_base = "engineering"
 	free_resources = list(/obj/item/material_piece/steel = 2,
@@ -702,3 +729,6 @@
 		. = ..()
 		if (isturf(src.loc)) //not inside a frame or something
 			new /obj/item/paper/book/from_file/interdictor_guide(src.loc)
+
+	get_forensic_prefix()
+		return "ENGI-"

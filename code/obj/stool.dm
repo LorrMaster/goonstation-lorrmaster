@@ -41,8 +41,7 @@
 		START_TRACKING
 		if (!src.anchored && src.securable) // we're able to toggle between being secured to the floor or not, and we started unsecured
 			src.p_class = 2 // so make us easy to move
-		src.chairprint = new()
-		src.chairprint.build_id_footprint(get_chairprint_pattern())
+		src.chairprint = register_id(build_id_pattern(get_chairprint_pattern()))
 		..()
 
 	ex_act(severity)

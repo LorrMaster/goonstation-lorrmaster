@@ -215,6 +215,7 @@
 					G["pronouns"] = "Unknown"
 					G["age"] = "Unknown"
 					G["fingerprint"] = "Unknown"
+					G["fingerprint_L"] = "Unknown"
 					G["p_stat"] = "Active"
 					G["m_stat"] = "Stable"
 					data_core.general.add_record(G)
@@ -741,7 +742,8 @@
 			<br>\[04]<b>Pronouns:</b> [src.active_general["pronouns"]]
 			<br>\[05]<b>Age:</b> [src.active_general["age"]]
 			<br>\[06]<b>Rank:</b> [src.active_general["rank"]]
-			<br>\[07]<b>Fingerprint:</b> [src.active_general["fingerprint"]]
+			<br>\[07]<b>Fingerprint (Right):</b> [src.active_general["fingerprint"]]
+			<br>\[07]<b>Fingerprint (Left):</b> [src.active_general["fingerprint_L"]]
 			<br>\[__]<b>DNA:</b> [src.active_general["dna"]]
 			<br>\[08]Photo: [istype(src.active_general["file_photo"], /datum/computer/file/image) ? "On File" : "None"]
 			<br>\[__]Physical Status: [src.active_general["p_stat"]]
@@ -852,7 +854,8 @@
 				<br><br>Pronouns: [src.active_general["pronouns"]]
 				<br><br>Age: [src.active_general["age"]]
 				<br><br>Rank: [src.active_general["rank"]]
-				<br><br>Fingerprint: [src.active_general["fingerprint"]]
+				<br><br>Fingerprint (Right): [src.active_general["fingerprint"]]
+				<br><br>Fingerprint (Left): [src.active_general["fingerprint_L"]]
 				<br><br>DNA: [src.active_general["dna"]]
 				<br><br>Photo: [istype(src.active_general["file_photo"], /datum/computer/file/image) ? "On File" : "None"]
 				<br><br>Physical Status: [src.active_general["p_stat"]]
@@ -902,7 +905,8 @@
 					printRecord.fields += "Pronouns: [src.active_general["pronouns"]]"
 					printRecord.fields += "Age: [src.active_general["age"]]"
 					printRecord.fields += "Rank: [src.active_general["rank"]]"
-					printRecord.fields += "Fingerprint: [src.active_general["fingerprint"]]"
+					printRecord.fields += "Fingerprint (Right): [src.active_general["fingerprint"]]"
+					printRecord.fields += "Fingerprint (Left): [src.active_general["fingerprint"]]"
 					printRecord.fields += "DNA: [src.active_general["dna"]]"
 					printRecord.fields += "Photo: [istype(src.active_general["file_photo"], /datum/computer/file/image) ? "On File" : "None"]"
 					printRecord.fields += "Physical Status: [src.active_general["p_stat"]]"

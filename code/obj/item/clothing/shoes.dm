@@ -22,15 +22,14 @@
 	var/step_sound = "step_default"
 	var/step_priority = STEP_PRIORITY_NONE
 	var/step_lots = 0 //classic steps (used for clown shoos)
-	var/datum/forensic_id/shoe_print_r
-	var/datum/forensic_id/shoe_print_l
+	var/datum/forensic_id/shoe_print_r = null
+	var/datum/forensic_id/shoe_print_l = null
 
 	var/magnetic = 0    //for magboots, to avoid type checks on shoe
 
 	New()
 		..()
-		src.shoe_print_r = new()
-		src.shoe_print_r.build_id_footprint(get_shoe_pattern())
+		src.shoe_print_r = register_id(build_id_pattern(get_shoe_pattern()))
 		src.shoe_print_l = src.shoe_print_r
 
 	setupProperties()

@@ -368,27 +368,21 @@ var/list/datum/bioEffect/mutini_effects = list()
 
 	var/datum/appearanceHolder/mobAppearance = null
 
-
 	var/Uid = "not initialized" //Unique id for the mob. Used for fingerprints and whatnot.
 	var/uid_hash
-	var/fingerprints
 
 	// Default ids to be used by limbs & organs
-	var/datum/forensic_id/fingerprint_default = new()
-	var/datum/forensic_id/footprint_default = new()
-	var/datum/forensic_id/retina_default = new()
-	var/datum/forensic_id/dna_signature = new()
+	var/datum/forensic_id/fingerprint_default = null
+	var/datum/forensic_id/footprint_default = null
+	var/datum/forensic_id/retina_default = null
+	var/datum/forensic_id/dna_signature = null
 
 	New(var/mob/owneri)
 		owner = owneri
 		Uid = CreateUid()
 		bioUids[Uid] = null
-		fingerprint_default.build_id_fingerprint()
-		footprint_default.build_id_footprint("sllll")
-		dna_signature.build_id_dna()
-		build_fingerprints()
+		randomize_dna()
 		mobAppearance = new/datum/appearanceHolder()
-
 		mobAppearance.owner = owner
 		mobAppearance.parentHolder = src
 
@@ -401,14 +395,13 @@ var/list/datum/bioEffect/mutini_effects = list()
 		BuildEffectPool()
 		return ..()
 
-	proc/build_fingerprints()
-		uid_hash = md5(Uid)
-		var/fprint_base = uppertext(md5_to_more_pronouncable(uid_hash))
-		var/list/fprint_parts = list()
-		for(var/i in 1 to length(fprint_base) step 6)
-			if(i + 6 <= length(fprint_base) + 1)
-				fprint_parts += copytext(fprint_base, i, i + 6)
-		fingerprints = jointext(fprint_parts, "-")
+	proc/randomize_dna()
+		var/id_dna = build_id_pattern("Lllnn-Lllnn-Lllnn-Lllnn")
+		var/id_fingerprint = build_id_separated(build_id_norepeat(16, CHAR_LIST_FINGERPRINT), 4)
+		var/id_footprint = build_id_pattern("sllll") // Note: need to consider cow limbs, etc - LorrMaster
+		dna_signature = register_id(id_dna)
+		fingerprint_default = register_id(id_fingerprint)
+		footprint_default = register_id(id_footprint)
 
 	disposing()
 		for(var/D in effects)
@@ -699,9 +692,10 @@ var/list/datum/bioEffect/mutini_effects = list()
 			ownerName = toCopy.ownerName
 			Uid = toCopy.Uid
 			uid_hash = md5(Uid)
-			build_fingerprints()
-			src.fingerprint_default = toCopy.fingerprint_default
 			src.dna_signature = toCopy.dna_signature
+			src.fingerprint_default = toCopy.fingerprint_default
+			src.footprint_default = toCopy.footprint_default
+			src.retina_default = toCopy.retina_default
 
 		if (copyPool)
 			src.RemoveAllPoolEffects()

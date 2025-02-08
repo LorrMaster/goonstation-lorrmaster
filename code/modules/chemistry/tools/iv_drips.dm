@@ -187,6 +187,8 @@
 			SPAN_NOTICE("[H == user ? "You insert" : "<b>[user]</b> inserts"] [src]'s needle into your arm."),\
 			SPAN_NOTICE("You insert [src]'s needle into [H == user ? "your" : "[H]'s"] arm."))
 		logTheThing(LOG_COMBAT, user, "connects an IV drip [log_reagents(src)] to [constructTarget(H,"combat")] at [log_loc(user)].")
+		var/datum/forensic_data/dna/dna_data = new(H.bioHolder?.dna_signature, DNA_FORM_BLOOD)
+		src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 		src.start_transfusion()
 
 	proc/start_transfusion()

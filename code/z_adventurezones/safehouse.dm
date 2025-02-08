@@ -106,8 +106,6 @@
 		bioHolder.mobAppearance.gender = "male"
 		bioHolder.mobAppearance.underwear = "none"
 		bioHolder.mobAppearance.u_color = "#FFFFFF"
-		bioHolder.Uid = bioHolder.CreateUid()
-		bioHolder.build_fingerprints()
 		. = ..()
 
 obj/item/reagent_containers/iv_drip/dead_exec

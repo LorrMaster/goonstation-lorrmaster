@@ -104,7 +104,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 
 /datum/forensic_group/basic_list/bite
 	category = FORENSIC_GROUP_BITE
-	group_flags = REMOVABLE_REPAIR
+	group_flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE
 	group_accuracy = 0.9
 
 	get_header()
@@ -319,7 +319,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 				return TRUE
 		return FALSE
 
-/datum/forensic_group/adminprint
+/datum/forensic_group/adminprint // Remove?
 	category = FORENSIC_GROUP_ADMINPRINT
 	var/list/datum/forensic_data/adminprint/aprint_list = list()
 	var/datum/forensic_data/adminprint/last_print = null

@@ -78,6 +78,9 @@
 		boutput(M, SPAN_ALERT("This human is completely void of blood... Wow!"))
 		return 0
 
+	if(HH.organHolder?.head)
+		var/datum/forensic_data/f_data = new(M.organHolder.head.bite_mark)
+		HH.organHolder.head.add_evidence(f_data, FORENSIC_GROUP_BITE)
 	if (isdead(HH))
 		if (prob(20))
 			boutput(M, SPAN_ALERT("The blood of the dead provides little sustenance..."))

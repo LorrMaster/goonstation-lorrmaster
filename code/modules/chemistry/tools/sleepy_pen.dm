@@ -38,6 +38,8 @@
 
 			boutput(user, SPAN_ALERT("You stab [target] with the pen."))
 			logTheThing(LOG_COMBAT, user, "stabs [constructTarget(target,"combat")] with the sleepy pen [log_reagents(src)] at [log_loc(user)].")
+			var/datum/forensic_data/dna/dna_data = new(target.bioHolder?.dna_signature, DNA_FORM_TISSUE)
+			src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 			src.reagents.trans_to(target, 50)
 
 		else

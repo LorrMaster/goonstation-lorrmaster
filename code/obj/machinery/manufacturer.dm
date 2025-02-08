@@ -124,7 +124,7 @@ TYPEINFO(/obj/machinery/manufacturer)
 	var/datum/action/action_bar = null
 
 	var/static/datum/forensic_display/lead_display = new("Recently fabricated (Pattern ID: @F)")
-	var/datum/forensic_id/forensic_lead = new("FAB-")
+	var/datum/forensic_id/forensic_lead = null
 
 	New()
 		START_TRACKING
@@ -144,8 +144,7 @@ TYPEINFO(/obj/machinery/manufacturer)
 		if (istype(manuf_controls,/datum/manufacturing_controller))
 			src.set_up_schematics()
 			manuf_controls.manufacturing_units += src
-		if(src.forensic_lead != null)
-			src.forensic_lead.id += forensic_lead.build_id(1, CHAR_LIST_UPPER_LIMIT) + forensic_lead.build_id(3, CHAR_LIST_NUM)
+		src.forensic_lead = register_id(build_id_pattern("Lnnn", get_forensic_prefix()))
 
 		for (var/turf/T in view(5,src))
 			nearby_turfs += T
@@ -239,6 +238,9 @@ TYPEINFO(/obj/machinery/manufacturer)
 			src.visible_message(SPAN_NOTICE("[src] finishes its production queue."))
 			src.mode = MODE_READY
 			src.build_icon()
+
+	proc/get_forensic_prefix()
+		return "FAB-"
 
 	ex_act(severity)
 		switch(severity)

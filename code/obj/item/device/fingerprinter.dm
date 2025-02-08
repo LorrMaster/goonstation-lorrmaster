@@ -14,6 +14,7 @@
 	HELP_MESSAGE_OVERRIDE({"Toggle modes by using the fingerprinter in hand.
 							While on <b>"Read"</b> mode, use the tool on someone or something that has prints on it to add all the prints to the tool's print database.
 							While on <b>"Plant"</b> mode, use the tool on anything to add any prints from the database on it."})
+	var/datum/forensic_holder/stored_leads = new() //
 
 	New()
 		. = ..()
@@ -32,6 +33,9 @@
 			src.inventory_counter.update_text("<span style='color:#00ff00;font-size:0.7em;-dm-text-outline: 1px #000000'>READ</span>")
 		else
 			src.inventory_counter.update_text("<span stywle='color:#ff0000;font-size:0.7em;-dm-text-outline: 1px #000000'>PLANT</span>")
+	proc/read_atom()
+		//
+		return
 
 // TODO make this cost 2 TC
 /obj/item/device/fingerprinter
@@ -125,6 +129,9 @@
 			boutput(user, SPAN_ALERT("There's no fingerprints to read off of that."))
 			return
 
+		// Look at all the fingerprints
+		// Get the name somehow?
+
 		// This is gross and theoretically slow but we index full-prints by time, and the fingerprints list will only have 6 entries at max so
 		// the time complexity doesn't really matter.
 		var/found_new_print = FALSE
@@ -147,9 +154,9 @@
 		if (ishuman(target))
 			var/mob/living/carbon/human/H = target
 			if (H.gloves)
-				src.current_prints[H.gloves.distort_prints(H.bioHolder.fingerprints, TRUE)] = H.real_name // yes this sees through disguises. traitor item!!!! i wring my hands self-absolvingly
+				src.current_prints[H.bioHolder.fingerprint_default.id] = H.real_name // yes this sees through disguises. traitor item!!!! i wring my hands self-absolvingly
 			else
-				src.current_prints[H.bioHolder.fingerprints] = H.real_name
+				src.current_prints[H.bioHolder.fingerprint_default.id] = H.real_name
 			boutput(user, SPAN_SUCCESS("You read [H.gloves ? "the prints of [H]'s gloves" : "[H]'s prints"] into [src]."))
 
 #undef FINGERPRINT_PLANT

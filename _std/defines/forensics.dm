@@ -14,8 +14,6 @@ TODO:
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction
- - Forensics does not carry over to implanted bullets
- - Blood tracks leave behind the wearer's DNA even if they were not bleeding (fixed?)
 
 Lower Priority
  - DNA scramblers change DNA and fingerprints of regrown limbs, but not the current ones
@@ -45,6 +43,21 @@ Lower Priority
 // Reveal the order of two characters (1/2) ==> normal gloves
 // Reveal the order of three characters (1/8) ==> latex gloves
 // Reveal which bunch a char is in (1/4) ==>
+
+// Notes for various stuff in the detective office?
+// Detective hat: ""
+// Deerstalker hat: "Jeremy Brett wore it better."
+// VR goggles: ""
+// Detective Shoes: ""
+// Detective coat: ""
+// Winter coat: ""
+// Detective's headset: ""
+// 0.38 ammo: ""
+// Revolver: ""
+// Luminol grenades: ""
+// Ceiling fan: ""
+// Detective Computer: ""
+// Alcohol 1: ""
 
 #define FORENSIC_GROUP_NONE 0
 #define FORENSIC_GROUP_ADMINPRINT 1
@@ -91,10 +104,13 @@ Lower Priority
 #define IS_HIDDEN (1 << 1) // Only admins can see this evidence
 #define IS_JUNK (1 << 2) // This evidence is fake / planted (and should be ignored by admins)
 #define IS_TRACE (1 << 3) // Forensics scanners cannot detect this evidence by default
-#define REMOVABLE_CLEANING (1 << 4) // Can this evidence be washed away?
-#define REMOVABLE_DATA (1 << 5) // Can this evidence be deleted from a computer?
-#define REMOVABLE_REPAIR (1 << 6) // Can this evidence be removed by healing / repairing the object?
-#define REMOVABLE_ALL REMOVABLE_CLEANING | REMOVABLE_DATA | REMOVABLE_REPAIR
+#define CANNOT_PLANT (1 << 4) // Fingerprinter cannot read this
+#define REMOVABLE_CLEANING (1 << 5) // Can this evidence be washed away?
+#define REMOVABLE_DATA (1 << 6) // Can this evidence be deleted from a computer?
+#define REMOVABLE_REPAIR (1 << 7)
+#define REMOVABLE_HEAL_BRUTE (1 << 8)
+#define REMOVABLE_HEAL_BURN (1 << 9)
+#define REMOVABLE_ALL REMOVABLE_CLEANING | REMOVABLE_DATA | REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_BURN
 
 #define FORENSIC_BASE_ACCURACY 0.35 // Base modifier for how accurate timestamp estimates are
 

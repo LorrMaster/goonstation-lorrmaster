@@ -1337,7 +1337,7 @@ TYPEINFO(/obj/item/clothing/gloves/ring/gold)
 	default_material = "gold"
 
 	build_fiber_mask()
-		build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
+		// build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
 		return
 
 /obj/item/clothing/gloves/ring/titanium // fancy loot crate ring that gives you hulk, basically. real overpowered?  :T
@@ -1361,7 +1361,7 @@ TYPEINFO(/obj/item/clothing/gloves/ring/gold)
 		return ..()
 
 	build_fiber_mask()
-		build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
+		// build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
 		return
 
 /obj/item/clothing/head/veil

@@ -9,8 +9,12 @@
 // Can also use to get the datum from the ID text
 var/global/list/datum/forensic_id/registered_id_list = new()
 
-// lead_text = build_id(---)
-// lead = register_id(lead_text)
+/proc/register_id(var/id_text, var/list/reg_list = registered_id_list)
+	if(reg_list[id_text])
+		return reg_list[id_text]
+	var/datum/forensic_id/new_id = new(id_text)
+	reg_list[id_text] = new_id
+	return new_id
 
 // -----| Forensic ID |-----
 /datum/forensic_id // A piece of forensic evidence to be passed around and referenced
@@ -19,27 +23,26 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 	// Unless if you are doing time travel, in which case you can do as you please.
 	var/id = null
 
-	New(var/id_prefix = "", var/id_suffix = "", var/length = 0, var/list/char_list = null)
+	New(var/id_text = "")
 		..()
-		if(length == 0 || !char_list)
-			src.id = id_prefix + id_suffix
-		else
-			src.id = id_prefix + build_id(length, char_list) + id_suffix
+		if(id_text)
+			src.id = id_text
+			if(registered_id_list[id_text])
+				boutput(world, "Error: Duplicate forensic_id created ([id_text])")
+				return
+			registered_id_list[id_text] = src
 
-	proc/register_id(var/list/reg_list)
-		if(reg_list[src.id])
-			return reg_list[src.id]
-		reg_list[src.id] = src
-		return src
 
-/datum/forensic_id/proc/build_id(var/id_length, var/list/char_list = CHAR_LIST_NUM)
+// -----------------------------------------
+
+/proc/build_id(var/length, var/list/char_list = CHAR_LIST_NUM, var/prefix = "", var/suffix = "")
 	// Take a list of characters and build a random id with them
 	var/list/new_id_list = new()
-	for(var/i=1, i<= id_length, i++)
+	for(var/i=1, i<= length, i++)
 		new_id_list += pick(char_list)
-	return list2text(new_id_list)
+	return prefix + list2text(new_id_list) + suffix
 
-/datum/forensic_id/proc/build_id_norepeat(var/id_length, var/list/char_list = CHAR_LIST_NUM)
+/proc/build_id_norepeat(var/id_length, var/list/char_list = CHAR_LIST_NUM)
 	// Take a list of characters and build a random id with them without using repitition
 	if(id_length > char_list.len)
 		id_length = char_list.len
@@ -52,76 +55,41 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 		current_len--
 	return list2text(new_id_list)
 
-/datum/forensic_id/proc/build_id_fingerprint(var/list/char_list = CHAR_LIST_FINGERPRINT)
-	if(char_list.len < FINGERPRINT_LENGTH)
-		boutput(world, "Error: Not enough characters for fingerprint")
-		return null
-	var/base_fp = build_id_norepeat(16, char_list)
-	var/b_size = FINGERPRINT_BUNCH_SIZE
-	var/final_fp = copytext(base_fp, 1, b_size + 1)
-	for(var/i=1; i< FINGERPRINT_BUNCH_COUNT; i++)
-		final_fp += "-[copytext(base_fp, (b_size*i)+1, (b_size*(i+1))+1)]"
-	// boutput(world, "-[final_fp]-")
-	src.id = final_fp
-
-/datum/forensic_id/proc/build_id_fingerprint_old(var/list/char_list = CHAR_LIST_FINGERPRINT, var/has_adermatoglyphia = FALSE)
-	var/fp = ""
-	if(!has_adermatoglyphia)
-		fp += build_id(FINGERPRINT_BUNCH_SIZE, char_list)
-		for(var/i=1, i<= FINGERPRINT_BUNCH_COUNT - 1, i++)
-			fp += "-" + build_id(FINGERPRINT_BUNCH_SIZE, char_list)
-	else
-		// has_adermatoglyphia ==> condition where you do not have fingerprints
-		var/no_fp_bunch = ""
-		for(var/i=1, i<= FINGERPRINT_BUNCH_SIZE, i++)
-			no_fp_bunch += "O"
-		fp += no_fp_bunch
-		for(var/i=1, i<= FINGERPRINT_BUNCH_COUNT - 1, i++)
-			fp += "-" + no_fp_bunch
-	src.id = fp
-
-/datum/forensic_id/proc/build_id_dna()
-	// Gad53-Jda09-Haw23-Tas29
-	var/dna_id = ""
-	for(var/i=1, i<= DNA_BUNCH_COUNT, i++)
-		if(i != 1)
-			dna_id += "-"
-		dna_id += build_id(1, CHAR_LIST_UPPER_LIMIT) + build_id(2, CHAR_LIST_LOWER_LIMIT) + build_id(DNA_BUNCH_SIZE - 3, CHAR_LIST_NUM)
-	src.id = dna_id
-
-/datum/forensic_id/proc/build_id_footprint(var/pattern)
-	// The footprint pattern determines which symbols are swapped with what
-	// l = letter, s = symbol, h = high heels, other = no change
+/proc/build_id_pattern(var/pattern, var/prefix = "", var/suffix = "")
+	// L = uppercase letter, l = lowercase letter, s = symbol, n = number, other = no change
 	var/list/id_list = new()
 	for(var/i=1, i<= length(pattern), i++)
 		var/char = copytext(pattern, i, i+1)
 		switch(char)
+			if("L")
+				id_list += pick(CHAR_LIST_UPPER_LIMIT)
 			if("l")
-				id_list += pick(CHAR_LIST_LOWER)
+				id_list += pick(CHAR_LIST_LOWER_LIMIT)
 			if("s")
 				id_list += pick(CHAR_LIST_SYMBOLS)
 			if("n")
 				id_list += pick(CHAR_LIST_NUM)
-			if("h") // high heels
-				id_list += pick("o","+","#","a","c","n","u","=","v","x","z","e")
 			else
 				id_list += char
-	src.id = list2text(id_list)
+	return prefix + list2text(id_list) + suffix
 
-/datum/forensic_id/proc/build_id_bite()
-	// OUCH! It bit me!
-	var/final_id = build_id(4, CHAR_LIST_BITE)
+/proc/build_id_mirrored(var/length, var/char_list, var/asym_count = 0)
+	var/final_id = build_id(4, char_list)
 	final_id += reverse_text(final_id)
-	var/asym_rand = rand()
-	if(asym_rand >= 0.4)
+	for(var/i=0; i< asym_count; i++)
 		var/rand_index = rand(1,length(final_id))
-		final_id = splicetext(final_id, rand_index, rand_index+1, pick(CHAR_LIST_BITE))
-	if(asym_rand >= 0.8)
-		var/rand_index = rand(1,length(final_id))
-		final_id = splicetext(final_id, rand_index, rand_index+1, pick(CHAR_LIST_BITE))
-	src.id = final_id
+		final_id = splicetext(final_id, rand_index, rand_index+1, pick(char_list))
+	return final_id
 
-/datum/forensic_id/proc/build_id_retina(var/list/outer_L, var/list/outer_R, var/list/center_list, var/outer_count = 2)
+/proc/build_id_separated(var/text, var/bunch_size, var/separation_text = "-")
+	var/final_text = copytext(text, 1, bunch_size + 1)
+	var/bunch_count = floor(length(text) / bunch_size)
+	for(var/i=1; i<= bunch_count - 1; i++)
+		var/pos = (i * bunch_size) + 1
+		final_text += separation_text + copytext(text, pos, pos + bunch_size)
+	return final_text
+
+/proc/build_id_retina(var/list/outer_L, var/list/outer_R, var/list/center_list, var/outer_count = 2)
 	// ([O>] [<O])
 	var/retina = ""
 	for(var/i=1, i<= outer_count, i++)
@@ -131,11 +99,11 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 	for(var/i=1, i<= outer_count, i++)
 		var/out_char = rand(1, outer_R.len)
 		retina += outer_R[out_char]
-	src.id = retina
-/datum/forensic_id/proc/get_retina_mirror()
+	return retina
+
+/proc/get_retina_mirror(var/retina)
 	// Returns a mirrored version of the text. Ex: |[o}) --> ({o]|
 	// Used for retina symmetry
-	var/retina = src.id
 	if(!retina)
 		return ""
 	var/mirror = ""
@@ -164,15 +132,6 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 				char = @"/"
 		mirror += char
 	return mirror
-
-/datum/forensic_id/proc/build_id_serial_number(var/length, var/list/char_list = CHAR_LIST_HEX)
-	var/serial_number = ""
-	length = ceil(length / 4)
-	serial_number += build_id(4, char_list)
-	for(var/i=1, i<= length - 1, i++)
-		serial_number += "-" + build_id(4, char_list)
-	src.id = serial_number
-
 
 // -----| Forensic Display |-----
 

@@ -275,18 +275,22 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		if (BOUNDS_DIST(A, user) > 0 || istype(A, /obj/ability_button)) // Scanning for fingerprints over the camera network is fun, but doesn't really make sense (Convair880).
 			return
 
-		playsound(src.loc , 'sound/machines/found.ogg', 20, 0)
+		playsound(src.loc , 'sound/machines/found.ogg', 30, 0, pitch = 1.5)
 		var/visible = TRUE
-		if((ishuman(A) || ismonkey(A)) && user != A)
-			// Humans need to stand still for a scan
-			visible = FALSE
-			user.visible_message(SPAN_ALERT("<b>[user]</b> is attempting a forensics scan on [A]..."))
-			for(var/i=0; i<6; i++)
-				animate_scanning(A, "#c6df56", time = 5)
-				sleep(0.5 SECONDS)
-				if (BOUNDS_DIST(A, user) > 0)
-					user.visible_message(SPAN_ALERT("Scan of [A] failed."))
-					return
+		if(ishuman(A) && user != A)
+			var/mob/living/carbon/human/H = A
+			if(isalive(H))
+				// Humans need to stand still for a scan
+				visible = FALSE
+				user.visible_message(SPAN_ALERT("<b>[user]</b> is attempting a forensics scan on [A]..."))
+				for(var/i=0; i<6; i++)
+					animate_scanning(A, "#c6df56", time = 5)
+					sleep(0.5 SECONDS)
+					if (BOUNDS_DIST(A, user) > 0)
+						user.visible_message(SPAN_ALERT("Scan of [A] failed."))
+						playsound(src.loc , 'sound/machines/buzz-sigh.ogg', 10, 0, pitch = 1.5)
+						return
+				playsound(src.loc , 'sound/machines/ping.ogg', 10, 0, pitch = 1.5)
 
 		user.visible_message("<b>[user]</b> has scanned [A].")
 		if (scans == null)
@@ -377,12 +381,13 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 	var/organ_scan = 0
 	var/image/scanner_status
 	hide_attack = ATTACK_PARTIALLY_HIDDEN
-	var/datum/forensic_id/forensic_lead = new("HLTH-", "", 5, CHAR_LIST_NUM)
+	var/datum/forensic_id/forensic_lead = null
 
 	New()
 		..()
 		scanner_status = image('icons/obj/items/device.dmi', icon_state = "health_over-basic")
 		AddOverlays(scanner_status, "status")
+		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "HLTH-"))
 
 	attack_self(mob/user as mob)
 		if (!src.reagent_upgrade && !src.organ_upgrade)
@@ -551,7 +556,11 @@ TYPEINFO(/obj/item/device/reagentscanner)
 	var/scan_results = null
 	hide_attack = ATTACK_PARTIALLY_HIDDEN
 	tooltip_flags = REBUILD_DIST
-	var/datum/forensic_id/forensic_lead = new("REGNT-", "", 5, CHAR_LIST_NUM)
+	var/datum/forensic_id/forensic_lead = null
+
+	New()
+		..()
+		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "REGNT-"))
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		return
@@ -624,7 +633,11 @@ TYPEINFO(/obj/item/device/analyzer/atmospheric)
 	var/hudarrow_color = "#0df0f0"
 	///We keep track of the airgroup so we can acquire a new breach after the old one is patched, even if the user is standing on space at the time
 	var/datum/air_group/tracking_airgroup = null
-	var/datum/forensic_id/forensic_lead = new("ATMOS-", "", 5, CHAR_LIST_NUM)
+	var/datum/forensic_id/forensic_lead = null
+
+	New()
+		..()
+		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "ATMOS-"))
 
 	// Distance upgrade action code
 	pixelaction(atom/target, params, mob/user, reach)
@@ -855,6 +868,13 @@ TYPEINFO(/obj/item/device/prisoner_scanner)
 		if (sechud_flag != initial(src.sechud_flag))
 			. += "<br>Active SecHUD Flag: [SPAN_NOTICE("[src.sechud_flag]")]"
 
+	proc/get_fingerprint_L(mob/living/carbon/human/target)
+		// istype(H.r_hand, /obj/item/magtractor)
+		if(target.limbs.r_arm)
+			if(!isitemlimb(target.limbs.r_arm))
+				return target.limbs.r_arm.limb_print.id
+		return ""
+
 	attack(mob/living/carbon/human/target, mob/user, def_zone, is_special = FALSE, params = null)
 		if (!istype(target))
 			boutput(user, SPAN_ALERT("The device displays an error about an \"incompatible target\"."))
@@ -879,7 +899,16 @@ TYPEINFO(/obj/item/device/prisoner_scanner)
 				R["pronouns"] = target.get_pronouns().name
 				R["age"] = target.bioHolder.age
 				if (!target.gloves)
-					R["fingerprint"] = target.bioHolder.fingerprints
+					var/fp_r = ""
+					var/fp_l = ""
+					if(target.limbs.r_arm)
+						if(!isitemlimb(target.limbs.r_arm))
+							fp_r = target.limbs.r_arm.limb_print.id
+					if(target.limbs.l_arm)
+						if(!isitemlimb(target.limbs.l_arm))
+							fp_l = target.limbs.l_arm.limb_print.id
+					R["fingerprint"] = fp_r
+					R["fingerprint_L"] = fp_l
 				R["p_stat"] = "Active"
 				R["m_stat"] = "Stable"
 				src.active1 = R
@@ -897,8 +926,18 @@ TYPEINFO(/obj/item/device/prisoner_scanner)
 			/////Fingerprint record update
 			if (target.gloves)
 				src.active1["fingerprint"] = "Unknown"
+				src.active1["fingerprint_L"] = "Unknown"
 			else
-				src.active1["fingerprint"] = target.bioHolder.fingerprints
+				var/fp_r = ""
+				var/fp_l = ""
+				if(target.limbs.r_arm)
+					if(!isitemlimb(target.limbs.r_arm))
+						fp_r = target.limbs.r_arm.limb_print.id
+				if(target.limbs.l_arm)
+					if(!isitemlimb(target.limbs.l_arm))
+						fp_l = target.limbs.l_arm.limb_print.id
+				src.active1["fingerprint"] = fp_r
+				src.active1["fingerprint_L"] = fp_l
 			src.active1["p_stat"] = "Active"
 			src.active1["m_stat"] = "Stable"
 			data_core.general.add_record(src.active1)
@@ -1140,7 +1179,11 @@ TYPEINFO(/obj/item/device/appraisal)
 	m_amt = 150
 	icon_state = "CargoA"
 	item_state = "electronic"
-	var/datum/forensic_id/forensic_lead = new("APRSE-", "", 5, CHAR_LIST_NUM)
+	var/datum/forensic_id/forensic_lead = null
+
+	New()
+		..()
+		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "APRSE-"))
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		return

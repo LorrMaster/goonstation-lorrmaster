@@ -59,7 +59,6 @@
 	var/list/pending_crates = list()
 
 	// var/datum/forensic_display/import_lead_display = new("Imported from @F.")
-	var/datum/forensic_id/unknown_import_lead = new("Off-station import.")
 
 	New()
 		..()
@@ -699,10 +698,11 @@
 			return
 
 		shipped_thing.set_loc(spawnpoint)
-		var/datum/forensic_data/basic/import_data = new(src.unknown_import_lead)
+		var/datum/forensic_id/import_id = register_id("Off-station import.")
+		var/datum/forensic_data/basic/import_data = new(import_id)
 		shipped_thing.add_evidence(import_data)
 		for(var/atom/A in shipped_thing.contents)
-			import_data = new(src.unknown_import_lead)
+			import_data = new(import_id)
 			A.add_evidence(import_data)
 
 		var/datum/signal/pdaSignal = get_free_signal()

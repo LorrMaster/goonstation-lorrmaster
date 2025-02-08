@@ -22,10 +22,8 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	var/hide_prints = 1 // Seems more efficient to do this with one global proc and a couple of vars (Convair880).
 	var/scramble_prints = 0
 	var/material_prints = null
-	var/no_prints = FALSE // Specifically used so worn gloves cannot be scanned unless removed first
 
 	var/can_be_charged = 0 // Currently, there are provisions for icon state "yellow" only. You have to update this file and mob_procs.dm if you're wanna use other glove sprites (Convair880).
-	var/glove_ID = null
 
 	var/crit_override = 0 //overrides user's stamina crit chance, unless the user has some special limb attached
 	var/bonus_crit_chance = 0 //bonus stamina crit chance; used additively in melee_attack_procs if crit_override is 0, otherwise replaces existing crit chance
@@ -54,12 +52,9 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		..() // your parents miss you
 		flags |= HAS_EQUIP_CLICK
 		if(src.material_prints)
-			src.fiber_id = new/datum/forensic_id("[capitalize(src.material_prints)]: ", "", 7, CHAR_LIST_FIBERS)
-			build_fiber_mask()
-		SPAWN(2 SECONDS)
-			src.glove_ID = src.CreateID()
-			if (glove_IDs) // fix for Cannot execute null.Add(), maybe??
-				glove_IDs.Add(src.glove_ID)
+			var/fiber_text = build_id(7, CHAR_LIST_FIBERS, "[capitalize(src.material_prints)]: ")
+			src.fiber_id = register_id(fiber_text)
+			// build_fiber_mask()
 
 	examine()
 		. = ..()
@@ -155,30 +150,6 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 
 		..()
 
-	proc/distort_prints(var/prints as text, var/get_glove_ID = 1) // Ditto (Convair880).
-
-		var/data = null
-
-		if (!src.hide_prints)
-			data += prints
-
-		else
-
-			if (src.scramble_prints)
-				data += corruptText(prints, 20)
-
-			else // Seems a bit redundant to return both (Convair880).
-
-				if (src.material_prints)
-					data += src.material_prints
-				else
-					data += "unknown fiber material"
-
-		if (get_glove_ID)
-			data += " (Glove ID: [src.glove_ID])" // Space is required for formatting (Convair880).
-
-		return data
-
 	proc/special_attack(var/mob/target, var/mob/living/user)
 		boutput(user, "Your gloves do nothing special")
 		return
@@ -218,38 +189,11 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		var/id_note = "[fiber_id.id]"
 		scan_builder.add_scan_text(id_note)
 
-	proc/build_glove_mask(var/peek_range = 0, var/peek_count = 0)
+	proc/build_glove_mask()
 		// 000?? ?xx?? ??000 00000 00000 ==> "...?? ?xx?? ??..."
 		// peek_range: number of values & question marks
 		// peek_count: number of values to reveal
-		if(peek_range == 0 || peek_count == 0)
-			src.fiber_mask = null
-		else if(peek_count >= FINGERPRINT_LENGTH)
-			src.fiber_mask = /datum/forensic_data/fingerprint::empty_mask
-		else if(peek_count > peek_range)
-			peek_count = peek_range
-
-		var/mask = ""
-		var/hide_count = FINGERPRINT_LENGTH - peek_range
-		var/peek_start = rand(0, hide_count) + 1
-		for(var/i=1, i< peek_start, i++)
-			mask += "0"
-		for(var/i=peek_start, i< peek_range + peek_start, i++)
-			mask += "?"
-		if(peek_count == 1)
-			var/index = rand(1,peek_range) - 1
-			mask = replacetext(mask, "?", "x", peek_start + index, peek_start + index + 1)
-		else
-			var/list/rand_list = new/list()
-			for(var/i=0, i< peek_range, i++)
-				rand_list += i
-			for(var/i=1, i<= peek_count, i++)
-				var/index = rand(1, rand_list.len)
-				mask = replacetext(mask, "?", "x", peek_start + rand_list[index], peek_start + rand_list[index] + 1) // List index out-of-bounds
-				rand_list.Cut(index, index + 1)
-		for(var/i=peek_range + peek_start, i<= FINGERPRINT_LENGTH, i++)
-			mask += "0"
-		src.fiber_mask = new(mask)
+		src.fiber_mask = null
 
 	proc/build_fiber_mask()
 		return
@@ -270,7 +214,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("chemprot", 15)
 
 	build_fiber_mask()
-		build_glove_mask(peek_range = 9, peek_count = 2)
+		// build_glove_mask(peek_range = 9, peek_count = 2)
 		return
 
 /obj/item/clothing/gloves/fingerless
@@ -286,7 +230,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("conductivity", 1)
 
 	build_fiber_mask()
-		build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
+		// build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
 		return
 
 /obj/item/clothing/gloves/black
@@ -349,7 +293,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("chemprot", 15)
 
 	build_fiber_mask()
-		build_glove_mask(peek_range = 7, peek_count = 3)
+		// build_glove_mask(peek_range = 7, peek_count = 3)
 		return
 
 /obj/item/clothing/gloves/latex/blue
@@ -505,7 +449,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setSpecialOverride(/datum/item_special/spark/gloves, src)
 
 	build_fiber_mask()
-		build_glove_mask(peek_range = 9, peek_count = 2)
+		// build_glove_mask(peek_range = 9, peek_count = 2)
 		return
 
 
@@ -524,7 +468,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("conductivity", 0)
 
 	build_fiber_mask()
-		build_glove_mask(peek_range = 9, peek_count = 2)
+		// build_glove_mask(peek_range = 9, peek_count = 2)
 		return
 
 	proc/unsulate()
@@ -605,7 +549,6 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	icon_state = "transparent"
 	item_state = "transparent"
 	material_prints = "black leather fibers"
-	no_prints = TRUE
 	var/deployed = FALSE
 	nodescripition = TRUE
 
@@ -718,7 +661,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("conductivity", 0)
 
 	build_fiber_mask()
-		build_glove_mask(peek_range = 9, peek_count = 2)
+		// build_glove_mask(peek_range = 9, peek_count = 2)
 		return
 
 	proc/use_power(var/amount)
@@ -874,7 +817,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("conductivity", 1)
 
 	build_fiber_mask()
-		build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
+		// build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
 		return
 
 

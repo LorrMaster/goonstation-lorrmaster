@@ -309,9 +309,8 @@
 		if (src.show_on_examine)
 			return "has [bicon(src)] \an [initial(src.name)] attached as a"
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_fingerprint(CHAR_LIST_FINGERPRINT)
-		return
+		var/fp_text = build_id_separated(build_id_norepeat(16, CHAR_LIST_FINGERPRINT), 4)
+		src.limb_print = register_id(fp_text)
 
 	proc/foreign_limb_effect()
 		if(rebelliousness < 10 && prob(20))
@@ -400,9 +399,8 @@
 	var/rebelliousness = 0
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("sllll")
-		return
+		src.limb_print = register_id(build_id_pattern("sllll"))
+
 	on_holder_examine()
 		if (src.show_on_examine)
 			return "has [bicon(src)] \an [initial(src.name)] attached as a"
@@ -917,9 +915,7 @@
 		..()
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("lllll")
-		return
+		src.limb_print = register_id(build_id_pattern("lllll"))
 
 /obj/item/parts/human_parts/leg/right/synth
 	name = "synthetic right leg"
@@ -942,9 +938,7 @@
 		..()
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("lllll")
-		return
+		src.limb_print = register_id(build_id_pattern("lllll"))
 
 
 /obj/item/parts/human_parts/arm/left/synth/bloom
@@ -1265,8 +1259,7 @@
 		. = ..()
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("ll__ll")
+		src.limb_print = register_id(build_id_pattern("ll_ll"))
 
 //// LIMBS ////
 /obj/item/parts/human_parts/arm/mutant/cow/left
@@ -1335,8 +1328,7 @@
 	partIcon = 'icons/mob/pug/fawn.dmi'
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("llOll")
+		src.limb_print = register_id(build_id_pattern("llOll"))
 
 /obj/item/parts/human_parts/leg/mutant/pug/left
 	name = "left pug leg"
@@ -2119,8 +2111,8 @@
 	handlistPart = "hand_left"
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_fingerprint(CHAR_LIST_HEX)
+		var/fp_text = build_id_separated(build_id_norepeat(16, CHAR_LIST_HEX), 4)
+		src.limb_print = register_id(fp_text)
 
 /obj/item/parts/human_parts/arm/mutant/virtual/right
 	name = "left virtual arm"
@@ -2131,8 +2123,8 @@
 	handlistPart = "hand_right"
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_fingerprint(CHAR_LIST_HEX)
+		var/fp_text = build_id_separated(build_id_norepeat(16, CHAR_LIST_HEX), 4)
+		src.limb_print = register_id(fp_text)
 
 /obj/item/parts/human_parts/leg/mutant/virtual/left
 	name = "left virtual leg"
@@ -2144,8 +2136,7 @@
 	step_image_state = "footprintsL"
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("snnnn")
+		src.limb_print = register_id(build_id_pattern("snnnn"))
 
 /obj/item/parts/human_parts/leg/mutant/virtual/right
 	name = "right virtual leg"
@@ -2157,8 +2148,7 @@
 	step_image_state = "footprintsR"
 
 	build_limb_print()
-		src.limb_print = new()
-		src.limb_print.build_id_footprint("snnnn")
+		src.limb_print = register_id(build_id_pattern("snnnn"))
 
 /// ITHILLID LIMBS ///
 ///// PARENT /////

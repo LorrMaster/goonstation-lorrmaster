@@ -437,7 +437,7 @@
 	pressure_resistance = 50
 	var/list/scanned = list()
 	var/viewstat = 0
-	var/datum/forensic_id/forensic_lead = new("DVCE-", "", 5, CHAR_LIST_NUM)
+	var/datum/forensic_id/forensic_lead = null
 
 	syndicate
 		is_syndicate = TRUE
@@ -445,6 +445,7 @@
 	New()
 		. = ..()
 		RegisterSignal(src, COMSIG_ITEM_ATTACKBY_PRE, PROC_REF(pre_attackby))
+		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "DVCE-"))
 
 	get_desc()
 		// We display this on a separate line and with a different color to show emphasis

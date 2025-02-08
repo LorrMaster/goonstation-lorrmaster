@@ -2199,7 +2199,7 @@ TYPEINFO(/obj/item/cargotele)
 	w_class = W_CLASS_SMALL
 	flags = TABLEPASS | SUPPRESSATTACK
 	c_flags = ONBELT
-	var/datum/forensic_id/forensic_lead = new("TELE-", "", 5, CHAR_LIST_NUM)
+	var/datum/forensic_id/forensic_lead = null
 
 	New()
 		. = ..()
@@ -2208,6 +2208,7 @@ TYPEINFO(/obj/item/cargotele)
 			for (var/subtype in typesof(supertype))
 				allowed_types[subtype] = 1
 		allowed_types -= /obj/storage/closet/flock
+		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "TELE-"))
 
 		var/cell = new cell_type
 		AddComponent(/datum/component/cell_holder, cell, swappable = FALSE)

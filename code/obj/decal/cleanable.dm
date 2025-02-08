@@ -1401,6 +1401,9 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 				return
 			if (M.m_intent != "walk") // walk, don't run
 				oopschance += 28
+			if(ishuman(M))
+				var/mob/living/carbon/human/H = M
+				src.add_evidence(H.get_footprints(), FORENSIC_GROUP_TRACKS)
 			if (prob(oopschance))
 				health -= 5
 				if (health <= 0)

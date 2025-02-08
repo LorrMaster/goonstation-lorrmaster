@@ -83,12 +83,13 @@ TYPEINFO(/obj/health_scanner)
 	icon_state = "floorscan1"
 	plane = PLANE_FLOOR
 	var/time_between_scans = 3 SECONDS
-	var/datum/forensic_id/forensic_lead = new("HLTH-", "", 5, CHAR_LIST_NUM)
+	var/datum/forensic_id/forensic_lead = null
 
 	New()
 		..()
 		MAKE_SENDER_RADIO_PACKET_COMPONENT(null, "pda", FREQ_PDA)
 		AddComponent(/datum/component/mechanics_holder)
+		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "HLTH-"))
 
 	find_partners(var/in_range = 0)
 		if (in_range)
