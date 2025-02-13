@@ -4,13 +4,11 @@ TODO:
 	- Multiple bioholders
 	- Vomit bioholders
 	- Fix dna sample duplicates
- - Store types of IDs into a dictionary and check for duplicates
- - Replace "interesting" text with new system
  - Update security logs to use the new system
-	- Not sure how in-depth this should be
  - Remove & replace all the old forensics stuff in general
  - Scan report changes
 	- Seperate each line to its own variable to allow line order variation
+	
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction

@@ -585,6 +585,8 @@ var/datum/artifact_controller/artifact_controls
 	post_setup(obj/artifact)
 		. = ..()
 		var/datum/artifact/AD = artifact.artifact
+		if(prob(80))
+			artifact.forensic_holder.suppress_scans = TRUE
 		var/rarityMod = AD.get_rarity_modifier()
 		if(!isitem(artifact) && prob(100 * rarityMod))
 			var/do_opposite_y = prob(50)

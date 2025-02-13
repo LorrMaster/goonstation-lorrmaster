@@ -11,7 +11,7 @@ datum/forensic_holder
 	var/accuracy_mult = 1.0 // Changes this item's timestamp accuracy. Lower the better.
 
 	var/removal_flags_ignore = 0 // These ways of removing evidence have no power here
-	var/no_fingerprints = FALSE // If true, figerprints are not allowed
+	var/suppress_scans = FALSE // If true, then this will block attempts to scan it
 	var/is_stained = FALSE // Used to activate blood/stained overlay visuals. Might want to move somewhere else
 	var/stain_color = null // What color is the stain if it exists.
 
@@ -74,13 +74,13 @@ datum/forensic_holder
 			if(src.evidence_list[i].category == category)
 				src.evidence_list[i].remove_evidence(src, removal_flags)
 				return
-	proc/move_evidence(var/datum/forensic_holder/target, var/move_flags = ~0)
-		// TODO for merging two holders together
-		return
-	proc/copy_evidence(var/datum/forensic_holder/target, var/copy_flags = ~0)
-		// TODO for when one thing becomes two things
-		// copy_datum_vars()
-		return
+
+	proc/copy_evidence(var/datum/forensic_holder/target, var/copy_flags = ~0) // Copy evidence from this holder to another
+		for (var/i=1; i<= length(src.evidence_list); i++)
+			var/list/datum/forensic_data/f_data_list = src.evidence_list[i].get_evidence_list(TRUE)
+			for(var/k=1; k<= length(f_data_list); k++)
+				target.add_evidence(f_data_list[k].get_copy(), src.evidence_list[i].category)
+
 	proc/is_tracking() // Is this object spreading blood?
 		return src.spreader != null
 	proc/track_blood(turf/T, var/datum/forensic_data/multi/tracks = null)
@@ -89,14 +89,6 @@ datum/forensic_holder
 			qdel(src.spreader)
 			src.spreader = null
 	// proc/add_tracked_blood(var/b_dna, var/b_type, var/b_color, var/b_count, var/sample_reagent)
-	proc/get_last_adminprint()
-		// Return the key of the last player that placed a fingerprint on this object. Meant for admin use.
-		var/datum/forensic_group/group = get_group(FORENSIC_GROUP_ADMINPRINT)
-		if(!istype(group, /datum/forensic_group/adminprint))
-			boutput(world, "Error: wrong type with FORENSIC_GROUP_ADMINPRINT")
-			return null
-		var/datum/forensic_group/adminprint/a_group = group
-		return a_group.last_print.client
 
 
 datum/forensic_scan_builder // Used to gather up all the evidence and assemble the text for forensic scans
@@ -104,7 +96,6 @@ datum/forensic_scan_builder // Used to gather up all the evidence and assemble t
 	var/list/datum/forensic_holder/area_list = new/list() // additional sections to include in scan (worn gloves, pod interior, etc)
 	var/list/area_header_list = new/list() // What the additional sections should be called
 	var/datum/forensic_holder/current_area = null // The current area that the builder is collecting evidence from
-	var/obj/item/device/detective_scanner/scanner = null // The scanner being used, if there is one
 	var/base_accuracy = -1 // How accurate the time estimates are, or negative if not included by default
 	var/is_admin = FALSE // Is this being analysed via admin commands?
 

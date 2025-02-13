@@ -527,11 +527,14 @@
 	var/list/known_rucks = null
 	var/boot_time = null
 	var/data_initialized = FALSE
+	var/static/datum/forensic_display/lead_display = new("Recently printed (Printer ID: @F)")
+	var/datum/forensic_id/lead_printer = null
 
 /obj/machinery/rkit/New()
 	. = ..()
 	known_rucks = new
 	ruck_controls = new
+	lead_printer = register_id("RKIT-" + build_id_pattern("Lnnn"))
 	MAKE_SENDER_RADIO_PACKET_COMPONENT(src.net_id, "pda", FREQ_PDA)
 
 	if(isnull(mechanic_controls)) mechanic_controls = ruck_controls //For objective tracking and admin
@@ -891,7 +894,9 @@
 				playsound(src.loc, 'sound/machines/printer_thermal.ogg', 25, 1)
 				SPAWN(2.5 SECONDS)
 					if (src)
-						new /obj/item/paper/manufacturer_blueprint(src.loc, M)
+						var/obj/B = new/obj/item/paper/manufacturer_blueprint(src.loc, M)
+						var/datum/forensic_data/basic/f_data = new(lead_printer, lead_display)
+						B.add_evidence(f_data)
 				. = TRUE
 		if("lock")
 			if (!src.allowed(usr))
@@ -913,6 +918,10 @@
 			newsignal.encryption = "ERR_12845_NT_SECURE_PACKET:"
 			SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, newsignal, null, "ruck")
 			. = TRUE
+
+/obj/machinery/rkit/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+	..()
+	scan_builder.add_scan_text("Printer pattern ID: [lead_printer]")
 
 /obj/item/deconstructor
 	name = "deconstruction device"

@@ -36,7 +36,7 @@ TYPEINFO(/obj/machinery/photocopier)
 		..()
 		src.net_id = generate_net_id(src)
 		MAKE_DEFAULT_RADIO_PACKET_COMPONENT(src.net_id, null, frequency)
-		src.lead_printer = register_id(build_id_pattern("Lnnn"))
+		src.lead_printer = register_id("PCOPY-" + build_id_pattern("Lnnn"))
 		src.lead_scanner = register_id(build_id(5, CHAR_LIST_NUM, "PCOPY-"))
 
 	get_desc(dist)
@@ -214,8 +214,8 @@ TYPEINFO(/obj/machinery/photocopier)
 		return 1
 
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
-		var/printer_note = "Photocopier printer ID: [src.lead_printer.id]"
-		var/scanner_note = "Photocopier scanner ID: [src.lead_scanner.id]"
+		var/printer_note = "Printer pattern ID: [src.lead_printer.id]"
+		var/scanner_note = "Scanner particle ID: [src.lead_scanner.id]"
 		scan_builder.add_scan_text(printer_note)
 		scan_builder.add_scan_text(scanner_note)
 

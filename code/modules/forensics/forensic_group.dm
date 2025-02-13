@@ -19,6 +19,8 @@ ABSTRACT_TYPE(/datum/forensic_group)
 
 	proc/apply_evidence(var/datum/forensic_data/data) // Add a piece of evidence to this group
 		return
+	proc/get_evidence_list(var/include_trace = FALSE)
+		return null
 	proc/get_text(var/datum/forensic_scan_builder/scan_builder)
 		return ""
 	proc/get_header() // The label that this evidence will be displayed under for scans
@@ -37,6 +39,9 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		if(istype(data, /datum/forensic_data/basic))
 			var/datum/forensic_data/basic/E = data
 			apply_basic(E)
+
+	get_evidence_list(var/include_trace = FALSE)
+		return src.notes_list
 
 	get_text(var/datum/forensic_scan_builder/scan_builder)
 		var/data_text = ""
@@ -81,6 +86,9 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			var/datum/D = src.evidence_list[oldest]
 			src.evidence_list[oldest] = E
 			qdel(D)
+
+	get_evidence_list(var/include_trace = FALSE)
+		return src.evidence_list
 
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		for(var/i=1, i<= src.evidence_list.len; i++)
@@ -168,6 +176,9 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			src.evidence_list[oldest] = E
 			qdel(D)
 
+	get_evidence_list(var/include_trace = FALSE)
+		return src.evidence_list
+
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		for(var/i=1, i<= src.evidence_list.len; i++)
 			if(src.evidence_list[i].should_remove(removal_flags))
@@ -236,6 +247,9 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			src.prints_list[oldest] = fp
 			qdel(D)
 
+	get_evidence_list(var/include_trace = FALSE)
+		return src.prints_list
+
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		if(HAS_ANY_FLAGS((src.group_flags & REMOVABLE_ALL), removal_flags))
 			prints_list = null
@@ -282,6 +296,11 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			ev_list[oldest] = E
 			qdel(D)
 
+	get_evidence_list(var/include_trace = FALSE)
+		if(include_trace)
+			return src.dna_list + src.dna_trace_list
+		return src.dna_list
+
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		if(!HAS_ANY_FLAGS((src.group_flags & REMOVABLE_ALL), removal_flags))
 			return
@@ -318,29 +337,4 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			if(src.dna_trace_list[i].form == DNA_FORM_BLOOD)
 				return TRUE
 		return FALSE
-
-/datum/forensic_group/adminprint // Remove?
-	category = FORENSIC_GROUP_ADMINPRINT
-	var/list/datum/forensic_data/adminprint/aprint_list = list()
-	var/datum/forensic_data/adminprint/last_print = null
-
-	apply_evidence(var/datum/forensic_data/data)
-		if(!istype(data, /datum/forensic_data/adminprint))
-			return
-		var/datum/forensic_data/adminprint/aprint = data
-		for(var/i=1; i<= aprint_list.len; i++)
-			if(aprint_list[i].is_same(aprint))
-				aprint_list[i].time_end = TIME
-				last_print = aprint_list[i]
-				return
-		aprint_list += aprint
-		last_print = aprint
-
-	get_text(var/datum/forensic_scan_builder/scan_builder)
-		if(scan_builder.is_admin == FALSE)
-			return ""
-		else
-
-	get_header() // The label that this evidence will be displayed under for scans
-		return SPAN_ALERT("Admin Viewer:")
 

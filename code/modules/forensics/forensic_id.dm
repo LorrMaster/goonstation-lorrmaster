@@ -12,7 +12,8 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 /proc/register_id(var/id_text, var/list/reg_list = registered_id_list)
 	if(reg_list[id_text])
 		return reg_list[id_text]
-	var/datum/forensic_id/new_id = new(id_text)
+	var/datum/forensic_id/new_id = new()
+	new_id.id = id_text
 	reg_list[id_text] = new_id
 	return new_id
 
@@ -24,13 +25,10 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 	var/id = null
 
 	New(var/id_text = "")
-		..()
 		if(id_text)
 			src.id = id_text
-			if(registered_id_list[id_text])
-				boutput(world, "Error: Duplicate forensic_id created ([id_text])")
-				return
 			registered_id_list[id_text] = src
+		..()
 
 
 // -----------------------------------------

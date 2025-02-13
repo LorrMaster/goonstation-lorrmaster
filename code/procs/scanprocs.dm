@@ -545,8 +545,9 @@
 		return
 	if(visible)
 		animate_scanning(A, "#c6df56", time = 10)
+	if(A.forensic_holder.suppress_scans || A.reagents?.get_reagent_amount("cloak_juice") >= 5)
+		return "Overwhelming interference coming from \The [A] nullifys the scan!" // Note: Need to exclude admin scans -LorrMaster
 	var/datum/forensic_scan_builder/scan_builder = new()
-	scan_builder.scanner = scanner
 	scan_builder.base_accuracy = -1
 	if(ishuman(user))
 		// Calculate this person's scan accuracy

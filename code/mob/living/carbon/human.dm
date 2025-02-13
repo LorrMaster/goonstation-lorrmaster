@@ -3676,24 +3676,42 @@ mob/living/carbon/human/has_genetics()
 
 /mob/living/carbon/human/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	..()
+	// --- Head ---
+	if(src.head)
+		scan_builder.add_target(src.head)
+	if(src.wear_mask && !(src.head?.hides_from_examine & C_MASK))
+		scan_builder.add_target(src.wear_mask)
+	else if(src.organHolder?.head)
+		scan_builder.add_target(src.organHolder.head)
+
+	// --- Hands ---
+	if(src.gloves)
+		scan_builder.add_target(src.gloves)
+	else
+		if(src.limbs.r_arm)
+			scan_builder.add_target(src.limbs.r_arm)
+		if(src.limbs.l_arm)
+			scan_builder.add_target(src.limbs.l_arm)
+
+	// --- Torso ---
+	if(src.wear_suit)
+		scan_builder.add_target(src.wear_suit)
+	else if(src.w_uniform && !(src.wear_suit?.hides_from_examine & C_UNIFORM))
+		scan_builder.add_target(src.w_uniform)
+	else if(src.organHolder?.chest)
+		scan_builder.add_target(src.organHolder.chest)
+
+	// --- Shoes ---
 	if(src.shoes)
 		scan_builder.add_target(src.shoes)
 	else
 		var/datum/forensic_data/multi/f_data = get_footprints(ignore_chair = TRUE)
 		var/note_footprints = f_data.scan_display()
 		scan_builder.add_scan_text("[src]'s footprints: [note_footprints]")
-	if(src.gloves)
-		scan_builder.add_target(src.gloves)
-	else if(src.limbs.l_arm && src.limbs.r_arm)
-		if(src.limbs.l_arm.limb_print == src.limbs.r_arm.limb_print)
-			scan_builder.add_scan_text("[src]'s fingerprints: [src.limbs.l_arm.limb_print.id]")
-		else
-			scan_builder.add_scan_text("Right arm's fingerprint: [src.limbs.r_arm.limb_print.id]")
-			scan_builder.add_scan_text("Left arm's fingerprint: [src.limbs.l_arm.limb_print.id]")
-	else if(src.limbs.r_arm)
-		scan_builder.add_scan_text("Right arm's fingerprint: [src.limbs.r_arm.limb_print.id]")
-	else if(src.limbs.l_arm)
-		scan_builder.add_scan_text("Left arm's fingerprint: [src.limbs.l_arm.limb_print.id]")
+		if(src.limbs.r_leg)
+			scan_builder.add_target(src.limbs.r_leg)
+		if(src.limbs.l_leg)
+			scan_builder.add_target(src.limbs.l_leg)
 
 /mob/living/carbon/human/proc/get_footprints(var/ignore_chair = FALSE)
 	if(!ignore_chair)
