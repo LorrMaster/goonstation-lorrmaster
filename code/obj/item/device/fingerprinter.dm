@@ -22,6 +22,18 @@
 		src.create_inventory_counter()
 		src.update_text()
 
+	proc/evidence_read(var/mob/user, var/atom/A)
+		var/datum/forensic_holder/holder = A.forensic_holder
+		if(!holder)
+			boutput(user, SPAN_ALERT("No evidence detected on [A]."))
+			return
+		if(!holder.evidence_list)
+			boutput(user, SPAN_ALERT("No evidence detected on [A]."))
+			return
+		if(length(holder.evidence_list) == 0)
+			boutput(user, SPAN_ALERT("No evidence detected on [A]."))
+			return
+
 	proc/evidence_select()
 		// Choose the evidence to plant
 	proc/evidence_plant(mob/user, atom/target, datum/forensic_data/f_data)
@@ -89,7 +101,7 @@
 		src.update_text()
 
 	proc/plant_print(mob/user, atom/target)
-		if (target.forensic_holder?.no_fingerprints)
+		if (target.forensic_holder?.suppress_scans)
 			boutput(user, SPAN_ALERT("You can't plant a fingerprint onto that."))
 			return
 		if (!length(current_prints))
@@ -122,15 +134,12 @@
 	// TODO maybe handle dupe glove prints more gracefully? if we see the same glove ID on 2 different people, list both names? idk
 	proc/read_prints(mob/user, atom/target)
 		// Yes, this currently lets you get the name of people through glove IDs. It's a traitor item so I think it's fine. Gnarly if sec finds one though.
-		if (target.forensic_holder?.no_fingerprints)
+		if (target.forensic_holder?.suppress_scans)
 			boutput(user, SPAN_ALERT("That doesn't look like something you can read prints off of."))
 			return
 		if (!target.fingerprints && !ishuman(target))
 			boutput(user, SPAN_ALERT("There's no fingerprints to read off of that."))
 			return
-
-		// Look at all the fingerprints
-		// Get the name somehow?
 
 		// This is gross and theoretically slow but we index full-prints by time, and the fingerprints list will only have 6 entries at max so
 		// the time complexity doesn't really matter.

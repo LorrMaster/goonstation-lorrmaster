@@ -30,6 +30,7 @@ proc/make_cleanable(var/type,var/loc)
 
 	var/last_dry_start = 0
 	var/dry_time = 100
+	var/leave_footprints = FALSE
 
 	flags = NOSPLASH
 	layer = DECAL_LAYER
@@ -110,15 +111,15 @@ proc/make_cleanable(var/type,var/loc)
 			return
 		if (src.stain && !src.dry && (ishuman(AM) || istype(AM, /obj/item/clothing)))
 			src.Stain(AM)
-		if (!src.slippery || src.dry)
+		if (src.dry)
 			return
 		if (src.reagents && src.reagents.total_volume < 5)
 			return
 		if (istype(src.loc, /turf/space))
 			return
-		if (iscarbon(AM))
-			var/mob/living/carbon/M =	AM
-			if (prob(src.slippery))
+		if (iscarbon(AM) && src.slippery)
+			var/mob/living/carbon/M = AM
+			if (prob(src.slippery) && src.slippery)
 				if (M.slip())
 					M.visible_message(SPAN_ALERT("<b>[M]</b> slips on [src]!"),\
 					SPAN_ALERT("You slip on [src]!"))
@@ -132,6 +133,9 @@ proc/make_cleanable(var/type,var/loc)
 							var/datum/reagent/R = reagents_cache[src.sample_reagent]
 							b_color = rgb(R.fluid_r, R.fluid_g, R.fluid_b)
 						M.apply_blood(bio, b_color)
+		if(ishuman(AM) && leave_footprints)
+			var/mob/living/carbon/human/H =	AM
+			src.add_evidence(H.get_footprints(), FORENSIC_GROUP_TRACKS)
 
 	attackby(obj/item/W, mob/user)
 		if (src.can_sample && W.is_open_container() && W.reagents)
@@ -363,6 +367,7 @@ proc/make_cleanable(var/type,var/loc)
 
 		dry_time = time
 		last_dry_start = world.time
+		leave_footprints = FALSE
 		processing_items.Add(src)
 
 	end_dry()
@@ -501,6 +506,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 						return
 					create_overlay(blood_decal_low_icon_states, add_color, direction, 'icons/obj/decals/blood/blood.dmi')
 					// no increase in slipperiness if there's just a little bit of blood being added
+					leave_footprints = FALSE // Not enough blood for footprints
 				if (2)
 					if (!list_and_len(blood_decal_med_icon_states))
 						return
@@ -539,6 +545,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	//name = "bloody footprints"
 	desc = "Someone walked through some blood and got it everywhere, jeez!"
 	can_track = 0
+	leave_footprints = FALSE
 
 	add_volume(var/add_color, var/reagent_id = "blood", var/amount = 1, var/vis_amount = 1, var/list/bdata = null, var/i_state = null, var/direction = null, var/e_tracking = 1, var/do_fluid_react = 1, blood_reagent_data=null)
 		// e_tracking will be set to 0 by the track_blood() proc atoms run when moving, so anything that doesn't set it to 0 is a regular sort of bleed and should re-enable tracking
@@ -553,6 +560,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 
 /obj/decal/cleanable/blood/drip/low
 	random_icon_states = list("drip1a", "drip1b", "drip1c", "drip1d", "drip1e", "drip1f")
+	leave_footprints = FALSE
 
 /obj/decal/cleanable/blood/drip/med
 	random_icon_states = list("drip2a", "drip2b", "drip2c", "drip2d", "drip2e", "drip2f")
@@ -571,6 +579,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	icon_state = "tracks"
 	random_icon_states = null
 	color = DEFAULT_BLOOD_COLOR
+	leave_footprints = FALSE
 
 /obj/decal/cleanable/blood/hurting1
 	icon_state = "hurting1"
@@ -870,6 +879,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	sample_reagent = "vomit"
 	sample_verb = "scrape"
 	stain = /datum/stain/puke
+	leave_footprints = TRUE
 
 	Dry(var/time = rand(200,500))
 		if (!src.can_dry || src.dry)
@@ -956,6 +966,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	sample_reagent = "gvomit"
 	sample_verb = "scrape"
 	stain = /datum/stain/puke/green
+	leave_footprints = TRUE
 
 	Dry(var/time = rand(200,500))
 		if (!src.can_dry)
@@ -1007,6 +1018,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	slippery = 10
 	can_sample = 1
 	sample_reagent = "juice_tomato"
+	leave_footprints = TRUE
 
 /obj/decal/cleanable/eggsplat
 	name = "smashed egg"
@@ -1018,6 +1030,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	can_sample = 1
 	sample_amt = 5
 	sample_reagent = "egg"
+	leave_footprints = TRUE
 
 /obj/decal/cleanable/ash
 	name = "ashes"
@@ -1028,6 +1041,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	sample_reagent = "ash"
 	sample_verb = "scrape"
 	stain = /datum/stain/dirt
+	leave_footprints = TRUE
 
 	Sample(var/obj/item/W as obj, var/mob/user as mob)
 		..()
@@ -1056,6 +1070,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	can_sample = 1
 	sample_reagent = "badgrease"
 	stain = /datum/stain/slime
+	leave_footprints = TRUE
 
 	Dry(var/time = rand(100,200))
 		if (!src.can_dry)
@@ -1087,6 +1102,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	stain = /datum/stain/dirt
 	can_sample = 1
 	sample_reagent = "carbon"
+	leave_footprints = TRUE
 
 	dirt2
 		icon_state = "dirt2"
@@ -1209,6 +1225,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	can_sample = TRUE
 	random_icon_states = list("gib1", "gib2", "gib3", "gib4", "gib5")
 	slippery = 30
+	leave_footprints = TRUE
 
 /obj/decal/cleanable/martian_viscera/fluid
 	name = "sticky martian goop"
@@ -1217,6 +1234,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	anchored = ANCHORED
 	random_icon_states = list("goop1", "goop2", "goop3", "goop4")
 	slippery = 50
+	leave_footprints = TRUE
 
 /obj/decal/cleanable/flockdrone_debris
 	name = "weird stringy crystal fibres"
@@ -1230,6 +1248,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	can_sample = TRUE
 	random_icon_states = list("gib1", "gib2", "gib3", "gib4", "gib5")
 	slippery = 30
+	leave_footprints = TRUE
 
 /obj/decal/cleanable/flockdrone_debris/fluid
 	name = "viscous teal fluid"
@@ -1240,6 +1259,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	anchored = ANCHORED
 	slippery = 50
 	stain = /datum/stain/flock
+	leave_footprints = TRUE
 
 /obj/decal/cleanable/machine_debris
 	name = "twisted shrapnel"
@@ -1248,6 +1268,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	icon_state = "gib1"
 	anchored = UNANCHORED
 	layer = OBJ_LAYER
+	leave_footprints = TRUE
 	random_icon_states = list("gib1", "gib2", "gib3", "gib4", "gib5", "gib6", "gib7")
 
 /obj/decal/cleanable/machine_debris/radioactive
@@ -1262,6 +1283,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	icon_state = "gib1"
 	anchored = UNANCHORED
 	layer = OBJ_LAYER
+	leave_footprints = TRUE
 	random_icon_states = list("gib1", "gib2", "gib3", "gib4", "gib5", "gib6", "gib7")
 
 	attack_hand(var/mob/user)
@@ -1314,6 +1336,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	can_sample = 1
 	sample_reagent = "oil"
 	stain = /datum/stain/oil
+	leave_footprints = TRUE
 
 /obj/decal/cleanable/oil/streak
 	random_icon_states = list("streak1", "streak2", "streak3", "streak4", "streak5")
@@ -1367,6 +1390,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	can_sample = 1
 	sample_reagent = "salt"
 	sample_verb = "scrape"
+	leave_footprints = TRUE
 	var/health = 30
 
 	New()
@@ -1401,9 +1425,6 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 				return
 			if (M.m_intent != "walk") // walk, don't run
 				oopschance += 28
-			if(ishuman(M))
-				var/mob/living/carbon/human/H = M
-				src.add_evidence(H.get_footprints(), FORENSIC_GROUP_TRACKS)
 			if (prob(oopschance))
 				health -= 5
 				if (health <= 0)
@@ -1464,6 +1485,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	sample_reagent = "magnesium"
 	sample_verb = "scrape"
 	color = "#434343" // distinguish from salt
+	leave_footprints = TRUE
 	var/on_fire = null
 	var/burn_time = 4
 

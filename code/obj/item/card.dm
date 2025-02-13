@@ -38,6 +38,10 @@ TYPEINFO(/obj/item/card/emag)
 	is_syndicate = 1
 	contraband = 6
 
+	New()
+		..()
+		src.forensic_holder?.suppress_scans = TRUE
+
 	afterattack(var/atom/A, var/mob/user)
 		if(!A || !user)
 			return

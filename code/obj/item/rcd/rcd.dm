@@ -118,6 +118,9 @@ TYPEINFO(/obj/item/rcd)
 	/// Custom contextActions list so we can handle opening them ourselves
 	var/list/datum/contextAction/contexts = list()
 
+	var/times_used = 0
+	var/forensic_offset = 0.5
+
 	get_desc()
 		. += "<br>It holds [matter]/[max_matter] [istype(src, /obj/item/rcd/material) ? material_name : "matter"]  units. It is currently set to "
 		switch (src.mode)
@@ -151,6 +154,7 @@ TYPEINFO(/obj/item/rcd)
 			if (action.mode in src.modes)
 				src.contexts += action
 		src.UpdateIcon()
+		src.forensic_offset = rand()
 
 		RegisterSignal(src, COMSIG_ITEM_ATTACKBY_PRE, PROC_REF(attackby_pre))
 
@@ -442,7 +446,7 @@ TYPEINFO(/obj/item/rcd)
 
 		if (!can_reach(user, A))
 			return
-
+		src.times_used++
 		switch(src.mode)
 			if (RCD_MODE_FLOORSWALLS)
 				handle_floors_and_walls(A, user)
@@ -691,6 +695,10 @@ TYPEINFO(/obj/item/rcd)
 		if (!issilicon(usr))
 			src.inventory_counter.update_number(matter)
 
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		var/note = estimate_counter("Times used", src.times_used, scan_builder.base_accuracy, src.forensic_offset)
+		scan_builder.add_scan_text(note)
 
 /// Only for testing
 /obj/item/rcd/testing

@@ -191,7 +191,7 @@
 			if(length(stamps) < PAPER_MAX_STAMPS)
 				stamp(stamp_x, stamp_y, stamp_r, stamp.current_state, stamp.icon_state)
 				update_static_data(usr, ui)
-				stamp.times_used++
+				stamp.times_stamped++
 				boutput(usr, SPAN_NOTICE("[ui.user] stamps [src] with \the [stamp.name]!"))
 				playsound(usr.loc, 'sound/misc/stamp_paper.ogg', 50, 0.5)
 			else
@@ -695,8 +695,9 @@
 	var/available_modes = list("Granted", "Denied", "Void", "Current Time", "Your Name");
 	var/current_mode = "Granted"
 	var/current_state = null
-	var/times_used = 0 // Number of stamps this has created
+	var/times_stamped = 0 // Number of stamps this has created
 	var/forensic_offset = 0.5 // offset for stamp usage estimation
+	var/static/datum/forensic_id/lead_void = new("VOID")
 
 /obj/item/stamp/New()
 	..()
@@ -760,26 +761,19 @@
 		return 0
 	user.visible_message(SPAN_ALERT("<b>[user] stamps 'VOID' on [his_or_her(user)] forehead!</b>"))
 	user.TakeDamage("head", 250, 0)
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		var/datum/forensic_data/basic/f_data = new(src.lead_void)
+		H.head?.add_evidence(f_data, FORENSIC_GROUP_NOTE)
+	else
+		var/datum/forensic_data/basic/f_data = new(src.lead_void)
+		user.add_evidence(f_data, FORENSIC_GROUP_NOTE)
+	src.times_stamped++
 	return 1
 
 /obj/item/stamp/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 	..()
-	// Estimate how many times this stamp has been used
-	var/note = null
-	var/accuracy = scan_builder.base_accuracy
-	if(accuracy < 0 || accuracy > FORENSIC_BASE_ACCURACY)
-		accuracy = FORENSIC_BASE_ACCURACY
-
-	if(src.times_used <= 0)
-		note = "Times stamped: [src.times_used]"
-	else
-		var/offset = src.times_used * accuracy
-		var/high_est = round(src.times_used + (offset * src.forensic_offset))
-		var/low_est = max(1, round(src.times_used - (offset * (1 - src.forensic_offset))))
-		if(high_est == low_est)
-			note = "Times stamped: [src.times_used]"
-		else
-			note = "Times stamped estimate: [low_est] to [high_est]"
+	var/note = estimate_counter("Times stamped", src.times_stamped, scan_builder.base_accuracy, src.forensic_offset)
 	scan_builder.add_scan_text(note)
 
 

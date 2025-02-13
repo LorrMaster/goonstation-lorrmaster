@@ -668,7 +668,7 @@ ADMIN_INTERACT_PROCS(/obj/machinery/door_control, proc/toggle)
 
 	New()
 		..()
-		src.forensic_holder.no_fingerprints = TRUE
+		src.forensic_holder.suppress_scans = TRUE
 
 /obj/machinery/door_control/ex_act(severity)
 	return

@@ -15,10 +15,16 @@ TYPEINFO(/obj/item/device/igniter)
 	throw_speed = 3
 	throw_range = 10
 	firesource = FIRESOURCE_IGNITER
+	var/times_ignited = 0
+	var/forensic_offset = 0.5
 
 	//blcok spamming shit because inventory uncaps click speed and kinda makes this an exploit
 	//its still a bit stronger than non-inventory interactions, why not
 	var/last_ignite = 0
+
+	New()
+		..()
+		src.forensic_offset = rand()
 
 /obj/item/device/igniter/attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 	if (ishuman(target))
@@ -153,6 +159,7 @@ TYPEINFO(/obj/item/device/igniter)
 		flick("igniter_light", src)
 		location = get_turf(location)
 		location?.hotspot_expose((isturf(location) ? 3000 : 4000),2000)
+		times_ignited++
 		last_ignite = world.time
 
 	return
@@ -164,3 +171,8 @@ TYPEINFO(/obj/item/device/igniter)
 			. += "The igniter is ready!"
 		else
 			. += "The igniter can be attached!"
+
+/obj/item/device/igniter/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		var/note = estimate_counter("Times ignited", src.times_ignited, scan_builder.base_accuracy, src.forensic_offset)
+		scan_builder.add_scan_text(note)

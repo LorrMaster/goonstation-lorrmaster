@@ -122,6 +122,8 @@ TYPEINFO(/obj/machinery/manufacturer)
 	var/static/list/text_flipout_noun = list("noise","racket","ruckus","clatter","commotion","din")
 	var/static/list/text_bad_output_adjective = list("janky","crooked","warped","shoddy","shabby","lousy","crappy","shitty")
 	var/datum/action/action_bar = null
+	var/items_fabricated = 0
+	var/forensic_offset = 0.5
 
 	var/static/datum/forensic_display/lead_display = new("Recently fabricated (Pattern ID: @F)")
 	var/datum/forensic_id/forensic_lead = null
@@ -140,6 +142,7 @@ TYPEINFO(/obj/machinery/manufacturer)
 				src.link.master = src
 
 		src.AddComponent(/datum/component/bullet_holes, 15, 5)
+		src.forensic_offset = rand()
 
 		if (istype(manuf_controls,/datum/manufacturing_controller))
 			src.set_up_schematics()
@@ -860,7 +863,9 @@ TYPEINFO(/obj/machinery/manufacturer)
 
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "Fabricator pattern ID: [src.forensic_lead.id]"
+		var/count_note = estimate_counter("Items fabricated", src.items_fabricated, scan_builder.base_accuracy, src.forensic_offset)
 		scan_builder.add_scan_text(id_note)
+		scan_builder.add_scan_text(count_note)
 	/*
 	Handling for shocking the user
 	Handling for getting the satchel of an ore scoop
@@ -1849,6 +1854,7 @@ TYPEINFO(/obj/machinery/manufacturer)
 
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, src.lead_display)
 		A.add_evidence(f_data, FORENSIC_GROUP_NOTE)
+		src.items_fabricated++
 		return A
 
 	proc/flip_out()

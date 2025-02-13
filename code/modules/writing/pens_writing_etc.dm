@@ -894,6 +894,12 @@
 	flags = TABLEPASS | SUPPRESSATTACK
 	c_flags = ONBELT
 	rand_pos = 1
+	var/times_labeled = 0
+	var/forensic_offset = 0.5 // offset for stamp usage estimation
+
+	New()
+		..()
+		src.forensic_offset = rand()
 
 	get_desc()
 		if (!src.label || !length(src.label))
@@ -951,6 +957,11 @@
 		boutput(user, SPAN_NOTICE("You set the text to '[str]'."))
 		logTheThing(LOG_STATION, user, "sets a hand labeler label to \"[str]\".")
 
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		var/note = estimate_counter("Times labeled", src.times_labeled, scan_builder.base_accuracy, src.forensic_offset)
+		scan_builder.add_scan_text(note)
+
 	proc/RemoveLabel(var/atom/A, var/mob/user, var/no_message = 0)
 		if(!islist(A.name_suffixes))
 			//Name_suffixes wasn't a list, but it is now.
@@ -973,6 +984,7 @@
 				return
 
 		if (user && !no_message)
+			src.times_labeled++
 			user.visible_message(SPAN_NOTICE("<b>[user]</b> labels [A] with \"[src.label]\"."),\
 			SPAN_NOTICE("You label [A] with \"[src.label]\"."))
 		if (istype(A, /obj/item/paper))
@@ -996,6 +1008,7 @@
 			return 0
 		user.visible_message(SPAN_ALERT("<b>[user] labels [him_or_her(user)]self \"DEAD\"!</b>"))
 		src.label = "DEAD"
+		src.times_labeled++
 		Label(user,user,1)
 
 		user.death()

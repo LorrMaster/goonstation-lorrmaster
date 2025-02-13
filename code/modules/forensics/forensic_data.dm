@@ -1,7 +1,7 @@
 
 // Note: multiple forensic_holders should not share forensic_data, each should have their own instance of the evidence
 
-datum/forensic_data
+/datum/forensic_data
 	var/time_start = 0 // What time the evidence was first applied, or 0 if not relavent
 	var/time_end = 0 // When the evidence was most recently applied
 	var/perc_offset = 0 // Error offset multiplier for time estimations
@@ -20,6 +20,9 @@ datum/forensic_data
 		return HAS_ANY_FLAGS((src.flags & REMOVABLE_ALL), remove_flags)
 	proc/mark_as_junk()
 		flags = flags | IS_JUNK
+	proc/get_copy()
+		return null
+
 	proc/get_time_estimate(var/accuracy) // Return a text estimate for when this evidence might have occured
 		if(src.time_start == 0 || accuracy < 0)
 			return "" // Negative accuracy -> do not report a time
@@ -39,7 +42,7 @@ datum/forensic_data
 				return SPAN_SUBTLE(SPAN_ITALIC(" ([low_est] to [high_est] mins ago)"))
 
 
-datum/forensic_data/basic // Evidence that can just be stored as a single ID. Flags not included.
+/datum/forensic_data/basic // Evidence that can just be stored as a single ID. Flags not included.
 	var/static/datum/forensic_display/disp_empty = new("@F")
 	var/datum/forensic_id/evidence = null
 	var/datum/forensic_display/display = null
@@ -60,7 +63,12 @@ datum/forensic_data/basic // Evidence that can just be stored as a single ID. Fl
 		scan_text = replacetext(scan_text, "@T", time_text) // Change this to just add a timestamp at the end
 		return scan_text
 
-datum/forensic_data/multi // Two or three different pieces of evidence that are linked together. Flags not included.
+	get_copy()
+		var/datum/forensic_data/basic/c_data = new(src.evidence, src.display, src.flags)
+		c_data.accuracy_mult = src.accuracy_mult
+		return c_data
+
+/datum/forensic_data/multi // Two or three different pieces of evidence that are linked together. Flags not included.
 	var/static/datum/forensic_display/disp_double = new("@A [SPAN_NOTICE("|")] @B")
 	var/static/datum/forensic_display/disp_pair = new("@A @B")
 	var/static/datum/forensic_display/disp_pair_double = new("@C [SPAN_NOTICE("|")] @A @B") // Easier to get pair A&B first
@@ -94,16 +102,33 @@ datum/forensic_data/multi // Two or three different pieces of evidence that are 
 		else
 			scan_text = replacetextEx(scan_text, "@C", evidence_C.id)
 		return scan_text
+
+	get_copy()
+		var/datum/forensic_data/multi/c_data = new(src.evidence_A, src.evidence_B, src.evidence_C, src.display)
+		c_data.flags = src.flags
+		c_data.accuracy_mult = src.accuracy_mult
+		return c_data
+
 	proc/is_same(datum/forensic_data/multi/other)
 		return src.evidence_A == other.evidence_A && src.evidence_B == other.evidence_B && src.evidence_C == other.evidence_C
 
-datum/forensic_data/text
-	var/evidence = ""
+/datum/forensic_data/text
+	var/forensic_text
+	
+	New(var/f_text = "")
+		..()
+		src.forensic_text = f_text
+
+	scan_display()
+		return forensic_text
+
+	get_copy()
+
 
 	proc/is_same(datum/forensic_data/text/other)
-		return cmptextEx(src.evidence, other.evidence)
+		return src.forensic_text == other.forensic_text
 
-datum/forensic_data/fingerprint // An individual fingerprint applied to an item
+/datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 	flags = REMOVABLE_CLEANING
 	var/datum/forensic_id/print = null // The original fingerprint
 	var/datum/forensic_id/glove_print = null // The glove fibres & ID
@@ -119,6 +144,15 @@ datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 		if(!src.print_mask)
 			return "([glove_print.id])"
 		return get_print() + " ([glove_print.id])"
+
+	get_copy()
+		var/datum/forensic_data/fingerprint/c_data = new()
+		c_data.print = src.print
+		c_data.glove_print = src.glove_print
+		c_data.print_mask = src.print_mask
+		c_data.flags = src.flags
+		c_data.accuracy_mult = src.accuracy_mult
+		return c_data
 
 	proc/get_print() // return the fingerprint, which could be obscured by gloves
 		if(src.print_mask == empty_mask)
@@ -160,7 +194,7 @@ datum/forensic_data/fingerprint // An individual fingerprint applied to an item
 	proc/is_same(datum/forensic_data/fingerprint/other)
 		return src.print == other.print && src.glove_print == other.glove_print
 
-datum/forensic_data/dna // An individual dna sample
+/datum/forensic_data/dna // An individual dna sample
 	var/static/datum/forensic_id/dna_unknown = new("unknown")
 	flags = REMOVABLE_CLEANING
 	var/datum/forensic_id/pattern = null
@@ -198,10 +232,16 @@ datum/forensic_data/dna // An individual dna sample
 			else
 				return pattern.id
 
+	get_copy()
+		var/datum/forensic_data/dna/c_data = new(src.pattern, src.form)
+		c_data.flags = src.flags
+		c_data.accuracy_mult = src.accuracy_mult
+		return c_data
+
 	proc/is_same(datum/forensic_data/dna/other)
 		return src.pattern == other.pattern && src.form == other.form
 
-datum/forensic_data/projectile_hit // Bullet holes, laser marks, and the like (Replaced by notes for now)
+/datum/forensic_data/projectile_hit // Bullet holes, laser marks, and the like (Replaced by notes for now)
 	accuracy_mult = 1
 	var/datum/forensic_id/proj_id = null // Which bullet created this, if it still exists
 	var/turf/start_turf // Where the projectile was fired / last deflected
@@ -224,6 +264,18 @@ datum/forensic_data/projectile_hit // Bullet holes, laser marks, and the like (R
 			else
 				return "Dev Coding Error: Impact type missing"
 
+	get_copy()
+		var/datum/forensic_data/projectile_hit/c_data = new()
+		c_data.proj_id = src.proj_id
+		c_data.start_turf = src.start_turf
+		c_data.hit_turf = src.hit_turf
+		c_data.impact_type = src.impact_type
+		c_data.deflection_angle = src.deflection_angle
+		c_data.cone_of_tolerance = src.cone_of_tolerance
+		c_data.flags = src.flags
+		c_data.accuracy_mult = src.accuracy_mult
+		return c_data
+
 	// Bullet Obj
 		// Rifling, or which barrel the bullet came from
 		// Deformation, how the bullet changed (flattened, dented, fragmentation)
@@ -231,7 +283,7 @@ datum/forensic_data/projectile_hit // Bullet holes, laser marks, and the like (R
 		// The two footprint ids
 		// The original direction?
 
-datum/forensic_data/adminprint
+/datum/forensic_data/adminprint
 	accuracy_mult = 0
 	var/client/client
 
@@ -246,3 +298,17 @@ datum/forensic_data/adminprint
 	proc/is_same(datum/forensic_data/adminprint/other)
 		return src.client == other.client
 
+/proc/estimate_counter(var/text, var/actual, var/accuracy, var/offset)
+	if(actual <= 0)
+		return "[text]: [actual]"
+
+	var/note = null
+	if(accuracy < 0 || accuracy > FORENSIC_BASE_ACCURACY)
+		accuracy = FORENSIC_BASE_ACCURACY
+	var/high_est = round(actual + (actual * accuracy * offset))
+	var/low_est = max(0, round(actual - (actual * accuracy * (1 - offset))))
+	if(high_est == low_est)
+		note = "[text]: [actual]"
+	else
+		note = "[text]: [low_est] to [high_est]"
+	return note

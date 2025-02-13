@@ -727,7 +727,7 @@ datum
 
 			reaction_mob(var/mob/living/carbon/human/M, var/method=TOUCH, var/volume, var/paramslist = 0, var/raw_volume)
 				. = ..()
-				if (ishuman(M) && raw_volume >= 10)
+				if (ishuman(M) && raw_volume >= 10 && method == TOUCH)
 					var/datum/forensic_data/basic/f_data = new(/obj/item/gun::lead_gun_residue, flags = REMOVABLE_CLEANING)
 					M.add_evidence(f_data)
 

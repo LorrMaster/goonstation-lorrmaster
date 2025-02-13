@@ -134,6 +134,8 @@ ADMIN_INTERACT_PROCS(/obj/machinery/vending, proc/throw_item, proc/admin_command
 	var/datum/data/vending_product/currently_vending = null // zuh
 
 	var/uses_mechcomp = TRUE //Can this vending machine take mechcomp inputs?
+	var/items_vended = 0
+	var/forensic_offset = 0.5
 
 	power_usage = 50
 
@@ -156,6 +158,7 @@ ADMIN_INTERACT_PROCS(/obj/machinery/vending, proc/throw_item, proc/admin_command
 		light.set_brightness(0.6)
 		light.set_height(1.5)
 		light.set_color(light_r, light_g, light_b)
+		src.forensic_offset = rand()
 		..()
 		src.panel_image = image(src.icon, src.icon_panel)
 		if (!src.chat_text)
@@ -845,6 +848,7 @@ ADMIN_INTERACT_PROCS(/obj/machinery/vending, proc/throw_item, proc/admin_command
 					if (S)
 						playsound(src.loc, S, 50, 0)
 				src.postvend_effect()
+				src.items_vended++
 
 				SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_SIGNAL, "productDispensed=[R.product_name]")
 				src.scan = null
@@ -1182,6 +1186,11 @@ ADMIN_INTERACT_PROCS(/obj/machinery/vending, proc/throw_item, proc/admin_command
 	if (src.fallen && mover.flags & TABLEPASS)
 		return TRUE
 	. = ..()
+
+/obj/machinery/vending/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		var/note = estimate_counter("Items vended", src.items_vended, scan_builder.base_accuracy, src.forensic_offset)
+		scan_builder.add_scan_text(note)
 
 /datum/action/bar/icon/right_vendor //This is used when you try to remove someone elses handcuffs.
 	duration = 5 SECONDS
