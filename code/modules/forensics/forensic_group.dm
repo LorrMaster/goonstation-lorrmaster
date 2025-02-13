@@ -265,7 +265,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	get_header()
 		return HEADER_FINGERPRINTS
 
-/datum/forensic_group/dna
+/datum/forensic_group/dna // blood and other forms of DNA evidence
 	category = FORENSIC_GROUP_DNA
 	group_flags = REMOVABLE_CLEANING
 	var/list/datum/forensic_data/dna/dna_list = list()
