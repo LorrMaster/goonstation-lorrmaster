@@ -9,7 +9,7 @@
 // Can also use to get the datum from the ID text
 var/global/list/datum/forensic_id/registered_id_list = new()
 
-/proc/register_id(var/id_text, var/list/reg_list = registered_id_list)
+/proc/register_id(var/id_text, var/list/reg_list = registered_id_list) // Check if the ID already exists and return it or create a new ID
 	if(reg_list[id_text])
 		return reg_list[id_text]
 	var/datum/forensic_id/new_id = new()
@@ -33,15 +33,13 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 
 // -----------------------------------------
 
-/proc/build_id(var/length, var/list/char_list = CHAR_LIST_NUM, var/prefix = "", var/suffix = "")
-	// Take a list of characters and build a random id with them
+/proc/build_id(var/length, var/list/char_list = CHAR_LIST_NUM, var/prefix = "", var/suffix = "") // Create a random string using the given characters
 	var/list/new_id_list = new()
 	for(var/i=1, i<= length, i++)
 		new_id_list += pick(char_list)
 	return prefix + list2text(new_id_list) + suffix
 
-/proc/build_id_norepeat(var/id_length, var/list/char_list = CHAR_LIST_NUM)
-	// Take a list of characters and build a random id with them without using repitition
+/proc/build_id_norepeat(var/id_length, var/list/char_list = CHAR_LIST_NUM) // build_id without repeatition
 	if(id_length > char_list.len)
 		id_length = char_list.len
 	var/current_len = char_list.len
@@ -53,7 +51,7 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 		current_len--
 	return list2text(new_id_list)
 
-/proc/build_id_pattern(var/pattern, var/prefix = "", var/suffix = "")
+/proc/build_id_pattern(var/pattern, var/prefix = "", var/suffix = "") // Input a type of pattern to create
 	// L = uppercase letter, l = lowercase letter, s = symbol, n = number, other = no change
 	var/list/id_list = new()
 	for(var/i=1, i<= length(pattern), i++)
@@ -79,7 +77,7 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 		final_id = splicetext(final_id, rand_index, rand_index+1, pick(char_list))
 	return final_id
 
-/proc/build_id_separated(var/text, var/bunch_size, var/separation_text = "-")
+/proc/build_id_separated(var/text, var/bunch_size, var/separation_text = "-") // Build an ID with hyphens
 	var/final_text = copytext(text, 1, bunch_size + 1)
 	var/bunch_count = floor(length(text) / bunch_size)
 	for(var/i=1; i<= bunch_count - 1; i++)

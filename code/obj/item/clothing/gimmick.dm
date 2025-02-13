@@ -1386,7 +1386,7 @@ TYPEINFO(/obj/item/clothing/gloves/ring/gold)
 	laces = LACES_NONE
 
 	get_shoe_pattern()
-		return "ll_h"
+		return "ls_l"
 
 /obj/item/clothing/shoes/heels/black
 	name = "black heels"
