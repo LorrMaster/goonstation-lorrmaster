@@ -1187,10 +1187,9 @@ ADMIN_INTERACT_PROCS(/obj/machinery/vending, proc/throw_item, proc/admin_command
 		return TRUE
 	. = ..()
 
-/obj/machinery/vending/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+/obj/machinery/vending/on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
 		..()
-		var/note = estimate_counter("Items vended", src.items_vended, scan_builder.base_accuracy, src.forensic_offset)
-		scan_builder.add_scan_text(note)
+		scan_builder.add_text("Items vended: [src.items_vended]")
 
 /datum/action/bar/icon/right_vendor //This is used when you try to remove someone elses handcuffs.
 	duration = 5 SECONDS

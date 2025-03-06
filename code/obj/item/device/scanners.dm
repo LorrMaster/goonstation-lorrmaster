@@ -463,9 +463,9 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 			var/mob/living/L = target
 			if(ishuman(L))
 				var/mob/living/carbon/human/H = L
-				H.apply_scanner_evidence(src.forensic_lead)
+				H.apply_evidence_organs(src.forensic_lead)
 			else if(L.organHolder)
-				L.organHolder.apply_scanner_evidence(src.forensic_lead)
+				L.organHolder.apply_evidence_organs(src.forensic_lead, REMOVABLE_CLEANING, FORENSIC_GROUP_SCAN)
 			if(L.bioHolder)
 				var/datum/forensic_data/multi/s_data = L.get_retina_scan()
 				s_data.evidence_C = L.bioHolder.dna_signature
@@ -489,9 +489,9 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 				return
 		..()
 
-	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
-		scan_builder.add_scan_text(id_note)
+		scan_builder.add_text(id_note)
 
 
 /obj/item/device/analyzer/healthanalyzer/upgraded
@@ -606,9 +606,9 @@ TYPEINFO(/obj/item/device/reagentscanner)
 			if (!isnull(src.scan_results))
 				. += "<br>[SPAN_NOTICE("Previous scan's results:<br>[src.scan_results]")]"
 
-	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
-		scan_builder.add_scan_text(id_note)
+		scan_builder.add_text(id_note)
 
 /////////////////////////////////////// Atmos analyzer /////////////////////////////////////
 
@@ -747,9 +747,9 @@ TYPEINFO(/obj/item/device/analyzer/atmospheric)
 					det.detonate()
 		return
 
-	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
-		scan_builder.add_scan_text(id_note)
+		scan_builder.add_text(id_note)
 
 /obj/item/device/analyzer/atmospheric/upgraded //for borgs because JESUS FUCK
 	analyzer_upgrade = 1
@@ -1283,7 +1283,7 @@ TYPEINFO(/obj/item/device/appraisal)
 				// don't bother bumping up other things
 				chat_text.show_to(user.client)
 
-	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
-		scan_builder.add_scan_text(id_note)
+		scan_builder.add_text(id_note)
 

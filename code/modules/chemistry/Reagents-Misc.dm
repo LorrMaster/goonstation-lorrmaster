@@ -136,6 +136,40 @@ datum
 						else
 							boutput(H, SPAN_NOTICE("The silver nitrate burns like hell."))
 
+			reaction_turf(var/turf/T, var/volume)
+				apply_forensics(T, volume)
+
+			reaction_obj(var/obj/O, var/volume)
+				apply_forensics(O, volume)
+				if(isitem(O))
+					var/obj/item/I = O
+					return forensic_effect(I)
+				return 1
+
+			proc/apply_forensics(var/obj/O, var/volume)
+				if(!O.forensic_holder)
+					return 1
+				var/datum/forensic_group/group = O.forensic_holder.get_group(FORENSIC_GROUP_FINGERPRINT)
+				if(!istype(group, /datum/forensic_group/fingerprints))
+					return 1
+				var/datum/forensic_group/fingerprints/fp_group = group
+				var/fadetime = 60 SECONDS
+				fp_group.silver_nitrate_time = fadetime + TIME
+
+			proc/forensic_effect(var/obj/item/I)
+				var/fadetime = 60 SECONDS
+				var/image/blood_overlay = image('icons/obj/decals/blood/blood.dmi', "itemblood")
+				blood_overlay.appearance_flags = PIXEL_SCALE | RESET_COLOR
+				blood_overlay.color = "#dcdcdc"
+				blood_overlay.luminosity = 0
+				blood_overlay.alpha = 50
+				blood_overlay.blend_mode = BLEND_INSET_OVERLAY
+				I.appearance_flags |= KEEP_TOGETHER
+				I.UpdateOverlays(blood_overlay, "blood_traces")
+				SPAWN(fadetime)
+					I?.appearance_flags &= ~KEEP_TOGETHER
+					I?.UpdateOverlays(null, "blood_traces")
+
 		silver_fulminate
 			name = "silver fulminate"
 			id = "silver_fulminate"

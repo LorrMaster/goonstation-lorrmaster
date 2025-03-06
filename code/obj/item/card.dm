@@ -37,15 +37,22 @@ TYPEINFO(/obj/item/card/emag)
 	layer = 6.0 // TODO fix layer
 	is_syndicate = 1
 	contraband = 6
+	var/datum/forensic_id/forensic_lead = null
 
 	New()
 		..()
-		src.forensic_holder?.suppress_scans = TRUE
+		src.forensic_holder?.suppress_scans = TRUE // EMAG likes its privacy
+		var/id_text = build_id_pattern(build_id(9, list("n", "s", "s")))
+		src.forensic_lead = register_id(id_text)
 
 	afterattack(var/atom/A, var/mob/user)
 		if(!A || !user)
 			return
-		A.emag_act(user, src)
+		// A.forensic_holder?.remove_evidence(REMOVABLE_DATA)
+		var/emag_result = A.emag_act(user, src)
+		if(emag_result && src.forensic_lead)
+			var/datum/forensic_data/basic/f_data = new(src.forensic_lead)
+			A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
 	attack()	//Fucking attack messages up in this joint.
 		return

@@ -1046,12 +1046,15 @@ ADMIN_INTERACT_PROCS(/obj/item, proc/admin_set_stack_amount)
 	user.update_equipped_modifiers()
 	if (src.storage && !src.storage.opens_if_worn) // also used in equipped() code if a wearing to a slot won't call equipped()
 		src.storage.hide_hud(user)
-	if(slot == SLOT_HEAD || slot == SLOT_EARS) // Not sure if this is the right place to put this
-		if(ishuman(user))
-			var/mob/living/carbon/human/H = user
+
+	// Not sure if this is the right place to put this - LorrMaster
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		if(slot == SLOT_HEAD || slot == SLOT_EARS || slot == SLOT_WEAR_SUIT || slot == SLOT_W_UNIFORM || slot == SLOT_BACK)
 			if(!H.is_bald() && H.bioHolder)
 				var/datum/forensic_data/dna/dna_data = new(H.bioHolder.dna_signature, DNA_FORM_HAIR)
 				src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
+		update_forensics(H)
 
 /obj/item/proc/unequipped(var/mob/user)
 	SHOULD_CALL_PARENT(1)
@@ -1062,7 +1065,27 @@ ADMIN_INTERACT_PROCS(/obj/item, proc/admin_set_stack_amount)
 	for(var/datum/objectProperty/equipment/prop in src.properties)
 		prop.onUnequipped(src, user, src.properties[prop])
 	src.equipped_in_slot = null
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		update_forensics(H)
 	user.update_equipped_modifiers()
+
+/obj/item/proc/update_forensics(var/mob/living/carbon/human/H) // Apply forensics to clothing / organs rather than the mob itself
+	// Need to put this in /mob/living/carbon/human
+	if(H.wear_suit)
+		H.forensic_holder = H.wear_suit.forensic_holder
+	else if(H.w_uniform)
+		H.forensic_holder = H.w_uniform.forensic_holder
+	else if(H.organHolder)
+		if(H.organHolder.chest)
+			H.forensic_holder = H.organHolder.chest.forensic_holder
+		else if(H.organHolder.head)
+			H.forensic_holder = H.organHolder.head.forensic_holder
+		else if(H.organHolder.brain) // IDK, maybe you are a brain in a jar or something
+			H.forensic_holder = H.organHolder.brain.forensic_holder
+		else
+			H.forensic_holder = new()
+			// ASSERT("No forensic_holder for [src] available")
 
 /// Call this proc inplace of afterattack(...)
 /obj/item/proc/AfterAttack(atom/target, mob/user, reach, params)

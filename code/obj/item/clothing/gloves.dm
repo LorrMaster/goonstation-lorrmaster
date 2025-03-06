@@ -19,9 +19,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	var/atom/movable/overlay/overl = null
 	var/activeweapon = 0 // Used for gloves that can be toggled to turn into a weapon (example, bladed gloves)
 
-	var/hide_prints = 1 // Seems more efficient to do this with one global proc and a couple of vars (Convair880).
-	var/scramble_prints = 0
-	var/material_prints = null
+	var/material_prints = "unknown fibers"
 
 	var/can_be_charged = 0 // Currently, there are provisions for icon state "yellow" only. You have to update this file and mob_procs.dm if you're wanna use other glove sprites (Convair880).
 
@@ -54,7 +52,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		if(src.material_prints)
 			var/fiber_text = build_id(7, CHAR_LIST_FIBERS, "[capitalize(src.material_prints)]: ")
 			src.fiber_id = register_id(fiber_text)
-			// build_fiber_mask()
+			src.fiber_mask = register_id(get_glove_mask())
 
 	examine()
 		. = ..()
@@ -185,18 +183,12 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 
 	proc/get_fingertip_color()
 		return src.color || src.fingertip_color
-	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
 		var/id_note = "[fiber_id.id]"
-		scan_builder.add_scan_text(id_note)
+		scan_builder.add_text(id_note)
 
-	proc/build_glove_mask()
-		// 000?? ?xx?? ??000 00000 00000 ==> "...?? ?xx?? ??..."
-		// peek_range: number of values & question marks
-		// peek_count: number of values to reveal
-		src.fiber_mask = null
-
-	proc/build_fiber_mask()
-		return
+	proc/get_glove_mask()
+		return build_id_glovemask_bunch(1)
 
 
 /obj/item/clothing/gloves/long // adhara stuff
@@ -213,25 +205,22 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("heatprot", 5)
 		setProperty("chemprot", 15)
 
-	build_fiber_mask()
-		// build_glove_mask(peek_range = 9, peek_count = 2)
-		return
+	get_glove_mask()
+		return build_id_glovemask_position()
 
 /obj/item/clothing/gloves/fingerless
 	desc = "These gloves lack fingers. Good for a space biker look, but not so good for concealing your fingerprints."
 	name = "fingerless gloves"
 	icon_state = "fgloves"
 	item_state = "finger-"
-	hide_prints = 0
-	material_prints = "short black fibers"
+	material_prints = "black leather fibers"
 
 	setupProperties()
 		..()
 		setProperty("conductivity", 1)
 
-	build_fiber_mask()
-		// build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
-		return
+	get_glove_mask()
+		return null
 
 /obj/item/clothing/gloves/black
 	desc = "These thick leather gloves are fire-resistant."
@@ -259,6 +248,9 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 			setProperty("conductivity", 0)
 			setProperty("exploprot", 10)
 
+	get_glove_mask()
+		return "...????..."
+
 /obj/item/clothing/gloves/black/attackby(obj/item/W, mob/user)
 	if (istool(W, TOOL_CUTTING | TOOL_SNIPPING))
 		user.visible_message(SPAN_NOTICE("[user] cuts off the fingertips from [src]."))
@@ -277,13 +269,15 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		..()
 		setProperty("conductivity", 1)
 
+	get_glove_mask()
+		return "...????..."
+
 /obj/item/clothing/gloves/latex
 	name = "latex gloves"
 	icon_state = "latex"
 	item_state = "lgloves"
 	desc = "Thin, disposable medical gloves used to help prevent the spread of germs."
 	protective_temperature = 310
-	scramble_prints = 1
 	fingertip_color = "#f3f3f3"
 	material_prints = "latex rubber prints"
 
@@ -292,9 +286,8 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("conductivity", 0.7)
 		setProperty("chemprot", 15)
 
-	build_fiber_mask()
-		// build_glove_mask(peek_range = 7, peek_count = 3)
-		return
+	get_glove_mask()
+		return build_id_glovemask_bunch(2)
 
 /obj/item/clothing/gloves/latex/blue
 	color = "#91d5e9"
@@ -316,9 +309,9 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	icon_state = "latex"
 	item_state = "lgloves"
 	desc = "Custom made gloves."
-	scramble_prints = 1
 
 	insulating
+		material_prints = "custom insulated fibers"
 		onMaterialChanged()
 			..()
 			if(istype(src.material))
@@ -334,13 +327,23 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 						src.setProperty("conductivity", 1)
 
 				var/thermal_insul = max(0, 5 - src.material.getProperty("thermal"))
-
 				src.setProperty("coldprot", thermal_insul * 2)
 				src.setProperty("heatprot", thermal_insul * 2)
+
+				var/chem_resist = src.material.getProperty("chemical")
+				if(chem_resist <= 1)
+					src.fiber_mask = register_id(build_id_glovemask_order(3)) // 1/8 chance of match
+				else if(chem_resist <= 4)
+					src.fiber_mask = register_id(build_id_glovemask_position()) // 1/4 chance of match
+				else if(chem_resist <= 6)
+					src.fiber_mask = register_id(build_id_glovemask_order(2)) // 1/2 chance of match
+				else
+					src.fiber_mask = register_id("...????...")
 
 	armored
 		icon_state = "black"
 		item_state = "swat_gl"
+		material_prints = "custom synthetic fibers"
 
 		onMaterialChanged()
 			..()
@@ -352,6 +355,16 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 					types["cut"] = 0.5 * (src.material.getProperty("density") - 2)
 				if(src.material.getProperty("hard") > 3)
 					types["stab"] = 0.5 * (src.material.getProperty("hard") - 2)
+
+				var/chem_resist = src.material.getProperty("chemical")
+				if(chem_resist <= 1) // 1/8
+					src.fiber_mask = register_id(build_id_glovemask_order(3))
+				else if(chem_resist <= 4) // 1/4
+					src.fiber_mask = register_id(build_id_glovemask_position())
+				else if(chem_resist <= 6) // 1/2
+					src.fiber_mask = register_id(build_id_glovemask_order(2))
+				else
+					src.fiber_mask = register_id("...????...")
 
 				var/thermal = max(0, 5 - src.material.getProperty("thermal"))
 				if(thermal > 0)
@@ -375,6 +388,9 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		setProperty("heatprot", 10)
 		setProperty("conductivity", 0.25)
 		setProperty("deflection", 20)
+
+	get_glove_mask()
+		build_id_glovemask_order(2)
 
 /obj/item/clothing/gloves/swat/syndicate
 	desc = "A pair of Syndicate tactical gloves that are electrically insulated and quite heat-resistant. The high-quality materials help you in blocking attacks."
@@ -434,7 +450,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	desc = "These gloves are electrically charged."
 	icon_state = "stun"
 	item_state = "stun"
-	material_prints = "insulative fibers, electrically charged"
+	material_prints = "charged insulative fibers"
 	stunready = 1
 	can_be_charged = 1
 	uses = 10
@@ -448,9 +464,8 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		..()
 		setSpecialOverride(/datum/item_special/spark/gloves, src)
 
-	build_fiber_mask()
-		// build_glove_mask(peek_range = 9, peek_count = 2)
-		return
+	get_glove_mask()
+		return build_id_glovemask_order(3)
 
 
 /obj/item/clothing/gloves/yellow
@@ -467,9 +482,8 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		..()
 		setProperty("conductivity", 0)
 
-	build_fiber_mask()
-		// build_glove_mask(peek_range = 9, peek_count = 2)
-		return
+	get_glove_mask()
+		return build_id_glovemask_order(3)
 
 	proc/unsulate()
 		src.desc = "Flimsy synthrubber work gloves styled in a drab yellow color. They are not electrically insulated, and provide no protection against any shocks."
@@ -596,6 +610,9 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		msgs.flush(SUPPRESS_LOGS)
 		user.lastattacked = target
 
+	get_glove_mask()
+		return "...????..."
+
 	proc/sheathe_blades_toggle(mob/living/user)
 		playsound(src.loc, 'sound/effects/sword_unsheath1.ogg', 35, 1, -3)
 
@@ -660,9 +677,8 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		..()
 		setProperty("conductivity", 0)
 
-	build_fiber_mask()
-		// build_glove_mask(peek_range = 9, peek_count = 2)
-		return
+	get_glove_mask()
+		return build_id_glovemask_order(3)
 
 	proc/use_power(var/amount)
 		var/turf/T = get_turf(src)
@@ -810,15 +826,13 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	desc = "Inflatable armbands that don't help you keep afloat at all! At least they look fun."
 	icon_state = "water_wings"
 	item_state = "water_wings"
-	hide_prints = 0
 
 	setupProperties()
 		..()
 		setProperty("conductivity", 1)
 
-	build_fiber_mask()
-		// build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
-		return
+	get_glove_mask()
+		return null
 
 
 //Fun isn't something one considers when coding in ss13, but this did put a smile on my face
@@ -834,6 +848,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	abilities = list()
 	ability_buttons = list()
 	which_hands = GLOVE_HAS_LEFT
+	material_prints = "metal gauntlet"
 
 	setupProperties()
 		..()
@@ -894,6 +909,9 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		if(istype(W, /obj/item/plutonium_core/hootonium_core))
 			boutput(user, SPAN_ALERT("<B>The [src] reacts but the core is too big for the slots.</B>"))
 
+	get_glove_mask()
+		return "...????..."
+
 /obj/item/clothing/gloves/princess
 	name = "party princess gloves"
 	desc = "Glimmer glimmer!"
@@ -905,3 +923,6 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 	setupProperties()
 		..()
 		setProperty("conductivity", 0.75)
+
+	get_glove_mask()
+		build_id_glovemask_position()

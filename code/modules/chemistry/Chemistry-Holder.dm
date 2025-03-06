@@ -1246,16 +1246,16 @@ proc/chem_helmet_check(mob/living/carbon/human/H, var/what_liquid="hot")
 		var/datum/reagent/blood/blood_reagent = src.reagent_list[blood_id]
 		blood_reagent?.data = bio // Check if I need to copy this
 
-	proc/forensic_scan_reagents(var/datum/forensic_scan_builder/scan_builder)
+	proc/forensic_scan_reagents(var/datum/forensic_scan_builder2/scan_builder)
 		var/datum/bioHolder/bio = src.get_blood_bioholder()
 		if(bio)
 			var/datum/forensic_data/dna/dna_data = new(bio.dna_signature, DNA_FORM_BLOOD)
-			scan_builder.add_scan_text("[dna_data.scan_display()][dna_data.get_time_estimate(scan_builder.base_accuracy)]", HEADER_DNA)
+			scan_builder.add_data(dna_data, FORENSIC_GROUP_DNA)
 		var/datum/reagent/vomit/v_reagent = src.reagent_list["vomit"]
 		bio = v_reagent?.data
 		if(bio && istype(bio))
 			var/datum/forensic_data/dna/dna_data = new(bio.dna_signature, DNA_FORM_VOMIT)
-			scan_builder.add_scan_text("[dna_data.scan_display()][dna_data.get_time_estimate(scan_builder.base_accuracy)]", HEADER_DNA)
+			scan_builder.add_data(dna_data, FORENSIC_GROUP_DNA)
 
 ///////////////////////////////////////////////////////////////////////////////////
 

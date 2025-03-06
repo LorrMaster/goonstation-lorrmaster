@@ -1237,8 +1237,6 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 	var/list/clothing_choices = list()
 	var/current_choice = new/datum/chameleon_gloves_pattern
 	material_prints = "black leather fibers"
-	hide_prints = TRUE
-	scramble_prints = FALSE
 	fingertip_color = "#535353"
 
 	New()
@@ -1317,6 +1315,9 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 			src.tooltip_rebuild = TRUE
 			usr.set_clothing_icon_dirty()
 
+	get_glove_mask()
+		return "...????..."
+
 /datum/chameleon_gloves_pattern
 	var/name = "black gloves"
 	var/desc = "These thick leather gloves are fire-resistant."
@@ -1326,8 +1327,6 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 	var/sprite_worn = 'icons/mob/clothing/hands.dmi'
 	var/sprite_hand = 'icons/mob/inhand/hand_feethand.dmi'
 	var/print_type = "black leather fibers"
-	var/hide_prints = TRUE
-	var/scramble_prints = FALSE
 	var/fingertip_color = null
 
 	insulated
@@ -1336,8 +1335,6 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 		icon_state = "yellow"
 		item_state = "ygloves"
 		print_type = "insulative fibers"
-		hide_prints = TRUE
-		scramble_prints = FALSE
 		fingertip_color = "#ffff33"
 
 	fingerless
@@ -1345,8 +1342,6 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 		name = "fingerless gloves"
 		icon_state = "fgloves"
 		item_state = "finger-"
-		hide_prints = FALSE
-		scramble_prints = FALSE
 		fingertip_color = null
 
 	latex
@@ -1354,7 +1349,6 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 		icon_state = "latex"
 		item_state = "lgloves"
 		desc = "Thin, disposal medical gloves used to help prevent the spread of germs."
-		scramble_prints = TRUE
 		fingertip_color = "#f3f3f3"
 
 	boxing
@@ -1363,8 +1357,6 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 		icon_state = "boxinggloves"
 		item_state = "bogloves"
 		print_type = "red leather fibers"
-		hide_prints = TRUE
-		scramble_prints = FALSE
 		fingertip_color = "#f80000"
 
 	long
@@ -1373,8 +1365,6 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 		icon_state = "long_gloves"
 		item_state = "long_gloves"
 		print_type = "synthetic silicone rubber fibers"
-		hide_prints = TRUE
-		scramble_prints = FALSE
 		fingertip_color = "#ffff33"
 
 	gauntlets
@@ -1383,8 +1373,6 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 		icon_state = "cgaunts"
 		item_state = "bgloves"
 		print_type = "industrial-grade mineral fibers"
-		hide_prints = TRUE
-		scramble_prints = FALSE
 		fingertip_color = "#535353"
 
 	caps_gloves
@@ -1393,8 +1381,6 @@ ABSTRACT_TYPE(/datum/chameleon_suit_pattern)
 		icon_state = "capgloves"
 		item_state = "capgloves"
 		print_type = "high-quality synthetic fibers"
-		hide_prints = TRUE
-		scramble_prints = FALSE
 		fingertip_color = "#3fb54f"
 
 /obj/item/storage/belt/chameleon

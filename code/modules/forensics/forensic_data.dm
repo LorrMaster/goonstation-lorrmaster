@@ -1,4 +1,4 @@
-
+estimate_counter
 // Note: multiple forensic_holders should not share forensic_data, each should have their own instance of the evidence
 
 /datum/forensic_data
@@ -14,7 +14,7 @@
 		src.time_end = time_start
 		src.perc_offset = (rand() - 0.5) * 2
 		src.accuracy_mult *= ((rand() - 0.5) * 0.15) + 1
-	proc/scan_display() // The text to display when scanned
+	proc/get_text() // The text to display when scanned
 		return ""
 	proc/should_remove(var/remove_flags) // Compare removable flags
 		return HAS_ANY_FLAGS((src.flags & REMOVABLE_ALL), remove_flags)
@@ -53,14 +53,8 @@
 		src.display = disp
 		src.flags = flags
 
-	scan_display()
+	get_text()
 		var/scan_text = replacetext(display.display_text, "@F", evidence.id)
-		var/time_text = null
-		if(time_start == 0)
-			time_text = ""
-		else
-			time_text = "TTTTT"
-		scan_text = replacetext(scan_text, "@T", time_text) // Change this to just add a timestamp at the end
 		return scan_text
 
 	get_copy()
@@ -85,7 +79,7 @@
 		src.evidence_B = idB
 		src.evidence_C = idC
 		src.display = disp
-	scan_display()
+	get_text()
 		var/scan_text = display.display_text
 		if(!evidence_A)
 			scan_text = replacetextEx(scan_text, "@A", "")
@@ -112,18 +106,59 @@
 	proc/is_same(datum/forensic_data/multi/other)
 		return src.evidence_A == other.evidence_A && src.evidence_B == other.evidence_B && src.evidence_C == other.evidence_C
 
+/*
+/datum/forensic_data/value // Forensic data that holds a value to be incremented
+	// Example: counter for the number of times an item has been used
+	var/datum/forensic_id/label // Both an identifier and a label for this value when displayed
+	var/value = 0
+
+	New(var/datum/forensic_id/label, var/value_init)
+		src.label = label
+		src.value = value_init
+		..()
+
+	get_text()
+		// return estimate_counter(label.id, value, src.accuracy)
+		return "[capitalize(label.id)]: [value]"
+
+	get_copy()
+		var/datum/forensic_data/value/c_data = new(src.label, src.value)
+		return c_data
+
+	proc/is_same(datum/forensic_data/value/other)
+		return src.label == other.label
+
+	proc/estimate_counter(var/text, var/actual, var/accuracy, var/offset)
+		if(actual <= 0)
+			return "[text]: [actual]"
+
+		var/note = null
+		if(accuracy < 0 || accuracy > FORENSIC_BASE_ACCURACY)
+			accuracy = FORENSIC_BASE_ACCURACY
+		var/high_est = round(actual + (actual * accuracy * offset))
+		var/low_est = max(0, round(actual - (actual * accuracy * (1 - offset))))
+		if(high_est == low_est)
+			note = "[text]: [actual]"
+		else
+			note = "[text]: [low_est] to [high_est]"
+		return note
+*/
+
 /datum/forensic_data/text
 	var/forensic_text
-	
-	New(var/f_text = "")
+
+	New(var/f_text = "", var/flags = 0)
 		..()
 		src.forensic_text = f_text
+		src.flags = flags
 
-	scan_display()
+	get_text()
 		return forensic_text
 
 	get_copy()
-
+		var/datum/forensic_data/text/t_data = new(src.forensic_text, src.flags)
+		t_data.accuracy_mult = src.accuracy_mult
+		return t_data
 
 	proc/is_same(datum/forensic_data/text/other)
 		return src.forensic_text == other.forensic_text
@@ -133,17 +168,15 @@
 	var/datum/forensic_id/print = null // The original fingerprint
 	var/datum/forensic_id/glove_print = null // The glove fibres & ID
 	var/datum/forensic_id/print_mask = null // The mask that the gloves apply to the print
-	var/static/datum/forensic_id/empty_mask = new("") // Used to mark fingerless gloves that can still leave behind fibers
-	var/static/datum/forensic_id/null_mask = new("0123-4567-89AB-CDEF")
 
-	scan_display()
-		if(!src.print)
-			return "FP not found: Please report as bug"
-		if(!src.glove_print)
-			return print.id
-		if(!src.print_mask)
-			return "([glove_print.id])"
-		return get_print() + " ([glove_print.id])"
+	get_text()
+		var/print = get_fingerprint()
+		var/fibers = get_fibers()
+		if(print && fibers)
+			if(!src.print_mask)
+				print = SPAN_SUBTLE(print)
+			return "([print]) [fibers]"
+		return print + fibers
 
 	get_copy()
 		var/datum/forensic_data/fingerprint/c_data = new()
@@ -154,42 +187,26 @@
 		c_data.accuracy_mult = src.accuracy_mult
 		return c_data
 
-	proc/get_print() // return the fingerprint, which could be obscured by gloves
-		if(src.print_mask == empty_mask)
-			return print.id
-		var/final_print = "..."
-		var/bunch_char = 0
-		var/bunch_num = 0
-		// var/last_shown = FALSE // Used for inserting the hyphens
-		for(var/i=1, i<= FINGERPRINT_LENGTH, i++)
-			switch(copytext(print_mask.id, i, i+1))
-				if("?")
-					final_print += "?"
-				if("x")
-					final_print += copytext(print.id, i + bunch_num, i + bunch_num + 1)
-			bunch_char++
-			if(bunch_char >= FINGERPRINT_BUNCH_SIZE)
-				bunch_char = 0
-				bunch_num++
-		return final_print + "...";
-
-	proc/maskprint()
-		var/final_print = ""
-		if(!final_print)
-			final_print = null_mask.id
-		for(var/i=1, i<= length(print_mask.id), i++)
-			var/char_i = copytext(print_mask.id, i, i+1)
-			var/index = -1
-			if(isnum(char_i))
-				index = text2num_safe(char_i) + 1
-			else if(is_uppercase_letter(char_i))
-				index = text2ascii(char_i) - 55 + 1
-			index = index + floor(index / FINGERPRINT_BUNCH_SIZE)
-			if(index <= 0 || index > length(print.id))
-				final_print += char_i
+	proc/get_fingerprint()
+		if(!src.print)
+			return ""
+		if(!src.print_mask)
+			return src.print.id
+		var/fp = ""
+		for(var/i=1; i<=length(src.print_mask.id); i++)
+			var/char = copytext(src.print_mask.id, i, i+1)
+			if(is_hex(char))
+				var/index = hex2num(char) + 1
+				index += floor(index / 4)
+				fp += copytext(src.print.id, index, index + 1)
 			else
-				final_print += copytext(print.id, i, i+1)
-		return
+				fp += char
+		return fp
+
+	proc/get_fibers()
+		if(!src.glove_print)
+			return ""
+		return glove_print.id
 
 	proc/is_same(datum/forensic_data/fingerprint/other)
 		return src.print == other.print && src.glove_print == other.glove_print
@@ -207,10 +224,17 @@
 		if(!src.pattern)
 			src.pattern = dna_unknown
 		src.form = form
-		if(form == DNA_FORM_BLOOD)
-			src.accuracy_mult *= 0.75
+		switch(src.form)
+			if(DNA_FORM_BLOOD)
+				src.accuracy_mult *= 0.75
+			if(DNA_FORM_HAIR)
+				src.accuracy_mult *= 1.25
+			if(DNA_FORM_BONE)
+				src.accuracy_mult *= 1.5
+			if(DNA_FORM_VOMIT)
+				src.accuracy_mult *= 0.8
 
-	scan_display()
+	get_text()
 		if(HAS_FLAG(src.flags, IS_TRACE)) // Luminol regent
 			// Color should be set to "#3399FF" to represent luminol. Not sure how to do this.
 			return pattern.id + " (" + SPAN_HINT("blood traces") + ")"
@@ -250,7 +274,7 @@
 	var/deflection_angle = 0 // What direction did the projectile leave (if relevant)
 	var/cone_of_tolerance = 10 // Base accuracy in determining the angle of the bullet in degrees
 
-	scan_display()
+	get_text()
 		var/scan_text = "Bullet ID: [proj_id.id]"
 		switch(src.impact_type)
 			if(PROJ_BULLET_THROUGH)
@@ -291,7 +315,7 @@
 		..()
 		src.client = print_client
 
-	scan_display()
+	get_text()
 		var/p_name = "Test: [client.ckey]"
 		return p_name
 

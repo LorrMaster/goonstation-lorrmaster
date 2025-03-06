@@ -37,6 +37,6 @@
 	f_data.flags = REMOVABLE_CLEANING
 	target.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
-/obj/item/device/analyzer/genetic/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+/obj/item/device/analyzer/genetic/on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
-		scan_builder.add_scan_text(id_note)
+		scan_builder.add_text(id_note)

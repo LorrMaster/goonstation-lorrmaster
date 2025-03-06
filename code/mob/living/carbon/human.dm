@@ -3677,44 +3677,45 @@ mob/living/carbon/human/has_genetics()
 
 	. = ..()
 
-/mob/living/carbon/human/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+/mob/living/carbon/human/on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
 	..()
+	// Combine all the visible forensic holders into a single holder
+	var/datum/forensic_holder/f_holder = new()
+	scan_builder.holder = f_holder
 	// --- Head ---
 	if(src.head)
-		scan_builder.add_target(src.head)
+		src.head.forensic_holder?.copy_evidence(f_holder)
 	if(src.wear_mask && !(src.head?.hides_from_examine & C_MASK))
-		scan_builder.add_target(src.wear_mask)
-	else if(src.organHolder?.head)
-		scan_builder.add_target(src.organHolder.head)
-
+		src.wear_mask.forensic_holder?.copy_evidence(f_holder)
+	if(src.organHolder?.head && !(src.head?.body_parts_covered & HEAD) && !(src.wear_mask?.body_parts_covered & HEAD))
+		src.organHolder.head.forensic_holder?.copy_evidence(f_holder)
 	// --- Hands ---
 	if(src.gloves)
-		scan_builder.add_target(src.gloves)
-	else
+		src.gloves.forensic_holder?.copy_evidence(f_holder)
+	else if(src.limbs)
 		if(src.limbs.r_arm)
-			scan_builder.add_target(src.limbs.r_arm)
+			src.limbs.r_arm.forensic_holder?.copy_evidence(f_holder)
 		if(src.limbs.l_arm)
-			scan_builder.add_target(src.limbs.l_arm)
-
+			src.limbs.l_arm.forensic_holder?.copy_evidence(f_holder)
 	// --- Torso ---
 	if(src.wear_suit)
-		scan_builder.add_target(src.wear_suit)
+		src.wear_suit.forensic_holder?.copy_evidence(f_holder)
 	else if(src.w_uniform && !(src.wear_suit?.hides_from_examine & C_UNIFORM))
-		scan_builder.add_target(src.w_uniform)
-	else if(src.organHolder?.chest)
-		scan_builder.add_target(src.organHolder.chest)
-
+		src.w_uniform.forensic_holder?.copy_evidence(f_holder)
+	else if(src.organHolder?.chest && !(src.head?.body_parts_covered & TORSO) && !(src.wear_mask?.body_parts_covered & TORSO))
+		src.organHolder.chest.forensic_holder?.copy_evidence(f_holder)
 	// --- Shoes ---
 	if(src.shoes)
-		scan_builder.add_target(src.shoes)
-	else
-		var/datum/forensic_data/multi/f_data = get_footprints(ignore_chair = TRUE)
-		var/note_footprints = f_data.scan_display()
-		scan_builder.add_scan_text("[src]'s footprints: [note_footprints]")
+		src.shoes.forensic_holder?.copy_evidence(f_holder)
+	else if(src.limbs)
 		if(src.limbs.r_leg)
-			scan_builder.add_target(src.limbs.r_leg)
+			src.limbs.r_leg.forensic_holder?.copy_evidence(f_holder)
 		if(src.limbs.l_leg)
-			scan_builder.add_target(src.limbs.l_leg)
+			src.limbs.l_leg.forensic_holder?.copy_evidence(f_holder)
+
+	var/datum/forensic_data/multi/f_data = get_footprints(ignore_chair = TRUE)
+	var/note_footprints = f_data.get_text()
+	scan_builder.add_text("[src]'s footprints: [note_footprints]")
 
 /mob/living/carbon/human/proc/get_footprints(var/ignore_chair = FALSE)
 	if(!ignore_chair)
@@ -3727,7 +3728,7 @@ mob/living/carbon/human/has_genetics()
 	if(!src.limbs) // Just in case
 		f_data.evidence_A = src.drag_mob_print
 		f_data.evidence_B = src.drag_mob_print
-	if(!src.limbs.l_leg && !src.limbs.r_leg)
+	else if(!src.limbs.l_leg && !src.limbs.r_leg)
 		f_data.evidence_A = src.drag_mob_print
 		f_data.evidence_B = src.drag_mob_print
 	else
@@ -3746,25 +3747,35 @@ mob/living/carbon/human/has_genetics()
 	f_data.display = f_data.disp_pair
 	return f_data
 
-/mob/living/carbon/human/proc/apply_scanner_evidence(var/datum/forensic_id/scan_id, var/datum/forensic_display/scan_disp = /datum/forensic_data/basic::disp_empty)
+/mob/living/carbon/human/proc/apply_evidence_organs(var/datum/forensic_id/scan_id, var/datum/forensic_display/scan_disp = /datum/forensic_data/basic::disp_empty)
 	// Apply the evidence to every non-robo limb/organ in the body. Only works with scan particles for now.
-	src.organHolder?.apply_scanner_evidence(scan_id)
-	if(src.limbs)
-		if(src.limbs.r_arm)
-			if(!isrobolimb(src.limbs.r_arm))
-				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-				src.limbs.r_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
-		if(src.limbs.l_arm)
-			if(!isrobolimb(src.limbs.l_arm))
-				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-				src.limbs.l_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
-		if(src.limbs.r_leg)
-			if(!isrobolimb(src.limbs.r_leg))
-				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-				src.limbs.r_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
-		if(src.limbs.l_leg)
-			if(!isrobolimb(src.limbs.l_leg))
-				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-				src.limbs.l_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+	src.organHolder?.apply_evidence_organs(scan_id, REMOVABLE_CLEANING, FORENSIC_GROUP_SCAN)
+	if(!src.limbs)
+		return
+	if(src.limbs.r_arm && !isrobolimb(src.limbs.r_arm))
+		var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
+		src.limbs.r_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+	if(src.limbs.l_arm && !isrobolimb(src.limbs.l_arm))
+		var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
+		src.limbs.l_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+	if(src.limbs.r_leg && !isrobolimb(src.limbs.r_leg))
+		var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
+		src.limbs.r_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+	if(src.limbs.l_leg && !isrobolimb(src.limbs.l_leg))
+		var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
+		src.limbs.l_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
 
-
+/mob/living/carbon/human/proc/remove_evidence_organs(var/removal_flags)
+	if(!removal_flags)
+		return
+	src.organHolder?.remove_evidence_organs(removal_flags)
+	if(!src.limbs)
+		return
+	if(src.limbs.r_arm && !isrobolimb(src.limbs.r_arm))
+		src.limbs.r_arm.forensic_holder?.remove_evidence(removal_flags)
+	if(src.limbs.l_arm && !isrobolimb(src.limbs.l_arm))
+		src.limbs.l_arm.forensic_holder?.remove_evidence(removal_flags)
+	if(src.limbs.r_leg && !isrobolimb(src.limbs.r_leg))
+		src.limbs.r_leg.forensic_holder?.remove_evidence(removal_flags)
+	if(src.limbs.l_leg && !isrobolimb(src.limbs.l_leg))
+		src.limbs.l_leg.forensic_holder?.remove_evidence(removal_flags)

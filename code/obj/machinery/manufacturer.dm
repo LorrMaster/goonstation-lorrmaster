@@ -861,11 +861,11 @@ TYPEINFO(/obj/machinery/manufacturer)
 			return TRUE
 		return FALSE
 
-	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
-		var/id_note = "Fabricator pattern ID: [src.forensic_lead.id]"
+	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+		var/id_note = "Fabrication pattern ID: [src.forensic_lead.id]"
 		var/count_note = estimate_counter("Items fabricated", src.items_fabricated, scan_builder.base_accuracy, src.forensic_offset)
-		scan_builder.add_scan_text(id_note)
-		scan_builder.add_scan_text(count_note)
+		scan_builder.add_text(id_note)
+		scan_builder.add_text(count_note)
 	/*
 	Handling for shocking the user
 	Handling for getting the satchel of an ore scoop

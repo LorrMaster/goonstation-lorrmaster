@@ -86,10 +86,10 @@
 				return "lslll"
 			if(3)
 				return "lllsl"
-	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
 		..()
 		var/note_footprints = "[src.shoe_print_l.id] [src.shoe_print_r.id]"
-		scan_builder.add_scan_text("[src]'s shoeprints: [note_footprints]")
+		scan_builder.add_text("[src]'s shoeprints: [note_footprints]")
 
 
 /obj/item/clothing/shoes/rocket

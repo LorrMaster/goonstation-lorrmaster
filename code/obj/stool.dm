@@ -125,11 +125,11 @@
 		if (src.buckled_guy)
 			src.buckled_guy.end_chair_flip_targeting()
 
-	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
 		..()
 		var/datum/forensic_data/multi/f_data = get_chairprint()
-		var/note_chairprints = f_data.scan_display()
-		scan_builder.add_scan_text("[src]'s chairprints: [note_chairprints]")
+		var/note_chairprints = f_data.get_text()
+		scan_builder.add_text("[src]'s chairprints: [note_chairprints]")
 
 	proc/toggle_secure(mob/user as mob)
 		if (user)

@@ -59,12 +59,12 @@
 				H.update_face()
 		. = ..()
 
-	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
 		..()
 		if(retina_scan)
-			scan_builder.add_scan_text("[src]'s retina ID: [src.retina_scan.id]")
+			scan_builder.add_text("[src]'s retina ID: [src.retina_scan.id]")
 		else
-			scan_builder.add_scan_text("[src]'s retina ID: _____")
+			scan_builder.add_text("[src]'s retina ID: _____")
 
 	proc/update_color(datum/appearanceHolder/AH, side)
 		if(src.change_iris)

@@ -1205,7 +1205,6 @@ TYPEINFO(/obj/item/clothing/under/gimmick/dawson)
 	icon_state = "ring"
 	item_state = "ring"
 	material_prints = "sharp scratches"
-	hide_prints = 0
 	rand_pos = 1
 	which_hands = GLOVE_HAS_LEFT
 
@@ -1291,6 +1290,9 @@ TYPEINFO(/obj/item/clothing/under/gimmick/dawson)
 			else
 				return ..()
 
+	get_glove_mask()
+		return null
+
 	proc/oh_no_the_ring()
 		if (!isturf(src.loc))
 			return
@@ -1336,10 +1338,6 @@ TYPEINFO(/obj/item/clothing/gloves/ring/gold)
 	mat_changename = 0 // okay let's just be "gold ring" and not "flimsy soft good gold ring" tia
 	default_material = "gold"
 
-	build_fiber_mask()
-		// build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
-		return
-
 /obj/item/clothing/gloves/ring/titanium // fancy loot crate ring that gives you hulk, basically. real overpowered?  :T
 	name = "titanium ring"
 	desc = "A little ring with a strange green gem, worn on the ring finger. You absolutely can't wear rings on any other fingers. It's just not possible."
@@ -1359,10 +1357,6 @@ TYPEINFO(/obj/item/clothing/gloves/ring/gold)
 		if (!user.bioHolder || !user.bioHolder.HasEffect("hulk"))
 			boutput(user, "Your muscles shrink back down.")
 		return ..()
-
-	build_fiber_mask()
-		// build_glove_mask(peek_range = FINGERPRINT_LENGTH, peek_count = FINGERPRINT_LENGTH)
-		return
 
 /obj/item/clothing/head/veil
 	name = "lace veil"
@@ -1781,7 +1775,7 @@ TYPEINFO(/obj/item/clothing/under/gimmick/shirtnjeans)
 	desc = "This is some sort of hand-mounted computer. Or it would be if it wasn't made out of cheap plastic and LEDs."
 	icon_state = "handcomp"
 	item_state = "handcomp"
-	hide_prints = 0
+	material_prints = "plastic prints"
 	which_hands = GLOVE_HAS_RIGHT
 
 	setupProperties()
