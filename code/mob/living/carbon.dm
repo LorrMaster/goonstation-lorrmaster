@@ -138,7 +138,10 @@
 		else
 			amount *= 0.33
 
+	var/tox_prev = src.toxloss
 	src.toxloss = max(0,src.toxloss + amount)
+	if(tox_prev > 5 && src.toxloss <= 5)
+		heal_forensic_update()
 	return
 
 /mob/living/carbon/take_oxygen_deprivation(var/amount)
@@ -157,8 +160,24 @@
 		if (!isdead(src))
 			H.emote(pick("wheeze", "cough", "sputter"))
 
+	var/oxy_prev = src.oxyloss
 	src.oxyloss = max(0,src.oxyloss + amount)
+	if(oxy_prev > 5 && src.oxyloss <= 5)
+		heal_forensic_update()
+
 	return
+
+/mob/living/carbon/proc/heal_forensic_update()
+	if(!src.forensic_holder)
+		return
+	var/removal_flags = 0
+	if(src.health <= 5)
+		removal_flags = REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_BURN
+	if(src.toxloss <= 5)
+		removal_flags |= REMOVABLE_HEAL_TOXIN
+	if(src.oxyloss <= 5)
+		removal_flags |= REMOVABLE_HEAL_OXYGEN
+	src.forensic_holder.remove_evidence(removal_flags)
 
 /mob/living/carbon/get_brain_damage()
 	return src.brainloss

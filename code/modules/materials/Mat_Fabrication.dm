@@ -81,6 +81,7 @@
 	layer = FLOOR_EQUIP_LAYER1
 	flags = NOSPLASH
 	deconstruct_flags = DECON_SCREWDRIVER | DECON_WRENCH | DECON_CROWBAR | DECON_WELDER | DECON_WIRECUTTERS | DECON_MULTITOOL
+	var/datum/forensic_id/forensic_lead = null
 
 	/// Produced objects are fed back into the fabricator.
 	var/outputInternal = 0
@@ -105,6 +106,7 @@
 	New()
 		for(var/R in blueprints)
 			recipes.Add(new R())
+		src.forensic_lead = register_id(build_id_pattern("Lnnn", "NANO-"))
 		..()
 
 	attack_hand(mob/user)
@@ -375,6 +377,11 @@
 
 	ex_act(severity)
 		return
+
+	// Note: Need to apply evidence to built objects - LorrMaster
+	// on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	// 	var/id_note = "Fabrication pattern ID: [src.forensic_lead.id]"
+	// 	scan_builder.add_text(id_note)
 
 
 /obj/item/paper/nano_blueprint

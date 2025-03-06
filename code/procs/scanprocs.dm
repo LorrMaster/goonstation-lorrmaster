@@ -545,31 +545,35 @@
 		return
 	if(visible)
 		animate_scanning(A, "#c6df56", time = 10)
-	if(A.forensic_holder.suppress_scans || A.reagents?.get_reagent_amount("cloak_juice") >= 5)
-		return "Overwhelming interference coming from \The [A] nullifys the scan!" // Note: Need to exclude admin scans -LorrMaster
-	var/datum/forensic_scan_builder/scan_builder = new()
-	scan_builder.base_accuracy = -1
+	var/accuracy = -1
 	if(ishuman(user))
 		// Calculate this person's scan accuracy
 		var/mob/living/carbon/human/H = user
 		if(H.traitHolder.hasTrait("training_forensic"))
-			scan_builder.base_accuracy = 1
-		if(scan_builder.base_accuracy > 0)
+			accuracy = 1
+		if(accuracy > 0)
 			if(scanner)
-				scan_builder.base_accuracy *= scanner.timestamp_modifier
+				accuracy *= scanner.timestamp_modifier
 			if(istype(H.head, /obj/item/clothing/head/det_hat))
-				scan_builder.base_accuracy *= 0.9
+				accuracy *= 0.9
 			else if(istype(H.glasses, /obj/item/clothing/glasses/scuttlebot_vr))
-				scan_builder.base_accuracy *= 0.9
+				accuracy *= 0.9
 			else if(istype(H.head, /obj/item/clothing/head/deerstalker))
-				scan_builder.base_accuracy *= 0.9
+				accuracy *= 0.9
 			if(ispug(H))
-				scan_builder.base_accuracy *= 0.9
+				accuracy *= 0.9
 	if(isturf(A))
 		var/turf/T = A
 		if(T.active_liquid)
 			A = T.active_liquid // If the turf has a fluid, scan the fluid instead
-	return scan_builder.compile_scan(A)
+
+	// Now perform the actual scan
+	if(A.forensic_holder.suppress_scans || A.reagents?.get_reagent_amount("cloak_juice") >= 5)
+		return "Overwhelming interference coming from \The [A] nullifys the scan!" // Note: Need to exclude admin scans -LorrMaster
+	var/datum/forensic_scan_builder2/scan_builder = new(A, accuracy)
+	A.on_forensic_scan(scan_builder)
+	scan_builder.collect_data()
+	return scan_builder.build_report()
 
 // Made this a global proc instead of 10 or so instances of duplicate code spread across the codebase (Convair880).
 /proc/scan_atmospheric(var/atom/A as turf|obj, var/pda_readout = 0, var/simple_output = 0, var/visible = 0, var/alert_output = 0)

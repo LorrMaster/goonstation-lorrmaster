@@ -21,8 +21,8 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		return
 	proc/get_evidence_list(var/include_trace = FALSE)
 		return null
-	proc/get_text(var/datum/forensic_scan_builder/scan_builder)
-		return ""
+	proc/get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+		return
 	proc/get_header() // The label that this evidence will be displayed under for scans
 		return SPAN_ALERT("Error: Forensic scan header not found")
 	proc/remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
@@ -43,12 +43,12 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	get_evidence_list(var/include_trace = FALSE)
 		return src.notes_list
 
-	get_text(var/datum/forensic_scan_builder/scan_builder)
-		var/data_text = ""
-		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
+	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		for(var/i=1, i<= src.notes_list.len; i++)
-			data_text += "<li>" + src.notes_list[i].scan_display() + src.notes_list[i].get_time_estimate(scan_accuracy) + "</li>"
-		return data_text
+			var/datum/forensic_data/f_data = src.notes_list[i].get_copy()
+			f_data.accuracy_mult *= scan_accuracy
+			scan_builder.add_data(f_data, get_header())
 
 	get_header()
 		return HEADER_NOTES
@@ -95,12 +95,12 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			if(src.evidence_list[i].should_remove(removal_flags))
 				src.evidence_list.Cut(i, i+1)
 
-	get_text(var/datum/forensic_scan_builder/scan_builder)
-		var/data_text = ""
-		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
+	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		for(var/i=1, i<= src.evidence_list.len; i++)
-			data_text += "<li>" + src.evidence_list[i].scan_display() + src.evidence_list[i].get_time_estimate(scan_accuracy) + "</li>"
-		return data_text
+			var/datum/forensic_data/f_data = src.evidence_list[i].get_copy()
+			f_data.accuracy_mult *= scan_accuracy
+			scan_builder.add_data(f_data, get_header())
 
 /datum/forensic_group/basic_list/scanner
 	category = FORENSIC_GROUP_SCAN
@@ -122,10 +122,12 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	category = FORENSIC_GROUP_SLEUTH_COLOR
 	group_flags = REMOVABLE_CLEANING
 
-	get_text(var/datum/forensic_scan_builder/scan_builder)
-		return ""
+	get_evidence_list(var/include_trace = FALSE)
+		return null
 	get_header()
 		return "Sleuth"
+	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+		return
 	proc/get_sleuth_text(var/atom/A)
 		var/data_text = ""
 		var/sleuth_accuracy = 0.35
@@ -184,12 +186,12 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			if(src.evidence_list[i].should_remove(removal_flags))
 				src.evidence_list.Cut(i, i+1)
 
-	get_text(var/datum/forensic_scan_builder/scan_builder)
-		var/data_text = ""
-		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
+	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		for(var/i=1, i<= src.evidence_list.len; i++)
-			data_text += "<li>" + src.evidence_list[i].scan_display() + src.evidence_list[i].get_time_estimate(scan_accuracy) + "</li>"
-		return data_text
+			var/datum/forensic_data/f_data = src.evidence_list[i].get_copy()
+			f_data.accuracy_mult *= scan_accuracy
+			scan_builder.add_data(f_data, get_header())
 
 /datum/forensic_group/multi_list/footprints
 	category = FORENSIC_GROUP_TRACKS
@@ -227,6 +229,8 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	group_flags = REMOVABLE_CLEANING
 	group_accuracy = 1.25
 	var/list/datum/forensic_data/fingerprint/prints_list = list()
+	var/iodine_time = 0
+	var/silver_nitrate_time = 0
 
 	apply_evidence(var/datum/forensic_data/data)
 		if(!istype(data, /datum/forensic_data/fingerprint))
@@ -255,12 +259,16 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			prints_list = null
 			parent.cut_group(category)
 
-	get_text(var/datum/forensic_scan_builder/scan_builder)
-		var/fp_text = ""
-		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
-		for(var/i=1, i<= prints_list.len; i++)
-			fp_text += "<li>" + prints_list[i].scan_display() + src.prints_list[i].get_time_estimate(scan_accuracy) + "</li>"
-		return fp_text
+	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
+		if(iodine_time > TIME)
+			scan_accuracy *= 0.7
+		for(var/i=1, i<= src.prints_list.len; i++)
+			var/datum/forensic_data/fingerprint/f_data = src.prints_list[i].get_copy()
+			f_data.accuracy_mult *= scan_accuracy
+			if(silver_nitrate_time <= TIME && f_data.print_mask && !scan_builder.is_admin)
+				f_data.print = null
+			scan_builder.add_data(f_data, get_header())
 
 	get_header()
 		return HEADER_FINGERPRINTS
@@ -313,16 +321,17 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		if(dna_list.len == 0 && dna_trace_list.len == 0)
 			parent.cut_group(category)
 
-	get_text(var/datum/forensic_scan_builder/scan_builder)
-		var/data_text = ""
-		var/scan_accuracy = scan_builder.base_accuracy * src.group_accuracy
+	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		for(var/i=1, i<= src.dna_list.len; i++)
-			data_text += "<li>" + src.dna_list[i].scan_display(0) + src.dna_list[i].get_time_estimate(scan_accuracy) + "</li>"
+			var/datum/forensic_data/f_data = src.dna_list[i].get_copy()
+			f_data.accuracy_mult *= scan_accuracy
+			scan_builder.add_data(f_data, get_header())
 		if(luminol_time > TIME)
-			scan_accuracy *= 2
 			for(var/i=1, i<= src.dna_trace_list.len; i++)
-				data_text += "<li>" + src.dna_trace_list[i].scan_display() + src.dna_trace_list[i].get_time_estimate(scan_accuracy) + "</li>"
-		return data_text
+				var/datum/forensic_data/f_data = src.dna_trace_list[i].get_copy()
+				f_data.accuracy_mult *= scan_accuracy * 2
+				scan_builder.add_data(f_data, get_header())
 
 	get_header()
 		return HEADER_DNA

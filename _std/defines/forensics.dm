@@ -8,7 +8,8 @@ TODO:
  - Remove & replace all the old forensics stuff in general
  - Scan report changes
 	- Seperate each line to its own variable to allow line order variation
-	
+- Contraband
+
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction
@@ -22,8 +23,34 @@ Lower Priority
  - Hold towels / handkerchief to prevent fingerprints
  - Evidence for stackables
  	- Attach cleanables to floor tiles
- - Luminol should glow and work on mobs/turf
+ - Reagents
+ 	- Luminol should glow and work on mobs/turf
 		- Rework luminol timer.
+	- Fingerprint reagents
+		- Iodine: Fingerprint accuracy x0.7
+		- Silver: ???
+		- Silver Nitrate: Reveal partial prints
+	- Hairgrowium: Hair sample accuracy x0.5
+		- Super Hairgrowium: Hair sample perfect accuracy
+		- Omega Hairgrownium: ???
+	- Black Powder: Scan stickers on items?
+	- Cryostylane: Burn marks?
+	- Charcoal: ???
+	- Magnesium Chloride: Remove ice?
+	- Unstable Mutagen: Mess with DNA samples
+	- Mutadone: Restore DNA samples damaged by unstable mutagen
+	- Stable Mutagen + blood: Replace all DNA samples with the blood's DNA
+- Damage Sources
+	- Radiation: Randomized? Variable based on intensity?
+	- Vacuum suffocation: ???
+	- Non-vacuum suffocation: Depends on gas
+	- Burn marks: Explosion / fire evidence lead?
+
+	- Capulettum: Head (swollen tongue),
+	- Toxin: Stomach
+	- Sewage: Stomach
+	- Cytotoxin: Limbs (???), Stomach (???)
+	- Ants: intestines, stomach (insect bites)
 */
 
 // mask: 0123456789ABCDEF
@@ -40,6 +67,7 @@ Lower Priority
 // Reveal one char and its position in the bunch: (1/4) ==> insulated gloves
 // Reveal the order of two characters (1/2) ==> normal gloves
 // Reveal the order of three characters (1/8) ==> latex gloves
+// Reveal the order of four characters (1/64) ==> latex gloves
 // Reveal which bunch a char is in (1/4) ==>
 
 // Notes for various stuff in the detective office?
@@ -72,6 +100,7 @@ Lower Priority
 #define FORENSIC_GROUP_SLEUTH_COLOR 12 // Pug sleuthing
 #define FORENSIC_GROUP_PROJ_HIT 13
 #define FORENSIC_GROUP_BITE 14 // nom nom nom
+#define FORENSIC_GROUP_DAMAGE 15
 
 /proc/forensic_group_create(var/category) // Create a new group from its unique variable
 	// Is there a better way to do this? IDK
@@ -108,7 +137,10 @@ Lower Priority
 #define REMOVABLE_REPAIR (1 << 7)
 #define REMOVABLE_HEAL_BRUTE (1 << 8)
 #define REMOVABLE_HEAL_BURN (1 << 9)
-#define REMOVABLE_ALL REMOVABLE_CLEANING | REMOVABLE_DATA | REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_BURN
+#define REMOVABLE_HEAL_TOXIN (1 << 10)
+#define REMOVABLE_HEAL_OXYGEN (1 << 11)
+#define REMOVABLE_HEAL REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_BURN | REMOVABLE_HEAL_TOXIN | REMOVABLE_HEAL_OXYGEN
+#define REMOVABLE_ALL REMOVABLE_CLEANING | REMOVABLE_DATA | REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_BURN | REMOVABLE_HEAL_TOXIN | REMOVABLE_HEAL_OXYGEN
 
 #define FORENSIC_BASE_ACCURACY 0.35 // Base modifier for how accurate timestamp estimates are
 

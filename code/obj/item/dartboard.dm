@@ -24,10 +24,10 @@
 		if (src.last_score == 50)
 			src.visible_message(SPAN_ALERT("It's a bullseye!"))
 
-	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
 		..()
 		var/note = "Number of darts hit: [src.hit_count]"
-		scan_builder.add_scan_text(note)
+		scan_builder.add_text(note)
 
 /obj/item/storage/box/lawndart_kit
 	name = "Lawn Darts box"

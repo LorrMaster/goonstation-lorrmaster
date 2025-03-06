@@ -130,7 +130,7 @@ TYPEINFO(/obj/health_scanner)
 				var/datum/forensic_data/basic/scan_data = new(src.forensic_lead)
 				scan_data.flags = REMOVABLE_CLEANING
 				H.add_evidence(scan_data, FORENSIC_GROUP_SCAN)
-				H.apply_scanner_evidence(src.forensic_lead)
+				H.apply_evidence_organs(src.forensic_lead)
 
 				var/datum/forensic_data/multi/print_data = H.get_footprints()
 				print_data.evidence_C = H.bioHolder.dna_signature
@@ -146,6 +146,6 @@ TYPEINFO(/obj/health_scanner)
 		new_signal.data = list("command"="text_message", "sender_name"="HEALTH-MAILBOT", "sender"="00000000", "address_1"="00000000", "group"=list(MGD_MEDBAY, MGA_MEDCRIT), "message"="CRIT ALERT: [H] in [get_area(src)].")
 		SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, new_signal, null, "pda")
 
-	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
-		scan_builder.add_scan_text(id_note)
+		scan_builder.add_text(id_note)

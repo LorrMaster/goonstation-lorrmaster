@@ -42,6 +42,7 @@ TYPEINFO(/atom)
 	/// If hear_talk is triggered on this object, make my contents hear_talk as well
 	var/open_to_sound = 0
 
+	// Remnants from the old forensics system. Also used by some puzzles or something and I don't feel like dealing with it.
 	var/interesting = ""
 	var/stops_space_move = 0
 	/// Anything can speak... if it can speak

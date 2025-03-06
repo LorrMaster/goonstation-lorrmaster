@@ -429,18 +429,34 @@
 	if (brute > 0)
 		if (brute >= 10 || src.get_brute_damage() <= 5)
 			src.heal_slash_wound("all")
+			src.heal_forensic_update()
 		else if (prob(10))
 			src.heal_slash_wound("single")
 
 	if (burn > 0)
 		if (burn >= 10 || src.get_burn_damage() <= 5)
 			src.heal_laser_wound("all")
+			src.heal_forensic_update()
 		else if (prob(10))
 			src.heal_laser_wound("single")
 
 	src.UpdateDamageIcon()
 	health_update_queue |= src
 	return 1
+
+/mob/living/carbon/human/heal_forensic_update()
+	// Note: If you want evidence tied to a specific organ's health (ex. brain damage), use REMOVABLE_REPAIR
+	// 		 That way this proc will not remove the evidence if the organ itself is still damaged
+	var/removal_flags = 0
+	if(src.get_brute_damage() <= 5)
+		removal_flags = REMOVABLE_HEAL_BRUTE
+	if(src.get_burn_damage() <= 5)
+		removal_flags |= REMOVABLE_HEAL_BURN
+	if(src.get_toxin_damage() <= 5)
+		removal_flags |= REMOVABLE_HEAL_TOXIN
+	if(src.get_oxygen_deprivation() <= 5)
+		removal_flags |= REMOVABLE_HEAL_OXYGEN
+	src.remove_evidence_organs(removal_flags)
 
 /mob/living/carbon/human/proc/heal_slash_wound(type)
 	if (type == "single")

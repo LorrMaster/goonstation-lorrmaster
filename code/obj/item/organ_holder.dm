@@ -1508,20 +1508,34 @@
 		r_data.display = r_data.disp_pair
 		return r_data
 
-	proc/apply_scanner_evidence(var/datum/forensic_id/scan_id, var/datum/forensic_display/scan_disp = /datum/forensic_data/basic::disp_empty)
-		// apply the scan evidence to every organ in the body (maybe ignore robotic organs?)
+	proc/apply_evidence_organs(var/datum/forensic_id/scan_id, var/flags, var/category, var/datum/forensic_display/scan_disp = /datum/forensic_data/basic::disp_empty)
+		// apply the evidence to every organ in the body (ignoring robotic organs)
 		if (islist(src.organ_list))
 			for (var/i in src.organ_list)
 				var/obj/item/organ/O = src.organ_list[i]
 				if (istype(O) && !O.robotic)
-					var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-					O.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+					var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, flags)
+					O.add_evidence(f_data, category)
 			if(src.skull)
-				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-				src.skull.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, flags)
+				src.skull.add_evidence(f_data, category)
 			if(src.butt)
-				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-				src.butt.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, flags)
+				src.butt.add_evidence(f_data, category)
+
+	proc/remove_evidence_organs(var/removal_flags, var/ignore_robotic = TRUE)
+		// remove a type of evidence from every organ in the body (ignoring robotic organs)
+		if(removal_flags == 0)
+			return
+		if (islist(src.organ_list))
+			for (var/i in src.organ_list)
+				var/obj/item/organ/O = src.organ_list[i]
+				if (istype(O) && !O.robotic && O.forensic_holder)
+					O.forensic_holder.remove_evidence(removal_flags)
+			if(src.skull)
+				src.skull.forensic_holder?.remove_evidence(removal_flags)
+			if(src.butt)
+				src.butt.forensic_holder?.remove_evidence(removal_flags)
 
 /*=================================*/
 /*---------- Human Procs ----------*/

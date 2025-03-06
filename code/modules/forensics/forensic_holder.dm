@@ -6,16 +6,16 @@
 // Forensic data within the groups represent an individual fingerprint, blood sample, bullet hole, or whatever else you want to store
 datum/forensic_holder
 	var/list/datum/forensic_group/evidence_list = new/list() // Forensic evidence is stored here
-	var/list/datum/forensic_group/hidden_list = new/list() // Evidence that is only visible to admins (can probably be merged with above)
+	var/list/datum/forensic_group/hidden_list = new/list() // Evidence that is only visible to admins
 	var/datum/spreader_track/spreader = null // My lazy way of storing info for footprints
-	var/accuracy_mult = 1.0 // Changes this item's timestamp accuracy. Lower the better.
+	var/accuracy_mult = 1.0 // Multiplier for this item's timestamp accuracy. Lower the better.
 
 	var/removal_flags_ignore = 0 // These ways of removing evidence have no power here
 	var/suppress_scans = FALSE // If true, then this will block attempts to scan it
 	var/is_stained = FALSE // Used to activate blood/stained overlay visuals. Might want to move somewhere else
 	var/stain_color = null // What color is the stain if it exists.
 
-	proc/get_scan_text(var/datum/forensic_scan_builder/scan_builder)
+	proc/add_data_builder(var/datum/forensic_scan_builder2/scan_builder)
 		// Get all the evidence and put together the text of a forensic scan
 		var/list/datum/forensic_group/ev_list = src.evidence_list
 		if(scan_builder.is_admin)
@@ -24,7 +24,7 @@ datum/forensic_holder
 		scan_builder.base_accuracy *= src.accuracy_mult
 		for(var/i=1, i<= ev_list.len, i++) // Add all the text to its correct list
 			var/datum/forensic_group/ev_group = ev_list[i]
-			scan_builder.add_scan_text(ev_group.get_text(scan_builder), ev_group.get_header(), src, multi_line = TRUE)
+			ev_group.get_scan_evidence(scan_builder)
 		scan_builder.base_accuracy = prev_accuracy
 
 	proc/get_group(var/category = FORENSIC_GROUP_NOTE, var/hidden = FALSE)
@@ -89,121 +89,6 @@ datum/forensic_holder
 			qdel(src.spreader)
 			src.spreader = null
 	// proc/add_tracked_blood(var/b_dna, var/b_type, var/b_color, var/b_count, var/sample_reagent)
-
-
-datum/forensic_scan_builder // Used to gather up all the evidence and assemble the text for forensic scans
-	var/list/datum/forensic_header_data/scan_list = new/list() // seperate text into their headers
-	var/list/datum/forensic_holder/area_list = new/list() // additional sections to include in scan (worn gloves, pod interior, etc)
-	var/list/area_header_list = new/list() // What the additional sections should be called
-	var/datum/forensic_holder/current_area = null // The current area that the builder is collecting evidence from
-	var/base_accuracy = -1 // How accurate the time estimates are, or negative if not included by default
-	var/is_admin = FALSE // Is this being analysed via admin commands?
-
-	proc/compile_scan(var/atom/scanned_atom)
-		if(!scanned_atom)
-			return
-		src.current_area = scanned_atom.forensic_holder
-		src.area_list += scanned_atom.forensic_holder
-		src.area_header_list += SPAN_BOLD(SPAN_SUCCESS("Forensic Analysis of [scanned_atom]:"))
-		scanned_atom.on_forensic_scan(src)
-		for(var/i=1; i<= src.area_list.len; i++)
-			src.current_area = src.area_list[i]
-			src.current_area.get_scan_text(src)
-		return assemble_scan()
-
-	proc/add_scan_text(var/scan_text, var/header = "Notes", var/datum/forensic_holder/area = null, var/multi_line = FALSE)
-		if(!scan_text)
-			return
-		if(!area)
-			area = src.current_area
-		if(!multi_line)
-			scan_text = "<li>[scan_text]</li>"
-		var/datum/forensic_header_data/text_holder = null
-		for(var/k=1, k<= src.scan_list.len, k++)
-			if(cmptextEx(header, src.scan_list[k].header) && src.scan_list[k].holder == area)
-				text_holder = src.scan_list[k]
-				break
-		if(!text_holder)
-			src.scan_list += new/datum/forensic_header_data(area, scan_text, header)
-		else
-			text_holder.scan_text += scan_text
-
-	proc/assemble_scan() // Take all the scanned text and assemble them into a single report
-		var/final_text = ""
-		for(var/i=1; i<= src.area_list.len; i++)
-			var/area_text = assemble_scan_area(src.area_list[i])
-			final_text += "<li>[SPAN_SUCCESS(src.area_header_list[i])]</li>" + area_text
-		return final_text
-
-	proc/assemble_scan_area(var/datum/forensic_holder/area) //
-		var/list/datum/forensic_header_data/area_headers = new/list() // Collect all the headers for this forensic_holder
-		for(var/i=src.scan_list.len, i>= 1, i--)
-			if(src.scan_list[i].holder == area)
-				area_headers += src.scan_list[i]
-				src.scan_list.Cut(i, i+1)
-		var/area_text_final = ""
-		var/original_len = area_headers.len
-		for(var/i=1, i<= original_len, i++)
-			var/h = 1
-			for(var/k=2, k<= area_headers.len, k++)
-				if(!area_headers[k].get_order(area_headers[h].header))
-					h = k
-			area_text_final += "[SPAN_NOTICE(area_headers[h].header)]:" + area_headers[h].scan_text
-			area_headers.Cut(h, h+1)
-		if(!area_text_final)
-			area_text_final = "No evidence detected."
-		return area_text_final
-
-	proc/add_target(var/atom/target = null, var/area_header = null, var/datum/forensic_holder/area = null)
-		// Used to scan more than one target, or seperate the scanned target into multiple regions
-		// Examples: Scan worn gloves, fingerprints inside vs outside a pod, etc
-		if(!target && (!area || !area_header))
-			return
-		if(!area)
-			area = target.forensic_holder
-		if(!area_header)
-			area_header = "\The [target] analysis:"
-		src.area_list += area
-		src.area_header_list += area_header
-		if(target) // New target can add evidence to the forensics builder directly. Optional.
-			var/prev_area = src.current_area
-			src.current_area = area
-			target.on_forensic_scan(src)
-			src.current_area = prev_area
-
-datum/forensic_header_data // Just used by forensic_scan_builder to store text for each header seperately
-	var/datum/forensic_holder/holder // The forensic_holder that this text is from
-	var/scan_text = ""
-	var/header = null
-
-	New(var/holder, var/text, var/header)
-		..()
-		src.holder = holder
-		src.scan_text = text
-		src.header = header
-
-	proc/get_order(var/header_B) // Should this evidence be placed above or below this category?
-		var/asc_dir = sorttext(src.header, header_B)
-		if(asc_dir == 0)
-			return TRUE // text is the same
-		var/override_order = get_override_order(src.header) - get_override_order(header_B)
-		if(override_order > 0)
-			return TRUE
-		else if(override_order < 0)
-			return FALSE
-		else
-			return (asc_dir < 0) // Just sort alphabetically if an order is not specified
-
-	proc/get_override_order(var/header_text) // For sorting headers non-alphabetically
-		switch(header)
-			if(HEADER_NOTES)
-				return 10
-			if(HEADER_FINGERPRINTS)
-				return 200
-			if(HEADER_DNA)
-				return 180
-			else
-				return 100
 
 datum/spreader_track // Hopefully temp way for forensic holder to create tracks while walking.
 	var/tracked_blood = null

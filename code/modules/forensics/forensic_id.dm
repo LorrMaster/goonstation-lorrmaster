@@ -10,6 +10,8 @@
 var/global/list/datum/forensic_id/registered_id_list = new()
 
 /proc/register_id(var/id_text, var/list/reg_list = registered_id_list) // Check if the ID already exists and return it or create a new ID
+	if(!id_text)
+		return null
 	if(reg_list[id_text])
 		return reg_list[id_text]
 	var/datum/forensic_id/new_id = new()
@@ -128,6 +130,59 @@ var/global/list/datum/forensic_id/registered_id_list = new()
 				char = @"/"
 		mirror += char
 	return mirror
+
+/proc/build_id_glovemask_position() // (...-??y?-...)
+	// Probability: 1/4 chance of match
+	var/rand_bunch = rand(1,4)
+	var/rand_pos = rand(1,4)
+	var/mask = ""
+	for(var/i=1; i<=4; i++)
+		if(i == rand_pos)
+			var/index = (rand_bunch * 4) - 4 + rand_pos - 1
+			mask += num2hex(index, 1)
+		else
+			mask += "?"
+	return "...-[mask]-..."
+
+/proc/build_id_glovemask_bunch(var/reveal_count = 1) // (?-?-..g..-?)
+	// Probability (1): 1/4 chance of match (default glove mask)
+	// Probability (2): 1/16 chance of match (latex gloves)
+	if(reveal_count == 0)
+		return ""
+	else if(reveal_count > 4)
+		return "0123-4567-89AB-CDEF"
+	var/list/text_list = list("?","?","?","?")
+	var/list/bunch_list = list(1, 2, 3, 4)
+	for(var/i=1; i<= reveal_count; i++)
+		var/rand_bunch = rand(1, bunch_list.len)
+		var/rand_pos = rand(1,4)
+		var/hex = num2hex(((rand_bunch * 4) - 4 + rand_pos - 1), 1)
+		text_list[bunch_list[rand_bunch]] = "...[hex]..."
+		bunch_list.Cut(rand_bunch, rand_bunch+1)
+
+	return "[text_list[1]]-[text_list[2]]-[text_list[3]]-[text_list[4]]"
+
+/proc/build_id_glovemask_order(var/reveal_count = 2) // (...y...g...) or (..y..a..g..)
+	// Probability (2): 1/2 chance of match (better than default)
+	// Probability (3): 1/8 chance of match (insulated gloves)
+	// Probability (4): 1/64 chance of match
+	if(reveal_count < 2)
+		return "...????..."
+	else if(reveal_count > 4)
+		return null
+	var/list/hex_list = list("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F")
+	var/list/mask_list = new()
+	for(var/i=1; i<=reveal_count; i++)
+		var/k = rand(1, hex_list.len)
+		mask_list += hex_list[k]
+		hex_list.Cut(k, k+1)
+	if(reveal_count == 2)
+		return "...[mask_list[1]]...[mask_list[2]]..."
+	else
+		var/mask = "..."
+		for(var/i=1; i<=reveal_count; i++)
+			mask += "[mask_list[i]]..."
+		return mask
 
 // -----| Forensic Display |-----
 
