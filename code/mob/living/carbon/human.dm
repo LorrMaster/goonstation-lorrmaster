@@ -3686,14 +3686,27 @@ mob/living/carbon/human/has_genetics()
 		src.wear_mask.forensic_holder?.copy_evidence(f_holder)
 	if(src.organHolder?.head && !(src.head?.body_parts_covered & HEAD) && !(src.wear_mask?.body_parts_covered & HEAD))
 		src.organHolder.head.forensic_holder?.copy_evidence(f_holder)
+		if(isdead(src))
+			scan_builder.add_text("[src]'s [src.organHolder.head.bite_mark.id]")
 	// --- Hands ---
 	if(src.gloves)
 		src.gloves.forensic_holder?.copy_evidence(f_holder)
+		scan_builder.add_text("[src]'s gloves: [src.gloves.fiber_id.id]")
+		scan_builder.filter_gloves = src.gloves.fiber_id
 	else if(src.limbs)
 		if(src.limbs.r_arm)
 			src.limbs.r_arm.forensic_holder?.copy_evidence(f_holder)
+			scan_builder.filter_fingerprint_R = src.limbs.r_arm.limb_print
 		if(src.limbs.l_arm)
 			src.limbs.l_arm.forensic_holder?.copy_evidence(f_holder)
+			scan_builder.filter_fingerprint_L = src.limbs.l_arm.limb_print
+		if(src.limbs.r_arm && src.limbs.l_arm && (src.limbs.r_arm.limb_print == src.limbs.l_arm.limb_print))
+			scan_builder.add_text("[src]'s fingerprints: [src.limbs.r_arm.limb_print.id]")
+		else
+			if(src.limbs.r_arm)
+				scan_builder.add_text("[src]'s fingerprints (right): [src.limbs.r_arm.limb_print.id]")
+			if(src.limbs.l_arm)
+				scan_builder.add_text("[src]'s fingerprints (left): [src.limbs.l_arm.limb_print.id]")
 	// --- Torso ---
 	if(src.wear_suit)
 		src.wear_suit.forensic_holder?.copy_evidence(f_holder)

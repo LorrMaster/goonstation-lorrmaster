@@ -1029,7 +1029,9 @@ var/list/fun_images = list()
 		alert("There is no forensic data on this object.", null, null, null, null, null)
 		return
 	var/datum/forensic_scan_builder2/scan_builder = new(O, accuracy = 0, is_admin = TRUE)
-	// boutput(src, scan_builder.compile_scan(O))
+	O.on_forensic_scan(scan_builder)
+	scan_builder.collect_data()
+	boutput(src, scan_builder.build_report())
 
 /client/proc/respawn_cinematic()
 	set name = "Respawn Cinematic"

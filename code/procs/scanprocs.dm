@@ -540,7 +540,7 @@
 	return eth_eq
 
 
-/proc/scan_forensic(var/atom/A as turf|obj|mob, var/mob/user, visible = TRUE, var/obj/item/device/detective_scanner/scanner = null)
+/proc/scan_forensic(var/atom/A as turf|obj|mob, var/mob/user, var/visible = TRUE, var/scanner_accuracy = 1, var/ignore_text = FALSE)
 	if(!A.forensic_holder)
 		return
 	if(visible)
@@ -552,8 +552,7 @@
 		if(H.traitHolder.hasTrait("training_forensic"))
 			accuracy = 1
 		if(accuracy > 0)
-			if(scanner)
-				accuracy *= scanner.timestamp_modifier
+			accuracy *= scanner_accuracy
 			if(istype(H.head, /obj/item/clothing/head/det_hat))
 				accuracy *= 0.9
 			else if(istype(H.glasses, /obj/item/clothing/glasses/scuttlebot_vr))
@@ -570,10 +569,10 @@
 	// Now perform the actual scan
 	if(A.forensic_holder.suppress_scans || A.reagents?.get_reagent_amount("cloak_juice") >= 5)
 		return "Overwhelming interference coming from \The [A] nullifys the scan!" // Note: Need to exclude admin scans -LorrMaster
-	var/datum/forensic_scan_builder2/scan_builder = new(A, accuracy)
+	var/datum/forensic_scan_builder2/scan_builder = new(A, accuracy, FALSE, ignore_text)
 	A.on_forensic_scan(scan_builder)
 	scan_builder.collect_data()
-	return scan_builder.build_report()
+	return scan_builder
 
 // Made this a global proc instead of 10 or so instances of duplicate code spread across the codebase (Convair880).
 /proc/scan_atmospheric(var/atom/A as turf|obj, var/pda_readout = 0, var/simple_output = 0, var/visible = 0, var/alert_output = 0)

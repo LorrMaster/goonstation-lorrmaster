@@ -267,7 +267,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		if(distancescan)
 			if(!(BOUNDS_DIST(user, target) == 0) && IN_RANGE(user, target, 3))
 				user.visible_message(SPAN_NOTICE("<b>[user]</b> takes a distant forensic scan of [target]."))
-				last_scan = scan_forensic(target, user, visible = 1)
+				last_scan = scan_forensic(target, user, visible = 1, scanner_accuracy = src.timestamp_modifier)
 				boutput(user, last_scan)
 				src.add_fingerprint(user)
 
@@ -297,8 +297,9 @@ TYPEINFO(/obj/item/device/detective_scanner)
 			scans = new/list(maximum_scans)
 		if(!A.forensic_holder)
 			return
-		last_scan = scan_forensic(A, user, visible, scanner = src) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
-		boutput(user, last_scan)
+		var/datum/forensic_scan_builder2/last_scan = scan_forensic(A, user, visible, scanner_accuracy = src.timestamp_modifier)
+		var/scan_report = last_scan.build_report() // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+		boutput(user, scan_report)
 		return
 		/*
 		var/scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"

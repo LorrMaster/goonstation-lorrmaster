@@ -48,7 +48,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		for(var/i=1, i<= src.notes_list.len; i++)
 			var/datum/forensic_data/f_data = src.notes_list[i].get_copy()
 			f_data.accuracy_mult *= scan_accuracy
-			scan_builder.add_data(f_data, get_header())
+			scan_builder.add_data(f_data, get_header(), src.category)
 
 	get_header()
 		return HEADER_NOTES
@@ -100,7 +100,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		for(var/i=1, i<= src.evidence_list.len; i++)
 			var/datum/forensic_data/f_data = src.evidence_list[i].get_copy()
 			f_data.accuracy_mult *= scan_accuracy
-			scan_builder.add_data(f_data, get_header())
+			scan_builder.add_data(f_data, get_header(), src.category)
 
 /datum/forensic_group/basic_list/scanner
 	category = FORENSIC_GROUP_SCAN
@@ -117,6 +117,14 @@ ABSTRACT_TYPE(/datum/forensic_group)
 
 	get_header()
 		return "Bite Marks"
+
+/datum/forensic_group/basic_list/wound // Evidence of wounds / general damage & destruction
+	category = FORENSIC_GROUP_DAMAGE
+	group_flags = REMOVABLE_HEAL
+	group_accuracy = 1.2
+
+	get_header()
+		return "Wounds"
 
 /datum/forensic_group/basic_list/sleuth_color
 	category = FORENSIC_GROUP_SLEUTH_COLOR
@@ -191,7 +199,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		for(var/i=1, i<= src.evidence_list.len; i++)
 			var/datum/forensic_data/f_data = src.evidence_list[i].get_copy()
 			f_data.accuracy_mult *= scan_accuracy
-			scan_builder.add_data(f_data, get_header())
+			scan_builder.add_data(f_data, get_header(), src.category)
 
 /datum/forensic_group/multi_list/footprints
 	category = FORENSIC_GROUP_TRACKS
@@ -265,10 +273,14 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			scan_accuracy *= 0.7
 		for(var/i=1, i<= src.prints_list.len; i++)
 			var/datum/forensic_data/fingerprint/f_data = src.prints_list[i].get_copy()
-			f_data.accuracy_mult *= scan_accuracy
-			if(silver_nitrate_time <= TIME && f_data.print_mask && !scan_builder.is_admin)
-				f_data.print = null
-			scan_builder.add_data(f_data, get_header())
+			var/filtered = (f_data.print == scan_builder.filter_fingerprint_R) && f_data.print && !f_data.glove_print
+			filtered = filtered || (f_data.print == scan_builder.filter_fingerprint_L) && f_data.print && !f_data.glove_print
+			filtered = filtered || (f_data.print == null && f_data.glove_print == scan_builder.filter_gloves)
+			if(!filtered)
+				f_data.accuracy_mult *= scan_accuracy
+				if(silver_nitrate_time <= TIME && f_data.print_mask && !scan_builder.is_admin)
+					f_data.print = null
+				scan_builder.add_data(f_data, get_header(), src.category)
 
 	get_header()
 		return HEADER_FINGERPRINTS
@@ -326,12 +338,12 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		for(var/i=1, i<= src.dna_list.len; i++)
 			var/datum/forensic_data/f_data = src.dna_list[i].get_copy()
 			f_data.accuracy_mult *= scan_accuracy
-			scan_builder.add_data(f_data, get_header())
+			scan_builder.add_data(f_data, get_header(), src.category)
 		if(luminol_time > TIME)
 			for(var/i=1, i<= src.dna_trace_list.len; i++)
 				var/datum/forensic_data/f_data = src.dna_trace_list[i].get_copy()
 				f_data.accuracy_mult *= scan_accuracy * 2
-				scan_builder.add_data(f_data, get_header())
+				scan_builder.add_data(f_data, get_header(), src.category)
 
 	get_header()
 		return HEADER_DNA

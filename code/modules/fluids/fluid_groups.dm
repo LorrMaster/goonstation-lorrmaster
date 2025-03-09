@@ -626,13 +626,6 @@
 					if (istype(T) && drains_floor)
 						T.react_all_cleanables() // bug here regarding fluids doing their whole spread immediately if they're in a patch of cleanables. can't figure it out and its not TERRIBLE, fix later!!!
 					C.amt = src.amt_per_tile
-
-					//copy blood stuff
-					if (F.blood_DNA && !C.blood_DNA)
-						C.blood_DNA = F.blood_DNA
-					if (F.blood_type && !C.blood_type)
-						C.blood_type = F.blood_type
-
 					members |= C
 					.++
 

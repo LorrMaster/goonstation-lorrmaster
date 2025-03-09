@@ -126,6 +126,8 @@ Lower Priority
 			G = new/datum/forensic_group/basic_list/sleuth_color
 		if(FORENSIC_GROUP_BITE)
 			G = new/datum/forensic_group/basic_list/bite
+		if(FORENSIC_GROUP_DAMAGE)
+			G = new/datum/forensic_group/basic_list/wound
 	return G
 
 #define IS_HIDDEN (1 << 1) // Only admins can see this evidence
@@ -134,8 +136,8 @@ Lower Priority
 #define CANNOT_PLANT (1 << 4) // Fingerprinter cannot read this
 #define REMOVABLE_CLEANING (1 << 5) // Can this evidence be washed away?
 #define REMOVABLE_DATA (1 << 6) // Can this evidence be deleted from a computer?
-#define REMOVABLE_REPAIR (1 << 7)
-#define REMOVABLE_HEAL_BRUTE (1 << 8)
+#define REMOVABLE_REPAIR (1 << 7) // Can this evidence be fixed up
+#define REMOVABLE_HEAL_BRUTE (1 << 8) // Can this evidence be healed
 #define REMOVABLE_HEAL_BURN (1 << 9)
 #define REMOVABLE_HEAL_TOXIN (1 << 10)
 #define REMOVABLE_HEAL_OXYGEN (1 << 11)

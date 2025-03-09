@@ -1252,12 +1252,12 @@ proc/chem_helmet_check(mob/living/carbon/human/H, var/what_liquid="hot")
 		var/datum/bioHolder/bio = src.get_blood_bioholder()
 		if(bio)
 			var/datum/forensic_data/dna/dna_data = new(bio.dna_signature, DNA_FORM_BLOOD)
-			scan_builder.add_data(dna_data, FORENSIC_GROUP_DNA)
+			scan_builder.add_data(dna_data, HEADER_DNA, FORENSIC_GROUP_DNA)
 		var/datum/reagent/vomit/v_reagent = src.reagent_list["vomit"]
 		bio = v_reagent?.data
 		if(bio && istype(bio))
 			var/datum/forensic_data/dna/dna_data = new(bio.dna_signature, DNA_FORM_VOMIT)
-			scan_builder.add_data(dna_data, FORENSIC_GROUP_DNA)
+			scan_builder.add_data(dna_data, HEADER_DNA, FORENSIC_GROUP_DNA)
 
 ///////////////////////////////////////////////////////////////////////////////////
 
