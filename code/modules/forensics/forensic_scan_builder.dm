@@ -1,21 +1,29 @@
-// Data collected from a scan that can be assembled into a text report
-/datum/forensic_scan_builder2
+// Collect visible data from a scan, then assemble that scan into a text report
+// Alternitively, can be used to store scan data for other uses
+/datum/forensic_scan_builder2 // Rename to forensic_scan
 	var/datum/forensic_holder/holder
 	var/datum/forensic_scan_builder2/chain_scan = null // Scan to assemble after this one
 	var/report_title = ""
-	var/list/list/datum/forensic_data/data_list = new()
+	var/list/list/datum/forensic_data/data_list = new() // Collected forensic data (from the POV of the scanner)
 	var/list/header_list = new()
 	var/base_accuracy = -1 // How accurate the time estimates are, or negative if not included by default
 	var/is_admin = FALSE // Is this being analysed via admin commands?
+	var/ignore_text = FALSE // Only collect actual forensic data (used for the fingerprinter)
 
-	New(var/atom/target, var/accuracy = -1, var/is_admin = FALSE)
+	var/filter_dna = null // Ignore the DNA of the person you are scanning (not including blood)
+	var/filter_fingerprint_L = null // Ignore gloves / fingerprints from the person you are scanning
+	var/filter_fingerprint_R = null
+	var/filter_gloves = null
+
+	New(var/atom/target, var/accuracy = -1, var/is_admin = FALSE, var/ignore_text = FALSE)
 		src.holder = target?.forensic_holder
 		src.report_title = "Forensic Analysis of \the [target]"
 		src.base_accuracy = accuracy
 		src.is_admin = is_admin
+		src.ignore_text = ignore_text
 		..()
 
-	proc/add_data(var/datum/forensic_data/f_data, var/header = "Notes")
+	proc/add_data(var/datum/forensic_data/f_data, var/header = "Notes", var/category = FORENSIC_GROUP_NOTE)
 		if(!data_list[header])
 			data_list[header] = new()
 		if(f_data)
@@ -23,7 +31,11 @@
 		header_list[header] = header
 
 	proc/add_text(var/scan_text, var/header = "Notes")
+		if(ignore_text)
+			return
 		var/datum/forensic_data/text/t_data = new(scan_text)
+		t_data.time_start = 0
+		t_data.time_end = 0
 		if(!data_list[header])
 			data_list[header] = new()
 		if(t_data)
@@ -89,3 +101,4 @@
 				return 20
 			else
 				return 50
+

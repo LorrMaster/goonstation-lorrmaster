@@ -10,6 +10,7 @@ datum/forensic_holder
 	var/datum/spreader_track/spreader = null // My lazy way of storing info for footprints
 	var/accuracy_mult = 1.0 // Multiplier for this item's timestamp accuracy. Lower the better.
 
+	var/datum/forensic_id/last_fingerprint = null
 	var/removal_flags_ignore = 0 // These ways of removing evidence have no power here
 	var/suppress_scans = FALSE // If true, then this will block attempts to scan it
 	var/is_stained = FALSE // Used to activate blood/stained overlay visuals. Might want to move somewhere else
@@ -48,6 +49,7 @@ datum/forensic_holder
 				return
 
 	proc/add_evidence(var/datum/forensic_data/data, var/category = FORENSIC_GROUP_NOTE, var/admin_only = FALSE)
+		data.category = category
 		if(!HAS_FLAG(data.flags, IS_JUNK))
 			var/datum/forensic_group/h_group = get_group(category, TRUE)
 			if(!h_group)
@@ -59,7 +61,7 @@ datum/forensic_holder
 			if(!group)
 				group = forensic_group_create(category)
 				src.evidence_list += group
-			group.apply_evidence(data)
+			group.apply_evidence(data.get_copy())
 
 	proc/remove_evidence(var/removal_flags) // Remove evidence marked with a flag. Should work with multiple flags as well.
 		removal_flags = removal_flags & (~src.removal_flags_ignore)

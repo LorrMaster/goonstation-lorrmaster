@@ -1,5 +1,4 @@
 /atom
-	var/tmp/list/fingerprints = null
 	var/tmp/list/fingerprints_full = null
 	var/tmp/fingerprintslast = null
 	var/tmp/blood_DNA = null
@@ -49,21 +48,17 @@
 	ADD_FLAG(fp.flags, REMOVABLE_CLEANING)
 	if(is_fake)
 		ADD_FLAG(fp.flags, IS_JUNK)
-	//else
-		//add_adminprint(M)
+	src.forensic_holder.last_fingerprint = fp.print
 	src.forensic_holder.add_evidence(fp, FORENSIC_GROUP_FINGERPRINT, admin_only)
 	if(M.mind && !ignore_sleuth)
 		var/datum/forensic_data/basic/color_data = new(M.mind.color)
 		ADD_FLAG(color_data.flags, REMOVABLE_CLEANING)
 		src.forensic_holder.add_evidence(color_data, FORENSIC_GROUP_SLEUTH_COLOR)
 
-/atom/proc/add_adminprint(mob/living/M)
-	if (!ismob(M) || isnull(M.key))
-		return
-	var/datum/player/pl = M.mind?.get_player()
-	if(pl)
-		var/datum/forensic_data/adminprint/a_print = new(pl)
-		src.forensic_holder?.add_evidence(a_print, FORENSIC_GROUP_ADMINPRINT)
+/atom/proc/get_last_fingerprint()
+	if(src.forensic_holder?.last_fingerprint)
+		return src.forensic_holder.last_fingerprint.id
+	return "?????"
 
 /atom/proc/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 	if(!src.forensic_holder)

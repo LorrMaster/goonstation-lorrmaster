@@ -1,174 +1,112 @@
 // i love enums
-#define FINGERPRINT_PLANT 0
-#define FINGERPRINT_READ 1
 #define EVIDENCE_PLANT 0
 #define EVIDENCE_READ 1
+#define EVIDENCE_SCAN 2
 
-/obj/item/device/fingerprinter2
+/obj/item/device/fingerprinter
 	name = "fingerprinter M2"
 	desc = "A grey-market tool used for scanning and planting forensic evidence."
 	icon_state = "reagentscan" // slightly sneaky. slightly.
 	is_syndicate = TRUE
 	w_class = W_CLASS_TINY
-	var/mode = EVIDENCE_READ
+	var/mode = EVIDENCE_SCAN
 	HELP_MESSAGE_OVERRIDE({"Toggle modes by using the fingerprinter in hand.
-							While on <b>"Read"</b> mode, use the tool on someone or something that has prints on it to add all the prints to the tool's print database.
-							While on <b>"Plant"</b> mode, use the tool on anything to add any prints from the database on it."})
-	var/datum/forensic_holder/stored_leads = new() //
+							Use <b>"Scan"</b> mode to scan a target for forensic evidence.
+							Use <b>"Read"</b> mode to copy forensic evidence into the database."
+							Use <b>"Plant"</b> mode to plant a piece of evidence onto a target."})
+	var/list/list/datum/forensic_data/stored_leads = new()
 
 	New()
 		. = ..()
-		RegisterSignal(src, COMSIG_ITEM_ATTACKBY_PRE, PROC_REF(pre_attackby)) // use this instead of afterattack so we're silent
-		src.create_inventory_counter()
-		src.update_text()
-
-	proc/evidence_read(var/mob/user, var/atom/A)
-		var/datum/forensic_holder/holder = A.forensic_holder
-		if(!holder)
-			boutput(user, SPAN_ALERT("No evidence detected on [A]."))
-			return
-		if(!holder.evidence_list)
-			boutput(user, SPAN_ALERT("No evidence detected on [A]."))
-			return
-		if(length(holder.evidence_list) == 0)
-			boutput(user, SPAN_ALERT("No evidence detected on [A]."))
-			return
-
-	proc/evidence_select()
-		// Choose the evidence to plant
-	proc/evidence_plant(mob/user, atom/target, datum/forensic_data/f_data)
-		// Plant the evidence
-	proc/pre_attackby(obj/item/source, atom/target, mob/user)
-		return TRUE // suppress attackby
-	proc/update_text()
-		if (src.mode == EVIDENCE_READ)
-			src.inventory_counter.update_text("<span style='color:#00ff00;font-size:0.7em;-dm-text-outline: 1px #000000'>READ</span>")
-		else
-			src.inventory_counter.update_text("<span stywle='color:#ff0000;font-size:0.7em;-dm-text-outline: 1px #000000'>PLANT</span>")
-	proc/read_atom()
-		//
-		return
-
-// TODO make this cost 2 TC
-/obj/item/device/fingerprinter
-	name = "fingerprinter"
-	desc = "A grey-market tool used for scanning fingerprints on things and putting them onto other things. \
-			Hooks into the station database for information about fingerprint owners." // (this is a lie)
-	icon_state = "reagentscan" // slightly sneaky. slightly.
-	is_syndicate = TRUE
-	w_class = W_CLASS_TINY
-	/// List of prints currently scanned into the device. Each print maps to the name of the owner.
-	var/list/current_prints
-	var/mode = FINGERPRINT_READ
-	HELP_MESSAGE_OVERRIDE({"Toggle modes by using the fingerprinter in hand.
-							While on <b>"Read"</b> mode, use the tool on someone or something that has prints on it to add all the prints to the tool's print database.
-							While on <b>"Plant"</b> mode, use the tool on anything to add any prints from the database on it."})
-
-	New()
-		. = ..()
-		src.current_prints = list()
 		RegisterSignal(src, COMSIG_ITEM_ATTACKBY_PRE, PROC_REF(pre_attackby)) // use this instead of afterattack so we're silent
 		src.create_inventory_counter()
 		src.update_text()
 
 	attack_self(mob/user)
 		. = ..()
-		src.toggle_mode(user)
-
-	mouse_drop(atom/over_object)
-		. = ..()
-		if (can_act(usr) && (src in usr.equipped_list()) && BOUNDS_DIST(usr, over_object) <= 0)
-			over_object.storage?.storage_item_attack_by(src, usr)
-
-	proc/update_text()
-		if (src.mode == FINGERPRINT_READ)
-			src.inventory_counter.update_text("<span style='color:#00ff00;font-size:0.7em;-dm-text-outline: 1px #000000'>READ</span>")
+		if (src.mode == EVIDENCE_PLANT)
+			src.mode = EVIDENCE_SCAN
+		else if(src.mode == EVIDENCE_READ)
+			src.mode = EVIDENCE_PLANT
 		else
-			src.inventory_counter.update_text("<span stywle='color:#ff0000;font-size:0.7em;-dm-text-outline: 1px #000000'>PLANT</span>")
-
-	proc/pre_attackby(obj/item/source, atom/target, mob/user)
-		if (src.mode == FINGERPRINT_READ)
-			src.read_prints(user, target)
-		else
-			src.plant_print(user, target)
-		return TRUE // suppress attackby
-
-	proc/toggle_mode(mob/user)
-		if (src.mode == FINGERPRINT_READ)
-			src.mode = FINGERPRINT_PLANT
-		else
-			src.mode = FINGERPRINT_READ
+			src.mode = EVIDENCE_READ
 		src.update_text()
 
-	proc/plant_print(mob/user, atom/target)
-		if (target.forensic_holder?.suppress_scans)
-			boutput(user, SPAN_ALERT("You can't plant a fingerprint onto that."))
-			return
-		if (!length(current_prints))
-			boutput(user, SPAN_ALERT("You don't have any fingerprints saved! Set [src] to the [SPAN_ALERT("READ")] mode and scan some things!"))
-			return
-
-		// List mapping readable options to literal prints
-		var/optionslist = list()
-		for (var/print in src.current_prints)
-			var/txt = print
-			if (src.current_prints[print])
-				txt += " ([src.current_prints[print]])"
-			optionslist[txt] = print // map to the print so we can get the actual print to plant
-
-		var/selected = tgui_input_list(user, "Select a print to plant:", "Fingerprinter", optionslist)
-		if (!selected)
-			return
-
-		// LorrMaster Note: This is where the planted fingerprint get added
-		// var/datum/forensic_data/fingerprint/fp_data = new()
-		// fp_data.mark_as_junk()
-		// target.forensic_holder?.
-		// target.add_fingerprint_direct(optionslist[selected])
-
-	proc/read_prints_new(mob/user, atom/target)
-		if(target.forensic_holder)
-			if(ishuman(target))
-				return
-
-	// TODO maybe handle dupe glove prints more gracefully? if we see the same glove ID on 2 different people, list both names? idk
-	proc/read_prints(mob/user, atom/target)
-		// Yes, this currently lets you get the name of people through glove IDs. It's a traitor item so I think it's fine. Gnarly if sec finds one though.
-		if (target.forensic_holder?.suppress_scans)
-			boutput(user, SPAN_ALERT("That doesn't look like something you can read prints off of."))
-			return
-		if (!target.fingerprints && !ishuman(target))
-			boutput(user, SPAN_ALERT("There's no fingerprints to read off of that."))
-			return
-
-		// This is gross and theoretically slow but we index full-prints by time, and the fingerprints list will only have 6 entries at max so
-		// the time complexity doesn't really matter.
-		var/found_new_print = FALSE
-		for (var/print in target.fingerprints)
-			if (!src.current_prints[print])
-				found_new_print = TRUE
-				for (var/timestamp in target.fingerprints_full)
-					var/fullprint = target.fingerprints_full[timestamp]
-					if (fullprint["seen_print"] == print)
-						src.current_prints[print] = fullprint["real_name"]
-						break
-				if (!src.current_prints[print])
-					src.current_prints[print] = "???"
-
-		if (found_new_print)
-			boutput(user, SPAN_SUCCESS("You read the prints on [target] into [src]."))
+	proc/pre_attackby(obj/item/source, atom/target, mob/user)
+		if (src.mode == EVIDENCE_PLANT)
+			src.evidence_plant(user, target)
+		else if(src.mode == EVIDENCE_READ)
+			src.evidence_read(user, target)
 		else
-			boutput(user, SPAN_ALERT("You've already scanned all the prints on [target]."))
+			src.evidence_scan(user, target)
+		return TRUE // suppress attackby
 
-		if (ishuman(target))
-			var/mob/living/carbon/human/H = target
-			if (H.gloves)
-				src.current_prints[H.bioHolder.fingerprint_default.id] = H.real_name // yes this sees through disguises. traitor item!!!! i wring my hands self-absolvingly
-			else
-				src.current_prints[H.bioHolder.fingerprint_default.id] = H.real_name
-			boutput(user, SPAN_SUCCESS("You read [H.gloves ? "the prints of [H]'s gloves" : "[H]'s prints"] into [src]."))
+	proc/evidence_scan(var/mob/user, var/atom/A)
+		if (BOUNDS_DIST(A, user) > 0 || istype(A, /obj/ability_button)) // Scanning for fingerprints over the camera network is fun, but doesn't really make sense (Convair880).
+			return
+		if(!A.forensic_holder)
+			return
+		var/datum/forensic_scan_builder2/scan = scan_forensic(A, user, FALSE)
+		var/last_scan = scan.build_report() // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+		boutput(user, last_scan)
+		return
 
-#undef FINGERPRINT_PLANT
-#undef FINGERPRINT_READ
+	proc/evidence_read(var/mob/user, var/atom/A)
+		var/datum/forensic_scan_builder2/scan = scan_forensic(A, user, FALSE, ignore_text = TRUE)
+		var/list/headers = scan.header_list
+		// headers["Read all"] = "Read all"
+		if(headers.len == 0)
+			boutput(user, "No forensic evidence detected.")
+		var/h_selected = tgui_input_list(user, "Select an evidence category", "Fingerprinter", headers)
+		if (!h_selected)
+			return
+		// if(h_selected == "Read all")
+		// 	return
+
+		var/list/datum/forensic_data/data_list = scan.data_list[h_selected]
+		var/list/datum/forensic_data/optionslist = new()
+		for(var/i=1; i<= data_list.len; i++)
+			var/txt = data_list[i].get_text()
+			optionslist[txt] = data_list[i]
+		var/d_selected = tgui_input_list(user, "Select evidence to copy:", "Fingerprinter", optionslist)
+		var/datum/forensic_data/data = optionslist[d_selected]
+		if (!data)
+			return
+		var/datum/forensic_data/f_data = data.get_copy()
+		f_data.flags |= IS_JUNK
+		if(!src.stored_leads[h_selected])
+			src.stored_leads[h_selected] = new()
+		src.stored_leads[h_selected] += f_data
+		if(f_data.category == FORENSIC_GROUP_NONE)
+			boutput(world, "Error: Category missing")
+
+	proc/evidence_plant(mob/user, atom/target)
+		// Plant the evidence
+		if(src.stored_leads.len == 0)
+			boutput(user, "No forensic data stored.")
+		var/l_selected = tgui_input_list(user, "Select an evidence category", "Fingerprinter", src.stored_leads)
+		if (!l_selected)
+			return
+		var/list/datum/forensic_data/data_list = src.stored_leads[l_selected]
+		var/list/datum/forensic_data/optionslist = new()
+		for(var/i=1; i<= data_list.len; i++)
+			var/txt = data_list[i].get_text()
+			optionslist[txt] = data_list[i]
+		var/d_selected = tgui_input_list(user, "Select evidence to copy:", "Fingerprinter", optionslist)
+		var/datum/forensic_data/data = optionslist[d_selected]
+		if (!data)
+			return
+		var/datum/forensic_data/f_data = data.get_copy()
+		target.add_evidence(f_data, f_data.category)
+
+	proc/update_text()
+		if (src.mode == EVIDENCE_READ)
+			src.inventory_counter.update_text("<span style='color:#00ff00;font-size:0.7em;-dm-text-outline: 1px #000000'>READ</span>")
+		else if (src.mode == EVIDENCE_PLANT)
+			src.inventory_counter.update_text("<span style='color:#00ff00;font-size:0.7em;-dm-text-outline: 1px #000000'>PLANT</span>")
+		else
+			src.inventory_counter.update_text("<span style='color:#00ff00;font-size:0.7em;-dm-text-outline: 1px #000000'>SCAN</span>")
+
 #undef EVIDENCE_PLANT
 #undef EVIDENCE_READ
+#undef EVIDENCE_SCAN

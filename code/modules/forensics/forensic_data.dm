@@ -2,6 +2,7 @@ estimate_counter
 // Note: multiple forensic_holders should not share forensic_data, each should have their own instance of the evidence
 
 /datum/forensic_data
+	var/category = FORENSIC_GROUP_NONE
 	var/time_start = 0 // What time the evidence was first applied, or 0 if not relavent
 	var/time_end = 0 // When the evidence was most recently applied
 	var/perc_offset = 0 // Error offset multiplier for time estimations
@@ -59,7 +60,11 @@ estimate_counter
 
 	get_copy()
 		var/datum/forensic_data/basic/c_data = new(src.evidence, src.display, src.flags)
+		c_data.category = src.category
 		c_data.accuracy_mult = src.accuracy_mult
+		c_data.time_start = src.time_start
+		c_data.time_end = src.time_end
+		c_data.perc_offset = src.perc_offset
 		return c_data
 
 /datum/forensic_data/multi // Two or three different pieces of evidence that are linked together. Flags not included.
@@ -99,8 +104,12 @@ estimate_counter
 
 	get_copy()
 		var/datum/forensic_data/multi/c_data = new(src.evidence_A, src.evidence_B, src.evidence_C, src.display)
+		c_data.category = src.category
 		c_data.flags = src.flags
+		c_data.time_start = src.time_start
+		c_data.time_end = src.time_end
 		c_data.accuracy_mult = src.accuracy_mult
+		c_data.perc_offset = src.perc_offset
 		return c_data
 
 	proc/is_same(datum/forensic_data/multi/other)
@@ -157,7 +166,11 @@ estimate_counter
 
 	get_copy()
 		var/datum/forensic_data/text/t_data = new(src.forensic_text, src.flags)
+		t_data.category = src.category
+		t_data.time_start = src.time_start
+		t_data.time_end = src.time_end
 		t_data.accuracy_mult = src.accuracy_mult
+		t_data.perc_offset = src.perc_offset
 		return t_data
 
 	proc/is_same(datum/forensic_data/text/other)
@@ -180,11 +193,15 @@ estimate_counter
 
 	get_copy()
 		var/datum/forensic_data/fingerprint/c_data = new()
+		c_data.category = src.category
 		c_data.print = src.print
 		c_data.glove_print = src.glove_print
 		c_data.print_mask = src.print_mask
 		c_data.flags = src.flags
+		c_data.time_start = src.time_start
+		c_data.time_end = src.time_end
 		c_data.accuracy_mult = src.accuracy_mult
+		c_data.perc_offset = src.perc_offset
 		return c_data
 
 	proc/get_fingerprint()
@@ -258,8 +275,12 @@ estimate_counter
 
 	get_copy()
 		var/datum/forensic_data/dna/c_data = new(src.pattern, src.form)
+		c_data.category = src.category
 		c_data.flags = src.flags
+		c_data.time_start = src.time_start
+		c_data.time_end = src.time_end
 		c_data.accuracy_mult = src.accuracy_mult
+		c_data.perc_offset = src.perc_offset
 		return c_data
 
 	proc/is_same(datum/forensic_data/dna/other)
@@ -290,6 +311,7 @@ estimate_counter
 
 	get_copy()
 		var/datum/forensic_data/projectile_hit/c_data = new()
+		c_data.category = src.category
 		c_data.proj_id = src.proj_id
 		c_data.start_turf = src.start_turf
 		c_data.hit_turf = src.hit_turf
@@ -297,7 +319,10 @@ estimate_counter
 		c_data.deflection_angle = src.deflection_angle
 		c_data.cone_of_tolerance = src.cone_of_tolerance
 		c_data.flags = src.flags
+		c_data.time_start = src.time_start
+		c_data.time_end = src.time_end
 		c_data.accuracy_mult = src.accuracy_mult
+		c_data.perc_offset = src.perc_offset
 		return c_data
 
 	// Bullet Obj
@@ -306,21 +331,6 @@ estimate_counter
 	// Footprint
 		// The two footprint ids
 		// The original direction?
-
-/datum/forensic_data/adminprint
-	accuracy_mult = 0
-	var/client/client
-
-	New(var/client/print_client)
-		..()
-		src.client = print_client
-
-	get_text()
-		var/p_name = "Test: [client.ckey]"
-		return p_name
-
-	proc/is_same(datum/forensic_data/adminprint/other)
-		return src.client == other.client
 
 /proc/estimate_counter(var/text, var/actual, var/accuracy, var/offset)
 	if(actual <= 0)

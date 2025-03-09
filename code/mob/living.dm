@@ -2429,13 +2429,15 @@
 		return r_data
 
 /mob/living/on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	..()
 	if(iscarbon(src) || (ismobcritter(src) & !isrobocritter(src)))
-		if(!ishuman(src))
-			var/note_fingerprints = "[src]'s Fingerprints: [src.bioHolder.fingerprint_default.id]"
-			scan_builder.add_text(note_fingerprints)
+		//if(!ishuman(src))
+		//	var/note_fingerprints = "[src]'s Fingerprints: [src.bioHolder.fingerprint_default.id]"
+		//	scan_builder.add_text(note_fingerprints)
 		var/note_dna = "[src]'s DNA: [src.bioHolder.dna_signature.id]"
 		var/datum/forensic_data/multi/retina_scan = src.get_retina_scan()
 		scan_builder.add_text(note_dna)
+		scan_builder.filter_dna = src.bioHolder.dna_signature.id
 		scan_builder.add_text("[src]'s Retina Scan: " + retina_scan.get_text())
 		if(src.reagents)
 			var/note_ethanol = null
