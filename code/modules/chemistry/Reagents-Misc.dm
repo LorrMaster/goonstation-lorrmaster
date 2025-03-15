@@ -287,6 +287,13 @@ datum
 			description = "This strange liquid seems to have no bubbles on the surface."
 			reagent_state = LIQUID
 
+			reaction_mob(var/mob/M, var/method=TOUCH, var/volume)
+				. = ..()
+				if(isliving(M))
+					var/mob/living/L = M
+					var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Fibrosis"), flags = REMOVABLE_HEAL_BRUTE)
+					L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("butt", "intestines"))
+
 		honk_fart
 			name = "honkfartium"
 			id = "honk_fart"
@@ -296,6 +303,13 @@ datum
 			fluid_g = 182
 			fluid_b = 193
 			transparency = 200
+
+			reaction_mob(var/mob/M, var/method=TOUCH, var/volume)
+				. = ..()
+				if(isliving(M))
+					var/mob/living/L = M
+					var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Fibrosis"), flags = REMOVABLE_HEAL_BRUTE)
+					L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("butt", "intestines"))
 
 		//new name for old stimulants
 		omegazine
@@ -1393,7 +1407,6 @@ datum
 			var/counter = 1
 			var/fakedeathed = 0
 
-
 			on_mob_life(var/mob/M, var/mult = 1)
 				if (!M) M = holder.my_atom
 				if (!counter) counter = 1
@@ -1402,6 +1415,10 @@ datum
 						M.change_eye_blurry(10, 10)
 					if (10 to 18)
 						M.setStatus("drowsy", 20 SECONDS)
+						if(isliving(M))
+							var/mob/living/L = M
+							var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Pulmonary edema"))
+							L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("left_lung", "right_lung"))
 					if (19 to INFINITY)
 						M.changeStatus("paralysis", 3 SECONDS * mult)
 						M.changeStatus("muted", 3 SECONDS * mult)
@@ -1502,10 +1519,12 @@ datum
 			fluid_b = 192
 			transparency = 128
 			viscosity = 0.6
+			var/counter = 1
 
 			on_mob_life(var/mob/M, var/mult = 1)
 				if (!M)
 					M = holder.my_atom
+				if (!counter) counter = 1
 				if(prob(30) && istype(M, /mob/living/carbon/human))
 					var/mob/living/carbon/human/H = M
 					if (H.bioHolder.age < 140)
@@ -1514,6 +1533,11 @@ datum
 						boutput(H, SPAN_ALERT("You feel [pick("old", "strange", "frail", "peculiar", "odd")]."))
 					if (probmult(4))
 						H.emote("scream")
+					switch(counter += (1 * mult))
+						if(5)
+							var/datum/forensic_id/lead_id = register_id("Hyperinflammaging")
+							var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(lead_id)
+							H.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE)
 				..()
 				return
 
@@ -1782,6 +1806,16 @@ datum
 					else
 						boutput(M, SPAN_ALERT("<b>OH SHIT, ANTS![pick("", "!", "!!", "!!!", "!!!!")]</b>"))
 				random_brute_damage(M, 4)
+				if(isliving(M))
+					var/mob/living/L = M
+					var/datum/forensic_id/lead_id = register_id("Insect bites")
+					var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(lead_id, flags = REMOVABLE_HEAL_BRUTE)
+					var/list/organ_list
+					if(method == INGEST) organ_list = list("stomach", "intestines")
+					if(method == INJECT) organ_list = list("spleen", "heart")
+					if(method == TOUCH) organ_list = list("butt", "chest", "head", "tail")
+					L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = organ_list)
+
 
 			on_mob_life(var/mob/M, var/mult = 1)
 				if (!M) M = holder.my_atom
@@ -1815,10 +1849,17 @@ datum
 						boutput(M, SPAN_ALERT("<b>OH [pick("SHIT", "FUCK", "GOD")] SPIDERS[pick("", " ON MY FACE", " EVERYWHERE")]![pick("", "!", "!!", "!!!", "!!!!")]</b>"))
 				random_brute_damage(M, 2)
 				if (ishuman(M))
+					var/mob/living/L = M
 					if (!M:spiders)
 						M:spiders = 1
 						M:update_body()
-				return
+					var/datum/forensic_id/lead_id = register_id("Insect bites")
+					var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(lead_id, flags = REMOVABLE_HEAL_BRUTE)
+					var/list/organ_list
+					if(method == INGEST) organ_list = list("stomach", "intestines")
+					if(method == INJECT) organ_list = list("spleen", "heart")
+					if(method == TOUCH) organ_list = list("butt", "chest", "head", "tail")
+					L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = organ_list)
 
 			reaction_turf(var/turf/T, var/volume)
 				CRITTER_REACTION_CHECK(reaction_count)
@@ -2784,6 +2825,13 @@ datum
 			transparency = 200
 			addiction_prob = 0.2
 			addiction_min = 15
+
+			reaction_mob(var/mob/M, var/method=TOUCH, var/volume)
+				. = ..()
+				if(isliving(M))
+					var/mob/living/L = M
+					var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Fibrosis"), flags = REMOVABLE_HEAL_BRUTE)
+					L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("butt", "intestines"))
 
 			on_mob_life(var/mob/M, var/mult = 1)
 				if (!M) M = holder.my_atom

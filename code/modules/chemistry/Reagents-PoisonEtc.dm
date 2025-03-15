@@ -296,6 +296,10 @@ datum
 							boutput(M, SPAN_ALERT("You feel very weak."))
 							M.setStatusMin("stunned", 1 SECONDS * mult)
 							M.take_toxin_damage(1 * mult)
+						if(isliving(M))
+							var/mob/living/L = M
+							var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Pulmonary edema"), flags = REMOVABLE_HEAL_TOXIN)
+							L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("left_lung", "right_lung"))
 					if (45 to INFINITY)
 						if (prob(25))
 							boutput(M, SPAN_ALERT("You feel horribly weak."))
@@ -780,6 +784,10 @@ datum
 						M.take_toxin_damage(6 * mult)
 						M.change_misstep_chance(10 * mult)
 						M.stuttering += rand(3,6)
+						if(isliving(M))
+							var/mob/living/L = M
+							var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Hyperinflammation"), flags = REMOVABLE_HEAL_TOXIN)
+							L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("stomach", "intestines"))
 					else
 						var/vomit_message = SPAN_ALERT("[M] pukes all over [himself_or_herself(M)].")
 						M.vomit(0, null, vomit_message)
@@ -884,6 +892,18 @@ datum
 			transparency = 100
 			depletion_rate = 0.3
 			penetrates_skin = 1
+
+			reaction_mob(var/mob/M, var/method=TOUCH, var/volume)
+				. = ..()
+				if(isliving(M))
+					var/mob/living/L = M
+					var/datum/forensic_id/lead_id = register_id("Inflammation")
+					var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(lead_id, flags = REMOVABLE_HEAL_BRUTE)
+					var/list/organ_list
+					if(method == INGEST) organ_list = list("stomach", "intestines")
+					if(method == INJECT) organ_list = list("spleen", "heart")
+					if(method == TOUCH) organ_list = list("butt", "chest", "head", "tail")
+					L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = organ_list)
 
 			on_mob_life(var/mob/M, var/mult = 1) // commence the tickling
 				if (!M) M = holder.my_atom
@@ -1442,6 +1462,10 @@ datum
 					M.take_toxin_damage(2 * mult)
 					delimb_counter += 1.5 * mult
 					random_brute_damage(M, 2 * mult)
+					if(isliving(M))
+						var/mob/living/L = M
+						var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Cytotoxicity"), flags = REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_TOXIN)
+						L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("liver"))
 
 				if (delimb_counter > 15)
 					delimb_counter = 0
@@ -1459,6 +1483,9 @@ datum
 						for (var/chosen_limb in limb_list)
 							var/obj/item/parts/limb = H.limbs.get_limb(chosen_limb)
 							if (istype(limb))
+								if(!isrobolimb(limb))
+									var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Cytotoxicity"), flags = REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_TOXIN)
+									limb.add_evidence(f_data, FORENSIC_GROUP_DAMAGE)
 								H.lose_limb(chosen_limb)
 								break
 					else
@@ -1514,7 +1541,7 @@ datum
 				..()
 				return
 
-		harmful/neurotoxin // COGWERKS CHEM REVISION PROJECT. which neurotoxin?
+		harmful/neurotoxin // COGWERKS CHEM REVISION PROJECT. which neurotoxin? (deadly neurotoxin of course)
 			name = "neurotoxin"
 			id = "neurotoxin"
 			description = "A dangerous toxin that attacks the nervous system"
@@ -1538,6 +1565,10 @@ datum
 						M.make_dizzy(1 * mult)
 						M.change_misstep_chance(10 * mult)
 						if (probmult(20)) M.emote("drool")
+						if(isliving(M))
+							var/mob/living/L = M
+							var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Neurotoxicity"), flags = REMOVABLE_REPAIR)
+							L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("brain"))
 					if (11 to 18)
 						M.setStatus("drowsy", 20 SECONDS)
 						M.make_dizzy(1 * mult)
@@ -1581,6 +1612,10 @@ datum
 						M.make_dizzy(1 * mult)
 						M.change_misstep_chance(10 * mult)
 						if (probmult(20)) M.emote("drool")
+						if(isliving(M))
+							var/mob/living/L = M
+							var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Neurotoxicity"), flags = 0)
+							L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("brain"))
 					if (10 to 18)
 						M.setStatus("drowsy", 8 SECONDS)
 						M.make_dizzy(1 * mult)
@@ -1961,6 +1996,10 @@ datum
 						if (probmult(13))
 							M.emote(pick("twitch","drool","tremble"))
 							M.change_eye_blurry(2, 2)
+						if(isliving(M))
+							var/mob/living/L = M
+							var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Neurotoxicity"), flags = REMOVABLE_REPAIR)
+							L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("heart","left_lung","right_lung"))
 					if (28 to 40) // Effects ramp up, breathlessness, early paralysis signs and heartache
 						M.change_eye_blurry(5, 5)
 						M.stuttering = max(M.stuttering, 5)

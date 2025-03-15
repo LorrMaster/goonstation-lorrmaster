@@ -47,12 +47,16 @@
 		if(!A.forensic_holder)
 			return
 		var/datum/forensic_scan_builder2/scan = scan_forensic(A, user, FALSE)
+		if(!scan)
+			return
 		var/last_scan = scan.build_report() // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		boutput(user, last_scan)
 		return
 
 	proc/evidence_read(var/mob/user, var/atom/A)
 		var/datum/forensic_scan_builder2/scan = scan_forensic(A, user, FALSE, ignore_text = TRUE)
+		if(!scan)
+			return
 		var/list/headers = scan.header_list
 		// headers["Read all"] = "Read all"
 		if(headers.len == 0)

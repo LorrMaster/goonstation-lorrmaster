@@ -21,6 +21,12 @@
 		src.base_accuracy = accuracy
 		src.is_admin = is_admin
 		src.ignore_text = ignore_text
+		/*
+		if(isitem(target))
+			var/obj/item/I = target
+			if(I.contraband)
+				src.add_text("Contraband level [SPAN_ALERT(I.contraband)]", HEADER_NOTES)
+		*/
 		..()
 
 	proc/add_data(var/datum/forensic_data/f_data, var/header = "Notes", var/category = FORENSIC_GROUP_NOTE)

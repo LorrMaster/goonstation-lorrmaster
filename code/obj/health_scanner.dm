@@ -127,10 +127,9 @@ TYPEINFO(/obj/health_scanner)
 				var/brute = round(H.get_brute_damage())
 				SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_SIGNAL, "health=[health_percent]&oxy=[oxy]&tox=[tox]&burn=[burn]&brute=[brute]")
 
-				var/datum/forensic_data/basic/scan_data = new(src.forensic_lead)
-				scan_data.flags = REMOVABLE_CLEANING
-				H.add_evidence(scan_data, FORENSIC_GROUP_SCAN)
-				H.apply_evidence_organs(src.forensic_lead)
+				var/datum/forensic_data/basic/scan_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+				H.add_evidence(scan_data.get_copy(), FORENSIC_GROUP_SCAN)
+				H.apply_evidence_organs(scan_data, FORENSIC_GROUP_SCAN)
 
 				var/datum/forensic_data/multi/print_data = H.get_footprints()
 				print_data.evidence_C = H.bioHolder.dna_signature

@@ -24,6 +24,7 @@
 	if(!H.limbs) // I don't think this should ever be the case?
 		return
 
+	src.forensic_holder.last_ckey = M.ckey
 	var/datum/forensic_data/fingerprint/fp = new()
 	// istype(H.r_hand, /obj/item/magtractor)
 	if(H.hand == 0 && H.limbs.r_arm)
@@ -48,17 +49,17 @@
 	ADD_FLAG(fp.flags, REMOVABLE_CLEANING)
 	if(is_fake)
 		ADD_FLAG(fp.flags, IS_JUNK)
-	src.forensic_holder.last_fingerprint = fp.print
 	src.forensic_holder.add_evidence(fp, FORENSIC_GROUP_FINGERPRINT, admin_only)
 	if(M.mind && !ignore_sleuth)
 		var/datum/forensic_data/basic/color_data = new(M.mind.color)
 		ADD_FLAG(color_data.flags, REMOVABLE_CLEANING)
 		src.forensic_holder.add_evidence(color_data, FORENSIC_GROUP_SLEUTH_COLOR)
 
-/atom/proc/get_last_fingerprint()
-	if(src.forensic_holder?.last_fingerprint)
-		return src.forensic_holder.last_fingerprint.id
-	return "?????"
+/atom/proc/last_forensic_ckey()
+	if(!src.forensic_holder || !src.forensic_holder.last_ckey)
+		return "Unknown"
+	return src.forensic_holder.last_ckey
+
 
 /atom/proc/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 	if(!src.forensic_holder)

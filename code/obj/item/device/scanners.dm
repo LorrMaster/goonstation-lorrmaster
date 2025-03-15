@@ -268,6 +268,8 @@ TYPEINFO(/obj/item/device/detective_scanner)
 			if(!(BOUNDS_DIST(user, target) == 0) && IN_RANGE(user, target, 3))
 				user.visible_message(SPAN_NOTICE("<b>[user]</b> takes a distant forensic scan of [target]."))
 				last_scan = scan_forensic(target, user, visible = 1, scanner_accuracy = src.timestamp_modifier)
+				if(!last_scan)
+					return
 				boutput(user, last_scan)
 				src.add_fingerprint(user)
 
@@ -283,7 +285,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 				// Humans need to stand still for a scan
 				visible = FALSE
 				user.visible_message(SPAN_ALERT("<b>[user]</b> is attempting a forensics scan on [A]..."))
-				for(var/i=0; i<6; i++)
+				for(var/i=0; i<=5; i++)
 					animate_scanning(A, "#c6df56", time = 5)
 					sleep(0.5 SECONDS)
 					if (BOUNDS_DIST(A, user) > 0)
@@ -298,6 +300,8 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		if(!A.forensic_holder)
 			return
 		var/datum/forensic_scan_builder2/last_scan = scan_forensic(A, user, visible, scanner_accuracy = src.timestamp_modifier)
+		if(!last_scan)
+			return
 		var/scan_report = last_scan.build_report() // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		boutput(user, scan_report)
 		return
@@ -459,14 +463,14 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 
 		// Apply scanner evidence to the target and each of their limbs/organs
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
-		target.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		target.add_evidence(f_data.get_copy(), FORENSIC_GROUP_SCAN)
 		if(isliving(target))
 			var/mob/living/L = target
 			if(ishuman(L))
 				var/mob/living/carbon/human/H = L
-				H.apply_evidence_organs(src.forensic_lead)
+				H.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN)
 			else if(L.organHolder)
-				L.organHolder.apply_evidence_organs(src.forensic_lead, REMOVABLE_CLEANING, FORENSIC_GROUP_SCAN)
+				L.organHolder.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN, ignore_robo = TRUE)
 			if(L.bioHolder)
 				var/datum/forensic_data/multi/s_data = L.get_retina_scan()
 				s_data.evidence_C = L.bioHolder.dna_signature

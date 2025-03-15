@@ -494,6 +494,8 @@ datum
 					var/mob/living/L = M
 					L.contract_disease(/datum/ailment/malady/heartfailure, null, null, 1)
 					heart_failure_counter = 0
+					var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Aortic rupture"), flags = REMOVABLE_REPAIR)
+					L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("pancreas"))
 
 				switch(caffeine_amt)
 					if(0 to 5)   //This is a trace amount of caffeine, doesn't do much

@@ -1508,20 +1508,21 @@
 		r_data.display = r_data.disp_pair
 		return r_data
 
-	proc/apply_evidence_organs(var/datum/forensic_id/scan_id, var/flags, var/category, var/datum/forensic_display/scan_disp = /datum/forensic_data/basic::disp_empty)
-		// apply the evidence to every organ in the body (ignoring robotic organs)
+	proc/apply_evidence_organs(var/datum/forensic_data/basic/f_data, var/category, var/ignore_bio = FALSE, var/ignore_robo = FALSE, var/list/organs = null)
+		// apply a copy of the evidence to every organ in the body
+		if(!organs)
+			organs = src.organ_list
 		if (islist(src.organ_list))
 			for (var/i in src.organ_list)
 				var/obj/item/organ/O = src.organ_list[i]
-				if (istype(O) && !O.robotic)
-					var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, flags)
-					O.add_evidence(f_data, category)
+				if (istype(O) && (O.robotic || !ignore_bio) && (!O.robotic || !ignore_robo))
+					O.add_evidence(f_data.get_copy(), category)
 			if(src.skull)
-				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, flags)
-				src.skull.add_evidence(f_data, category)
+				src.skull.add_evidence(f_data.get_copy(), category)
 			if(src.butt)
-				var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, flags)
-				src.butt.add_evidence(f_data, category)
+				var/is_robo = istype(src.butt, /obj/item/clothing/head/butt/cyberbutt)
+				if((is_robo || !ignore_bio) && (!is_robo || !ignore_robo))
+					src.butt.add_evidence(f_data.get_copy(), category)
 
 	proc/remove_evidence_organs(var/removal_flags, var/ignore_robotic = TRUE)
 		// remove a type of evidence from every organ in the body (ignoring robotic organs)

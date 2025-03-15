@@ -79,8 +79,8 @@
 		return 0
 
 	if(HH.organHolder?.head)
-		var/datum/forensic_data/f_data = new(M.organHolder.head.bite_mark)
-		HH.organHolder.head.add_evidence(f_data, FORENSIC_GROUP_BITE)
+		var/datum/forensic_data/f_data = M.organHolder.head.get_bite_evidence()
+		HH.organHolder.head.add_evidence(f_data, FORENSIC_GROUP_DAMAGE)
 	if (isdead(HH))
 		if (prob(20))
 			boutput(M, SPAN_ALERT("The blood of the dead provides little sustenance..."))
