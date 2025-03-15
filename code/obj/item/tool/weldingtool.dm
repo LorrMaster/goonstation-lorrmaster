@@ -40,6 +40,30 @@
 
 		AddComponent(/datum/component/loctargeting/simple_light, 255, 110, 135, 125, src.welding)
 
+		// Welder + rods  -> Welder/Rods Assembly
+		src.AddComponent(/datum/component/assembly, /obj/item/rods, PROC_REF(welder_rod_construction), TRUE)
+
+// ----------------------- Assembly-procs -----------------------
+	///Begin of the flamethrower assembly
+	proc/welder_rod_construction(var/atom/to_combine_atom, var/mob/user)
+		if (src.welding)
+			return
+		boutput(user, SPAN_NOTICE("You attach the rod to the welding tool."))
+		var/obj/item/rods/handled_rods = to_combine_atom
+		handled_rods.add_fingerprint(user)
+		user.u_equip(src)
+		src.add_fingerprint(user)
+		if(handled_rods.amount > 1)
+			handled_rods = handled_rods.split_stack(1)
+			handled_rods.add_fingerprint(user)
+		else
+			user.u_equip(handled_rods)
+		var/obj/item/flamethrower_construction/new_construction = new /obj/item/flamethrower_construction(null, src, handled_rods, null)
+		user.put_in_hand_or_drop(new_construction)
+		return TRUE
+// ----------------------- -------------- -----------------------
+
+
 	examine()
 		. = ..()
 		. += "It has [get_fuel()] units of fuel left!"

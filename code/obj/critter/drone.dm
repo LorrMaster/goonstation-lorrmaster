@@ -795,8 +795,8 @@ TYPEINFO(/obj/critter/gunbot/drone/helldrone)
 		icon = 'icons/mob/critter/robotic/drone/assault.dmi'
 		icon_state = "drone_assault"
 		dead_state = "drone_assault"
-		health = 150
-		maxhealth = 150
+		health = 300
+		maxhealth = 300
 		score = 100
 		projectile_type = /datum/projectile/laser/asslaser
 		current_projectile = new/datum/projectile/laser/asslaser
@@ -917,6 +917,48 @@ TYPEINFO(/obj/critter/gunbot/drone/helldrone)
 			..()
 			name = "Battledrone Omega-[rand(1,10)]"
 			return
+
+ABSTRACT_TYPE(/obj/gunbotdrone_spawner)
+/obj/gunbotdrone_spawner
+	name = "gunbot drone spawner"
+	var/list/possible_drones = null
+
+	New()
+		..()
+		var/obj/critter/gunbot/drone/drone = weighted_pick(src.possible_drones)
+		drone = new drone(get_turf(src))
+		qdel(src)
+
+/obj/gunbotdrone_spawner/common
+	icon = 'icons/mob/critter/robotic/drone/phaser.dmi'
+	icon_state = "drone_phaser"
+	possible_drones = list(/obj/critter/gunbot/drone = 90,
+						   /obj/critter/gunbot/drone/buzzdrone = 100,
+						   /obj/critter/gunbot/drone/aciddrone = 25,
+						   /obj/critter/gunbot/drone/laserdrone = 5)
+
+/obj/gunbotdrone_spawner/uncommon
+	icon = 'icons/mob/critter/robotic/drone/laser.dmi'
+	icon_state = "drone_laser"
+	possible_drones = list(/obj/critter/gunbot/drone/laserdrone = 100,
+						   /obj/critter/gunbot/drone/heavydrone = 75,
+						   /obj/critter/gunbot/drone/cutterdrone = 25, // these are already manually placed in some asteroids, so reduced chance for variety
+						   /obj/critter/gunbot/drone/minigundrone = 5,
+						   /obj/critter/gunbot/drone/maserdrone = 5)
+
+/obj/gunbotdrone_spawner/rare
+	icon = 'icons/mob/critter/robotic/drone/ballistic.dmi'
+	icon_state = "drone_ballistic"
+	possible_drones = list(/obj/critter/gunbot/drone/minigundrone = 100,
+						   /obj/critter/gunbot/drone/maserdrone = 75,
+						   /obj/critter/gunbot/drone/cannondrone = 75,
+						   /obj/critter/gunbot/drone/rocketdrone = 50)
+
+/obj/gunbotdrone_spawner/very_rare
+	icon = 'icons/mob/critter/robotic/drone/railgun.dmi'
+	icon_state = "drone_railgun"
+	possible_drones = list(/obj/critter/gunbot/drone/raildrone = 100,
+						   /obj/critter/gunbot/drone/assdrone = 50)
 
 TYPEINFO(/obj/critter/gunbot/drone/iridium)
 	mats = null //no
