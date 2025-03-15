@@ -17,8 +17,10 @@ estimate_counter
 		src.accuracy_mult *= ((rand() - 0.5) * 0.15) + 1
 	proc/get_text() // The text to display when scanned
 		return ""
-	proc/should_remove(var/remove_flags) // Compare removable flags
-		return HAS_ANY_FLAGS((src.flags & REMOVABLE_ALL), remove_flags)
+	proc/should_remove(var/remove_flags) // Should this evidence be removed?
+		var/remove = HAS_ANY_FLAGS(src.flags & (REMOVABLE_ALL & !REMOVABLE_HEAL), remove_flags)
+		remove |= HAS_ALL_FLAGS(src.flags & REMOVABLE_HEAL, remove_flags & REMOVABLE_HEAL) // Need full healing to remove
+		return remove
 	proc/mark_as_junk()
 		flags = flags | IS_JUNK
 	proc/get_copy()

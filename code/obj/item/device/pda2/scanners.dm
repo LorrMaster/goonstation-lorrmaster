@@ -48,12 +48,12 @@
 			. = scan_health(C, 0, 1, visible = 1)
 
 			var/datum/forensic_data/basic/f_data = new(src.master.scan_lead, src.pda_health_disp, REMOVABLE_CLEANING)
-			C.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+			C.add_evidence(f_data.get_copy(), FORENSIC_GROUP_SCAN)
 			if(ishuman(C))
 				var/mob/living/carbon/human/H = C
-				H.apply_evidence_organs(src.master.scan_lead, src.pda_health_disp)
+				H.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN)
 			else if(C.organHolder)
-				C.organHolder.apply_evidence_organs(src.master.scan_lead, src.pda_health_disp)
+				C.organHolder.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN, ignore_robo = TRUE)
 			if(C.bioHolder)
 				// Maybe apply this to the cartridge instead?
 				var/datum/forensic_data/multi/s_data = C.get_retina_scan()

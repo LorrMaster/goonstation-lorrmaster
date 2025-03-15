@@ -56,6 +56,7 @@
 	var/obj/item/clothing/mask/wear_mask = null
 	var/obj/item/clothing/glasses/glasses = null
 	var/datum/forensic_id/bite_mark = null // Pattern left behind when eating and such
+	var/static/datum/forensic_display/bite_disp = new("Bite Mark: @F")
 
 	appearance_flags = KEEP_TOGETHER | PIXEL_SCALE
 
@@ -672,3 +673,7 @@
 		if(!skip_update)
 			src.UpdateIcon(/*makeshitup*/ 0)	// so our head actually looks like the thing its supposed to be
 		// though if our head's a transplant, lets run it anyway, in case their hair changed or something
+
+	proc/get_bite_evidence()
+		var/datum/forensic_data/basic/bite_data = new(src.bite_mark, src.bite_disp)
+		return bite_data

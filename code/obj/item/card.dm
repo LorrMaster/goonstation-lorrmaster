@@ -38,6 +38,7 @@ TYPEINFO(/obj/item/card/emag)
 	is_syndicate = 1
 	contraband = 6
 	var/datum/forensic_id/forensic_lead = null
+	var/static/datum/forensic_display/emag_lead_disp = new("Magnetic Distortions: @F")
 
 	New()
 		..()
@@ -51,8 +52,8 @@ TYPEINFO(/obj/item/card/emag)
 		// A.forensic_holder?.remove_evidence(REMOVABLE_DATA)
 		var/emag_result = A.emag_act(user, src)
 		if(emag_result && src.forensic_lead)
-			var/datum/forensic_data/basic/f_data = new(src.forensic_lead)
-			A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+			var/datum/forensic_data/basic/f_data = new(src.forensic_lead, src.emag_lead_disp)
+			A.add_evidence(f_data, FORENSIC_GROUP_DAMAGE)
 
 	attack()	//Fucking attack messages up in this joint.
 		return

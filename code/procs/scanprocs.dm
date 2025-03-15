@@ -568,7 +568,8 @@
 
 	// Now perform the actual scan
 	if(A.forensic_holder.suppress_scans || A.reagents?.get_reagent_amount("cloak_juice") >= 5)
-		return "Overwhelming interference coming from \The [A] nullifys the scan!" // Note: Need to exclude admin scans -LorrMaster
+		boutput(user, "Overwhelming interference coming from \The [A] nullifys the scan!") // Note: Need to exclude admin scans -LorrMaster
+		return null
 	var/datum/forensic_scan_builder2/scan_builder = new(A, accuracy, FALSE, ignore_text)
 	A.on_forensic_scan(scan_builder)
 	scan_builder.collect_data()

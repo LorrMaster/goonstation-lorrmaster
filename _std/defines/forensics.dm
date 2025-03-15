@@ -6,9 +6,7 @@ TODO:
 	- Fix dna sample duplicates
  - Update security logs to use the new system
  - Remove & replace all the old forensics stuff in general
- - Scan report changes
-	- Seperate each line to its own variable to allow line order variation
-- Contraband
+ - Contraband
 
 
 Bugs:
@@ -26,25 +24,26 @@ Lower Priority
  - Reagents
  	- Luminol should glow and work on mobs/turf
 		- Rework luminol timer.
-	- Fingerprint reagents
-		- Iodine: Fingerprint accuracy x0.7
-		- Silver: ???
-		- Silver Nitrate: Reveal partial prints
 	- Hairgrowium: Hair sample accuracy x0.5
 		- Super Hairgrowium: Hair sample perfect accuracy
 		- Omega Hairgrownium: ???
 	- Black Powder: Scan stickers on items?
 	- Cryostylane: Burn marks?
-	- Charcoal: ???
+	- Charcoal: Burn marks source
 	- Magnesium Chloride: Remove ice?
 	- Unstable Mutagen: Mess with DNA samples
 	- Mutadone: Restore DNA samples damaged by unstable mutagen
 	- Stable Mutagen + blood: Replace all DNA samples with the blood's DNA
+
+
 - Damage Sources
 	- Radiation: Randomized? Variable based on intensity?
 	- Vacuum suffocation: ???
 	- Non-vacuum suffocation: Depends on gas
 	- Burn marks: Explosion / fire evidence lead?
+	- Tissue damage/reaction
+	- Brute damage
+	- Pathogens
 
 	- Capulettum: Head (swollen tongue),
 	- Toxin: Stomach
@@ -52,23 +51,6 @@ Lower Priority
 	- Cytotoxin: Limbs (???), Stomach (???)
 	- Ants: intestines, stomach (insect bites)
 */
-
-// mask: 0123456789ABCDEF
-// 	(..A..-?-?-?) | Fibers: xxxxxx	--> Replace A with 11th character
-// (...-??y?-...) | Fibers: xxxxxx
-// (?-?-..g..-?) | Fibers: xxxxxx
-// (...y...g...) | Fibers: xxxxxx
-// (..y..a..g..) | Fibers: xxxxxx
-// (...?????...) | Fibers: xxxxxx
-// abcd-egno-pqrs-uvxy | Fibers: xxxxxx
-
-// Mask minigames:
-// None ==> Towel, black gloves
-// Reveal one char and its position in the bunch: (1/4) ==> insulated gloves
-// Reveal the order of two characters (1/2) ==> normal gloves
-// Reveal the order of three characters (1/8) ==> latex gloves
-// Reveal the order of four characters (1/64) ==> latex gloves
-// Reveal which bunch a char is in (1/4) ==>
 
 // Notes for various stuff in the detective office?
 // Detective hat: ""
@@ -85,6 +67,9 @@ Lower Priority
 // Detective Computer: ""
 // Alcohol 1: ""
 
+// List of types of organ damage. I don't know if any of these make sense.
+// Phlebitis, Fibrosis, Pulmonary edema, Inflammation
+
 #define FORENSIC_GROUP_NONE 0
 #define FORENSIC_GROUP_ADMINPRINT 1
 #define FORENSIC_GROUP_PRODUCER 2 // Hold data that this object creates. For the fingerprinter to find.
@@ -99,8 +84,7 @@ Lower Priority
 #define FORENSIC_GROUP_HEALTH_ANALYZER 11 // DNA + retina scan
 #define FORENSIC_GROUP_SLEUTH_COLOR 12 // Pug sleuthing
 #define FORENSIC_GROUP_PROJ_HIT 13
-#define FORENSIC_GROUP_BITE 14 // nom nom nom
-#define FORENSIC_GROUP_DAMAGE 15
+#define FORENSIC_GROUP_DAMAGE 14 // Anything that can be categorized under injuries, data corruption, or breakages
 
 /proc/forensic_group_create(var/category) // Create a new group from its unique variable
 	// Is there a better way to do this? IDK
@@ -124,10 +108,8 @@ Lower Priority
 			G = new/datum/forensic_group/multi_list/log_health_analyzer
 		if(FORENSIC_GROUP_SLEUTH_COLOR)
 			G = new/datum/forensic_group/basic_list/sleuth_color
-		if(FORENSIC_GROUP_BITE)
-			G = new/datum/forensic_group/basic_list/bite
 		if(FORENSIC_GROUP_DAMAGE)
-			G = new/datum/forensic_group/basic_list/wound
+			G = new/datum/forensic_group/basic_list/damage
 	return G
 
 #define IS_HIDDEN (1 << 1) // Only admins can see this evidence
@@ -165,6 +147,7 @@ Lower Priority
 #define HEADER_FINGERPRINTS "Fingerprints"
 #define HEADER_DNA "DNA Samples"
 #define HEADER_SCANNER "Scan Particles"
+#define HEADER_DAMAGE "Damage"
 
 #define CHAR_LIST_UPPER list("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
 #define CHAR_LIST_LOWER list("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z")

@@ -7,10 +7,10 @@
 datum/forensic_holder
 	var/list/datum/forensic_group/evidence_list = new/list() // Forensic evidence is stored here
 	var/list/datum/forensic_group/hidden_list = new/list() // Evidence that is only visible to admins
-	var/datum/spreader_track/spreader = null // My lazy way of storing info for footprints
 	var/accuracy_mult = 1.0 // Multiplier for this item's timestamp accuracy. Lower the better.
+	var/last_ckey = null
+	var/datum/spreader_track/spreader = null // My lazy way of storing info for footprints
 
-	var/datum/forensic_id/last_fingerprint = null
 	var/removal_flags_ignore = 0 // These ways of removing evidence have no power here
 	var/suppress_scans = FALSE // If true, then this will block attempts to scan it
 	var/is_stained = FALSE // Used to activate blood/stained overlay visuals. Might want to move somewhere else
@@ -55,13 +55,13 @@ datum/forensic_holder
 			if(!h_group)
 				h_group = forensic_group_create(category)
 				src.hidden_list += h_group
-			h_group.apply_evidence(data)
+			h_group.apply_evidence(data.get_copy())
 		if(!admin_only)
 			var/datum/forensic_group/group = get_group(category, FALSE)
 			if(!group)
 				group = forensic_group_create(category)
 				src.evidence_list += group
-			group.apply_evidence(data.get_copy())
+			group.apply_evidence(data)
 
 	proc/remove_evidence(var/removal_flags) // Remove evidence marked with a flag. Should work with multiple flags as well.
 		removal_flags = removal_flags & (~src.removal_flags_ignore)

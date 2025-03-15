@@ -3687,7 +3687,7 @@ mob/living/carbon/human/has_genetics()
 	if(src.organHolder?.head && !(src.head?.body_parts_covered & HEAD) && !(src.wear_mask?.body_parts_covered & HEAD))
 		src.organHolder.head.forensic_holder?.copy_evidence(f_holder)
 		if(isdead(src))
-			scan_builder.add_text("[src]'s [src.organHolder.head.bite_mark.id]")
+			scan_builder.add_text("[src]'s bite mark: [src.organHolder.head.bite_mark.id]")
 	// --- Hands ---
 	if(src.gloves)
 		src.gloves.forensic_holder?.copy_evidence(f_holder)
@@ -3757,23 +3757,19 @@ mob/living/carbon/human/has_genetics()
 	f_data.display = f_data.disp_pair
 	return f_data
 
-/mob/living/carbon/human/proc/apply_evidence_organs(var/datum/forensic_id/scan_id, var/datum/forensic_display/scan_disp = /datum/forensic_data/basic::disp_empty)
-	// Apply the evidence to every non-robo limb/organ in the body. Only works with scan particles for now.
-	src.organHolder?.apply_evidence_organs(scan_id, REMOVABLE_CLEANING, FORENSIC_GROUP_SCAN)
+/mob/living/carbon/human/proc/apply_evidence_organs(var/datum/forensic_data/basic/f_data, var/category)
+	// Apply a copy of the evidence to every non-robo limb/organ in the body.
+	src.organHolder?.apply_evidence_organs(f_data, category, ignore_robo = TRUE)
 	if(!src.limbs)
 		return
 	if(src.limbs.r_arm && !isrobolimb(src.limbs.r_arm))
-		var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-		src.limbs.r_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		src.limbs.r_arm.add_evidence(f_data.get_copy(), category)
 	if(src.limbs.l_arm && !isrobolimb(src.limbs.l_arm))
-		var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-		src.limbs.l_arm.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		src.limbs.l_arm.add_evidence(f_data.get_copy(), category)
 	if(src.limbs.r_leg && !isrobolimb(src.limbs.r_leg))
-		var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-		src.limbs.r_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		src.limbs.r_leg.add_evidence(f_data.get_copy(), category)
 	if(src.limbs.l_leg && !isrobolimb(src.limbs.l_leg))
-		var/datum/forensic_data/basic/f_data = new(scan_id, scan_disp, REMOVABLE_CLEANING)
-		src.limbs.l_leg.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		src.limbs.l_leg.add_evidence(f_data.get_copy(), category)
 
 /mob/living/carbon/human/proc/remove_evidence_organs(var/removal_flags)
 	if(!removal_flags)

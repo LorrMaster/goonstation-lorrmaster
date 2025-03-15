@@ -110,21 +110,18 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	get_header()
 		return HEADER_SCANNER
 
-/datum/forensic_group/basic_list/bite
-	category = FORENSIC_GROUP_BITE
-	group_flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE
-	group_accuracy = 0.9
-
-	get_header()
-		return "Bite Marks"
-
-/datum/forensic_group/basic_list/wound // Evidence of wounds / general damage & destruction
+/datum/forensic_group/basic_list/damage // Evidence of wounds / general damage & destruction
 	category = FORENSIC_GROUP_DAMAGE
-	group_flags = REMOVABLE_HEAL
-	group_accuracy = 1.2
+	group_flags = REMOVABLE_ALL
+	group_accuracy = 1
+	// Trace evidence: ???
 
+	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
+		for(var/i=1, i<= src.evidence_list.len; i++)
+			if(src.evidence_list[i].should_remove(removal_flags))
+				ADD_FLAG(src.evidence_list[i].flags, IS_TRACE) // Mark as trace instead of outright removing for now
 	get_header()
-		return "Wounds"
+		return HEADER_DAMAGE
 
 /datum/forensic_group/basic_list/sleuth_color
 	category = FORENSIC_GROUP_SLEUTH_COLOR
