@@ -34,12 +34,15 @@
 		src.original_bodypart?.set_loc(src)
 		if(istype(original_bodypart, /obj/item/organ) || istype(original_bodypart, /obj/item/clothing/head/butt))
 			var/obj/item/organ/org = original_bodypart
-			org.donor_DNA = src.bioHolder?.Uid
-			org.blood_DNA = org.donor_DNA
-		else if(istype(original_bodypart, /obj/item/parts/human_parts))
+			if(src.bioHolder?.dna_signature)
+				org.donor_dna_signature = src.bioHolder.dna_signature
+				var/datum/forensic_data/dna/dna_data = new(src.bioHolder.dna_signature, DNA_FORM_BLOOD)
+				org.add_evidence(dna_data, FORENSIC_GROUP_DNA)
+		else if(istype(original_bodypart, /obj/item/parts/human_parts) && src.bioHolder?.dna_signature)
 			var/obj/item/parts/human_parts/hpart = original_bodypart
-			hpart.original_DNA = src.bioHolder?.Uid
-			hpart.blood_DNA = hpart.original_DNA
+			hpart.dna_signature = src.bioHolder.dna_signature
+			var/datum/forensic_data/dna/dna_data = new(src.bioHolder.dna_signature, DNA_FORM_BLOOD)
+			hpart.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 
 	say(message, involuntary = 0)
 		if (hivemind_owner)
