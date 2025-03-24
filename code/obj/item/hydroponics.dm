@@ -404,7 +404,9 @@ TYPEINFO(/obj/item/plantanalyzer)
 
 	New()
 		..()
-		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "PLANT-"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "PLANT-")
+		src.forensic_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
 		if (BOUNDS_DIST(A, user) > 0)

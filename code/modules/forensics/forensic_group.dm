@@ -3,15 +3,16 @@
 Forensic Holder -> All the different types of forensics on an object
 Forensic Group -> All the fingerprints on an object
 Forensic Data -> A fingerprint
+Forensic ID -> A specific fingerprint pattern. Unique.
 */
 
 #define FINGERPRINTS_MAX 7
-#define FINGERPRINTS_COOLDOWN 10
 
 ABSTRACT_TYPE(/datum/forensic_group)
+// Only one of each type of forensics_group should exist per forensic_holder
+// Originally created with the intent that there could be multiple groups (such as fingerprints inside vs outside a pod)
+	// But this idea was dropped in favor of being able to combine and utilize multiple forensic_holders at once
 /datum/forensic_group
-	// Photographic Analysis, Audio Analysis
-
 	var/category = FORENSIC_GROUP_NONE // An identifier for the group type. Must be unique for each group.
 	var/group_flags = 0 // Flags associated with the whole group. If EVIDENCE_REMOVABLE_CLEANING is true,
 						// then evidence in that group may (or may not!) be removable via cleaning
@@ -203,7 +204,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	group_flags = REMOVABLE_CLEANING
 
 	get_header()
-		return "Footprints"
+		return HEADER_TRACKS
 
 /datum/forensic_group/multi_list/retinas
 	category = FORENSIC_GROUP_RETINA
@@ -219,7 +220,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	group_accuracy = 0
 
 	get_header()
-		return @"Scan Log: DNA | Footprints"
+		return HEADER_HEALTH_FLOOR
 
 /datum/forensic_group/multi_list/log_health_analyzer // Health analyzer stores retina & dna from scanned patients
 	category = FORENSIC_GROUP_HEALTH_ANALYZER
@@ -227,7 +228,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	group_accuracy = 0
 
 	get_header()
-		return @"Scan Log: DNA | Retina Scan"
+		return HEADER_HEALTH_ANALYZER
 
 /datum/forensic_group/fingerprints
 	category = FORENSIC_GROUP_FINGERPRINT
@@ -333,9 +334,11 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
 		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		for(var/i=1, i<= src.dna_list.len; i++)
-			var/datum/forensic_data/f_data = src.dna_list[i].get_copy()
-			f_data.accuracy_mult *= scan_accuracy
-			scan_builder.add_data(f_data, get_header(), src.category)
+			var/datum/forensic_data/dna/f_data = src.dna_list[i].get_copy()
+			var/filtered = (f_data.pattern == scan_builder.filter_dna) && scan_builder.filter_dna
+			if(!filtered)
+				f_data.accuracy_mult *= scan_accuracy
+				scan_builder.add_data(f_data, get_header(), src.category)
 		if(luminol_time > TIME)
 			for(var/i=1, i<= src.dna_trace_list.len; i++)
 				var/datum/forensic_data/f_data = src.dna_trace_list[i].get_copy()

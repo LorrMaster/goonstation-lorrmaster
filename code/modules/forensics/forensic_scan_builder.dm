@@ -9,6 +9,7 @@
 	var/base_accuracy = -1 // How accurate the time estimates are, or negative if not included by default
 	var/is_admin = FALSE // Is this being analysed via admin commands?
 	var/ignore_text = FALSE // Only collect actual forensic data (used for the fingerprinter)
+	var/list/abridged_headers = list(HEADER_FINGERPRINTS, HEADER_DNA, HEADER_NOTES)
 
 	var/filter_dna = null // Ignore the DNA of the person you are scanning (not including blood)
 	var/filter_fingerprint_L = null // Ignore gloves / fingerprints from the person you are scanning
@@ -55,39 +56,56 @@
 				src.chain_scan.report_title = title
 		else
 			chain_scan.add_holder(new_holder, title)
+	proc/include_abridged(var/header) // Include a header in abridged scans
+		src.abridged_headers += header
 
 	proc/collect_data() // Collect all the data associated with the scan
 		holder.add_data_builder(src)
 		if(src.chain_scan)
 			src.chain_scan.collect_data()
 
-	proc/build_report() // Turn the data into a text report
+	proc/build_report(var/abridged = FALSE) // Turn the data into a text report.
 		var/list/h_list = src.header_list.Copy()
-		var/report_text = SPAN_BOLD(SPAN_SUCCESS("<li>[src.report_title]</li>"))
-		// Pick a header. Turn all data under that header into text
+		var/list/abridged_list = new()
+		for(var/i = 1; i<= h_list.len; i++)
+			abridged_list[h_list[i]] = !abridged || src.abridged_headers.Find(h_list[i])
+		var/report_text = SPAN_SUCCESS("<li><b>[src.report_title]</b></li>")
+		// Pick a header. Turn all data under that header into text (if not abridged)
 		var/h_count = h_list.len
 		for(var/i = 1; i<= h_count; i++)
-			var/header = choose_header(h_list)
-			report_text += SPAN_HINT("<li>[header]</li>") + data_to_text(data_list[header])
+			var/header = choose_header(h_list, abridged_list)
+			var/section_text = ""
+			if(abridged && !abridged_list[header])
+				var/readings = "readings"
+				if(src.data_list[header].len == 1)
+					readings = "reading"
+				section_text = SPAN_HINT("<li>[header]: [src.data_list[header].len] [readings]</li>")
+			else
+				section_text = SPAN_HINT("<li>[header]</li>") + data_to_text(src.data_list[header], abridged)
+			if(!abridged)
+				section_text = "<p>[section_text]</p>"
+			report_text += section_text
 		if(src.chain_scan)
-			report_text += src.chain_scan.build_report()
+			report_text += src.chain_scan.build_report(abridged)
 		return report_text
 
-	proc/data_to_text(var/list/datum/forensic_data/d_list)
+	proc/data_to_text(var/list/datum/forensic_data/d_list, var/abridged = FALSE)
 		var/text = ""
 		for(var/i=1; i<= d_list.len; i++)
 			var/d_text = d_list[i].get_text()
 			if(d_list[i].accuracy_mult >= 0)
 				d_text += " [d_list[i].get_time_estimate(d_list[i].accuracy_mult)]"
+			if(!abridged && d_text)
+				d_text = "<ul style=padding-left: 5px;>[d_text]</ul>"
 			if(d_text)
 				text += "<li>[d_text]</li>"
 		return text
 
-	proc/choose_header(var/list/h_list)
+	proc/choose_header(var/list/h_list, var/list/abridged_list)
 		var/h_index = 1
-		var/h_priority = header_priority(h_list[1])
+		var/h_priority = header_priority(h_list[1], abridged_list[h_list[1]])
 		for(var/i = 2; i<= h_list.len; i++)
-			var/priority = header_priority(h_list[i])
+			var/priority = header_priority(h_list[i], abridged_list[h_list[i]])
 			if(h_priority < priority)
 				h_index = i
 				h_priority = priority
@@ -95,16 +113,18 @@
 		h_list.Cut(h_index, h_index + 1)
 		return header
 
-	proc/header_priority(var/header)
+	proc/header_priority(var/header, var/abridged)
+		if(abridged)
+			return 100
 		switch(header)
 			if(HEADER_FINGERPRINTS)
-				return 100
-			if(HEADER_DNA)
-				return 90
-			if(HEADER_SCANNER)
-				return 80
-			if(HEADER_NOTES)
 				return 20
+			if(HEADER_DNA)
+				return 30
+			if(HEADER_SCANNER)
+				return 60
+			if(HEADER_NOTES)
+				return 80
 			else
 				return 50
 

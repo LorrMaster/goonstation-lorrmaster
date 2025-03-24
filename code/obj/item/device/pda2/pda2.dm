@@ -100,7 +100,9 @@
 
 	New()
 		..()
-		src.scan_lead = register_id(build_id(5, CHAR_LIST_NUM, "", "-PDA"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "", "-PDA")
+		src.scan_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 	registered_owner()
 		.= registered

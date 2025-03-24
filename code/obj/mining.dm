@@ -2208,7 +2208,9 @@ TYPEINFO(/obj/item/cargotele)
 			for (var/subtype in typesof(supertype))
 				allowed_types[subtype] = 1
 		allowed_types -= /obj/storage/closet/flock
-		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "TELE-"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "TRNSPRT-")
+		src.forensic_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 		var/cell = new cell_type
 		AddComponent(/datum/component/cell_holder, cell, swappable = FALSE)

@@ -7,20 +7,29 @@ TODO:
  - Update security logs to use the new system
  - Remove & replace all the old forensics stuff in general
  - Contraband
+ - Abridged scans & printing full reports
+	- Fingerprints + DNA + Notes + Additional Header counts
+	- No timestamps? Show sec log name?
+ - Forensics Tools: Input ID
+	- Check sec logs for matches
+	- Check scanner ID dictionary for a match
+ - Better footprints?
+	-
 
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction
+ - Blood color & DNA issues
 
 Lower Priority
  - DNA scramblers change DNA and fingerprints of regrown limbs, but not the current ones
- - Imports should specify a trader, or potential traders
  - Leave behind hair while in pods, bed, barber, etc
  - Go through machinery for potential forensic notes to add
  - Bullet holes, burn marks from lasers (include goggles for laser eyes)
  - Hold towels / handkerchief to prevent fingerprints
  - Evidence for stackables
  	- Attach cleanables to floor tiles
+ - Photographic Analysis, Audio Analysis
  - Reagents
  	- Luminol should glow and work on mobs/turf
 		- Rework luminol timer.
@@ -44,12 +53,6 @@ Lower Priority
 	- Tissue damage/reaction
 	- Brute damage
 	- Pathogens
-
-	- Capulettum: Head (swollen tongue),
-	- Toxin: Stomach
-	- Sewage: Stomach
-	- Cytotoxin: Limbs (???), Stomach (???)
-	- Ants: intestines, stomach (insect bites)
 */
 
 // Notes for various stuff in the detective office?
@@ -71,7 +74,7 @@ Lower Priority
 // Phlebitis, Fibrosis, Pulmonary edema, Inflammation
 
 #define FORENSIC_GROUP_NONE 0
-#define FORENSIC_GROUP_ADMINPRINT 1
+#define FORENSIC_GROUP_ADMINPRINT 1 // unused
 #define FORENSIC_GROUP_PRODUCER 2 // Hold data that this object creates. For the fingerprinter to find.
 #define FORENSIC_GROUP_NOTE 3 // Basically a misc section
 #define FORENSIC_GROUP_FINGERPRINT 4
@@ -148,6 +151,10 @@ Lower Priority
 #define HEADER_DNA "DNA Samples"
 #define HEADER_SCANNER "Scan Particles"
 #define HEADER_DAMAGE "Damage"
+#define HEADER_HEALTH_FLOOR "Scan Log: DNA | Footprints"
+#define HEADER_HEALTH_ANALYZER "Scan Log: DNA | Retina Scan"
+#define HEADER_TRACKS "Footprints"
+#define HEADER_RETINA "Retina Scans"
 
 #define CHAR_LIST_UPPER list("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z")
 #define CHAR_LIST_LOWER list("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z")

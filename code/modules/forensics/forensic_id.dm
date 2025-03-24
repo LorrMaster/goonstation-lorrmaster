@@ -8,6 +8,7 @@
 // Store forensic_ids into a dictionary to prevent *very small* chances of duplicates
 // Can also use to get the datum from the ID text
 var/global/list/datum/forensic_id/registered_id_list = new()
+var/global/list/atom/scanner_id_list = new() // Used to find objects based on their ID
 
 /proc/register_id(var/id_text, var/list/reg_list = registered_id_list) // Check if the ID already exists and return it or create a new ID
 	if(!id_text)

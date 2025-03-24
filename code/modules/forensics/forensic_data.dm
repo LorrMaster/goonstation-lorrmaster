@@ -31,18 +31,18 @@ estimate_counter
 			return "" // Negative accuracy -> do not report a time
 		var/t_end = (TIME - src.time_end) / (1 MINUTES)
 		if(t_end == 0)
-			return SPAN_SUBTLE(SPAN_ITALIC(" (Current)"))
+			return SPAN_SUBTLE(" <i>(Current)</i>")
 		else if(accuracy == 0) // perfect accuracy is zero
-			return SPAN_SUBTLE(SPAN_ITALIC(" ([round(t_end)] mins ago)"))
+			return SPAN_SUBTLE(" <i>([round(t_end)] mins ago)</i>")
 		else
 			accuracy = t_end * FORENSIC_BASE_ACCURACY * accuracy * accuracy_mult // Base accuracy: +-25% (20 mins -> 15-25 mins)
 			var/offset = accuracy * src.perc_offset
 			var/low_est = round(t_end - accuracy + offset)
 			var/high_est = round(t_end + accuracy + offset)
 			if(low_est == high_est)
-				return SPAN_SUBTLE(SPAN_ITALIC(" ([low_est] mins ago)"))
+				return SPAN_SUBTLE(" <i>([low_est] mins ago)</i>")
 			else
-				return SPAN_SUBTLE(SPAN_ITALIC(" ([low_est] to [high_est] mins ago)"))
+				return SPAN_SUBTLE(" <i>([low_est] to [high_est] mins ago)</i>")
 
 
 /datum/forensic_data/basic // Evidence that can just be stored as a single ID. Flags not included.

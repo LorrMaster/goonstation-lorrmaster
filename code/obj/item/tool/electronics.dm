@@ -445,7 +445,9 @@
 	New()
 		. = ..()
 		RegisterSignal(src, COMSIG_ITEM_ATTACKBY_PRE, PROC_REF(pre_attackby))
-		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "DVCE-"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "DVCE-")
+		src.forensic_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 	get_desc()
 		// We display this on a separate line and with a different color to show emphasis
@@ -921,7 +923,7 @@
 
 /obj/machinery/rkit/on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
 	..()
-	scan_builder.add_text("Printer pattern ID: [lead_printer]")
+	scan_builder.add_text("Printer pattern ID: [src.lead_printer.id]")
 
 /obj/item/deconstructor
 	name = "deconstruction device"

@@ -3785,3 +3785,19 @@ mob/living/carbon/human/has_genetics()
 		src.limbs.r_leg.forensic_holder?.remove_evidence(removal_flags)
 	if(src.limbs.l_leg && !isrobolimb(src.limbs.l_leg))
 		src.limbs.l_leg.forensic_holder?.remove_evidence(removal_flags)
+
+/mob/living/carbon/human/proc/get_default_forensics_target() // Apply forensics to clothing / organs rather than the mob itself
+	// Need to put this in /mob/living/carbon/human
+	RETURN_TYPE(/atom)
+	if(src.wear_suit)
+		return src.wear_suit
+	else if(src.w_uniform)
+		return src.w_uniform
+	else if(src.organHolder)
+		if(src.organHolder.chest)
+			return src.organHolder.chest
+		else if(src.organHolder.head)
+			return src.organHolder.head
+		else if(src.organHolder.brain) // IDK, maybe you are a brain in a jar or something
+			return src.organHolder.brain
+	return null // I don't think this should ever happen?

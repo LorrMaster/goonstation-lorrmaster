@@ -14,7 +14,9 @@
 
 	New()
 		..()
-		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "GENE-"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "GENE-")
+		src.forensic_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 /obj/item/device/analyzer/genetic/attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 	var/datum/computer/file/genetics_scan/GS = create_new_dna_sample_file(target)

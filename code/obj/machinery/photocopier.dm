@@ -36,8 +36,10 @@ TYPEINFO(/obj/machinery/photocopier)
 		..()
 		src.net_id = generate_net_id(src)
 		MAKE_DEFAULT_RADIO_PACKET_COMPONENT(src.net_id, null, frequency)
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "PCOPY-")
 		src.lead_printer = register_id("PCOPY-" + build_id_pattern("Lnnn"))
-		src.lead_scanner = register_id(build_id(5, CHAR_LIST_NUM, "PCOPY-"))
+		src.lead_scanner = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 	get_desc(dist)
 		var/desc_string = ""

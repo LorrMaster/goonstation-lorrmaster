@@ -193,11 +193,13 @@ that cannot be itched
 //////////////////////////////////////// Forensic scanner ///////////////////////////////////
 
 TYPEINFO(/obj/item/device/detective_scanner)
-	mats = 3
+	mats = list("crystal" = 1,
+				"conductive" = 2)
 
 /obj/item/device/detective_scanner
 	name = "forensic scanner"
 	desc = "Used to scan objects for DNA and fingerprints."
+	icon = 'icons/obj/items/scanner_forensic.dmi'
 	icon_state = "fs"
 	w_class = W_CLASS_SMALL // PDA fits in a pocket, so why not the dedicated scanner (Convair880)?
 	item_state = "electronic"
@@ -205,15 +207,20 @@ TYPEINFO(/obj/item/device/detective_scanner)
 	c_flags = ONBELT
 	hide_attack = ATTACK_PARTIALLY_HIDDEN
 	var/active = 0
-	var/distancescan = 0
-	var/target = null
+	var/range = 1 // scan distance
 	var/timestamp_modifier = 1.0 // Multiplier for how accurate timestamp readings are. Lower the better.
 	var/emagged = FALSE
 
-	var/list/scans
-	var/maximum_scans = 25
-	var/number_of_scans = 0
+	var/list/datum/forensic_scan_builder2/scan_history = new()
+	var/max_scans = 25
 	var/last_scan = "No scans have been performed yet."
+	var/atom/track_target = null // The target to be tracking
+	var/image/screen = null // Visuals for the screen
+
+	New()
+		..()
+		src.screen = image(src.icon, icon_state = "standby")
+		src.AddOverlays(src.screen, "screen")
 
 	Topic(href, href_list)
 		..()
@@ -222,7 +229,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 				boutput(usr, SPAN_NOTICE("You must be holding [src] that made the record in order to print it."))
 				return
 			var/scan_number = text2num(href_list["print"])
-			if (scan_number < number_of_scans - maximum_scans)
+			if (scan_number < scan_history.len - src.max_scans)
 				boutput(usr, SPAN_ALERT("ERROR: Scanner unable to load report data."))
 				return
 			if(!ON_COOLDOWN(src, "print", 2 SECOND))
@@ -230,21 +237,28 @@ TYPEINFO(/obj/item/device/detective_scanner)
 				SPAWN(1 SECONDS)
 					var/obj/item/paper/P = new /obj/item/paper
 					usr.put_in_hand_or_drop(P)
-
-					var/index = (scan_number % maximum_scans) + 1 // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
-					P.info = scans[index]
-					P.name = "forensic readout"
-
+					var/index = scan_number % src.max_scans // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
+					P.info = scan_history[index].build_report()
+					P.name = scan_history[index].report_title
 
 	attack_self(mob/user as mob)
-
 		src.add_fingerprint(user)
+		if(src.track_target)
+			src.track_target = null // Turn off tracking
+			return
 
+		change_screen("report")
 		var/holder = src.loc
-		var/search = tgui_input_text(user, "Enter name, fingerprint or blood DNA.", "Find record")
+		var/search = tgui_input_text(user, "Enter a name, fingerprint, blood DNA, scanner ID, etc.", "Find record")
 		if (src.loc != holder || !search || user.stat)
+			sleep(1)
+			change_screen("standby")
 			return
 		search = copytext(sanitize(search), 1, 200)
+		user_input(user, search)
+		sleep(1)
+		change_screen("standby")
+		/*
 		search = lowertext(search)
 
 		for (var/datum/db_record/R as anything in data_core.general.records)
@@ -261,24 +275,35 @@ TYPEINFO(/obj/item/device/detective_scanner)
 
 		user.show_text("No match found in security records.", "red")
 		return
+		*/
 
 
 	pixelaction(atom/target, params, mob/user, reach)
-		if(distancescan)
-			if(!(BOUNDS_DIST(user, target) == 0) && IN_RANGE(user, target, 3))
+		if(src.range)
+			if(!(BOUNDS_DIST(user, target) == 0) && IN_RANGE(user, target, src.range))
 				user.visible_message(SPAN_NOTICE("<b>[user]</b> takes a distant forensic scan of [target]."))
-				last_scan = scan_forensic(target, user, visible = 1, scanner_accuracy = src.timestamp_modifier)
-				if(!last_scan)
-					return
-				boutput(user, last_scan)
+				scan(target, user)
 				src.add_fingerprint(user)
 
 	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
 		if (BOUNDS_DIST(A, user) > 0 || istype(A, /obj/ability_button)) // Scanning for fingerprints over the camera network is fun, but doesn't really make sense (Convair880).
 			return
 
+		scan(A, user)
+		/*
+		var/scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
+		var/index = (number_of_scans % maximum_scans) + 1 // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
+		scans[index] = last_scan
+		scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
+		number_of_scans += 1
+
+		boutput(user, scan_output)
+		src.add_fingerprint(user)
+		*/
+	proc/scan(atom/A, mob/user)
 		playsound(src.loc , 'sound/machines/found.ogg', 30, 0, pitch = 1.5)
 		var/visible = TRUE
+		change_screen("scanning")
 		if(ishuman(A) && user != A)
 			var/mob/living/carbon/human/H = A
 			if(isalive(H))
@@ -291,75 +316,82 @@ TYPEINFO(/obj/item/device/detective_scanner)
 					if (BOUNDS_DIST(A, user) > 0)
 						user.visible_message(SPAN_ALERT("Scan of [A] failed."))
 						playsound(src.loc , 'sound/machines/buzz-sigh.ogg', 10, 0, pitch = 1.5)
+						change_screen("cancel")
+						sleep(1.2 SECONDS)
+						change_screen("standby")
 						return
 				playsound(src.loc , 'sound/machines/ping.ogg', 10, 0, pitch = 1.5)
 
 		user.visible_message("<b>[user]</b> has scanned [A].")
-		if (scans == null)
-			scans = new/list(maximum_scans)
 		if(!A.forensic_holder)
 			return
 		var/datum/forensic_scan_builder2/last_scan = scan_forensic(A, user, visible, scanner_accuracy = src.timestamp_modifier)
 		if(!last_scan)
 			return
-		var/scan_report = last_scan.build_report() // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+		src.scan_history += last_scan
+		var/scan_report = last_scan.build_report(TRUE) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+		scan_report = "---- <a href='?src=\ref[src];print=[src.scan_history.len];'>PRINT FULL REPORT</a> ----" + scan_report
 		boutput(user, scan_report)
+		sleep(1 SECONDS)
+		change_screen("standby")
 		return
-		/*
-		var/scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
-		var/index = (number_of_scans % maximum_scans) + 1 // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
-		scans[index] = last_scan
-		scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
-		number_of_scans += 1
+	proc/change_screen(var/screen_state)
+		src.screen.icon_state = screen_state
+		src.UpdateOverlays(src.screen, "screen")
 
-		boutput(user, scan_output)
-		src.add_fingerprint(user)
+	proc/user_input(mob/user, var/input_text)
+		var/match_found = FALSE
+		if(copytext(input_text, length(input_text) - 3, length(input_text) + 1) == "-PDA")
+			// PDA IDs are weird due to their ability to leave behind multiple types of scans.
+			// Just take the 'xxxxx-PDA' part of the ID and ignore the rest
+			input_text = copytext(input_text, length(input_text) - 8, length(input_text) + 1)
+		// if(copytext(input_text, length(input_text), length(input_text) + 1))
+		var/atom/detect_scanner = scanner_id_list[input_text]
+		if(detect_scanner)
+			user.show_text("Tracking [input_text].", "blue")
+			track(detect_scanner)
+		if(!match_found)
+			user.show_text("No match detected for [input_text].", "red")
 
-		if(!active && istype(A, /obj/decal/cleanable/blood))
-			var/obj/decal/cleanable/blood/B = A
-			if(B.dry > 0) //Fresh blood is -1
-				boutput(user, SPAN_ALERT("Targeted blood is too dry to be useful!"))
-				return
-			for(var/mob/living/carbon/human/H in mobs)
-				if(B.blood_DNA == H.bioHolder.Uid)
-					target = H
-					break
-			active = 1
-			work()
-		*/
-
-	proc/work(var/turf/T)
-		if(!active) return
-		if(!T)
-			T = get_turf(src)
-		if(get_turf(src) != T)
-			icon_state = "fs"
-			active = 0
-			boutput(usr, SPAN_ALERT("[src] shuts down because you moved!"))
-			return
+	proc/track(var/atom/target)
 		if(!target)
-			icon_state = "fs"
-			active = 0
 			return
-		src.set_dir(get_dir(src,target))
-		switch(GET_DIST(src,target))
-			if(0)
-				icon_state = "fs_pindirect"
-			if(1 to 8)
-				icon_state = "fs_pinclose"
-			if(9 to 16)
-				icon_state = "fs_pinmedium"
-			if(16 to INFINITY)
-				icon_state = "fs_pinfar"
-		SPAWN(0.5 SECONDS)
-			.(T)
+		src.track_target = target
+		while(src.track_target == target && !src.track_target.qdeled)
+			var/dist = GET_DIST(src, src.track_target)
+			src.set_dir(get_dir_accurate(src, src.track_target))
+			switch(dist)
+				if(0)
+					change_screen("point")
+				if(1 to 16)
+					change_screen("track_near")
+				if(16 to INFINITY)
+					change_screen("track_far")
+			sleep(1)
+		src.track_target = null
+		change_screen("standby")
 
+TYPEINFO(/obj/item/device/detective_scanner/detective)
+	mats = list("crystal_dense" = 5,
+				"conductive" = 5)
 
 /obj/item/device/detective_scanner/detective
-	name = "cool forensic scanner"
+	name = "detective's scanner"
 	desc = "Used to scan objects for DNA and fingerprints. This model seems to have an upgrade that lets it scan for prints at a distance. You feel cool holding it."
-	distancescan = 1
+	icon_state = "det"
 	timestamp_modifier = 0.7
+	max_scans = 50
+
+TYPEINFO(/obj/item/device/detective_scanner/hos)
+	mats = list("telecrystal" = 1,
+				"conductive" = 5)
+
+/obj/item/device/detective_scanner/hos
+	name = "head of security's scanner"
+	desc = "An expensive model that can scan from a distance."
+	icon_state = "hos"
+	max_scans = 50
+	range = 5
 
 ///////////////////////////////////// Health analyzer ////////////////////////////////////////
 
@@ -392,7 +424,9 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 		..()
 		scanner_status = image('icons/obj/items/device.dmi', icon_state = "health_over-basic")
 		AddOverlays(scanner_status, "status")
-		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "HLTH-"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "HLTH-")
+		src.forensic_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 	attack_self(mob/user as mob)
 		if (!src.reagent_upgrade && !src.organ_upgrade)
@@ -495,6 +529,7 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 		..()
 
 	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+		scan_builder.include_abridged(HEADER_HEALTH_ANALYZER)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_text(id_note)
 
@@ -565,7 +600,9 @@ TYPEINFO(/obj/item/device/reagentscanner)
 
 	New()
 		..()
-		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "REGNT-"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "REGNT-")
+		src.forensic_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		return
@@ -642,7 +679,9 @@ TYPEINFO(/obj/item/device/analyzer/atmospheric)
 
 	New()
 		..()
-		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "ATMOS-"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "ATMOS-")
+		src.forensic_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 	// Distance upgrade action code
 	pixelaction(atom/target, params, mob/user, reach)
@@ -1188,7 +1227,9 @@ TYPEINFO(/obj/item/device/appraisal)
 
 	New()
 		..()
-		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "APRSE-"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "APRSE-")
+		src.forensic_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		return

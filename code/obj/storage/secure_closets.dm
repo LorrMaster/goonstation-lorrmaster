@@ -256,6 +256,7 @@ ADMIN_INTERACT_PROCS(/obj/storage/secure/closet, proc/break_open)
 	/obj/item/device/radio/headset/security,
 	/obj/item/clothing/glasses/thermal,
 	/obj/item/stamp/hos,
+	/obj/item/device/detective_scanner/hos,
 	/obj/item/device/radio/headset/command/hos,
 	/obj/item/clothing/shoes/swat/heavy,
 	/obj/item/barrier,

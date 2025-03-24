@@ -671,6 +671,9 @@ ABSTRACT_TYPE(/datum/action/bar/barber)
 			return
 
 		var/obj/decal/cleanable/hair/hair = new(M.loc)
+		if(M.bioHolder)
+			var/datum/forensic_data/dna/h_data = new(M.bioHolder.dna_signature, DNA_FORM_HAIR)
+			hair.add_evidence(h_data, FORENSIC_GROUP_DNA)
 		hair.color = color
 		hair.update_color()
 

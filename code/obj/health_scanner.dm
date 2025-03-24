@@ -89,7 +89,9 @@ TYPEINFO(/obj/health_scanner)
 		..()
 		MAKE_SENDER_RADIO_PACKET_COMPONENT(null, "pda", FREQ_PDA)
 		AddComponent(/datum/component/mechanics_holder)
-		src.forensic_lead = register_id(build_id(5, CHAR_LIST_NUM, "HLTH-"))
+		var/scan_text = build_id(5, CHAR_LIST_NUM, "HLTH-", "-F")
+		src.forensic_lead = register_id(scan_text)
+		scanner_id_list[scan_text] = src
 
 	find_partners(var/in_range = 0)
 		if (in_range)
@@ -146,5 +148,6 @@ TYPEINFO(/obj/health_scanner)
 		SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, new_signal, null, "pda")
 
 	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+		scan_builder.include_abridged(HEADER_HEALTH_FLOOR)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_text(id_note)

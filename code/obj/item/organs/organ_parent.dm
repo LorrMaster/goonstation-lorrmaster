@@ -127,9 +127,6 @@
 
 		..()
 
-	add_fingerprint(mob/living/M as mob, hidden_only = TRUE)
-		. = ..()
-
 	New(loc, datum/organHolder/nholder)
 		..()
 		if (istype(nholder) && nholder.donor)
@@ -484,4 +481,7 @@
 				surgery_contexts += action
 
 			.+= length(surgery_contexts)
+	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+		..()
+		scan_builder.include_abridged(HEADER_DAMAGE)
 

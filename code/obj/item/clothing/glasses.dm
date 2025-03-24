@@ -23,6 +23,10 @@
 			return
 		return ..()
 
+	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+		..()
+		scan_builder.include_abridged(HEADER_RETINA)
+
 /obj/item/clothing/glasses/crafted
 	name = "glasses"
 	icon_state = "crafted"

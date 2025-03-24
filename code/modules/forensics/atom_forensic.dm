@@ -1,11 +1,11 @@
 /atom
 	var/tmp/list/fingerprints_full = null
-	var/tmp/fingerprintslast = null
 	var/tmp/blood_DNA = null
 	var/tmp/blood_type = null
 
 	// -------------------- New Stuff -----------
 	var/datum/forensic_holder/forensic_holder = new()
+	var/tmp/fingerprintslast = null // keeping this for now, since the forensic_holder might be shared (like with the Bible)
 
 /atom/movable
 	var/tracked_blood = null // list(bDNA, btype, color, count)
@@ -27,6 +27,7 @@
 	src.forensic_holder.last_ckey = M.ckey
 	var/datum/forensic_data/fingerprint/fp = new()
 	// istype(H.r_hand, /obj/item/magtractor)
+	src.fingerprintslast = M.key
 	if(H.hand == 0 && H.limbs.r_arm)
 		if(isitemlimb(H.limbs.r_arm))
 			return
@@ -54,12 +55,6 @@
 		var/datum/forensic_data/basic/color_data = new(M.mind.color)
 		ADD_FLAG(color_data.flags, REMOVABLE_CLEANING)
 		src.forensic_holder.add_evidence(color_data, FORENSIC_GROUP_SLEUTH_COLOR)
-
-/atom/proc/last_forensic_ckey()
-	if(!src.forensic_holder || !src.forensic_holder.last_ckey)
-		return "Unknown"
-	return src.forensic_holder.last_ckey
-
 
 /atom/proc/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 	if(!src.forensic_holder)
