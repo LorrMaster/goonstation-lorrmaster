@@ -695,7 +695,7 @@ TYPEINFO(/obj/item/rcd)
 		if (!issilicon(usr))
 			src.inventory_counter.update_number(matter)
 
-	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		var/note = estimate_counter("Times used", src.times_used, scan_builder.base_accuracy, src.forensic_offset)
 		scan_builder.add_text(note)

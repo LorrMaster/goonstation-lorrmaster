@@ -560,7 +560,7 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 		if ((color_changed || last_icon != icon_state) && last_spread_was_blocked)
 			src.update_perspective_overlays()
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		if(src.group.reagents)
 			src.group.reagents.forensic_scan_reagents(scan_builder)
 		return

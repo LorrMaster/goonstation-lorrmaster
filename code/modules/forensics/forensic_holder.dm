@@ -16,7 +16,7 @@ datum/forensic_holder
 	var/is_stained = FALSE // Used to activate blood/stained overlay visuals. Might want to move somewhere else
 	var/stain_color = null // What color is the stain if it exists.
 
-	proc/add_data_builder(var/datum/forensic_scan_builder2/scan_builder)
+	proc/add_data_builder(var/datum/forensic_scan_builder/scan_builder)
 		// Get all the evidence and put together the text of a forensic scan
 		var/list/datum/forensic_group/ev_list = src.evidence_list
 		if(scan_builder.is_admin)

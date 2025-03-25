@@ -1160,7 +1160,7 @@ TYPEINFO(/obj/item/clothing/head/that/gold)
 		else
 			return 0
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		..()
 		var/note = "It kinda stinks now..."
 		scan_builder.add_text(note)

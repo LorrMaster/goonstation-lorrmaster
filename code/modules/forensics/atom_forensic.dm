@@ -10,7 +10,7 @@
 /atom/movable
 	var/tracked_blood = null // list(bDNA, btype, color, count)
 
-/atom/proc/on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+/atom/proc/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	if(src.reagents)
 		src.reagents.forensic_scan_reagents(scan_builder)
 	return

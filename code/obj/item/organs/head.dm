@@ -79,7 +79,7 @@
 			src.UpdateIcon(/*makeshitup*/ 1)
 		if (!src.chat_text)
 			src.chat_text = new(null, src)
-		src.bite_mark = register_id("Bite mark: [build_id_mirrored(4, CHAR_LIST_BITE, pick(0,1,2))]")
+		src.bite_mark = register_id(build_id_mirrored(4, CHAR_LIST_BITE, pick(0,1,2)))
 
 	throw_at(atom/target, range, speed, list/params, turf/thrown_from, mob/thrown_by, throw_type = 1,
 			allow_anchored = UNANCHORED, bonus_throwforce = 0, end_throw_callback = null)

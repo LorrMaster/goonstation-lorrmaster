@@ -13,7 +13,7 @@ TYPEINFO(/obj/item/audio_tape)
 	var/list/messages = list()
 	var/list/speakers = list()
 
-	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		scan_builder.add_text("Lines recorded: [src.messages.len]")
 
@@ -250,7 +250,7 @@ TYPEINFO(/obj/item/device/audio_log)
 
 		return
 
-	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		if(tape)
 			scan_builder.add_holder(tape.forensic_holder, "Forensic Analysis of \the [tape]")

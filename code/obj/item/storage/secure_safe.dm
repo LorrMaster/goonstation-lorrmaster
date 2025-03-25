@@ -160,7 +160,7 @@ ABSTRACT_TYPE(/obj/item/storage/secure)
 			src.clear_input()
 	. = TRUE
 
-/obj/item/storage/secure/on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+/obj/item/storage/secure/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	if(src.locked && src.code)
 		var/note_code = "Code Analysis: " + copytext(src.code, 1, 2)
 		for(var/i=2, i<= src.code_len, i++)

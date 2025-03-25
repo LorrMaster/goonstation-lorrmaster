@@ -537,7 +537,7 @@ TYPEINFO(/obj/shrub/syndicateplant)
 		src.scan_text = "Looks like it was blown to pieces by some sort of explosive."
 		return
 
-	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		if(src.scan_text)
 			scan_builder.add_text(scan_text)
@@ -598,7 +598,7 @@ TYPEINFO(/obj/shrub/syndicateplant)
 		src.scan_text = "Looks like it was blown to pieces by some sort of explosive."
 		return
 
-	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		if(src.scan_text)
 			scan_builder.add_text(scan_text)

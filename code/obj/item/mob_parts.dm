@@ -402,7 +402,7 @@ ABSTRACT_TYPE(/obj/item/parts)
 		// What kind of fingerprint/footprint this limb makes
 		return
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		..()
 		if(src.dna_signature)
 			var/note_dna = "[src]'s DNA: [src.dna_signature.id]"

@@ -172,7 +172,7 @@ TYPEINFO(/obj/item/device/igniter)
 		else
 			. += "The igniter can be attached!"
 
-/obj/item/device/igniter/on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+/obj/item/device/igniter/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		var/note = estimate_counter("Times ignited", src.times_ignited, scan_builder.base_accuracy, src.forensic_offset)
 		scan_builder.add_text(note)

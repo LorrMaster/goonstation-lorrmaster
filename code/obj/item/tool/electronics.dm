@@ -502,7 +502,7 @@
 		)
 		animate_scanning(target, "#FFFF00")
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_text(id_note)
 
@@ -921,7 +921,7 @@
 			SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, newsignal, null, "ruck")
 			. = TRUE
 
-/obj/machinery/rkit/on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+/obj/machinery/rkit/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 	..()
 	scan_builder.add_text("Printer pattern ID: [src.lead_printer.id]")
 

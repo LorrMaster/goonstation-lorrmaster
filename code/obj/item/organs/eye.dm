@@ -59,7 +59,7 @@
 				H.update_face()
 		. = ..()
 
-	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		if(retina_scan)
 			scan_builder.add_text("[src]'s retina ID: [src.retina_scan.id]")

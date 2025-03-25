@@ -183,7 +183,7 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 
 	proc/get_fingertip_color()
 		return src.color || src.fingertip_color
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "[fiber_id.id]"
 		scan_builder.add_text(id_note)
 

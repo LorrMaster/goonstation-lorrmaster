@@ -277,14 +277,14 @@ TYPEINFO(/mob/living/critter/robotic/gunbot)
 
 /mob/living/critter/robotic/gunbot/syndicate/polaris/ketchup
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		..()
 		var/note = "Your scanner picks up a faint etching of a name, even though you are being shot at. Seems this one is named Ketchup."
 		scan_builder.add_text(note)
 
 /mob/living/critter/robotic/gunbot/syndicate/polaris/mustard
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		..()
 		var/note = "Your scanner picks up a faint etching of a name, even though you are being shot at. Seems this one is named Mustard."
 		scan_builder.add_text(note)

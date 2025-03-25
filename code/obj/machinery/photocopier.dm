@@ -215,7 +215,7 @@ TYPEINFO(/obj/machinery/photocopier)
 			boutput(user, SPAN_NOTICE("You reset the security settings on the [src]."))
 		return 1
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/printer_note = "Printer pattern ID: [src.lead_printer.id]"
 		var/scanner_note = "Scanner particle ID: [src.lead_scanner.id]"
 		scan_builder.add_text(printer_note)

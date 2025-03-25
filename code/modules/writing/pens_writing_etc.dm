@@ -927,7 +927,7 @@
 		boutput(user, SPAN_NOTICE("You set the text to '[str]'."))
 		logTheThing(LOG_STATION, user, "sets a hand labeler label to \"[str]\".")
 
-	on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		var/note = estimate_counter("Times labeled", src.times_labeled, scan_builder.base_accuracy, src.forensic_offset)
 		scan_builder.add_text(note)

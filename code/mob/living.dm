@@ -2431,7 +2431,7 @@
 		r_data.display = r_data.disp_pair
 		return r_data
 
-/mob/living/on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+/mob/living/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	..()
 	if(iscarbon(src) || (ismobcritter(src) & !isrobocritter(src)))
 		//if(!ishuman(src))

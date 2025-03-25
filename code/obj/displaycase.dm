@@ -165,7 +165,7 @@
 	..()
 	return
 
-/obj/displaycase/on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+/obj/displaycase/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 	..()
 	if(displayed)
 		scan_builder.add_holder(displayed, title = "\The displayed [displayed] analysis:")

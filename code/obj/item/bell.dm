@@ -31,7 +31,7 @@
 		if (!user.put_in_hand(src))
 			return ..()
 
-/obj/item/bell/on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+/obj/item/bell/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 	..()
 	var/note = "Times rung: [src.ring_count]"
 	scan_builder.add_text(note)

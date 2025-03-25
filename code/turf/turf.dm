@@ -606,7 +606,7 @@ proc/generate_space_color()
 	else if (A.y >= (world.maxy - 1))
 		edge_step(A, 0, 3)
 
-/turf/space/on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+/turf/space/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 	..()
 	// Recieve static if you scan space
 	if(istype_exact(src, /turf/space) && !scan_builder.is_admin)

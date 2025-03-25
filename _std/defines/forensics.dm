@@ -4,24 +4,29 @@ TODO:
 	- Multiple bioholders
 	- Vomit bioholders
 	- Fix dna sample duplicates
- - Update security logs to use the new system
  - Remove & replace all the old forensics stuff in general
  - Contraband
- - Abridged scans & printing full reports
-	- Fingerprints + DNA + Notes + Additional Header counts
-	- No timestamps? Show sec log name?
- - Forensics Tools: Input ID
-	- Check sec logs for matches
-	- Check scanner ID dictionary for a match
- - Better footprints?
-	-
+ - Check if Blood Tracker still works
+ - Take another look at autopsy implementation
+ - Forensic scanner emagging?
+ - Temperary evidence disable?
 
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction
  - Blood color & DNA issues
+ - Vending machine counter not working
+ - Do not estimate counters starting from one
+ - Fix SecMate data editing
+ - Fix using fingerprinter on humans
+ 	- Better fingerprinter scanning?
+ - Print reports for DetGadget hat?
+ - Forensic scanner scan counter needs the limit actually placed
+ - Check if blood reagent adds evidence when poured on things
 
 Lower Priority
+ - Forensic_holder starts as null?
+ - Forensic scanner emag effect?
  - DNA scramblers change DNA and fingerprints of regrown limbs, but not the current ones
  - Leave behind hair while in pods, bed, barber, etc
  - Go through machinery for potential forensic notes to add

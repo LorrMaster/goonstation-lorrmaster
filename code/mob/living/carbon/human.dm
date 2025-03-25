@@ -3674,11 +3674,11 @@ mob/living/carbon/human/has_genetics()
 
 	. = ..()
 
-/mob/living/carbon/human/on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+/mob/living/carbon/human/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	..()
 	// Combine all the visible forensic holders into a single holder
 	var/datum/forensic_holder/f_holder = new()
-	scan_builder.holder = f_holder
+	scan_builder.replace_holder(f_holder)
 	// --- Head ---
 	if(src.head)
 		src.head.forensic_holder?.copy_evidence(f_holder)

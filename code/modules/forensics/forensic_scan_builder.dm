@@ -1,18 +1,18 @@
 // Collect visible data from a scan, then assemble that scan into a text report
-// Alternitively, can be used to store scan data for other uses
-/datum/forensic_scan_builder2 // Rename to forensic_scan
+/datum/forensic_scan_builder
 	var/datum/forensic_holder/holder
-	var/datum/forensic_scan_builder2/chain_scan = null // Scan to assemble after this one
+	var/datum/forensic_scan_builder/chain_scan = null // An additional scan to assemble after this one if it exists
 	var/report_title = ""
 	var/list/list/datum/forensic_data/data_list = new() // Collected forensic data (from the POV of the scanner)
-	var/list/header_list = new()
+	var/list/header_list = new() // List of headers (should probably loop through /list/list/data_list instead)
+
 	var/base_accuracy = -1 // How accurate the time estimates are, or negative if not included by default
 	var/is_admin = FALSE // Is this being analysed via admin commands?
 	var/ignore_text = FALSE // Only collect actual forensic data (used for the fingerprinter)
 	var/list/abridged_headers = list(HEADER_FINGERPRINTS, HEADER_DNA, HEADER_NOTES)
 
-	var/filter_dna = null // Ignore the DNA of the person you are scanning (not including blood)
-	var/filter_fingerprint_L = null // Ignore gloves / fingerprints from the person you are scanning
+	var/filter_dna = null // Used to ignore the DNA of the mob you are scanning (unless it is blood DNA)
+	var/filter_fingerprint_L = null // Used to ignore gloves / fingerprints from the player you are scanning
 	var/filter_fingerprint_R = null
 	var/filter_gloves = null
 
@@ -49,13 +49,19 @@
 			data_list[header] += t_data
 		header_list[header] = header
 
-	proc/add_holder(var/datum/forensic_holder/new_holder, var/title = null)
+	proc/add_holder(var/datum/forensic_holder/new_holder, var/title = null) // Use this to scan multiple items or regions
 		if(!src.chain_scan)
 			src.chain_scan = new(new_holder)
 			if(title)
 				src.chain_scan.report_title = title
 		else
 			chain_scan.add_holder(new_holder, title)
+	proc/replace_holder(var/datum/forensic_holder/new_holder)
+		src.holder = new_holder
+	proc/replace_scan_target(var/atom/new_target)
+		src.holder = new_target.forensic_holder
+		new_target.on_forensic_scan(new_target)
+
 	proc/include_abridged(var/header) // Include a header in abridged scans
 		src.abridged_headers += header
 
@@ -82,8 +88,8 @@
 				section_text = SPAN_HINT("<li>[header]: [src.data_list[header].len] [readings]</li>")
 			else
 				section_text = SPAN_HINT("<li>[header]</li>") + data_to_text(src.data_list[header], abridged)
-			if(!abridged)
-				section_text = "<p>[section_text]</p>"
+			// if(!abridged)
+				// section_text = "<p>[section_text]</p>"
 			report_text += section_text
 		if(src.chain_scan)
 			report_text += src.chain_scan.build_report(abridged)
@@ -96,7 +102,7 @@
 			if(d_list[i].accuracy_mult >= 0)
 				d_text += " [d_list[i].get_time_estimate(d_list[i].accuracy_mult)]"
 			if(!abridged && d_text)
-				d_text = "<ul style=padding-left: 5px;>[d_text]</ul>"
+				d_text = "<ul style='padding-left: 15px;'>[d_text]</ul>"
 			if(d_text)
 				text += "<li>[d_text]</li>"
 		return text

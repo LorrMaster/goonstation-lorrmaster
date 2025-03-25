@@ -1248,7 +1248,7 @@ proc/chem_helmet_check(mob/living/carbon/human/H, var/what_liquid="hot")
 		var/datum/reagent/blood/blood_reagent = src.reagent_list[blood_id]
 		blood_reagent?.data = bio // Check if I need to copy this
 
-	proc/forensic_scan_reagents(var/datum/forensic_scan_builder2/scan_builder)
+	proc/forensic_scan_reagents(var/datum/forensic_scan_builder/scan_builder)
 		var/datum/bioHolder/bio = src.get_blood_bioholder()
 		if(bio)
 			var/datum/forensic_data/dna/dna_data = new(bio.dna_signature, DNA_FORM_BLOOD)

@@ -233,7 +233,7 @@ TYPEINFO(/obj/machinery/glass_recycler)
 				create(product_type, usr)
 				. = TRUE
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "Recycler pattern ID: [src.forensic_lead.id]"
 		scan_builder.add_text(id_note)
 

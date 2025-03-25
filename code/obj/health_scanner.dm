@@ -147,7 +147,7 @@ TYPEINFO(/obj/health_scanner)
 		new_signal.data = list("command"="text_message", "sender_name"="HEALTH-MAILBOT", "sender"="00000000", "address_1"="00000000", "group"=list(MGD_MEDBAY, MGA_MEDCRIT), "message"="CRIT ALERT: [H] in [get_area(src)].")
 		SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, new_signal, null, "pda")
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		scan_builder.include_abridged(HEADER_HEALTH_FLOOR)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_text(id_note)

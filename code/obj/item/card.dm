@@ -47,16 +47,18 @@ TYPEINFO(/obj/item/card/emag)
 		src.forensic_lead = register_id(id_text)
 
 	afterattack(var/atom/A, var/mob/user)
+		emag_target(A, user)
+
+	attack()	//Fucking attack messages up in this joint.
+		return
+
+	proc/emag_target(var/atom/A, var/mob/user)
 		if(!A || !user)
 			return
-		// A.forensic_holder?.remove_evidence(REMOVABLE_DATA)
 		var/emag_result = A.emag_act(user, src)
 		if(emag_result && src.forensic_lead)
 			var/datum/forensic_data/basic/f_data = new(src.forensic_lead, src.emag_lead_disp)
 			A.add_evidence(f_data, FORENSIC_GROUP_DAMAGE)
-
-	attack()	//Fucking attack messages up in this joint.
-		return
 
 /obj/item/card/emag/attack_self(mob/user as mob)
 	if(ON_COOLDOWN(user, "showoff_item", SHOWOFF_COOLDOWN))

@@ -250,7 +250,7 @@ for some reason I brought it back and tried to clean it up a bit and I regret ev
 
 /obj/machinery/the_singularity/emp_act()
 	return // No action required this should be the one doing the EMPing
-/obj/machinery/the_singularity/on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+/obj/machinery/the_singularity/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 	..()
 	var/note = "Very, very hungry"
 	scan_builder.add_text(note)

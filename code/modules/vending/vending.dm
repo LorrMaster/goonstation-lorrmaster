@@ -1224,7 +1224,7 @@ ADMIN_INTERACT_PROCS(/obj/machinery/vending, proc/throw_item, proc/admin_command
 		return TRUE
 	. = ..()
 
-/obj/machinery/vending/on_forensic_scan(datum/forensic_scan_builder2/scan_builder)
+/obj/machinery/vending/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		scan_builder.add_text("Items vended: [src.items_vended]")
 

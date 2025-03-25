@@ -22,7 +22,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		return
 	proc/get_evidence_list(var/include_trace = FALSE)
 		return null
-	proc/get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+	proc/get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		return
 	proc/get_header() // The label that this evidence will be displayed under for scans
 		return SPAN_ALERT("Error: Forensic scan header not found")
@@ -44,7 +44,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	get_evidence_list(var/include_trace = FALSE)
 		return src.notes_list
 
-	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		for(var/i=1, i<= src.notes_list.len; i++)
 			var/datum/forensic_data/f_data = src.notes_list[i].get_copy()
@@ -96,7 +96,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			if(src.evidence_list[i].should_remove(removal_flags))
 				src.evidence_list.Cut(i, i+1)
 
-	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		for(var/i=1, i<= src.evidence_list.len; i++)
 			var/datum/forensic_data/f_data = src.evidence_list[i].get_copy()
@@ -132,7 +132,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		return null
 	get_header()
 		return "Sleuth"
-	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		return
 	proc/get_sleuth_text(var/atom/A)
 		var/data_text = ""
@@ -192,7 +192,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			if(src.evidence_list[i].should_remove(removal_flags))
 				src.evidence_list.Cut(i, i+1)
 
-	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		for(var/i=1, i<= src.evidence_list.len; i++)
 			var/datum/forensic_data/f_data = src.evidence_list[i].get_copy()
@@ -265,7 +265,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			prints_list = null
 			parent.cut_group(category)
 
-	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		if(iodine_time > TIME)
 			scan_accuracy *= 0.7
@@ -331,7 +331,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		if(dna_list.len == 0 && dna_trace_list.len == 0)
 			parent.cut_group(category)
 
-	get_scan_evidence(var/datum/forensic_scan_builder2/scan_builder)
+	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		var/scan_accuracy = src.group_accuracy * scan_builder.base_accuracy
 		for(var/i=1, i<= src.dna_list.len; i++)
 			var/datum/forensic_data/dna/f_data = src.dna_list[i].get_copy()

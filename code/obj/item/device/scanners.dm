@@ -198,7 +198,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 
 /obj/item/device/detective_scanner
 	name = "forensic scanner"
-	desc = "Used to scan objects for DNA and fingerprints."
+	desc = "Used to scan objects for DNA, fingerprints, and other forensic data."
 	icon = 'icons/obj/items/scanner_forensic.dmi'
 	icon_state = "fs"
 	w_class = W_CLASS_SMALL // PDA fits in a pocket, so why not the dedicated scanner (Convair880)?
@@ -211,15 +211,16 @@ TYPEINFO(/obj/item/device/detective_scanner)
 	var/timestamp_modifier = 1.0 // Multiplier for how accurate timestamp readings are. Lower the better.
 	var/emagged = FALSE
 
-	var/list/datum/forensic_scan_builder2/scan_history = new()
+	var/list/datum/forensic_scan_builder/scan_history = new()
 	var/max_scans = 25
 	var/last_scan = "No scans have been performed yet."
 	var/atom/track_target = null // The target to be tracking
 	var/image/screen = null // Visuals for the screen
+	var/screen_type = "" // string added to the end of the screen's icon state
 
 	New()
 		..()
-		src.screen = image(src.icon, icon_state = "standby")
+		src.screen = image(src.icon, icon_state = "standby" + src.screen_type)
 		src.AddOverlays(src.screen, "screen")
 
 	Topic(href, href_list)
@@ -249,13 +250,13 @@ TYPEINFO(/obj/item/device/detective_scanner)
 
 		change_screen("report")
 		var/holder = src.loc
-		var/search = tgui_input_text(user, "Enter a name, fingerprint, blood DNA, scanner ID, etc.", "Find record")
+		var/search = tgui_input_text(user, "Enter a name, fingerprint, blood DNA, or scanner ID.", "Find record")
 		if (src.loc != holder || !search || user.stat)
 			sleep(1)
 			change_screen("standby")
 			return
 		search = copytext(sanitize(search), 1, 200)
-		user_input(user, search)
+		user_search(user, search)
 		sleep(1)
 		change_screen("standby")
 		/*
@@ -317,7 +318,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 						user.visible_message(SPAN_ALERT("Scan of [A] failed."))
 						playsound(src.loc , 'sound/machines/buzz-sigh.ogg', 10, 0, pitch = 1.5)
 						change_screen("cancel")
-						sleep(1.2 SECONDS)
+						sleep(2.5 SECONDS)
 						change_screen("standby")
 						return
 				playsound(src.loc , 'sound/machines/ping.ogg', 10, 0, pitch = 1.5)
@@ -325,33 +326,50 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		user.visible_message("<b>[user]</b> has scanned [A].")
 		if(!A.forensic_holder)
 			return
-		var/datum/forensic_scan_builder2/last_scan = scan_forensic(A, user, visible, scanner_accuracy = src.timestamp_modifier)
+		var/datum/forensic_scan_builder/last_scan = scan_forensic(A, user, visible, scanner_accuracy = src.timestamp_modifier)
 		if(!last_scan)
 			return
 		src.scan_history += last_scan
 		var/scan_report = last_scan.build_report(TRUE) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		scan_report = "---- <a href='?src=\ref[src];print=[src.scan_history.len];'>PRINT FULL REPORT</a> ----" + scan_report
 		boutput(user, scan_report)
-		sleep(1 SECONDS)
-		change_screen("standby")
+		var/scan_emagged = FALSE
+		if(istype(A, /obj/item/card/emag))
+			var/obj/item/card/emag/E = A
+			scan_emagged = E.emag_target(src, user) // Scanning an EMAG isn't a good idea.
+		if(!scan_emagged)
+			sleep(1 SECONDS)
+			change_screen("standby")
 		return
 	proc/change_screen(var/screen_state)
-		src.screen.icon_state = screen_state
+		src.screen.icon_state = screen_state + src.screen_type
 		src.UpdateOverlays(src.screen, "screen")
 
-	proc/user_input(mob/user, var/input_text)
+	proc/user_search(mob/user, var/search)
 		var/match_found = FALSE
-		if(copytext(input_text, length(input_text) - 3, length(input_text) + 1) == "-PDA")
+		if(copytext(search, length(search) - 3, length(search) + 1) == "-PDA")
 			// PDA IDs are weird due to their ability to leave behind multiple types of scans.
 			// Just take the 'xxxxx-PDA' part of the ID and ignore the rest
-			input_text = copytext(input_text, length(input_text) - 8, length(input_text) + 1)
-		// if(copytext(input_text, length(input_text), length(input_text) + 1))
-		var/atom/detect_scanner = scanner_id_list[input_text]
+			search = copytext(search, length(search) - 8, length(search) + 1)
+		// if(copytext(search, length(search), length(search) + 1))
+		var/atom/detect_scanner = scanner_id_list[search]
 		if(detect_scanner)
-			user.show_text("Tracking [input_text].", "blue")
+			user.show_text("Tracking [search].", "blue")
 			track(detect_scanner)
+			match_found = TRUE
+
+		var/search_low = lowertext(search)
+		for (var/datum/db_record/R as anything in data_core.general.records)
+			if (search_low == lowertext(R["dna"]) || search_low == lowertext(R["fingerprint"]) || search_low == lowertext(R["fingerprint_L"]) || search_low == lowertext(R["name"]))
+				var/data = "\
+				<font color='blue'>--- Match found in security records:<b> [R["name"]]</b> ([R["rank"]])</font><br>\
+				<i>Fingerprint (right):</i><font color='blue'> [R["fingerprint"]]</font><br>\
+				<i>Fingerprint (left):</i><font color='blue'> [R["fingerprint_L"]]</font><br>\
+				<i>Blood DNA:</i><font color='blue'> [R["dna"]]</font>"
+				boutput(user, data)
+				match_found = TRUE
 		if(!match_found)
-			user.show_text("No match detected for [input_text].", "red")
+			user.show_text("No match detected for [search].", "red")
 
 	proc/track(var/atom/target)
 		if(!target)
@@ -377,7 +395,7 @@ TYPEINFO(/obj/item/device/detective_scanner/detective)
 
 /obj/item/device/detective_scanner/detective
 	name = "detective's scanner"
-	desc = "Used to scan objects for DNA and fingerprints. This model seems to have an upgrade that lets it scan for prints at a distance. You feel cool holding it."
+	desc = "Used to scan objects for DNA, fingerprints, and other forensic data. This model is upgraded to make more accurate time estimates. You feel cool holding it."
 	icon_state = "det"
 	timestamp_modifier = 0.7
 	max_scans = 50
@@ -388,10 +406,28 @@ TYPEINFO(/obj/item/device/detective_scanner/hos)
 
 /obj/item/device/detective_scanner/hos
 	name = "head of security's scanner"
-	desc = "An expensive model that can scan from a distance."
+	desc = "An expensive model that can scan from a distance and comes with a fancy color screen."
 	icon_state = "hos"
 	max_scans = 50
 	range = 5
+	screen_type = "_c" // Use the color screen icon_states
+
+	emag_act(mob/user, obj/item/card/emag/E)
+		..()
+		if(!src.emagged)
+			src.emagged = TRUE
+			change_screen("emag")
+			src.screen_type = ""
+			src.range = 2
+			src.desc = "An expensive model that can scan from a distance and comes with a fancy color... WHAT HAPPENED TO THE COLOR SCREEN?!"
+			if(user)
+				boutput(user, "You interfere with the [src]'s color screen and scanning range.")
+			playsound(src, 'sound/machines/glitch4.ogg', 30)
+			sleep(1.3 SECONDS)
+			change_screen("standby")
+			return TRUE
+		return FALSE
+
 
 ///////////////////////////////////// Health analyzer ////////////////////////////////////////
 
@@ -528,7 +564,7 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 				return
 		..()
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		scan_builder.include_abridged(HEADER_HEALTH_ANALYZER)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_text(id_note)
@@ -648,7 +684,7 @@ TYPEINFO(/obj/item/device/reagentscanner)
 			if (!isnull(src.scan_results))
 				. += "<br>[SPAN_NOTICE("Previous scan's results:<br>[src.scan_results]")]"
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_text(id_note)
 
@@ -791,7 +827,7 @@ TYPEINFO(/obj/item/device/analyzer/atmospheric)
 					det.detonate()
 		return
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_text(id_note)
 
@@ -1328,7 +1364,7 @@ TYPEINFO(/obj/item/device/appraisal)
 				// don't bother bumping up other things
 				chat_text.show_to(user.client)
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"
 		scan_builder.add_text(id_note)
 

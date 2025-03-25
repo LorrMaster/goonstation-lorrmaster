@@ -1049,7 +1049,7 @@ ABSTRACT_TYPE(/obj/item/record/random/notaquario)
 	audio = 'sound/ambience/spooky/Somewhere_Tone.ogg'
 	name_of_thing = "found tape"
 
-	on_forensic_scan(var/datum/forensic_scan_builder2/scan_builder)
+	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		..()
 		var/note = "The tape seems pretty corrupted."
 		scan_builder.add_text(note)
