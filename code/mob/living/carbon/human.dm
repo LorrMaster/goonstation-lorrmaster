@@ -3237,8 +3237,14 @@
 	if (move_dir & (move_dir-1))
 		steps *= DIAG_MOVE_DELAY_MULT
 	if(src.shoes)
-		if(src.shoes.forensic_holder?.is_tracking())
-			src.shoes.forensic_holder.track_blood(NewLoc, src.get_footprints())
+		if(src.shoes.track_spreader?.is_tracking())
+			src.shoes.track_spreader.place_track(NewLoc, src.get_footprints())
+	else if(src.limbs)
+		if(src.limbs.r_leg?.track_spreader?.is_tracking())
+			src.limbs.r_leg.track_spreader.place_track()
+		if(src.limbs.l_leg?.track_spreader?.is_tracking())
+			src.limbs.l_leg.track_spreader.place_track()
+
 	//STEP SOUND HANDLING
 	if (!src.lying && isturf(NewLoc) && NewLoc.turf_flags & MOB_STEP)
 		if (NewLoc.active_liquid)
@@ -3674,6 +3680,9 @@ mob/living/carbon/human/has_genetics()
 
 	. = ..()
 
+/mob/living/carbon/human/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
+	return // Apply blood to clothing/limbs instead
+
 /mob/living/carbon/human/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	..()
 	// Combine all the visible forensic holders into a single holder
@@ -3785,6 +3794,20 @@ mob/living/carbon/human/has_genetics()
 		src.limbs.r_leg.forensic_holder?.remove_evidence(removal_flags)
 	if(src.limbs.l_leg && !isrobolimb(src.limbs.l_leg))
 		src.limbs.l_leg.forensic_holder?.remove_evidence(removal_flags)
+
+/mob/living/carbon/human/proc/apply_evidence_clothing(var/datum/forensic_data/basic/f_data, var/category)
+	src.head?.add_evidence(f_data.get_copy(), category)
+	src.gloves?.add_evidence(f_data.get_copy(), category)
+	src.belt?.add_evidence(f_data.get_copy(), category)
+	src.shoes?.add_evidence(f_data.get_copy(), category)
+	if(src.wear_mask)
+		src.wear_mask.add_evidence(f_data.get_copy(), category)
+	else if(src.glasses)
+		src.glasses.add_evidence(f_data.get_copy(), category)
+	if(src.wear_suit)
+		src.wear_suit.add_evidence(f_data.get_copy(), category)
+	else if(src.w_uniform)
+		src.w_uniform.add_evidence(f_data.get_copy(), category)
 
 /mob/living/carbon/human/proc/get_default_forensics_target() // Apply forensics to clothing / organs rather than the mob itself
 	// Need to put this in /mob/living/carbon/human

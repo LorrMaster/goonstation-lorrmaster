@@ -118,21 +118,21 @@
 			. += "<br>[SPAN_NOTICE("[src.name] has a [bicon(src.ears)] [src.ears.name] by its mouth.")]"
 
 		if (src.head)
-			if (src.head.forensic_holder.is_stained)
-				. += "<br>[SPAN_ALERT("[src.name] has a[src.head.forensic_holder.is_stained ? " bloody " : " "][bicon(src.head)] [src.head.name] on it!")]"
+			if (src.head.is_stained)
+				. += "<br>[SPAN_ALERT("[src.name] has a[src.head.is_stained ? " bloody " : " "][bicon(src.head)] [src.head.name] on it!")]"
 			else
 				. += "<br>[SPAN_NOTICE("[src.name] has a [bicon(src.head)] [src.head.name] on it.")]"
 
 		if (src.wear_mask)
-			if (src.wear_mask.forensic_holder.is_stained)
-				. += "<br>[SPAN_ALERT("[src.name] has a[src.wear_mask.forensic_holder.is_stained ? " bloody " : " "][bicon(src.wear_mask)] [src.wear_mask.name] on its face!")]"
+			if (src.wear_mask.is_stained)
+				. += "<br>[SPAN_ALERT("[src.name] has a[src.wear_mask.is_stained ? " bloody " : " "][bicon(src.wear_mask)] [src.wear_mask.name] on its face!")]"
 			else
 				. += "<br>[SPAN_NOTICE("[src.name] has a [bicon(src.wear_mask)] [src.wear_mask.name] on its face.")]"
 
 		if (src.glasses)
 			if (((src.wear_mask && src.wear_mask.see_face) || !src.wear_mask) && ((src.head && src.head.see_face) || !src.head))
-				if (src.glasses.forensic_holder.is_stained)
-					. += "<br>[SPAN_ALERT("[src.name] has a[src.glasses.forensic_holder.is_stained ? " bloody " : " "][bicon(src.wear_mask)] [src.glasses.name] on its face!")]"
+				if (src.glasses.is_stained)
+					. += "<br>[SPAN_ALERT("[src.name] has a[src.glasses.is_stained ? " bloody " : " "][bicon(src.wear_mask)] [src.glasses.name] on its face!")]"
 				else
 					. += "<br>[SPAN_NOTICE("[src.name] has a [bicon(src.glasses)] [src.glasses.name] on its face.")]"
 

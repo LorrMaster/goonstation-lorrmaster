@@ -100,6 +100,10 @@
 /obj/reagent_dispensers/cleanable
 	flags = FLUID_SUBMERGE
 
+	clean_forensic()
+		..()
+		qdel(src)
+
 /obj/reagent_dispensers/cleanable/ants
 	name = "space ants"
 	desc = "A bunch of space ants."

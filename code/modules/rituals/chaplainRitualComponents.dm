@@ -742,18 +742,23 @@
 			for(var/obj/O in T)
 				if(istype(O,/obj/decal/cleanable/blood))
 					var/obj/decal/cleanable/blood/B = O
+					var/datum/bioHolder/bio = B.reagents.get_blood_bioholder()
+					if(!bio)
+						break
 					for(var/mob/living/carbon/human/H in mobs)
-						if(B.blood_DNA == H.bioHolder.Uid)
+						if(bio.dna_signature == H.bioHolder.dna_signature)
 							specificTarget = H
 							break
 
 				if(istype(O,/obj/fluid))
 					var/obj/fluid/B = O
-					if (B.group.master_reagent_id == "blood")
-						for(var/mob/living/carbon/human/H in mobs)
-							if(B.blood_DNA == H.bioHolder.Uid)
-								specificTarget = H
-								break
+					var/datum/bioHolder/bio = B.reagents.get_blood_bioholder()
+					if(!bio || B.group.master_reagent_id != "blood")
+						break
+					for(var/mob/living/carbon/human/H in mobs)
+						if(bio.dna_signature == H.bioHolder.dna_signature)
+							specificTarget = H
+							break
 
 				if(istype(O,/obj/item/parts/human_parts))
 					var/obj/item/parts/human_parts/P = O

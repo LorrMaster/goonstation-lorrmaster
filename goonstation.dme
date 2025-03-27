@@ -1226,6 +1226,7 @@
 #include "code\modules\forensics\forensic_holder.dm"
 #include "code\modules\forensics\forensic_id.dm"
 #include "code\modules\forensics\forensic_scan_builder.dm"
+#include "code\modules\forensics\track_spreader.dm"
 #include "code\modules\goonhub\api\api.dm"
 #include "code\modules\goonhub\api\models\_Paginated.dm"
 #include "code\modules\goonhub\api\models\_PlayerResParent.dm"

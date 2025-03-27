@@ -90,7 +90,8 @@
 				section_text = SPAN_HINT("<li>[header]</li>") + data_to_text(src.data_list[header], abridged)
 			// if(!abridged)
 				// section_text = "<p>[section_text]</p>"
-			report_text += section_text
+			report_text = report_text + section_text
+
 		if(src.chain_scan)
 			report_text += src.chain_scan.build_report(abridged)
 		return report_text
@@ -112,7 +113,7 @@
 		var/h_priority = header_priority(h_list[1], abridged_list[h_list[1]])
 		for(var/i = 2; i<= h_list.len; i++)
 			var/priority = header_priority(h_list[i], abridged_list[h_list[i]])
-			if(h_priority < priority)
+			if(priority < h_priority)
 				h_index = i
 				h_priority = priority
 		var/header = h_list[h_index]

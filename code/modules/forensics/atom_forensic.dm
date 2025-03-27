@@ -63,16 +63,6 @@
 		var/datum/forensic_id/dna_id = source.dna_signature
 		var/datum/forensic_data/dna/dna_data = new(dna_id, DNA_FORM_BLOOD)
 		src.forensic_holder.add_evidence(dna_data, FORENSIC_GROUP_DNA)
-		src.forensic_holder.is_stained = TRUE
-		src.forensic_holder.stain_color = blood_color
-	if(isitem(src))
-		apply_stain_effect(blood_color)
-		var/datum/spreader_track/T = new()
-
-		T.track_color = blood_color
-		if(source)
-			T.dna_signature = source.dna_signature
-		src.forensic_holder.spreader = T
 
 	/*
 		else if (istype(src, /turf/simulated))
@@ -81,43 +71,8 @@
 				bleed(L, amount, 5, rand(1,3), src)
 	*/
 
-/atom/proc/apply_stain_effect(var/stain_color)
-	if (isitem(src))
-		var/obj/item/I = src
-		var/image/blood_overlay = image('icons/obj/decals/blood/blood.dmi', "itemblood")
-		blood_overlay.appearance_flags = PIXEL_SCALE | RESET_COLOR
-		blood_overlay.color = stain_color
-		blood_overlay.alpha = min(blood_overlay.alpha, 200)
-		blood_overlay.blend_mode = BLEND_INSET_OVERLAY
-		I.appearance_flags |= KEEP_TOGETHER
-		I.UpdateOverlays(blood_overlay, "blood_splatter")
-		if (istype(I, /obj/item/clothing))
-			var/obj/item/clothing/C = src
-			C.add_stain(/datum/stain/blood)
-
 /atom/proc/clean_forensic()
-	if(src.forensic_holder)
-		if(src.forensic_holder.is_stained)
-			src.forensic_holder.stain_color = null
-			src.forensic_holder.is_stained = FALSE
-		src.forensic_holder.remove_evidence(REMOVABLE_CLEANING)
 	SEND_SIGNAL(src, COMSIG_ATOM_CLEANED)
-
-/obj/clean_forensic()
-	src.forensic_holder.spreader = null
-	if(isitem(src))
-		var/obj/item/I = src
-		if(I.forensic_holder.is_stained)
-			I.UpdateOverlays(null, "blood_splatter")
-		if(istype(I, /obj/item/clothing))
-			var/obj/item/clothing/C = I
-			C.clean_stains()
-			if (ishuman(src.loc))
-				var/mob/living/carbon/human/H = src.loc
-				H.set_clothing_icon_dirty()
-	else if (istype(src, /obj/decal/cleanable) || istype(src, /obj/reagent_dispensers/cleanable))
-		qdel(src)
-	..()
 
 /turf/clean_forensic()
 	var/turf/T = get_turf(src)

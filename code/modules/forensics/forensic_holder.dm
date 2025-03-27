@@ -13,8 +13,6 @@ datum/forensic_holder
 
 	var/removal_flags_ignore = 0 // These ways of removing evidence have no power here
 	var/suppress_scans = FALSE // If true, then this will block attempts to scan it
-	var/is_stained = FALSE // Used to activate blood/stained overlay visuals. Might want to move somewhere else
-	var/stain_color = null // What color is the stain if it exists.
 
 	proc/add_data_builder(var/datum/forensic_scan_builder/scan_builder)
 		// Get all the evidence and put together the text of a forensic scan
@@ -82,60 +80,3 @@ datum/forensic_holder
 			var/list/datum/forensic_data/f_data_list = src.evidence_list[i].get_evidence_list(TRUE)
 			for(var/k=1; k<= length(f_data_list); k++)
 				target.add_evidence(f_data_list[k].get_copy(), src.evidence_list[i].category)
-
-	proc/is_tracking() // Is this object spreading blood?
-		return src.spreader != null
-	proc/track_blood(turf/T, var/datum/forensic_data/multi/tracks = null)
-		src.spreader.create_track(T, tracks)
-		if(src.spreader.tracks_left == 0)
-			qdel(src.spreader)
-			src.spreader = null
-	// proc/add_tracked_blood(var/b_dna, var/b_type, var/b_color, var/b_count, var/sample_reagent)
-
-datum/spreader_track // Hopefully temp way for forensic holder to create tracks while walking.
-	var/tracked_blood = null
-	var/track_color = "#FFFFFFFF"
-	var/datum/forensic_id/dna_signature = null
-	var/tracks_left = 5
-	var/static/datum/forensic_id/drag_machine_print = new("=====")
-	var/static/datum/forensic_id/drag_item_print = new("-----")
-
-	// Wishlist: Attach tracks to floor tiles
-
-
-	proc/create_track(turf/T, var/datum/forensic_data/multi/footprint = null)
-		if(istype_exact(T, /turf/space)) //can't smear blood on space
-			return
-		var/obj/decal/cleanable/blood/dynamic/tracks/B = null
-		if (T.messy > 0)
-			B = locate(/obj/decal/cleanable/blood/dynamic) in T
-		if (!B)
-			if (T.active_liquid)
-				return
-			B = make_cleanable(/obj/decal/cleanable/blood/dynamic/tracks, T)
-		if(B.forensic_holder)
-			if(footprint)
-				B.add_evidence(footprint, FORENSIC_GROUP_TRACKS)
-			else
-				var/datum/forensic_data/multi/drag_print = new(src.drag_machine_print, src.drag_machine_print)
-				B.add_evidence(drag_print, FORENSIC_GROUP_TRACKS)
-			if(dna_signature)
-				var/datum/forensic_data/dna/dna_data = new(dna_signature, DNA_FORM_BLOOD, TIME)
-				B.add_evidence(dna_data, FORENSIC_GROUP_DNA)
-
-		tracks_left--
-		return
-
-		/*
-		var/list/states = src.get_step_image_states()
-
-		if (states[1] || states[2])
-			if (states[1])
-				B.add_volume(src.stain_color, src.tracked_blood["sample_reagent"], 0.5, 0.5, src.tracked_blood, states[1], T, 0)
-			if (states[2])
-				B.add_volume(src.stain_color, src.tracked_blood["sample_reagent"], 0.5, 0.5, src.tracked_blood, states[2], T, 0)
-		else
-			B.add_volume(src.stain_color, src.tracked_blood["sample_reagent"], 1, 1, src.tracked_blood, "smear2", T, 0)
-		*/
-
-/mob/var/static/datum/forensic_id/drag_mob_print = new("~~~~~")

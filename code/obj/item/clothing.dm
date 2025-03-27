@@ -64,6 +64,18 @@ ABSTRACT_TYPE(/obj/item/clothing)
 			src.name = src.material.specialNaming(src)
 		src.name = "[name_prefix(null, 1)][src.get_stain_names()][src.name][name_suffix(null, 1)]"
 
+	clean_forensic()
+		..()
+		src.clean_stains()
+		if(ishuman(src.loc))
+			var/mob/living/carbon/human/H = src.loc
+			H.set_clothing_icon_dirty()
+
+	apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
+		..()
+		src.add_stain(/datum/stain/blood)
+
+
 	///Add a stain to this clothing piece
 	proc/add_stain(stain_type)
 		var/datum/stain/stain = get_singleton(stain_type)

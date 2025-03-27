@@ -249,13 +249,6 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 		if ((AM.event_handler_flags & USE_FLUID_ENTER) && !istype(src, /obj/fluid/airborne))
 			AM.ExitedFluid(src)
 
-
-	proc/add_tracked_blood(atom/movable/AM as mob|obj)
-		AM.tracked_blood = list("bDNA" = src.blood_DNA, "btype" = src.blood_type, "color" = src.color, "count" = rand(2,6), "sample_reagent" = src.group?.master_reagent_id)
-		if (ismob(AM))
-			var/mob/M = AM
-			M.set_clothing_icon_dirty()
-
 	temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume, cannot_be_cooled = FALSE)
 		..()
 		if (!src.group || !src.group.reagents || !length(src.group.members)) return
@@ -652,6 +645,10 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 
 /obj/EnteredFluid(obj/fluid/F as obj)
 	//object submerged overlays
+	var/datum/bioHolder/bioholder = F.get_blood_bioholder()
+	var/b_color = F.color
+	if (bioholder)
+		src.apply_blood(bioholder, b_color)
 	if (src.submerged_images && (src.is_submerged != F.my_depth_level))
 		for (var/image/I in src.submerged_images)
 			I.color = F.finalcolor
@@ -676,16 +673,12 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 			return
 	..()
 
-/obj/item/EnteredFluid(obj/fluid/F as obj)
-	..()
+/mob/living/EnteredFluid(obj/fluid/F as obj, atom/oldloc)
+	//SUBMERGED OVERLAYS
 	var/datum/bioHolder/bioholder = F.get_blood_bioholder()
 	var/b_color = F.color
 	if (bioholder)
 		src.apply_blood(bioholder, b_color)
-
-
-/mob/living/EnteredFluid(obj/fluid/F as obj, atom/oldloc)
-	//SUBMERGED OVERLAYS
 	if (src.is_submerged != F.my_depth_level)
 		for (var/image/I in src.submerged_images)
 			I.color = F.finalcolor
@@ -791,16 +784,18 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 					src.w_uniform.apply_blood(bioholder, b_color)
 					src.update_bloody_uniform()
 			else
-				if (src.shoes)
-					src.shoes.apply_blood(bioholder, b_color)
+				if(H.buckled)
+					src.buckled.apply_blood(bio, src.get_blood_color())
+				else if (H.shoes)
+					src.shoes.apply_blood(bio, src.get_blood_color())
 					src.update_bloody_shoes()
 				else if (src.limbs)
 					if(src.limbs.l_leg)
 						src.limbs.l_leg.apply_blood(bioholder, b_color)
 					if(src.limbs.r_leg)
 						src.limbs.r_leg.apply_blood(bioholder, b_color)
-		F.add_tracked_blood(src)
-		src.update_bloody_feet()
+					src.update_bloody_feet()
+		src.set_clothing_icon_dirty()
 
 	var/do_reagent_reaction = 1
 

@@ -304,6 +304,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 	proc/scan(atom/A, mob/user)
 		playsound(src.loc , 'sound/machines/found.ogg', 30, 0, pitch = 1.5)
 		var/visible = TRUE
+		var/scan_emagged = FALSE
 		change_screen("scanning")
 		if(ishuman(A) && user != A)
 			var/mob/living/carbon/human/H = A
@@ -322,21 +323,21 @@ TYPEINFO(/obj/item/device/detective_scanner)
 						change_screen("standby")
 						return
 				playsound(src.loc , 'sound/machines/ping.ogg', 10, 0, pitch = 1.5)
-
+		else if(istype(A, /obj/item/card/emag))
+			var/obj/item/card/emag/E = A
+			scan_emagged = E.emag_target(src, user) // Scanning an EMAG isn't a good idea.
 		user.visible_message("<b>[user]</b> has scanned [A].")
 		if(!A.forensic_holder)
+			change_screen("standby")
 			return
 		var/datum/forensic_scan_builder/last_scan = scan_forensic(A, user, visible, scanner_accuracy = src.timestamp_modifier)
 		if(!last_scan)
+			change_screen("standby")
 			return
 		src.scan_history += last_scan
 		var/scan_report = last_scan.build_report(TRUE) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		scan_report = "---- <a href='?src=\ref[src];print=[src.scan_history.len];'>PRINT FULL REPORT</a> ----" + scan_report
 		boutput(user, scan_report)
-		var/scan_emagged = FALSE
-		if(istype(A, /obj/item/card/emag))
-			var/obj/item/card/emag/E = A
-			scan_emagged = E.emag_target(src, user) // Scanning an EMAG isn't a good idea.
 		if(!scan_emagged)
 			sleep(1 SECONDS)
 			change_screen("standby")
@@ -351,7 +352,6 @@ TYPEINFO(/obj/item/device/detective_scanner)
 			// PDA IDs are weird due to their ability to leave behind multiple types of scans.
 			// Just take the 'xxxxx-PDA' part of the ID and ignore the rest
 			search = copytext(search, length(search) - 8, length(search) + 1)
-		// if(copytext(search, length(search), length(search) + 1))
 		var/atom/detect_scanner = scanner_id_list[search]
 		if(detect_scanner)
 			user.show_text("Tracking [search].", "blue")
@@ -375,16 +375,23 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		if(!target)
 			return
 		src.track_target = target
+		var/screen_type = 3 // 0: point | 1: near | 2: far | 3: none
 		while(src.track_target == target && !src.track_target.qdeled)
 			var/dist = GET_DIST(src, src.track_target)
 			src.set_dir(get_dir_accurate(src, src.track_target))
 			switch(dist)
 				if(0)
-					change_screen("point")
+					if(screen_type != 0)
+						change_screen("point")
+						screen_type = 0
 				if(1 to 16)
-					change_screen("track_near")
+					if(screen_type != 1)
+						change_screen("track_near")
+						screen_type = 1
 				if(16 to INFINITY)
-					change_screen("track_far")
+					if(screen_type != 2)
+						change_screen("track_far")
+						screen_type = 2
 			sleep(1)
 		src.track_target = null
 		change_screen("standby")
@@ -399,6 +406,10 @@ TYPEINFO(/obj/item/device/detective_scanner/detective)
 	icon_state = "det"
 	timestamp_modifier = 0.7
 	max_scans = 50
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		scan_builder.add_text("Assembled between countless bottles of whiskey.")
 
 TYPEINFO(/obj/item/device/detective_scanner/hos)
 	mats = list("telecrystal" = 1,

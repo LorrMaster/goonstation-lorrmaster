@@ -778,10 +778,12 @@ TYPEINFO(/atom/movable)
 	. = list("This is \an [src.name].")
 
 	// Added for forensics (Convair880).
-	if (isitem(src) && src.forensic_holder?.is_stained)
-		. = list(SPAN_ALERT("This is a bloody [src.name]."))
-		if (src.desc)
-			. += "<br>[src.desc] [SPAN_ALERT("It seems to be covered in blood!")]"
+	if (isitem(src))
+		var/obj/item/I = src
+		if(I.is_stained)
+			. = list(SPAN_ALERT("This is a bloody [src.name]."))
+			if (src.desc)
+				. += "<br>[src.desc] [SPAN_ALERT("It seems to be covered in blood!")]"
 	else if (src.desc)
 		. += "<br>[src.desc]"
 

@@ -124,9 +124,6 @@
 			return
 		A.EnteredAirborneFluid(src, A.last_turf)
 
-	add_tracked_blood(atom/movable/AM as mob|obj)
-		.=0
-
 	update() //returns list of created fluid tiles
 		if (!src.group || src.group.disposed) //uh oh
 			src.removed()

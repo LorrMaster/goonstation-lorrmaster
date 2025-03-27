@@ -348,7 +348,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	get_header()
 		return HEADER_DNA
 
-	proc/contains_blood(var/include_trace = FALSE)
+	proc/contains_blood(var/include_trace = FALSE) // Return true if there is blood evidence
 		for(var/i=1; i<= src.dna_list.len; i++)
 			if(src.dna_list[i].form == DNA_FORM_BLOOD)
 				return TRUE
@@ -356,6 +356,19 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			return FALSE
 		for(var/i=1; i<= src.dna_trace_list.len; i++)
 			if(src.dna_trace_list[i].form == DNA_FORM_BLOOD)
+				return TRUE
+		return FALSE
+
+	proc/conatins_blood_specific(var/datum/forensic_id/blood_id, var/include_trace = FALSE)
+		if(!blood_id)
+			return FALSE
+		for(var/i=1; i<= src.dna_list.len; i++)
+			if(src.dna_list[i].pattern == blood_id && src.dna_list[i].form == DNA_FORM_BLOOD)
+				return TRUE
+		if(include_trace == FALSE)
+			return FALSE
+		for(var/i=1; i<= src.dna_trace_list.len; i++)
+			if(src.dna_trace_list[i].pattern == blood_id && src.dna_trace_list[i].form == DNA_FORM_BLOOD)
 				return TRUE
 		return FALSE
 

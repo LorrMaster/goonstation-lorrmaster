@@ -1840,12 +1840,9 @@ ABSTRACT_TYPE(/obj/item/implant/revenge)
 				active = FALSE
 				if (H && src && (src in H.implant))
 					var/obj/decal/cleanable/blood/dynamic/B = make_cleanable(/obj/decal/cleanable/blood/dynamic, get_turf(H))
-
 					B.add_volume(DEFAULT_BLOOD_COLOR, "blood", 50, 5)
 					var/datum/forensic_data/dna/dna_data = new(null, DNA_FORM_BLOOD)
 					B.add_evidence(dna_data, FORENSIC_GROUP_DNA)
-					B.apply_stain_effect(DEFAULT_BLOOD_COLOR)
-
 					if (prob(10))
 						boutput(H, SPAN_ALERT("<i>Bloooood.....</i>"))
 		..()

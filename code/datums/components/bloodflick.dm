@@ -31,7 +31,7 @@ TYPEINFO(/datum/component/bloodflick)
 	..()
 
 /datum/component/bloodflick/proc/flickblood()
-	if (!src.weapon.forensic_holder.is_stained)
+	if (!src.weapon.is_stained)
 		return
 	// if all the blood is wet, flicking it off cleans it.
 	if (!src.hasdry && src.weapon.forensic_holder)

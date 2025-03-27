@@ -24,6 +24,7 @@
 	var/step_lots = 0 //classic steps (used for clown shoos)
 	var/datum/forensic_id/shoe_print_r = null
 	var/datum/forensic_id/shoe_print_l = null
+	var/datum/track_spreader/track_spreader = null
 
 	var/magnetic = 0    //for magboots, to avoid type checks on shoe
 
@@ -90,6 +91,14 @@
 		..()
 		var/note_footprints = "[src.shoe_print_l.id] [src.shoe_print_r.id]"
 		scan_builder.add_text("[src]'s shoeprints: [note_footprints]")
+
+	apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
+		..()
+		src.track_spreader = new(5, blood_color, source?.dna_signature)
+
+	clean_forensic()
+		..()
+		src.track_spreader = null
 
 
 /obj/item/clothing/shoes/rocket

@@ -98,6 +98,7 @@ ABSTRACT_TYPE(/obj/item/parts)
 	var/random_limb_blacklisted = FALSE
 	/// Can break cuffs/shackles instantly if both limbs have this set. Has to be this high because limb pathing is a fuck.
 	var/breaks_cuffs = FALSE
+	var/datum/track_spreader/track_spreader = null // For legs to spread footprints
 	var/datum/forensic_id/dna_signature = null
 	var/datum/forensic_id/limb_print = null // Footprints / fingerprints
 
@@ -142,6 +143,11 @@ ABSTRACT_TYPE(/obj/item/parts)
 			bones.dispose()
 
 		..()
+
+	apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
+		..()
+		if(slot == "r_leg" || slot == "l_leg")
+			src.track_spreader = new(5, blood_color, source?.dna_signature) // For legs to spread blood
 
 	//just get rid of it. don't put it on the floor, don't show a message
 	proc/delete()
@@ -415,7 +421,6 @@ ABSTRACT_TYPE(/obj/item/parts)
 				note_print = "[src]'s Footprint: [src.limb_print.id]"
 			else if(slot == "head")
 				note_print = "[src]'s Bite mark: [src.limb_print.id]"
-
 		if(note_print)
 			scan_builder.add_text(note_print)
 

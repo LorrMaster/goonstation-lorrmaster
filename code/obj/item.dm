@@ -146,6 +146,9 @@ ABSTRACT_TYPE(/obj/item)
 
 	var/brew_result = null //! What reagent will it make if it's brewable?
 
+	var/is_stained = FALSE // Used to activate blood/stained overlay visuals.
+	var/stain_color = null // What color is the stain if it exists.
+
 	/// This is the safe way of changing 2-handed-ness at runtime. Use this please.
 	proc/setTwoHanded(var/twohanded = 1)
 		if(ismob(src.loc))
@@ -362,6 +365,29 @@ ABSTRACT_TYPE(/obj/item)
 /obj/item/setMaterial(var/datum/material/mat1, var/appearance = TRUE, var/setname = TRUE, var/mutable = FALSE, var/use_descriptors = FALSE)
 	..()
 	src.tooltip_rebuild = TRUE
+
+/obj/item/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
+	..()
+	src.is_stained = TRUE
+	src.stain_color = blood_color
+	src.apply_stain_effect(blood_color)
+
+/obj/item/proc/apply_stain_effect(var/stain_color)
+	var/image/blood_overlay = image('icons/obj/decals/blood/blood.dmi', "itemblood")
+	blood_overlay.appearance_flags = PIXEL_SCALE | RESET_COLOR
+	blood_overlay.color = stain_color
+	blood_overlay.alpha = min(blood_overlay.alpha, 200)
+	blood_overlay.blend_mode = BLEND_INSET_OVERLAY
+	src.appearance_flags |= KEEP_TOGETHER
+	src.UpdateOverlays(blood_overlay, "blood_splatter")
+
+/obj/item/clean_forensic()
+	..()
+	if(src.is_stained)
+		src.stain_color = null
+		src.is_stained = FALSE
+		src.UpdateOverlays(null, "blood_splatter")
+	src.forensic_holder?.remove_evidence(REMOVABLE_CLEANING)
 
 //set up object properties on the block when blocking with the item. if overriding this proc, add the BLOCK_SETUP macro to new() to register for the signal and to get tooltips working right
 /obj/item/proc/block_prop_setup(var/source, var/obj/item/grab/block/B)

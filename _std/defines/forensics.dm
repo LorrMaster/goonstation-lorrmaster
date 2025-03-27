@@ -10,19 +10,21 @@ TODO:
  - Take another look at autopsy implementation
  - Forensic scanner emagging?
  - Temperary evidence disable?
-
+ - admin scans
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction
- - Blood color & DNA issues
+ - Blood DNA issues
  - Vending machine counter not working
- - Do not estimate counters starting from one
  - Fix SecMate data editing
  - Fix using fingerprinter on humans
  	- Better fingerprinter scanning?
  - Print reports for DetGadget hat?
  - Forensic scanner scan counter needs the limit actually placed
  - Check if blood reagent adds evidence when poured on things
+ - Fix "No evidence detected" messages
+ - Fix header ordering
+ - DEATH DELETING EVIDENCE?
 
 Lower Priority
  - Forensic_holder starts as null?
@@ -30,11 +32,12 @@ Lower Priority
  - DNA scramblers change DNA and fingerprints of regrown limbs, but not the current ones
  - Leave behind hair while in pods, bed, barber, etc
  - Go through machinery for potential forensic notes to add
+	- Use limb/organ on item to place evidence (arm, leg(s), head, eye(s))
  - Bullet holes, burn marks from lasers (include goggles for laser eyes)
  - Hold towels / handkerchief to prevent fingerprints
  - Evidence for stackables
  	- Attach cleanables to floor tiles
- - Photographic Analysis, Audio Analysis
+ - Photographic Analysis, Audio Analysis, pollen
  - Reagents
  	- Luminol should glow and work on mobs/turf
 		- Rework luminol timer.
@@ -50,7 +53,7 @@ Lower Priority
 	- Stable Mutagen + blood: Replace all DNA samples with the blood's DNA
 
 
-- Damage Sources
+ - Damage Sources
 	- Radiation: Randomized? Variable based on intensity?
 	- Vacuum suffocation: ???
 	- Non-vacuum suffocation: Depends on gas
@@ -61,21 +64,11 @@ Lower Priority
 */
 
 // Notes for various stuff in the detective office?
-// Detective hat: ""
-// Deerstalker hat: "Jeremy Brett wore it better."
-// VR goggles: ""
-// Detective Shoes: ""
-// Detective coat: ""
-// Winter coat: ""
-// Detective's headset: ""
-// 0.38 ammo: ""
-// Revolver: ""
-// Luminol grenades: ""
-// Ceiling fan: ""
-// Detective Computer: ""
-// Alcohol 1: ""
+// Done: Deerstalker, det scanner
+// Detective hat, VR goggles, Detective Shoes, Detective coat, Winter coat, Detective's headset
+// 0.38 ammo, Revolver, Luminol grenades, Ceiling fan, Detective Computer, Alcohol 1, Det Closet
 
-// List of types of organ damage. I don't know if any of these make sense.
+// List of types of organ damage. I don't know which, if any, make sense.
 // Phlebitis, Fibrosis, Pulmonary edema, Inflammation
 
 #define FORENSIC_GROUP_NONE 0
@@ -131,6 +124,7 @@ Lower Priority
 #define REMOVABLE_HEAL_BURN (1 << 9)
 #define REMOVABLE_HEAL_TOXIN (1 << 10)
 #define REMOVABLE_HEAL_OXYGEN (1 << 11)
+// #define REMOVABLE_HEAL_HOLD (1 << 12)
 #define REMOVABLE_HEAL REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_BURN | REMOVABLE_HEAL_TOXIN | REMOVABLE_HEAL_OXYGEN
 #define REMOVABLE_ALL REMOVABLE_CLEANING | REMOVABLE_DATA | REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_BURN | REMOVABLE_HEAL_TOXIN | REMOVABLE_HEAL_OXYGEN
 
@@ -170,7 +164,7 @@ Lower Priority
 #define CHAR_LIST_UPPER_LIMIT CHAR_LIST_UPPER - list("D","I","O","Q")
 #define CHAR_LIST_LOWER_LIMIT CHAR_LIST_LOWER - list("i","j","l","o")
 
-// chars_fingerprint is limited to 'round-ish' letters (with a few exceptions)
+// chars_fingerprint are mostly 'round-ish' letters, chars_fibers are zig-zaggy letters
 #define CHAR_LIST_FINGERPRINT list("a","b","c","d","e","g","n","o","p","q","r","s","u","v","x","y")
 #define CHAR_LIST_FIBERS list("c","f","h","i","j","k","l","n","o","r","s","t","u","v","y","z")
 #define CHAR_LIST_GUN list("=","=","=","=","=","-","-","-","0","8","U","V","C","S","#","_","%","&","+","*","~")

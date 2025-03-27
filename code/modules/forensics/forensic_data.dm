@@ -112,6 +112,7 @@ estimate_counter
 		c_data.time_end = src.time_end
 		c_data.accuracy_mult = src.accuracy_mult
 		c_data.perc_offset = src.perc_offset
+		c_data.mirror_B = src.mirror_B
 		return c_data
 
 	proc/is_same(datum/forensic_data/multi/other)
@@ -288,9 +289,10 @@ estimate_counter
 	proc/is_same(datum/forensic_data/dna/other)
 		return src.pattern == other.pattern && src.form == other.form
 
-/datum/forensic_data/projectile_hit // Bullet holes, laser marks, and the like (Replaced by notes for now)
+/datum/forensic_data/projectile_hit_example // Bullet holes, laser marks, and the like (Unused, just here as a potential example)
 	accuracy_mult = 1
-	var/datum/forensic_id/proj_id = null // Which bullet created this, if it still exists
+	var/obj/item/bullet = null // Which bullet created this, if it still exists
+	var/datum/forensic_id/proj_id = null // Profile of the gun the fired the bullet
 	var/turf/start_turf // Where the projectile was fired / last deflected
 	var/turf/hit_turf // Where it was when it hit
 	var/impact_type = 0 // What the projectile did to the crime scene. Pass through, bounce, burn marks, etc.
@@ -312,7 +314,7 @@ estimate_counter
 				return "Dev Coding Error: Impact type missing"
 
 	get_copy()
-		var/datum/forensic_data/projectile_hit/c_data = new()
+		var/datum/forensic_data/projectile_hit_example/c_data = new()
 		c_data.category = src.category
 		c_data.proj_id = src.proj_id
 		c_data.start_turf = src.start_turf
@@ -330,19 +332,16 @@ estimate_counter
 	// Bullet Obj
 		// Rifling, or which barrel the bullet came from
 		// Deformation, how the bullet changed (flattened, dented, fragmentation)
-	// Footprint
-		// The two footprint ids
-		// The original direction?
 
 /proc/estimate_counter(var/text, var/actual, var/accuracy, var/offset)
 	if(actual <= 0)
 		return "[text]: [actual]"
 
 	var/note = null
-	if(accuracy < 0 || accuracy > FORENSIC_BASE_ACCURACY)
+	if(accuracy < 0)
 		accuracy = FORENSIC_BASE_ACCURACY
 	var/high_est = round(actual + (actual * accuracy * offset))
-	var/low_est = max(0, round(actual - (actual * accuracy * (1 - offset))))
+	var/low_est = max(1, round(actual - (actual * accuracy * (1 - offset))))
 	if(high_est == low_est)
 		note = "[text]: [actual]"
 	else

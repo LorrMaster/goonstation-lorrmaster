@@ -1962,6 +1962,10 @@ ABSTRACT_TYPE(/obj/item/clothing/head/hairbow)
 	icon_state = "deerstalker"
 	item_state = "deerstalker"
 
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		scan_builder.add_text("Just like the one worn by Jeremy Brett.")
+
 /obj/item/clothing/head/pomhat_blue
    name = "blue pomhat"
    desc = "A cobalt hat with a fun little pom!"

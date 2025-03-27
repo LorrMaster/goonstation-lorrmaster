@@ -335,9 +335,11 @@ ABSTRACT_TYPE(/obj/item/parts/artifact_parts/leg/precursor)
 			return
 		UnregisterSignal(src.holder, COMSIG_MOVABLE_MOVED)
 
+	apply_blood(datum/bioHolder/source, blood_color)
+		return // Don't get bloody, since the limb is floating
+
 	build_limb_print()
-		// Precursor limbs do not produce footprints
-		src.limb_print = null
+		src.limb_print = null // Precursor limbs do not produce footprints
 
 	proc/precursor_move_L(mob/living/carbon/human/H, oldLoc, direction)
 		if (H.lying)
