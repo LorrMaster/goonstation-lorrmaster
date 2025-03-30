@@ -216,7 +216,7 @@ ABSTRACT_TYPE(/obj/item/gun/kinetic)
 		if (fire_animation)
 			if(src.ammo?.amount_left >= 1)
 				var/flick_state = src.has_fire_anim_state && src.fire_anim_state ? src.fire_anim_state : src.icon_state
-				flick(flick_state, src)
+				FLICK(flick_state, src)
 
 		if(..() && istype(user.loc, /turf/space) || user.no_gravity)
 			user.inertia_dir = get_dir(target, user)
@@ -679,6 +679,34 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 		set_current_projectile(new/datum/projectile/bullet/bullet_22/HP)
 		..()
 
+/obj/item/gun/kinetic/capella
+	name = "\improper Capella Mk. 8 competition pistol"
+	desc = "A match-grade competition pistol, expertly machined for extreme accuracy and speed. Produced by Almagest Weapons Fabrication."
+	icon_state = "capella"
+	item_state = "pw_pistol_sy"
+	w_class = W_CLASS_SMALL
+	force = MELEE_DMG_PISTOL
+	contraband = 25
+	rarity = 4
+	ammo_cats = list(AMMO_PISTOL_22)
+	max_ammo_capacity = 10
+	auto_eject = 1
+	has_empty_state = 1
+	fire_animation = TRUE
+	default_magazine = /obj/item/ammo/bullets/bullet_22match
+	ammobag_magazines = list(/obj/item/ammo/bullets/bullet_22match)
+	ammobag_restock_cost = 1
+	recoil_strength = 0.1
+	icon_recoil_cap = 3
+
+	New()
+		START_TRACKING_CAT(TR_CAT_NUKE_OP_STYLE)
+		ammo = new default_magazine
+		set_current_projectile(new/datum/projectile/bullet/bullet_22/match)
+		..()
+
+
+
 
 //0.308
 /obj/item/gun/kinetic/minigun // it is now STRONK
@@ -748,7 +776,7 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 
 /obj/item/gun/kinetic/hunting_rifle
 	name = "old hunting rifle"
-	desc = "The Kittiwake .308 from Cormorant Precision Arms, a classic high-powered hunting and police rifle, reliable in almost any environment. This one shows years of use."
+	desc = "The Kittiwake .308 from Cormorant Precision Arms, a classic high-powered hunting and police rifle, reliable in almost any environment. The scope is in fine condition."
 	icon = 'icons/obj/items/guns/kinetic48x32.dmi'
 	icon_state = "ohr"
 	item_state = "ohr"
@@ -770,10 +798,12 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 	recoil_strength = 14
 	recoil_max = 14
 	recoil_inaccuracy_max = 20
+	rarity = 3
 
 	New()
 		ammo = new default_magazine
 		set_current_projectile(new/datum/projectile/bullet/rifle_3006)
+		AddComponent(/datum/component/holdertargeting/sniper_scope, 8, 0, /datum/overlayComposition/sniper_scope, 'sound/weapons/scope.ogg')
 		..()
 
 /obj/item/gun/kinetic/dart_rifle
@@ -2639,6 +2669,7 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 		ammo = new default_magazine
 		ammo.amount_left = 0 // Spawn empty.
 		set_current_projectile(new /datum/projectile/bullet/rpg)
+		AddComponent(/datum/component/holdertargeting/windup, 0.2 SECOND)
 		..()
 
 	update_icon()
@@ -2692,6 +2723,7 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 		ammo = new default_magazine
 		ammo.amount_left = 0 // Spawn empty.
 		set_current_projectile(new /datum/projectile/bullet/homing/rocket/mrl)
+		AddComponent(/datum/component/holdertargeting/windup, 0.2 SECOND)
 		..()
 
 	disposing()
@@ -3187,6 +3219,7 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 	max_ammo_capacity = 1
 	auto_eject = 1
 	fire_animation = TRUE
+	rarity = 4
 
 	recoil_strength = 20
 	recoil_max = 25 //seriously how are you going to fire this more than once
@@ -3213,6 +3246,7 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 		START_TRACKING_CAT(TR_CAT_NUKE_OP_STYLE)
 		ammo = new default_magazine
 		set_current_projectile(new/datum/projectile/bullet/cannon)
+		AddComponent(/datum/component/holdertargeting/windup, 0.2 SECOND)
 		..()
 
 	disposing()
@@ -3221,7 +3255,7 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 
 	setupProperties()
 		..()
-		setProperty("carried_movespeed", 0.3)
+		setProperty("carried_movespeed", 0.5)
 
 /obj/item/gun/kinetic/recoilless
 	name = "\improper Carinae RCL/120"
@@ -3256,6 +3290,8 @@ ABSTRACT_TYPE(/obj/item/survival_rifle_barrel)
 		START_TRACKING_CAT(TR_CAT_NUKE_OP_STYLE)
 		ammo = new default_magazine
 		set_current_projectile(new/datum/projectile/bullet/howitzer)
+		AddComponent(/datum/component/holdertargeting/windup, 0.2 SECOND)
+
 		..()
 
 	disposing()

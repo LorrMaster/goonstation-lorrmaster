@@ -1207,7 +1207,7 @@
 		src.firesource = FIRESOURCE_OPEN_FLAME
 		set_icon_state(src.icon_on)
 		src.item_state = "[item_state_base]on"
-		flick("[icon_state]_open", src)
+		FLICK("[icon_state]_open", src)
 		light.enable()
 		processing_items |= src
 		if (user != null)
@@ -1219,7 +1219,7 @@
 		src.firesource = FALSE
 		set_icon_state(src.icon_off)
 		src.item_state = "[item_state_base]"
-		flick("[icon_state]_close", src)
+		FLICK("[icon_state]_close", src)
 		light.disable()
 		processing_items.Remove(src)
 		if (user != null)

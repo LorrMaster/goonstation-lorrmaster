@@ -1997,12 +1997,12 @@ TYPEINFO(/obj/item/mining_tool/powered/hedron_beam)
 
 	power_up(var/mob/user)
 		src.set_icon_state("hedron-M")
-		flick("hedron-WtoM", src)
+		FLICK("hedron-WtoM", src)
 		..()
 
 	power_down(var/mob/user)
 		src.set_icon_state("hedron-W")
-		flick("hedron-MtoW", src)
+		FLICK("hedron-MtoW", src)
 		..()
 
 	proc/try_weld(mob/user, var/fuel_amt = 2, var/use_amt = -1, var/noisy=TRUE, var/burn_eyes=FALSE)
@@ -2289,7 +2289,8 @@ TYPEINFO(/obj/item/cargotele)
 
 		boutput(user, SPAN_NOTICE("Teleporting [cargo] to [src.target]..."))
 		playsound(user.loc, 'sound/machines/click.ogg', 50, 1)
-		SETUP_GENERIC_PRIVATE_ACTIONBAR(user, cargo, src.teleport_delay, PROC_REF(finish_teleport), list(cargo, user), null, null, null, null)
+		var/datum/action/bar/private/icon/callback/teleport = new(user, cargo, src.teleport_delay, PROC_REF(finish_teleport), list(cargo, user), null, null, null, null, src)
+		actions.start(teleport, user)
 		return TRUE
 
 

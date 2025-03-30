@@ -272,6 +272,19 @@
 	uses_ammunition = 1
 	remaining_ammunition = 20
 
+/obj/item/shipcomponent/mainweapon/salvo_rockets
+	name = "Cerberus Salvo Rockets"
+	desc = "A three-rocket salvo launcher, created in mind for multi-purpose space combat. Usable only by small pods."
+	icon_state = "cerberus-salvo-rockets"
+	weapon_score = 1.25
+	power_used = 50
+	current_projectile = new/datum/projectile/bullet/homing/rocket/salvo
+	appearanceString = "pod_weapon_cerberus"
+	firerate = 5 SECONDS
+	shots_to_fire = 3
+	spread = 30
+	large_pod_compatible = FALSE
+
 /obj/item/shipcomponent/mainweapon/laser_ass // hehhh
 	name = "Mk.4 Assault Laser"
 	weapon_score = 1.25
@@ -1111,12 +1124,12 @@ TYPEINFO(/obj/item/shipcomponent/mainweapon/constructor)
 		ship.vis_contents += purge
 		if(ship.capacity != 1 && !istype(/obj/machinery/vehicle/miniputt, ship) && !istype(/obj/machinery/vehicle/recon, ship) && !istype(/obj/machinery/vehicle/cargo, ship))
 			pod_is_large = TRUE
-			flick("SPS_o_large", purge)
+			FLICK("SPS_o_large", purge)
 			purge.pixel_x -= 128
 			purge.pixel_y -= 128
 		else
 			pod_is_large = FALSE
-			flick("SPS_o_small", purge)
+			FLICK("SPS_o_small", purge)
 			purge.pixel_x -= 144
 			purge.pixel_y -= 144
 

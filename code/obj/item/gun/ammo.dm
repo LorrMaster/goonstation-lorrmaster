@@ -382,6 +382,16 @@
 	ammo_type = new/datum/projectile/bullet/bullet_22/HP
 	ammo_cat = AMMO_PISTOL_22
 
+/obj/item/ammo/bullets/bullet_22match
+	sname = ".22 Match grade"
+	name = ".22 Match grade magazine"
+	desc = "Exceedingly precise rounds for competitions or exceedingly demanding operators."
+	icon_state = "pistol_magazine_hp"
+	amount_left = 10
+	max_amount = 10
+	ammo_type = new/datum/projectile/bullet/bullet_22/match
+	ammo_cat = AMMO_PISTOL_22
+
 //0.223
 /obj/item/ammo/bullets/assault_rifle
 	sname = "5.56x45mm NATO"
@@ -881,6 +891,12 @@ ABSTRACT_TYPE(/obj/item/ammo/bullets/pipeshot)
 	ammo_type = new/datum/projectile/special/spreader/buckshot_burst/bone
 	icon_state = "makeshiftbone"
 
+/obj/item/ammo/bullets/pipeshot/potato
+	sname = "potato load"
+	desc = "This appears to be some potatoes haphazardly shoved into a few cut open pipe frames. They're too crude for advanced shotgun receivers."
+	ammo_type = new/datum/projectile/bullet/potatoslug
+	icon_state = "makeshiftpotato"
+
 /obj/item/ammo/bullets/nails // oh god oh fuck
 	sname = "Nails"
 	name = "nailshot ammo box"
@@ -956,10 +972,10 @@ ABSTRACT_TYPE(/obj/item/ammo/bullets/pipeshot)
 
 //0.787
 /obj/item/ammo/bullets/cannon
-	sname = "20mm APHE"
-	name = "20mm APHE shells"
-	amount_left = 5
-	max_amount = 5
+	sname = "20mm AP"
+	name = "20mm AP shells"
+	amount_left = 4
+	max_amount = 4
 	icon_state = "40mm_lethal"
 	ammo_type = new/datum/projectile/bullet/cannon
 	ammo_cat = AMMO_CANNON_20MM

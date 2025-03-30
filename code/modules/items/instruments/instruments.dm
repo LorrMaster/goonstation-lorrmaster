@@ -164,6 +164,8 @@
 
 		// Keep the parts of default_key_string between the start and end positions calculated above, toss the rest.
 		for(var/i in start to end)
+			if(i > length(split_default_key_string))
+				break
 			. += split_default_key_string[i]
 
 	ui_interact(mob/user, datum/tgui/ui)
@@ -887,7 +889,23 @@ TYPEINFO(/obj/item/instrument/bikehorn/dramatic)
 		some_poor_fucker.throw_at(T, 1, 1)
 		some_poor_fucker.changeStatus("knockdown", 2 SECONDS)
 
+/* -------------------- Glockenspiel -------------------- */
 
+/obj/item/instrument/glockenspiel
+	name = "glockenspiel"
+	desc = "A most dignified instrument."
+	icon_state = "glockenspiel"
+	item_state = "glockenspiel"
+	note_range = list("c5", "c8")
+	instrument_sound_directory = "sound/musical_instruments/glockenspiel/notes/"
+	sounds_instrument = null
+	note_time = 0.18 SECONDS
+	randomized_pitch = 0
+	use_new_interface = TRUE
+
+	New()
+		..()
+		BLOCK_SETUP(BLOCK_BOOK)
 
 /obj/item/instrument/cowbell
 	name = "cowbell"

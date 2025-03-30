@@ -24,7 +24,7 @@ ABSTRACT_TYPE(/datum/mutantrace)
 	var/name = null
 
 	/// The mutation associted with the mutantrace. Saurian genetics for lizards, for instance
-	var/race_mutation = null
+	var/datum/bioEffect/mutantrace/race_mutation = null
 
 	/// The mutant's own appearanceholder, modified to suit our target appearance
 	var/datum/appearanceHolder/AH
@@ -2065,6 +2065,7 @@ TYPEINFO(/datum/mutantrace/kudzu)
 				H.setStatus("maxhealth-", null, -50)
 				H.add_stam_mod_max("kudzu", -100)
 				APPLY_ATOM_PROPERTY(H, PROP_MOB_STAMINA_REGEN_BONUS, "kudzu", -5)
+				APPLY_ATOM_PROPERTY(H, PROP_MOB_NIGHTVISION_WEAK, "kudzu")
 				H.bioHolder.AddEffect("xray", power = 2, magical=1)
 				if (istype(H.abilityHolder, /datum/abilityHolder/composite))
 					var/datum/abilityHolder/composite/ch = H.abilityHolder
@@ -2075,6 +2076,7 @@ TYPEINFO(/datum/mutantrace/kudzu)
 			var/mob/living/carbon/human/H = src.mob
 			H.remove_stam_mod_max("kudzu")
 			REMOVE_ATOM_PROPERTY(H, PROP_MOB_STAMINA_REGEN_BONUS, "kudzu")
+			REMOVE_ATOM_PROPERTY(H, PROP_MOB_NIGHTVISION_WEAK, "kudzu")
 		return ..()
 /* Commented out as this bypasses restricted Z checks. We will just lazily give them xray genes instead
 	// vision modifier (see_mobs, etc i guess)
@@ -2510,6 +2512,16 @@ TYPEINFO(/datum/mutantrace/pug)
 			new /obj/item/implant/robotalk(H)
 			SPAWN(1 SECOND)
 				H.update_colorful_parts()
+
+///Returns whether the given mutantrace type is safe to randomly mutate people into.
+proc/safe_mutantrace_filter(type)
+	var/datum/mutantrace/mutrace = type
+	return !initial(mutrace.dna_mutagen_banned)
+
+///Returns whether the given mutantrace type is safe to randomly mutate people into, but only the ones that don't occur in genepools.
+proc/safe_mutantrace_nogenepool_filter(type)
+	var/datum/mutantrace/mutrace = type
+	return !initial(mutrace.dna_mutagen_banned) && mutrace.race_mutation && !mutrace.race_mutation.occur_in_genepools
 
 #undef OVERRIDE_ARM_L
 #undef OVERRIDE_ARM_R

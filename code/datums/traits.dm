@@ -709,6 +709,27 @@
 	category = list("skill")
 	points = -1
 
+/datum/trait/anti_headpat
+	name = "Touch Shy"
+	id = "touchshy"
+	desc = "You really don't like people touching your head (or anywhere else), and will reflexively shove anyone who tries."
+	icon_state = "touchshy"
+	category = list("skill")
+	points = -1
+
+	onAdd(mob/owner)
+		. = ..()
+		RegisterSignal(owner, COMSIG_ATTACKHAND, PROC_REF(defend_personal_space))
+
+	onRemove(mob/owner)
+		. = ..()
+		UnregisterSignal(owner, COMSIG_ATTACKHAND)
+
+	proc/defend_personal_space(mob/owner, mob/target)
+		if(owner != target && can_act(owner) && target.a_intent == INTENT_HELP)
+			owner.disarm(target, is_special = TRUE)
+			playsound(owner, 'sound/impact_sounds/Generic_Swing_1.ogg', 50, TRUE)
+
 /* Hey dudes, I moved these over from the old bioEffect/Genetics system so they work on clone */
 
 ABSTRACT_TYPE(/datum/trait/job)
@@ -1338,6 +1359,34 @@ TYPEINFO(/datum/trait/partyanimal)
 	points = -4 //Subject to change- -3 feels too low as puritan is relatively common. Though Puritan Pug DOES make for a special sort of Hard Modes
 	category = list("species", "nopug", "nohair")
 	mutantRace = /datum/mutantrace/pug
+
+/datum/trait/random_species
+	name = "Random Species"
+	icon_state = "randomspecies"
+	desc = "You feel like something's different today, but you can't quite put your finger/tail/hoof/antennae on it."
+	id = "random_species"
+	points = -1
+	category = list("species", "infrared", "cloner_stuff", "nohair", "hemophilia")
+
+	onAdd(mob/owner)
+		if (ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+			var/datum/mutantrace/new_mutantrace_type = null
+			if (prob(1) && prob(1)) // 0.01% chance of a weird mutantrace
+				new_mutantrace_type = pick(filtered_concrete_typesof(/datum/mutantrace, /proc/safe_mutantrace_nogenepool_filter))
+			else // otherwise, pick any -1 point mutrace
+				new_mutantrace_type = pick(/datum/mutantrace/lizard, /datum/mutantrace/cow, /datum/mutantrace/skeleton,	/datum/mutantrace/roach)
+			if (isnull(new_mutantrace_type)) // safety
+				logTheThing(LOG_DEBUG, src, "Failed to generate a random species for [owner].")
+				new_mutantrace_type = /datum/mutantrace/human
+			H.default_mutantrace = new_mutantrace_type
+			H.set_mutantrace(H.default_mutantrace)
+
+	onRemove(mob/owner)
+		if(ishuman(owner))
+			var/mob/living/carbon/human/H = owner
+			H.default_mutantrace = /datum/mutantrace/human
+			H.set_mutantrace(H.default_mutantrace)
 
 /datum/trait/super_slips
 	name = "Slipping Hazard"

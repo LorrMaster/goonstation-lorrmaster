@@ -1027,10 +1027,11 @@ ABSTRACT_TYPE(/datum/syndicate_buylist/traitor)
 	can_buy = UPLINK_TRAITOR | UPLINK_SPY_THIEF
 
 /datum/syndicate_buylist/traitor/syndicate_radio_upgrade
-	name = "Syndicate Radio Upgrade"
-	items = list(/obj/item/device/radio_upgrade/syndicatechannel)
+	name = "Syndicate Radio Upgrades"
+	items = list(/obj/item/device/radio_upgrade/syndicatechannel,
+				/obj/item/device/radio_upgrade/syndicatechannel)
 	cost = 1
-	desc = "A small device that may be installed in a headset to grant access to a radio channel reserved for Syndicate operatives."
+	desc = "A pair of small devices that may be installed in a headset to grant access to a secure radio channel reserved for Syndicate operatives."
 	vr_allowed = FALSE
 	can_buy = UPLINK_TRAITOR
 
@@ -1051,7 +1052,7 @@ ABSTRACT_TYPE(/datum/syndicate_buylist/traitor)
 
 /datum/syndicate_buylist/traitor/rose
 	name = "Poison rose"
-	items = list(/obj/item/plant/flower/rose/poisoned)
+	items = list(/obj/item/clothing/head/flower/rose/poisoned)
 	cost = 4
 	desc = "A regular looking rose hiding a poison capable of muting and briefly incapacitating anyone who smells it."
 	job = list("Mime")
@@ -1166,17 +1167,17 @@ ABSTRACT_TYPE(/datum/syndicate_buylist/surplus)
 
 /datum/syndicate_buylist/traitor/rifle
 	name = "Old Hunting Rifle"
-	items = list(/obj/item/gun/kinetic/hunting_rifle)
+	items = list(/obj/item/storage/box/hunting_rifle)
 	cost = 7
 	job = list("Pest Control Specialist")
-	desc = "An old hunting rifle, comes with only four bullets. Use them wisely."
+	desc = "An old hunting rifle, comes with a scope and eight bullets. Use them wisely."
 	can_buy = UPLINK_TRAITOR
 
 /datum/syndicate_buylist/surplus/rifle
 	name = "Old Hunting Rifle"
-	items = list(/obj/item/gun/kinetic/hunting_rifle)
-	cost = 3
-	desc = "An old hunting rifle, comes with only four bullets. Use them wisely."
+	items = list(/obj/item/storage/box/hunting_rifle)
+	cost = 6
+	desc = "An old hunting rifle, comes with a scope and eight bullets. Use them wisely."
 	can_buy = UPLINK_TRAITOR | UPLINK_NUKE_OP
 
 	spy
@@ -1343,6 +1344,21 @@ ABSTRACT_TYPE(/datum/syndicate_buylist/commander)
 	cost = 3
 	desc = "A  6-barrel multiple rocket launcher armed with guided micro-missiles. Warning: Can and will target other Operatives."
 	category = "Main"
+
+/datum/syndicate_buylist/commander/capella
+	name = "Capella Mk. 8"
+	items = list(/obj/item/storage/box/capella)
+	cost = 1
+	desc = "An extremely accurate competition pistol with two spare clips of match-grade ammo."
+	category = "Main"
+
+/datum/syndicate_buylist/commander/alphard
+	name = "Alphard recoiling cannon"
+	items = list(/obj/item/storage/box/alphard)
+	cost = 3
+	desc = "A brutally powerful antimateriel cannon on a shortened frame. Capable of piercing multiple walls and airlocks. Beware of shrapnel!"
+	category = "Main"
+
 
 /////////////////////////////////////////// Telecrystals //////////////////////////////////////////////////
 
