@@ -1165,7 +1165,7 @@ ABSTRACT_TYPE(/obj/item/shipcomponent/secondary_system/thrusters)
 			ship.myhud.update_states()
 
 	is_set()
-		return !isnull(bdna)
+		return !isnull(lock_dna)
 
 /obj/item/shipcomponent/secondary_system/crash
 	name = "Syndicate Explosive Entry Device"
