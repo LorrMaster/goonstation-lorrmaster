@@ -2,8 +2,7 @@
 	real_name = "The Slasher"
 	var/trailing_blood = FALSE
 	var/slasher_key
-	var/last_bdna = null
-	var/last_btype = null
+	var/datum/track_spreader/slash_spreader = null
 
 	New(loc)
 		..()
@@ -378,18 +377,8 @@
 
 		///Trail some dried blood I guess?
 		blood_trail()
-			if(!src.last_btype || !src.last_bdna)
-				src.last_btype = src.blood_type
-				src.last_bdna = src.blood_DNA
-			if(!src.trailing_blood)
-				src.tracked_blood = list("bDNA" = src.last_bdna, "btype" = src.last_btype, "count" = INFINITY, "sample_reagent" = src.blood_id)
-				src.track_blood()
-				trailing_blood = TRUE
-				APPLY_ATOM_PROPERTY(src, PROP_MOB_BLOOD_TRACKING_ALWAYS, src)
-			else
-				REMOVE_ATOM_PROPERTY(src, PROP_MOB_BLOOD_TRACKING_ALWAYS, src)
-				src.tracked_blood = null
-				trailing_blood = FALSE
+			if(!src.slash_spreader?.is_tracking())
+				src.slash_spreader = new(INFINITY, src.get_blood_color(), src.bioHolder?.dna_signature)
 
 		///Gives the Slasher their abilities
 		addAllAbilities()

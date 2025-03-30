@@ -147,7 +147,7 @@ ABSTRACT_TYPE(/obj/item/parts)
 	apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 		..()
 		if(slot == "r_leg" || slot == "l_leg")
-			src.track_spreader = new(5, blood_color, source?.dna_signature) // For legs to spread blood
+			src.track_spreader = new(5, blood_color, source?.dna_signature, src.step_image_state) // For legs to spread blood
 
 	//just get rid of it. don't put it on the floor, don't show a message
 	proc/delete()

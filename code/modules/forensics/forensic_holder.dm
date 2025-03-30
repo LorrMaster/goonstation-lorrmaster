@@ -8,9 +8,8 @@ datum/forensic_holder
 	var/list/datum/forensic_group/evidence_list = new/list() // Forensic evidence is stored here
 	var/list/datum/forensic_group/hidden_list = new/list() // Evidence that is only visible to admins
 	var/accuracy_mult = 1.0 // Multiplier for this item's timestamp accuracy. Lower the better.
-	var/last_ckey = null
-	var/datum/spreader_track/spreader = null // My lazy way of storing info for footprints
 
+	var/list/scan_effects = null // Put data that can affect the scan here
 	var/removal_flags_ignore = 0 // These ways of removing evidence have no power here
 	var/suppress_scans = FALSE // If true, then this will block attempts to scan it
 
@@ -80,3 +79,4 @@ datum/forensic_holder
 			var/list/datum/forensic_data/f_data_list = src.evidence_list[i].get_evidence_list(TRUE)
 			for(var/k=1; k<= length(f_data_list); k++)
 				target.add_evidence(f_data_list[k].get_copy(), src.evidence_list[i].category)
+

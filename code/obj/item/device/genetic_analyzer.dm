@@ -35,9 +35,17 @@
 
 	record_cloner_defects(target)
 
-	var/datum/forensic_data/basic/f_data = new(src.forensic_lead)
-	f_data.flags = REMOVABLE_CLEANING
-	target.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+	var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
+	if(isliving(target))
+		var/mob/living/L = target
+		if(ishuman(L))
+			var/mob/living/carbon/human/H = L
+			H.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN)
+		else
+			L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN)
+			L.add_evidence(f_data.get_copy(), FORENSIC_GROUP_SCAN)
+	else
+		target.add_evidence(f_data.get_copy(), FORENSIC_GROUP_SCAN)
 
 /obj/item/device/analyzer/genetic/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		var/id_note = "Scanner particle ID: [forensic_lead.id]"

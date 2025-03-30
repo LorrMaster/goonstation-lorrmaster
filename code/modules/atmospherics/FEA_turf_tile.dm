@@ -24,10 +24,6 @@ var/global/list/turf/hotly_processed_turfs = list()
 	ex_act()
 		return
 
-	track_blood()
-		src.tracked_blood = null
-		return
-
 /turf
 	/// Pressure delta between us and some turf.
 	var/tmp/pressure_difference = 0

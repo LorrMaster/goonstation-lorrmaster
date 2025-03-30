@@ -24,7 +24,6 @@
 	if(!H.limbs) // I don't think this should ever be the case?
 		return
 
-	src.forensic_holder.last_ckey = M.ckey
 	var/datum/forensic_data/fingerprint/fp = new()
 	// istype(H.r_hand, /obj/item/magtractor)
 	src.fingerprintslast = M.key
@@ -144,8 +143,6 @@
 */
 /mob/living/track_blood()
 	if (!islist(src.tracked_blood))
-		return
-	if (HAS_ATOM_PROPERTY(src, PROP_MOB_BLOOD_TRACKING_ALWAYS) && (tracked_blood["count"] > 0))
 		return
 	if (HAS_ATOM_PROPERTY(src, PROP_ATOM_FLOATING))
 		return

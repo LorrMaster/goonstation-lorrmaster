@@ -1260,6 +1260,14 @@ datum
 				if(method == TOUCH)
 					M.clean_forensic()
 					M.delStatus("marker_painted")
+				if(M.organHolder)
+					if(method == INJECT)
+						M.organHolder.heart?.clean_forensic()
+						M.organHolder.liver?.clean_forensic()
+					else if(method == INGEST)
+						M.organHolder.stomach?.clean_forensic()
+						M.organHolder.intestines?.clean_forensic()
+						M.organHolder.butt?.clean_forensic()
 
 		luminol // OOC. Weaseldood. oh that stuff from CSI, the glowy blue shit that they spray on blood
 			name = "luminol"

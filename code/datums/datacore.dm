@@ -48,8 +48,8 @@
 	G["pronouns"] = H.get_pronouns().name
 
 	G["age"] ="[H.bioHolder.age]"
-	G["fingerprint"] = H.bioHolder.fingerprint_default.id // Need to worry about the actual limb's fingerprints later - LorrMaster
-	G["fingerprint_L"] = H.bioHolder.fingerprint_default.id
+	G["fingerprint"] = H.limbs?.r_arm?.limb_print.id
+	G["fingerprint_L"] = H.limbs?.l_arm?.limb_print.id
 	G["dna"] = H.bioHolder.dna_signature.id
 	G["p_stat"] = "Active"
 	G["m_stat"] = "Stable"

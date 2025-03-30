@@ -1,17 +1,9 @@
 
-/*
-Forensic Holder -> All the different types of forensics on an object
-Forensic Group -> All the fingerprints on an object
-Forensic Data -> A fingerprint
-Forensic ID -> A specific fingerprint pattern. Unique.
-*/
-
 #define FINGERPRINTS_MAX 7
 
 ABSTRACT_TYPE(/datum/forensic_group)
 // Only one of each type of forensics_group should exist per forensic_holder
-// Originally created with the intent that there could be multiple groups (such as fingerprints inside vs outside a pod)
-	// But this idea was dropped in favor of being able to combine and utilize multiple forensic_holders at once
+// If you want to store multiple groups of the same type, use multiple forensic_holders
 /datum/forensic_group
 	var/category = FORENSIC_GROUP_NONE // An identifier for the group type. Must be unique for each group.
 	var/group_flags = 0 // Flags associated with the whole group. If EVIDENCE_REMOVABLE_CLEANING is true,
@@ -30,6 +22,8 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		return
 	proc/matching_flags(var/flags_A, var/flags_B)
 		return (flags_A & !IS_JUNK) == (flags_B & !IS_JUNK)
+
+
 
 /datum/forensic_group/notes
 	category = FORENSIC_GROUP_NOTE
@@ -115,16 +109,23 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	category = FORENSIC_GROUP_DAMAGE
 	group_flags = REMOVABLE_ALL
 	group_accuracy = 1
-	// Trace evidence: ???
 
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		for(var/i=1, i<= src.evidence_list.len; i++)
 			if(src.evidence_list[i].should_remove(removal_flags))
-				ADD_FLAG(src.evidence_list[i].flags, IS_TRACE) // Mark as trace instead of outright removing for now
+				ADD_FLAG(src.evidence_list[i].flags, IS_TRACE) // Mark as trace instead of outright removing. No effect for now.
 	get_header()
 		return HEADER_DAMAGE
 
-/datum/forensic_group/basic_list/sleuth_color
+/datum/forensic_group/basic_list/pollen // Evidence left behind by plants/fungi
+	category = FORENSIC_GROUP_POLLEN
+	group_flags = REMOVABLE_CLEANING
+	group_accuracy = 0.75
+
+	get_header()
+		return "Propagules"
+
+/datum/forensic_group/basic_list/sleuth_color // Used by Pugs for sleuthing
 	category = FORENSIC_GROUP_SLEUTH_COLOR
 	group_flags = REMOVABLE_CLEANING
 
@@ -359,7 +360,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 				return TRUE
 		return FALSE
 
-	proc/conatins_blood_specific(var/datum/forensic_id/blood_id, var/include_trace = FALSE)
+	proc/conatins_blood_specific(var/datum/forensic_id/blood_id, var/include_trace = FALSE) // Looks for a specific blood DNA id
 		if(!blood_id)
 			return FALSE
 		for(var/i=1; i<= src.dna_list.len; i++)

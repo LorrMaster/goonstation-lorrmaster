@@ -16,15 +16,16 @@
 #define FIELDNUM_PRONOUNS 4
 #define FIELDNUM_AGE 5
 #define FIELDNUM_RANK 6
-#define FIELDNUM_PRINT 7
-#define FIELDNUM_PHOTO 8
-#define FIELDNUM_CRIMSTAT 9
-#define FIELDNUM_SECFLAG 10
-#define FIELDNUM_MINCRIM 11
-#define FIELDNUM_MINDET 12
-#define FIELDNUM_MAJCRIM 13
-#define FIELDNUM_MAJDET 14
-#define FIELDNUM_NOTES 15
+#define FIELDNUM_PRINT_R 7
+#define FIELDNUM_PRINT_L 8
+#define FIELDNUM_PHOTO 9
+#define FIELDNUM_CRIMSTAT 10
+#define FIELDNUM_SECFLAG 11
+#define FIELDNUM_MINCRIM 12
+#define FIELDNUM_MINDET 13
+#define FIELDNUM_MAJCRIM 14
+#define FIELDNUM_MAJDET 15
+#define FIELDNUM_NOTES 16
 
 #define FIELDNUM_DELETE "d"
 #define FIELDNUM_NEWREC "new"
@@ -309,7 +310,7 @@
 
 				src.field_input = field_number
 				switch(field_number)
-					if (FIELDNUM_NAME, FIELDNUM_FULLNAME, FIELDNUM_AGE, FIELDNUM_RANK, FIELDNUM_PRINT, FIELDNUM_MINCRIM, FIELDNUM_MINDET, FIELDNUM_MAJCRIM, FIELDNUM_MAJDET, FIELDNUM_NOTES)
+					if (FIELDNUM_NAME, FIELDNUM_FULLNAME, FIELDNUM_AGE, FIELDNUM_RANK, FIELDNUM_PRINT_R, FIELDNUM_PRINT_L, FIELDNUM_MINCRIM, FIELDNUM_MINDET, FIELDNUM_MAJCRIM, FIELDNUM_MAJDET, FIELDNUM_NOTES)
 						src.print_text("Please enter new value.")
 						src.menu = MENU_FIELD_INPUT
 						return
@@ -407,9 +408,15 @@
 						else
 							return
 
-					if (FIELDNUM_PRINT)
+					if (FIELDNUM_PRINT_R)
 						if (ckey(inputText))
 							src.active_general["fingerprint"] = copytext(inputText, 1, 35)
+						else
+							return
+
+					if (FIELDNUM_PRINT_L)
+						if (ckey(inputText))
+							src.active_general["fingerprint_L"] = copytext(inputText, 1, 35)
 						else
 							return
 
@@ -605,7 +612,7 @@
 
 				var/list/datum/db_record/results = list()
 				for(var/datum/db_record/R as anything in data_core.general.records)
-					var/haystack = jointext(list(ckey(R["name"]), ckey(R["dna"]), ckey(R["id"]), ckey(R["fingerprint"]), ckey(R["rank"])), " ")
+					var/haystack = jointext(list(ckey(R["name"]), ckey(R["dna"]), ckey(R["id"]), ckey(R["fingerprint"]), ckey(R["fingerprint_L"]), ckey(R["rank"])), " ")
 					var/datum/db_record/haystack_secure_addition = data_core.security.find_record("id", R["id"])
 					if(istype(haystack_secure_addition, /datum/db_record))
 						haystack = jointext(list(haystack, ckey(haystack_secure_addition["criminal"])), " ")
@@ -743,22 +750,22 @@
 			<br>\[05]<b>Age:</b> [src.active_general["age"]]
 			<br>\[06]<b>Rank:</b> [src.active_general["rank"]]
 			<br>\[07]<b>Fingerprint (Right):</b> [src.active_general["fingerprint"]]
-			<br>\[07]<b>Fingerprint (Left):</b> [src.active_general["fingerprint_L"]]
+			<br>\[08]<b>Fingerprint (Left):</b> [src.active_general["fingerprint_L"]]
 			<br>\[__]<b>DNA:</b> [src.active_general["dna"]]
-			<br>\[08]Photo: [istype(src.active_general["file_photo"], /datum/computer/file/image) ? "On File" : "None"]
+			<br>\[09]Photo: [istype(src.active_general["file_photo"], /datum/computer/file/image) ? "On File" : "None"]
 			<br>\[__]Physical Status: [src.active_general["p_stat"]]
 			<br>\[__]Mental Status: [src.active_general["m_stat"]]"}
 
 			if ((istype(src.active_secure, /datum/db_record) && data_core.security.has_record(src.active_secure)))
 				view_string +={"
 				<br><center><b>Security Data</b></center>
-				<br>\[09]<b>Criminal Status:</b> [src.active_secure["criminal"]]
-				<br>\[10]<b>SecHUD Flag:</b> [src.active_secure["sec_flag"]]
-				<br>\[11]<b>Minor Crimes:</b> [src.active_secure["mi_crim"]]
-				<br>\[12]<b>Details:</b> [src.active_secure["mi_crim_d"]]
-				<br>\[13]<b><br>Major Crimes:</b> [src.active_secure["ma_crim"]]
-				<br>\[14]<b>Details:</b> [src.active_secure["ma_crim_d"]]
-				<br>\[15]<b>Important Notes:</b> [src.active_secure["notes"]]"}
+				<br>\[10]<b>Criminal Status:</b> [src.active_secure["criminal"]]
+				<br>\[11]<b>SecHUD Flag:</b> [src.active_secure["sec_flag"]]
+				<br>\[12]<b>Minor Crimes:</b> [src.active_secure["mi_crim"]]
+				<br>\[13]<b>Details:</b> [src.active_secure["mi_crim_d"]]
+				<br>\[14]<b><br>Major Crimes:</b> [src.active_secure["ma_crim"]]
+				<br>\[15]<b>Details:</b> [src.active_secure["ma_crim_d"]]
+				<br>\[16]<b>Important Notes:</b> [src.active_secure["notes"]]"}
 			else
 				view_string += "<br><br><b>Security Record Lost!</b>"
 				view_string += "<br>\[[FIELDNUM_NEWREC]] Create New Security Record.<br>"
@@ -906,7 +913,7 @@
 					printRecord.fields += "Age: [src.active_general["age"]]"
 					printRecord.fields += "Rank: [src.active_general["rank"]]"
 					printRecord.fields += "Fingerprint (Right): [src.active_general["fingerprint"]]"
-					printRecord.fields += "Fingerprint (Left): [src.active_general["fingerprint"]]"
+					printRecord.fields += "Fingerprint (Left): [src.active_general["fingerprint_L"]]"
 					printRecord.fields += "DNA: [src.active_general["dna"]]"
 					printRecord.fields += "Photo: [istype(src.active_general["file_photo"], /datum/computer/file/image) ? "On File" : "None"]"
 					printRecord.fields += "Physical Status: [src.active_general["p_stat"]]"
@@ -1039,7 +1046,8 @@
 #undef FIELDNUM_PRONOUNS
 #undef FIELDNUM_AGE
 #undef FIELDNUM_RANK
-#undef FIELDNUM_PRINT
+#undef FIELDNUM_PRINT_R
+#undef FIELDNUM_PRINT_L
 #undef FIELDNUM_CRIMSTAT
 #undef FIELDNUM_SECFLAG
 #undef FIELDNUM_MINCRIM

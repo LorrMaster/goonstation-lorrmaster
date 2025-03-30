@@ -44,10 +44,6 @@
 			qdel(src)
 			//return ..()
 
-	track_blood()
-		src.tracked_blood = null
-		return
-
 ////////////
 // OTHERS //
 ////////////

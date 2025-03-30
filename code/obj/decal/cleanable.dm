@@ -30,7 +30,7 @@ proc/make_cleanable(var/type,var/loc)
 
 	var/last_dry_start = 0
 	var/dry_time = 100
-	var/leave_footprints = FALSE
+	var/leave_footprints = FALSE // Leave a forensic footprint when walked on normally (excluding leaving tracks due to bloody shoes, etc)
 
 	flags = NOSPLASH
 	layer = DECAL_LAYER
@@ -77,7 +77,6 @@ proc/make_cleanable(var/type,var/loc)
 	disposing()
 		if (can_dry)
 			processing_items.Remove(src)
-
 		var/area/Ar = get_area(src)
 		if (Ar)
 			Ar.sims_score = min(Ar.sims_score + 6, 100)
@@ -279,7 +278,6 @@ proc/make_cleanable(var/type,var/loc)
 	sample_reagent = "blood"
 	can_dry = 1
 	stain = /datum/stain/blood
-	var/can_track = 1
 	var/reagents_max = 10
 
 	New()
@@ -340,7 +338,7 @@ proc/make_cleanable(var/type,var/loc)
 		..()
 		if (!istype(AM))
 			return
-		if(src.dry != FRESH_BLOOD || src.reagents.total_volume < 5 || !src.can_track)
+		if(src.dry != FRESH_BLOOD || src.reagents.total_volume < 5 || src.leave_footprints == FALSE || HAS_ATOM_PROPERTY(src, PROP_ATOM_FLOATING))
 			return
 
 		if (ishuman(AM))
@@ -368,8 +366,6 @@ proc/make_cleanable(var/type,var/loc)
 		else if (isliving(AM))// || isobj(AM))
 			var/datum/bioHolder/bio = src.reagents.get_blood_bioholder()
 			AM.apply_blood(bio, src.get_blood_color())
-			if (!AM.anchored)
-				src.add_tracked_blood(AM)
 
 	Dry(var/time = rand(300,600))
 		if (!src.can_dry || src.dry == DRY_BLOOD)
@@ -397,12 +393,6 @@ proc/make_cleanable(var/type,var/loc)
 			var/datum/reagent/R = reagents_cache[src.sample_reagent]
 			return rgb(R.fluid_r, R.fluid_g, R.fluid_b)
 		return src.color
-
-	proc/add_tracked_blood(atom/movable/AM as mob|obj)
-		AM.tracked_blood = list("bDNA" = src.blood_DNA, "btype" = src.blood_type, "color" = src.get_blood_color(), "count" = rand(2,6), "sample_reagent" = src.sample_reagent)
-		if (ismob(AM))
-			var/mob/M = AM
-			M.set_clothing_icon_dirty()
 
 	disposing()
 		var/obj/decal/bloodtrace/B = locate() in src.loc
@@ -495,15 +485,10 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 			processing_items.Remove(src)
 			return
 
-	proc/add_volume(var/add_color, var/reagent_id = "blood", var/amount = 1, var/vis_amount = 1, var/list/bdata = null, var/i_state = null, var/direction = null, var/do_fluid_react = 1, blood_reagent_data=null)
-	// add_color passes the blood's color to the overlays
-	// vis_amount should only be 1-5 if you want anything to happen
+	proc/add_volume(var/add_color, var/reagent_id = "blood", var/amount = 1, var/vis_amount = 1, var/i_state = null, var/direction = null, var/do_fluid_react = 1, blood_reagent_data=null)
+		// add_color passes the blood's color to the overlays/ vis_amount should only be 1-5 if you want anything to happen
 		if(src.disposed)
 			return
-		if (istype(bdata))
-			src.blood_DNA = bdata["bDNA"]
-			src.blood_type = bdata["btype"]
-
 		src.reagents.add_reagent(reagent_id, amount, blood_reagent_data)
 
 		/*if (istext(amount))
@@ -549,7 +534,6 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 			if (prob(vis_amount*10))
 				I.apply_blood(bio, src.get_blood_color())
 			if(counter++>25)break
-
 		var/turf/simulated/floor/T = src.loc
 		if (istype(T) && do_fluid_react)
 			if (T.cleanable_fluid_react(src))
@@ -558,14 +542,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 /obj/decal/cleanable/blood/dynamic/tracks
 	//name = "bloody footprints"
 	desc = "Someone walked through some blood and got it everywhere, jeez!"
-	can_track = 0
 	leave_footprints = FALSE
-
-	add_volume(var/add_color, var/reagent_id = "blood", var/amount = 1, var/vis_amount = 1, var/list/bdata = null, var/i_state = null, var/direction = null, var/e_tracking = 1, var/do_fluid_react = 1, blood_reagent_data=null)
-		// e_tracking will be set to 0 by the track_blood() proc atoms run when moving, so anything that doesn't set it to 0 is a regular sort of bleed and should re-enable tracking
-		if (e_tracking)
-			src.can_track = 1
-		..()
 
 /obj/decal/cleanable/blood/drip
 	New()
@@ -578,6 +555,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 
 /obj/decal/cleanable/blood/drip/med
 	random_icon_states = list("drip2a", "drip2b", "drip2c", "drip2d", "drip2e", "drip2f")
+	leave_footprints = FALSE
 
 /obj/decal/cleanable/blood/drip/high
 	random_icon_states = list("drip3a", "drip3b", "drip3c", "drip3d", "drip3e", "drip3f")
@@ -1194,6 +1172,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	can_sample = 1
 	sample_reagent = "space_fungus"
 	sample_verb = "scrape"
+	var/static/datum/forensic_id/spore_id = new("Spores: space fungus")
 
 	New()
 		if (prob(5))
@@ -1219,11 +1198,23 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 				SPAN_NOTICE("You [src.sample_verb] some of [src] into [W]."))
 				W.reagents.handle_reactions()
 				playsound(src.loc, 'sound/items/Screwdriver.ogg', 50, 1)
+				var/datum/forensic_data/basic/f_data = new(src.spore_id, flags = REMOVABLE_CLEANING)
+				if(ishuman(user))
+					var/mob/living/carbon/human/H = user
+					H.apply_evidence_clothing(f_data, FORENSIC_GROUP_POLLEN, include_body = FALSE)
+				else
+					user.add_evidence(f_data, FORENSIC_GROUP_POLLEN)
 				src.amount--
 				if (src.amount <= 0)
 					qdel(src)
 				src.UpdateIcon()
 				return 1
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		var/datum/forensic_data/basic/f_data = new(src.spore_id)
+		scan_builder.add_data(f_data)
+
 
 
 /obj/decal/cleanable/martian_viscera

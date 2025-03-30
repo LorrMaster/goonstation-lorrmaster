@@ -3403,3 +3403,12 @@
 	if (src.bioHolder?.mobAppearance)
 		return src.bioHolder.mobAppearance.s_tone
 	return "#042069"
+
+/mob/clean_forensic()
+	src.handcuffs?.clean_forensic()
+	src.r_hand?.clean_forensic()
+	src.l_hand?.clean_forensic()
+	src.back?.clean_forensic()
+	src.ears?.clean_forensic()
+	src.wear_mask?.clean_forensic()
+	..()

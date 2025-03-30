@@ -14,17 +14,11 @@ TODO:
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction
- - Blood DNA issues
+ - Blood time issues
  - Vending machine counter not working
- - Fix SecMate data editing
  - Fix using fingerprinter on humans
- 	- Better fingerprinter scanning?
  - Print reports for DetGadget hat?
- - Forensic scanner scan counter needs the limit actually placed
  - Check if blood reagent adds evidence when poured on things
- - Fix "No evidence detected" messages
- - Fix header ordering
- - DEATH DELETING EVIDENCE?
 
 Lower Priority
  - Forensic_holder starts as null?
@@ -86,31 +80,23 @@ Lower Priority
 #define FORENSIC_GROUP_SLEUTH_COLOR 12 // Pug sleuthing
 #define FORENSIC_GROUP_PROJ_HIT 13
 #define FORENSIC_GROUP_DAMAGE 14 // Anything that can be categorized under injuries, data corruption, or breakages
+#define FORENSIC_GROUP_POLLEN 15 // Pollen, spores
 
 /proc/forensic_group_create(var/category) // Create a new group from its unique variable
 	// Is there a better way to do this? IDK
 	var/datum/forensic_group/G
 	switch(category)
-		if(FORENSIC_GROUP_NOTE)
-			G = new/datum/forensic_group/notes
-		if(FORENSIC_GROUP_FINGERPRINT)
-			G = new/datum/forensic_group/fingerprints
-		if(FORENSIC_GROUP_DNA)
-			G = new/datum/forensic_group/dna
-		if(FORENSIC_GROUP_SCAN)
-			G = new/datum/forensic_group/basic_list/scanner
-		if(FORENSIC_GROUP_TRACKS)
-			G = new/datum/forensic_group/multi_list/footprints
-		if(FORENSIC_GROUP_RETINA)
-			G = new/datum/forensic_group/multi_list/retinas
-		if(FORENSIC_GROUP_HEALTH_FLOOR)
-			G = new/datum/forensic_group/multi_list/log_health_floor
-		if(FORENSIC_GROUP_HEALTH_ANALYZER)
-			G = new/datum/forensic_group/multi_list/log_health_analyzer
-		if(FORENSIC_GROUP_SLEUTH_COLOR)
-			G = new/datum/forensic_group/basic_list/sleuth_color
-		if(FORENSIC_GROUP_DAMAGE)
-			G = new/datum/forensic_group/basic_list/damage
+		if(FORENSIC_GROUP_NOTE) G = new/datum/forensic_group/notes
+		if(FORENSIC_GROUP_FINGERPRINT) G = new/datum/forensic_group/fingerprints
+		if(FORENSIC_GROUP_DNA) G = new/datum/forensic_group/dna
+		if(FORENSIC_GROUP_SCAN) G = new/datum/forensic_group/basic_list/scanner
+		if(FORENSIC_GROUP_TRACKS) G = new/datum/forensic_group/multi_list/footprints
+		if(FORENSIC_GROUP_RETINA) G = new/datum/forensic_group/multi_list/retinas
+		if(FORENSIC_GROUP_HEALTH_FLOOR) G = new/datum/forensic_group/multi_list/log_health_floor
+		if(FORENSIC_GROUP_HEALTH_ANALYZER) G = new/datum/forensic_group/multi_list/log_health_analyzer
+		if(FORENSIC_GROUP_SLEUTH_COLOR) G = new/datum/forensic_group/basic_list/sleuth_color
+		if(FORENSIC_GROUP_DAMAGE) G = new/datum/forensic_group/basic_list/damage
+		if(FORENSIC_GROUP_POLLEN) G = new/datum/forensic_group/basic_list/pollen
 	return G
 
 #define IS_HIDDEN (1 << 1) // Only admins can see this evidence
@@ -124,6 +110,7 @@ Lower Priority
 #define REMOVABLE_HEAL_BURN (1 << 9)
 #define REMOVABLE_HEAL_TOXIN (1 << 10)
 #define REMOVABLE_HEAL_OXYGEN (1 << 11)
+// #define REMOVABLE_TIME (1 << 12) // Does this evidence only last for a limited amount of time?
 // #define REMOVABLE_HEAL_HOLD (1 << 12)
 #define REMOVABLE_HEAL REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_BURN | REMOVABLE_HEAL_TOXIN | REMOVABLE_HEAL_OXYGEN
 #define REMOVABLE_ALL REMOVABLE_CLEANING | REMOVABLE_DATA | REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE | REMOVABLE_HEAL_BURN | REMOVABLE_HEAL_TOXIN | REMOVABLE_HEAL_OXYGEN

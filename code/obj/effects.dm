@@ -13,10 +13,6 @@ would spawn and follow the beaker, even if it is carried or thrown.
 	pass_unstable = FALSE
 	desc = null
 
-	track_blood()
-		src.tracked_blood = null
-		return
-
 	attackby()
 	attack_hand()
 	hitby()

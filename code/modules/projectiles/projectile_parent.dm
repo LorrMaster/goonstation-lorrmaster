@@ -293,12 +293,10 @@
 		// Tasers leave behind no evidence
 		if(src.proj_data.ie_type == "K") // Kinetic
 			var/datum/forensic_data/basic/k_data = new(lead_kinetic, flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE)
-			A.add_evidence(k_data)
-			return
-		if(src.proj_data.ie_type == "E") // Energy
+			A.add_evidence(k_data, FORENSIC_GROUP_DAMAGE)
+		else if(src.proj_data.ie_type == "E") // Energy
 			var/datum/forensic_data/basic/e_data = new(lead_energy, flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BURN)
-			A.add_evidence(e_data)
-			return
+			A.add_evidence(e_data, FORENSIC_GROUP_DAMAGE)
 
 	proc/die()
 		has_died = TRUE
@@ -561,10 +559,6 @@
 				pixel_y += 32 * -(loc.y - curr_turf.y)
 
 			animate(src,pixel_x = wx-pixel_dx, pixel_y = wy-pixel_dy, time = 1 DECI SECOND, flags = ANIMATION_END_NOW) //todo figure out later
-
-	track_blood()
-		src.tracked_blood = null
-		return
 
 	temperature_expose(datum/gas_mixture/air, exposed_temperature, exposed_volume, cannot_be_cooled = FALSE)
 		return

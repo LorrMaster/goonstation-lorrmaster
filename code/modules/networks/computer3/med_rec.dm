@@ -15,22 +15,23 @@
 #define FIELDNUM_SEX 3
 #define FIELDNUM_PRONOUNS 4
 #define FIELDNUM_AGE 5
-#define FIELDNUM_PRINT 6
-#define FIELDNUM_DNA 7
-#define FIELDNUM_PSTAT 8
-#define FIELDNUM_MSTAT 9
-#define FIELDNUM_BLOODTYPE 10
-#define FIELDNUM_MINDIS 11
-#define FIELDNUM_MINDET 12
-#define FIELDNUM_MAJDIS 13
-#define FIELDNUM_MAJDET 14
-#define FIELDNUM_ALLERGY 15
-#define FIELDNUM_ALGDET 16
-#define FIELDNUM_DISEASE 17
-#define FIELDNUM_DISDET 18
-#define FIELDNUM_CLDEF 19
-#define FIELDNUM_CLDET 20
-#define FIELDNUM_NOTES  21
+#define FIELDNUM_PRINT_R 6
+#define FIELDNUM_PRINT_L 7
+#define FIELDNUM_DNA 8
+#define FIELDNUM_PSTAT 9
+#define FIELDNUM_MSTAT 10
+#define FIELDNUM_BLOODTYPE 11
+#define FIELDNUM_MINDIS 12
+#define FIELDNUM_MINDET 13
+#define FIELDNUM_MAJDIS 14
+#define FIELDNUM_MAJDET 15
+#define FIELDNUM_ALLERGY 16
+#define FIELDNUM_ALGDET 17
+#define FIELDNUM_DISEASE 18
+#define FIELDNUM_DISDET 19
+#define FIELDNUM_CLDEF 20
+#define FIELDNUM_CLDET 21
+#define FIELDNUM_NOTES  22
 
 #define FIELDNUM_DELETE "d"
 #define FIELDNUM_NEWREC 99
@@ -159,7 +160,8 @@
 							<br><br>Pronouns: [src.active_general["pronouns"]]
 							<br><br>Age: [src.active_general["age"]]
 							<br><br>Rank: [src.active_general["rank"]]
-							<br><br>Fingerprint: [src.active_general["fingerprint"]]
+							<br><br>Fingerprint (Right): [src.active_general["fingerprint"]]
+							<br><br>Fingerprint (Left): [src.active_general["fingerprint_L"]]
 							<br><br>DNA: [src.active_general["dna"]]
 							<br><br>Photo: [istype(src.active_general["file_photo"], /datum/computer/file/image) ? "On File" : "None"]
 							<br><br>Physical Status: [src.active_general["p_stat"]]
@@ -326,9 +328,14 @@
 						else
 							return
 
-					if (FIELDNUM_PRINT)
+					if (FIELDNUM_PRINT_R)
 						if (ckey(inputText))
 							src.active_general["fingerprint"] = copytext(inputText, 1, 33)
+						else
+							return
+					if (FIELDNUM_PRINT_L)
+						if (ckey(inputText))
+							src.active_general["fingerprint_L"] = copytext(inputText, 1, 33)
 						else
 							return
 
@@ -739,11 +746,12 @@
 			<br>\[04]<b>Pronouns:</b> [src.active_general["pronouns"]]
 			<br>\[05]<b>Age:</b> [src.active_general["age"]]
 			<br>\[__]<b>Rank:</b> [src.active_general["rank"]]
-			<br>\[06]<b>Fingerprint:</b> [src.active_general["fingerprint"]]
-			<br>\[07]<b>DNA:</b> [src.active_general["dna"]]
+			<br>\[06]<b>Fingerprint (Right):</b> [src.active_general["fingerprint"]]
+			<br>\[07]<b>Fingerprint (Left):</b> [src.active_general["fingerprint_L"]]
+			<br>\[08]<b>DNA:</b> [src.active_general["dna"]]
 			<br>\[__]Photo: [istype(src.active_general["file_photo"], /datum/computer/file/image) ? "On File" : "None"]
-			<br>\[08]Physical Status: [src.active_general["p_stat"]]
-			<br>\[09]Mental Status: [src.active_general["m_stat"]]"}
+			<br>\[09]Physical Status: [src.active_general["p_stat"]]
+			<br>\[10]Mental Status: [src.active_general["m_stat"]]"}
 
 			if ((istype(src.active_medical, /datum/db_record) && data_core.medical.has_record(src.active_medical)))
 				view_string += {"<br><center><b>Medical Data:</b></center>
@@ -806,7 +814,8 @@
 #undef FIELDNUM_SEX
 #undef FIELDNUM_PRONOUNS
 #undef FIELDNUM_AGE
-#undef FIELDNUM_PRINT
+#undef FIELDNUM_PRINT_R
+#undef FIELDNUM_PRINT_L
 #undef FIELDNUM_DNA
 #undef FIELDNUM_PSTAT
 #undef FIELDNUM_MSTAT

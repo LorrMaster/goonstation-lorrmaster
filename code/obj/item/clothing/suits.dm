@@ -20,6 +20,7 @@ ABSTRACT_TYPE(/obj/item/clothing/suit)
 	var/coat_style = null
 	/// Used for hoodies (and anything that uses the toggle_hood component)
 	var/hooded = FALSE
+	var/datum/track_spreader/track_spreader = null
 
 
 	setupProperties()
@@ -41,6 +42,14 @@ ABSTRACT_TYPE(/obj/item/clothing/suit)
 	unequipped(mob/user)
 		. = ..()
 		src.wear_layer = initial(src.wear_layer)
+
+	apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
+		..()
+		src.track_spreader = new(5, blood_color, source?.dna_signature, "smear2")
+
+	clean_forensic()
+		..()
+		src.track_spreader = null
 
 	/// if this item has a hood, returns if the hood can be worn
 	proc/can_wear_hood()

@@ -94,7 +94,7 @@
 
 	apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 		..()
-		src.track_spreader = new(5, blood_color, source?.dna_signature)
+		src.track_spreader = new(5, blood_color, source?.dna_signature, "footprints1")
 
 	clean_forensic()
 		..()

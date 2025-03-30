@@ -158,9 +158,19 @@ ABSTRACT_TYPE(/obj/item/clothing)
 
 ABSTRACT_TYPE(/obj/item/clothing/under)
 /obj/item/clothing/under
+	var/datum/track_spreader/track_spreader = null
+
 	equipped(var/mob/user, var/slot)
 		..()
 		playsound(src.loc, 'sound/items/zipper.ogg', 30, 0.2, pitch = 2)
+
+	apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
+		..()
+		src.track_spreader = new(5, blood_color, source?.dna_signature, "smear1")
+
+	clean_forensic()
+		..()
+		src.track_spreader = null
 
 /*
 /obj/item/clothing/fire_burn(obj/fire/raging_fire, datum/air_group/environment)

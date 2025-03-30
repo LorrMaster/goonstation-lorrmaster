@@ -235,7 +235,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 				return
 			if(!ON_COOLDOWN(src, "print", 2 SECOND))
 				playsound(src, 'sound/machines/printer_thermal.ogg', 50, TRUE)
-				SPAWN(1 SECONDS)
+				SPAWN(0.25 SECONDS)
 					var/obj/item/paper/P = new /obj/item/paper
 					usr.put_in_hand_or_drop(P)
 					var/index = scan_number % src.max_scans // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
@@ -303,29 +303,20 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		*/
 	proc/scan(atom/A, mob/user)
 		playsound(src.loc , 'sound/machines/found.ogg', 30, 0, pitch = 1.5)
-		var/visible = TRUE
+		var/screen_delay = 0
 		var/scan_emagged = FALSE
-		change_screen("scanning")
+		var/visible = TRUE
 		if(ishuman(A) && user != A)
 			var/mob/living/carbon/human/H = A
 			if(isalive(H))
-				// Humans need to stand still for a scan
 				visible = FALSE
-				user.visible_message(SPAN_ALERT("<b>[user]</b> is attempting a forensics scan on [A]..."))
-				for(var/i=0; i<=5; i++)
-					animate_scanning(A, "#c6df56", time = 5)
-					sleep(0.5 SECONDS)
-					if (BOUNDS_DIST(A, user) > 0)
-						user.visible_message(SPAN_ALERT("Scan of [A] failed."))
-						playsound(src.loc , 'sound/machines/buzz-sigh.ogg', 10, 0, pitch = 1.5)
-						change_screen("cancel")
-						sleep(2.5 SECONDS)
-						change_screen("standby")
-						return
-				playsound(src.loc , 'sound/machines/ping.ogg', 10, 0, pitch = 1.5)
+				scan_human(H, user) // Humans need to stand still for a scan
 		else if(istype(A, /obj/item/card/emag))
 			var/obj/item/card/emag/E = A
 			scan_emagged = E.emag_target(src, user) // Scanning an EMAG isn't a good idea.
+		else
+			change_screen("scanning")
+			screen_delay = 1 SECOND
 		user.visible_message("<b>[user]</b> has scanned [A].")
 		if(!A.forensic_holder)
 			change_screen("standby")
@@ -334,14 +325,32 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		if(!last_scan)
 			change_screen("standby")
 			return
+		if(src.scan_history.len >= src.max_scans)
+			src.scan_history.Cut(1, 2)
 		src.scan_history += last_scan
-		var/scan_report = last_scan.build_report(TRUE) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
-		scan_report = "---- <a href='?src=\ref[src];print=[src.scan_history.len];'>PRINT FULL REPORT</a> ----" + scan_report
+		var/print_hyperlink = ": -<a href='?src=\ref[src];print=[src.scan_history.len];'>PRINT FULL REPORT</a> -"
+		var/scan_report = last_scan.build_report(TRUE, print_hyperlink) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		boutput(user, scan_report)
 		if(!scan_emagged)
-			sleep(1 SECONDS)
+			sleep(screen_delay)
 			change_screen("standby")
 		return
+
+	proc/scan_human(mob/living/carbon/human/H, mob/user)
+		change_screen("scan_human")
+		user.visible_message(SPAN_ALERT("<b>[user]</b> is attempting a forensics scan on [H]..."))
+		for(var/i=1; i<=5; i++)
+			animate_scanning(H, "#c6df56", time = 5)
+			sleep(1 SECONDS)
+			if (BOUNDS_DIST(H, user) > 0)
+				user.visible_message(SPAN_ALERT("Scan of [H] failed."))
+				playsound(src.loc , 'sound/machines/buzz-sigh.ogg', 10, 0, pitch = 1.5)
+				change_screen("cancel")
+				sleep(2.5 SECONDS)
+				change_screen("standby")
+				return
+		playsound(src.loc , 'sound/machines/ping.ogg', 10, 0, pitch = 1.5)
+
 	proc/change_screen(var/screen_state)
 		src.screen.icon_state = screen_state + src.screen_type
 		src.UpdateOverlays(src.screen, "screen")
@@ -544,19 +553,22 @@ TYPEINFO(/obj/item/device/analyzer/healthanalyzer)
 
 		// Apply scanner evidence to the target and each of their limbs/organs
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
-		target.add_evidence(f_data.get_copy(), FORENSIC_GROUP_SCAN)
 		if(isliving(target))
 			var/mob/living/L = target
 			if(ishuman(L))
 				var/mob/living/carbon/human/H = L
 				H.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN)
-			else if(L.organHolder)
-				L.organHolder.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN, ignore_robo = TRUE)
+				// H.apply_evidence_clothing(f_data, FORENSIC_GROUP_SCAN, include_body = FALSE)
+			else
+				L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN, ignore_robo = TRUE)
+				L.add_evidence(f_data.get_copy(), FORENSIC_GROUP_SCAN)
 			if(L.bioHolder)
 				var/datum/forensic_data/multi/s_data = L.get_retina_scan()
 				s_data.evidence_C = L.bioHolder.dna_signature
 				s_data.display = s_data.disp_pair_double
 				src.add_evidence(s_data, FORENSIC_GROUP_HEALTH_ANALYZER)
+		else
+			target.add_evidence(f_data.get_copy(), FORENSIC_GROUP_SCAN)
 
 		if (isdead(target))
 			user.unlock_medal("He's dead, Jim", 1)
@@ -660,8 +672,18 @@ TYPEINFO(/obj/item/device/reagentscanner)
 
 		user.visible_message(SPAN_NOTICE("<b>[user]</b> scans [A] with [src]!"),\
 		SPAN_NOTICE("You scan [A] with [src]!"))
+
 		var/datum/forensic_data/basic/f_data = new(src.forensic_lead, flags = REMOVABLE_CLEANING)
-		A.add_evidence(f_data, FORENSIC_GROUP_SCAN)
+		if(isliving(A))
+			var/mob/living/L = A
+			if(ishuman(L))
+				var/mob/living/carbon/human/H = L
+				H.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN)
+			else
+				L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_SCAN)
+				L.add_evidence(f_data.get_copy(), FORENSIC_GROUP_SCAN)
+		else
+			A.add_evidence(f_data.get_copy(), FORENSIC_GROUP_SCAN)
 
 		src.scan_results = scan_reagents(A, visible = TRUE)
 		tooltip_rebuild = TRUE

@@ -52,10 +52,6 @@
 			qdel(src)
 			//return ..()
 
-	track_blood()
-		src.tracked_blood = null
-		return
-
 /obj/fakeobject/skeleton
 	name = "skeleton"
 	desc = "The remains of a human."
