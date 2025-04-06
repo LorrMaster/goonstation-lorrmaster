@@ -545,22 +545,6 @@
 		return
 	if(visible)
 		animate_scanning(A, "#c6df56", time = 10)
-	var/accuracy = -1
-	if(ishuman(user))
-		// Calculate this person's scan accuracy
-		var/mob/living/carbon/human/H = user
-		if(H.traitHolder.hasTrait("training_forensic"))
-			accuracy = 1
-		if(accuracy > 0)
-			accuracy *= scanner_accuracy
-			if(istype(H.head, /obj/item/clothing/head/det_hat))
-				accuracy *= 0.9
-			else if(istype(H.glasses, /obj/item/clothing/glasses/scuttlebot_vr))
-				accuracy *= 0.9
-			else if(istype(H.head, /obj/item/clothing/head/deerstalker))
-				accuracy *= 0.9
-			if(ispug(H))
-				accuracy *= 0.9
 	if(isturf(A))
 		var/turf/T = A
 		if(T.active_liquid)
@@ -568,9 +552,21 @@
 
 	// Now perform the actual scan
 	if(A.forensic_holder.suppress_scans || A.reagents?.get_reagent_amount("cloak_juice") >= 5)
-		boutput(user, "Overwhelming interference coming from \The [A] nullifys the scan!") // Note: Need to exclude admin scans -LorrMaster
+		boutput(user, "Overwhelming interference coming from \The [A] nullifys the scan!") // Note: move this to on_forensic_holder. Also ignore admin scans. -LorrMaster
 		return null
-	var/datum/forensic_scan_builder/scan_builder = new(A, accuracy, FALSE, ignore_text)
+	var/datum/forensic_scan_builder/scan_builder = new(user, A.forensic_holder, -scanner_accuracy, FALSE, ignore_text)
+	if(ishuman(scan_builder.scan_user))
+		var/mob/living/carbon/human/H = user
+		if(H.traitHolder.hasTrait("training_forensic"))
+			scan_builder.base_accuracy = abs(scan_builder.base_accuracy)
+		if(H.traitHolder.hasTrait("training_botany"))
+			scan_builder.analysis_botany = TRUE
+		if(istype(H.head, /obj/item/clothing/head/det_hat) || istype(H.head, /obj/item/clothing/head/deerstalker) || istype(H.glasses, /obj/item/clothing/glasses/scuttlebot_vr))
+			scan_builder.base_accuracy *= 0.95
+		if(ispug(H))
+			scan_builder.base_accuracy *= 0.9
+	scan_builder.accuracy = scan_builder.base_accuracy
+	scan_builder.report_title = "Forensic Analysis of \the [A]"
 	A.on_forensic_scan(scan_builder)
 	scan_builder.collect_data()
 	return scan_builder

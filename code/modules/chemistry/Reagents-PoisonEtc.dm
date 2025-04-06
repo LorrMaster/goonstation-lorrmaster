@@ -278,7 +278,13 @@ datum
 			on_mob_life(var/mob/M, var/mult = 1) // -cogwerks. previous version
 				if (!M) M = holder.my_atom
 				if (!counter) counter = 1
+				var/toxin_prev = M.get_toxin_damage()
 				M.take_toxin_damage(1.5 * mult)
+				if(toxin_prev < FORENSIC_HEAL_THRESHOLD && M.get_toxin_damage() >= FORENSIC_HEAL_THRESHOLD)
+					if(isliving(M))
+						var/mob/living/L = M
+						var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Pulmonary edema"), flags = REMOVABLE_HEAL_TOXIN)
+						L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("left_lung", "right_lung"))
 				if (probmult(8))
 					M.emote("drool")
 				if (prob(15))
@@ -296,10 +302,6 @@ datum
 							boutput(M, SPAN_ALERT("You feel very weak."))
 							M.setStatusMin("stunned", 1 SECONDS * mult)
 							M.take_toxin_damage(1 * mult)
-						if(isliving(M))
-							var/mob/living/L = M
-							var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Pulmonary edema"), flags = REMOVABLE_HEAL_TOXIN)
-							L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("left_lung", "right_lung"))
 					if (45 to INFINITY)
 						if (prob(25))
 							boutput(M, SPAN_ALERT("You feel horribly weak."))

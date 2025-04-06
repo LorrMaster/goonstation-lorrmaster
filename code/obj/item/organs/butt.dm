@@ -159,9 +159,16 @@ TYPEINFO(/obj/item/clothing/head/butt)
 			user.u_equip(src)
 			W.set_loc(B)
 			user.u_equip(W)
-
 		else
 			return ..()
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		if(ishuman(scan_builder.scan_user))
+			var/mob/living/carbon/human/H = scan_builder.scan_user
+			if(H.traitHolder.hasTrait("training_medical"))
+				scan_builder.analysis_medical = TRUE
+		scan_builder.include_abridged(HEADER_DAMAGE)
 
 	proc/on_fart(var/mob/farted_on) // what is wrong with me
 		return
@@ -196,6 +203,10 @@ TYPEINFO(/obj/item/clothing/head/butt/cyberbutt)
 	emp_act()
 		. = ..()
 		donor?.emote("fart", FALSE)
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		scan_builder.analysis_medical = FALSE
 
 // moving this from plants_crop.dm because SERIOUSLY WHY -- cirr
 /obj/item/clothing/head/butt/synth

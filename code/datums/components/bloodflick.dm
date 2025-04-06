@@ -50,14 +50,14 @@ TYPEINFO(/datum/component/bloodflick)
 /// applies wet blood to the knife and starts the blood drying countdown
 /datum/component/bloodflick/proc/wetten()
 	var/obj/item/dummy = src.parent
-	if (!dummy.blood_DNA) // not all attacks leave blood on the parent
+	if (!dummy.is_stained) // not all attacks leave blood on the parent
 		return
 	if (!src.haswet)
 		src.haswet = TRUE
 		src.iswet += 1
 	SPAWN(drytime)
 		// it could get cleaned while it's drying
-		if (!dummy.blood_DNA)
+		if (!dummy.is_stained)
 			src.hasdry = FALSE
 			src.haswet = FALSE
 			src.iswet = 0

@@ -381,14 +381,19 @@
 	touch_modifier = 0.2
 	depletion_rate = 0.2
 
+	reaction_mob(var/mob/M, var/method=TOUCH, var/volume)
+		. = ..()
+		// Does not account for being healed of brain damage at the same time while not being fully cured, but whatever - LorrMaster
+		if(isliving(M))
+			var/mob/living/L = M
+			var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Oxidative damage"), flags = REMOVABLE_REPAIR)
+			L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("brain"))
+		return 1
+
 	on_mob_life(var/mob/M, var/mult = 1)
 		if(!M) M = holder.my_atom
 		if(prob(70))
 			M.take_brain_damage(1*mult)
-			if(isliving(M))
-				var/mob/living/L = M
-				var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Oxidative damage"), flags = REMOVABLE_REPAIR)
-				L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("brain"))
 		if (probmult(5) && isliving(M)) //folk treatment for the black plague- drinking mercury
 			var/mob/living/L = M
 			var/datum/ailment_data/disease/plague = L.find_ailment_by_type(/datum/ailment/disease/space_plague)
@@ -637,13 +642,15 @@
 				M.emote("collapse")
 				//M.changeStatus("unconscious", ((2 * severity)*15) * mult)
 				M.changeStatus("knockdown", ((4 * severity)*1.5 SECONDS) * mult)
-				if(isliving(M))
-					var/mob/living/L = M
-					var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Inflammation"), flags = REMOVABLE_HEAL_TOXIN)
-					L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("liver"))
 
 			if (prob(8))
+				var/toxin_prev = M.get_toxin_damage()
 				M.take_toxin_damage(severity * mult)
+				if(toxin_prev < FORENSIC_HEAL_THRESHOLD && M.get_toxin_damage() >= FORENSIC_HEAL_THRESHOLD)
+					if(isliving(M))
+						var/mob/living/L = M
+						var/datum/forensic_data/basic/f_data = new/datum/forensic_data/basic(register_id("Inflammation"), flags = REMOVABLE_HEAL_TOXIN)
+						L.organHolder?.apply_evidence_organs(f_data, FORENSIC_GROUP_DAMAGE, ignore_robo = TRUE, organs = list("liver"))
 		return
 
 //WHY IS SWEET ***TEA*** A SUBTYPE OF SUGAR?!?!?!?!

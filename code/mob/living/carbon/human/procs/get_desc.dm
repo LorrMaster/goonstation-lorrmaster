@@ -102,7 +102,7 @@
 
 	if (src.shoes && !(src.wear_suit?.hides_from_examine & C_SHOES))
 		. += "<br><span class='[src.shoes.is_stained ? "alert" : "notice"]'>[src.name] has [bicon(src.shoes)] [src.shoes.name] on [t_his] feet.</span>"
-	else if (islist(src.tracked_blood))
+	else if (src.shoes.track_spreader)
 		. += "<br>[SPAN_ALERT("[src.name] has bloody feet!")]"
 
 	if (src.back)

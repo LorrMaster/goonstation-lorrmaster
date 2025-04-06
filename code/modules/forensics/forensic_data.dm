@@ -1,5 +1,6 @@
-estimate_counter
-// Note: multiple forensic_holders should not share forensic_data, each should have their own instance of the evidence
+
+// Note: multiple forensic_holders should not share any forensic_data, each should have their own instance of the evidence
+// Unless if the evidence is supposed to be synced for some reason, I guess
 
 /datum/forensic_data
 	var/category = FORENSIC_GROUP_NONE
@@ -24,12 +25,13 @@ estimate_counter
 	proc/mark_as_junk()
 		flags = flags | IS_JUNK
 	proc/get_copy()
+		RETURN_TYPE(/datum/forensic_data)
 		return null
 
 	proc/get_time_estimate(var/accuracy) // Return a text estimate for when this evidence might have occured
 		if(src.time_start == 0 || accuracy < 0)
 			return "" // Negative accuracy -> do not report a time
-		var/t_end = (TIME - src.time_end) / (1 MINUTES)
+		var/t_end = (TIME - src.time_end) / (1 MINUTE)
 		if(t_end == 0)
 			return SPAN_SUBTLE(" <i>(Current)</i>")
 		else if(accuracy == 0) // perfect accuracy is zero
@@ -45,23 +47,27 @@ estimate_counter
 				return SPAN_SUBTLE(" <i>([low_est] to [high_est] mins ago)</i>")
 
 
-/datum/forensic_data/basic // Evidence that can just be stored as a single ID. Flags not included.
+/datum/forensic_data/basic // Evidence that can just be stored as a single ID + an optional value. Flags not included.
 	var/static/datum/forensic_display/disp_empty = new("@F")
+	var/static/datum/forensic_display/disp_value = new("@F: @V")
 	var/datum/forensic_id/evidence = null
+	var/value = 0 // A value the evidence can use if needed
 	var/datum/forensic_display/display = null
 
-	New(var/datum/forensic_id/id, var/datum/forensic_display/disp = disp_empty, var/flags = 0)
+	New(var/datum/forensic_id/id, var/datum/forensic_display/disp = disp_empty, var/flags = 0, var/value = 0)
 		..()
 		src.evidence = id
 		src.display = disp
 		src.flags = flags
+		src.value = value
 
 	get_text()
 		var/scan_text = replacetext(display.display_text, "@F", evidence.id)
+		scan_text = replacetext(scan_text, "@V", "[value]")
 		return scan_text
 
 	get_copy()
-		var/datum/forensic_data/basic/c_data = new(src.evidence, src.display, src.flags)
+		var/datum/forensic_data/basic/c_data = new(src.evidence, src.display, src.flags, src.value)
 		c_data.category = src.category
 		c_data.accuracy_mult = src.accuracy_mult
 		c_data.time_start = src.time_start
@@ -117,44 +123,6 @@ estimate_counter
 
 	proc/is_same(datum/forensic_data/multi/other)
 		return src.evidence_A == other.evidence_A && src.evidence_B == other.evidence_B && src.evidence_C == other.evidence_C
-
-/*
-/datum/forensic_data/value // Forensic data that holds a value to be incremented
-	// Example: counter for the number of times an item has been used
-	var/datum/forensic_id/label // Both an identifier and a label for this value when displayed
-	var/value = 0
-
-	New(var/datum/forensic_id/label, var/value_init)
-		src.label = label
-		src.value = value_init
-		..()
-
-	get_text()
-		// return estimate_counter(label.id, value, src.accuracy)
-		return "[capitalize(label.id)]: [value]"
-
-	get_copy()
-		var/datum/forensic_data/value/c_data = new(src.label, src.value)
-		return c_data
-
-	proc/is_same(datum/forensic_data/value/other)
-		return src.label == other.label
-
-	proc/estimate_counter(var/text, var/actual, var/accuracy, var/offset)
-		if(actual <= 0)
-			return "[text]: [actual]"
-
-		var/note = null
-		if(accuracy < 0 || accuracy > FORENSIC_BASE_ACCURACY)
-			accuracy = FORENSIC_BASE_ACCURACY
-		var/high_est = round(actual + (actual * accuracy * offset))
-		var/low_est = max(0, round(actual - (actual * accuracy * (1 - offset))))
-		if(high_est == low_est)
-			note = "[text]: [actual]"
-		else
-			note = "[text]: [low_est] to [high_est]"
-		return note
-*/
 
 /datum/forensic_data/text
 	var/forensic_text
@@ -216,8 +184,8 @@ estimate_counter
 		for(var/i=1; i<=length(src.print_mask.id); i++)
 			var/char = copytext(src.print_mask.id, i, i+1)
 			if(is_hex(char))
-				var/index = hex2num(char) + 1
-				index += floor(index / 4)
+				var/index = hex2num(char)
+				index += floor(index / 4) + 1
 				fp += copytext(src.print.id, index, index + 1)
 			else
 				fp += char
@@ -232,7 +200,6 @@ estimate_counter
 		return src.print == other.print && src.glove_print == other.glove_print
 
 /datum/forensic_data/dna // An individual dna sample
-	var/static/datum/forensic_id/dna_unknown = new("unknown")
 	flags = REMOVABLE_CLEANING
 	var/datum/forensic_id/pattern = null
 	var/form = DNA_FORM_NONE // Where did the DNA come from? Use DNA_FORM_NONE if not relevant
@@ -242,11 +209,11 @@ estimate_counter
 		..()
 		src.pattern = dna
 		if(!src.pattern)
-			src.pattern = dna_unknown
+			src.pattern = register_id("unknown")
 		src.form = form
 		switch(src.form)
 			if(DNA_FORM_BLOOD)
-				src.accuracy_mult *= 0.75
+				src.accuracy_mult *= 0.8
 			if(DNA_FORM_HAIR)
 				src.accuracy_mult *= 1.25
 			if(DNA_FORM_BONE)
@@ -257,12 +224,12 @@ estimate_counter
 	get_text()
 		if(HAS_FLAG(src.flags, IS_TRACE)) // Luminol regent
 			// Color should be set to "#3399FF" to represent luminol. Not sure how to do this.
-			return pattern.id + " (" + SPAN_HINT("blood traces") + ")"
+			return pattern.id + " (<style='color:#3399FF;'>blood traces</style>)"
 		switch(src.form)
 			if(DNA_FORM_NONE)
 				return pattern.id
 			if(DNA_FORM_BLOOD)
-				return pattern.id + " ([SPAN_ALERT("blood")])"
+				return pattern.id + " (<style='color:#C80000;'>blood</style>)"
 			if(DNA_FORM_HAIR)
 				return pattern.id + " (hair)"
 			if(DNA_FORM_TISSUE)

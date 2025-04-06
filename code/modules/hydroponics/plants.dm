@@ -41,7 +41,7 @@ ABSTRACT_TYPE(/datum/plant)
 	var/special_proc = 0 // Does this plant do something special when it's in the pot?
 	var/attacked_proc = 0 // Does this plant react if you try to attack it?
 	var/proximity_proc = 0 // Does this plant react to things moving around it?
-	var/harvested_proc = 0 // Take a guess
+	var/harvested_proc = 1 // Take a guess
 
 	/// Don't rename the crop after the plant.
 	var/dont_rename_crop = FALSE
@@ -286,6 +286,23 @@ ABSTRACT_TYPE(/datum/plant)
 		if (damage_amt)
 			if (prob(damage_prob))
 				S.seeddamage += damage_amt
+
+	proc/get_pollen() // Pollen as forensic evidence to apply to clothing
+		RETURN_TYPE(/datum/forensic_data/basic)
+		// Pollen is durable enough to resist cleaning apparently
+		var/datum/forensic_data/basic/p_data = new(register_id("Pollen: [src.name]"), flags = IS_TRACE)
+		return p_data
+
+	proc/apply_pollen(var/obj/machinery/plantpot/POT,var/mob/user)
+		var/datum/forensic_id/pollen_id = src.get_pollen()
+		if(!pollen_id)
+			return
+		var/datum/forensic_data/basic/p_data = get_pollen()
+		if(ishuman(user))
+			var/mob/living/carbon/human/H = user
+			H.apply_evidence_clothing(p_data, FORENSIC_GROUP_POLLEN, include_body = FALSE)
+		else
+			user.add_evidence(p_data, FORENSIC_GROUP_POLLEN)
 
 	proc/ProximityProc(var/obj/machinery/plantpot/POT,var/mob/user) // Simple proximity proc for stuff like nettles
 		return

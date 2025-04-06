@@ -394,16 +394,22 @@ proc/make_cleanable(var/type,var/loc)
 			return rgb(R.fluid_r, R.fluid_g, R.fluid_b)
 		return src.color
 
+	proc/get_blood_bioholder()
+		RETURN_TYPE(/datum/bioHolder)
+		return reagents.get_blood_bioholder()
+
 	disposing()
 		var/obj/decal/bloodtrace/B = locate() in src.loc
 		if (!B) // hacky solution because I don't want there to be a million blood traces on a tile, ideally one trace should contain more samples
 			B = new /obj/decal/bloodtrace(src.loc)
-			B.blood_DNA = src.blood_DNA // okay so we shouldn't check to see if B has DNA/type because it's brand new and it does not, duh
-			B.blood_type = src.blood_type
 			B.icon = src.icon
 			B.icon_state = src.icon_state
 			B.color = "#3399FF"
 			B.alpha = 100
+		var/datum/bioHolder/bio = src.get_blood_bioholder()
+		if(bio)
+			var/datum/forensic_data/dna/b_data = new(bio.dna_signature, DNA_FORM_BLOOD)
+			B.add_evidence(b_data, FORENSIC_GROUP_DNA)
 		..()
 
 	UpdateName()
@@ -442,8 +448,6 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 		var/obj/decal/bloodtrace/B = locate() in src.loc
 		if(!B) // hacky solution because I don't want there to be a million blood traces on a tile, ideally one trace should contain more samples
 			B = new /obj/decal/bloodtrace(src.loc)
-			B.blood_DNA = src.blood_DNA
-			B.blood_type = src.blood_type
 			B.icon = src.icon
 			B.icon_state = src.icon_state
 		var/image/working_image
@@ -454,6 +458,10 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 			working_image.color = "#3399FF"
 			working_image.alpha = 100
 			B.AddOverlays(working_image, i)
+		var/datum/bioHolder/bio = src.get_blood_bioholder()
+		if(bio)
+			var/datum/forensic_data/dna/b_data = new(bio.dna_signature, DNA_FORM_BLOOD)
+			B.add_evidence(b_data, FORENSIC_GROUP_DNA)
 
 		..(B)
 
@@ -601,10 +609,14 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 				user.visible_message(SPAN_NOTICE("<b>[H]</b> starts rifling through \the [src] with their hands. What a weirdo."),\
 				SPAN_NOTICE("You rake through \the [src] with your bare hands."))
 				playsound(src.loc, 'sound/impact_sounds/Slimy_Splat_1.ogg', 50, 1)
-				if (H.gloves)
-					H.gloves.blood_DNA = src.blood_DNA
-				else
-					H.blood_DNA = src.blood_DNA
+				var/datum/bioHolder/bio = src.get_blood_bioholder()
+				if(bio)
+					if(H.gloves)
+						H.gloves.apply_blood(bio, src.get_blood_color())
+					else if(H.hand == 0)
+						H.limbs?.l_arm?.apply_blood(bio, src.get_blood_color())
+					else
+						H.limbs?.r_arm?.apply_blood(bio, src.get_blood_color())
 				if (src.sampled)
 					H.show_text("You didn't find anything useful. Now your hands are all bloody for nothing!", "red")
 				else
@@ -1180,7 +1192,6 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	can_sample = 1
 	sample_reagent = "space_fungus"
 	sample_verb = "scrape"
-	var/static/datum/forensic_id/spore_id = new("Spores: space fungus")
 
 	New()
 		if (prob(5))
@@ -1206,7 +1217,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 				SPAN_NOTICE("You [src.sample_verb] some of [src] into [W]."))
 				W.reagents.handle_reactions()
 				playsound(src.loc, 'sound/items/Screwdriver.ogg', 50, 1)
-				var/datum/forensic_data/basic/f_data = new(src.spore_id, flags = REMOVABLE_CLEANING)
+				var/datum/forensic_data/basic/f_data = new(register_id("Spores: Space Fungus"), flags = REMOVABLE_CLEANING)
 				if(ishuman(user))
 					var/mob/living/carbon/human/H = user
 					H.apply_evidence_clothing(f_data, FORENSIC_GROUP_POLLEN, include_body = FALSE)
@@ -1220,10 +1231,8 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 
 	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
-		var/datum/forensic_data/basic/f_data = new(src.spore_id)
+		var/datum/forensic_data/basic/f_data = new(register_id("Spores: Space Fungus"))
 		scan_builder.add_data(f_data)
-
-
 
 /obj/decal/cleanable/martian_viscera
 	name = "chunky martian goop"

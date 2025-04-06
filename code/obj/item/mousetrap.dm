@@ -351,6 +351,7 @@
 		if (!src || !src.armed)
 			return
 
+		var/datum/forensic_id/dna_sig = null
 		var/zone = null
 		if (target && ishuman(target))
 			var/mob/living/carbon/human/H = target
@@ -359,15 +360,18 @@
 					if (!H.shoes && !H.mutantrace?.can_walk_on_shards)
 						zone = pick("l_leg", "r_leg")
 						H.changeStatus("knockdown", 3 SECONDS)
+						dna_sig = H.bioHolder?.dna_signature
 				if ("l_arm", "r_arm")
 					if (!H.gloves)
 						zone = type
 						H.changeStatus("stunned", 3 SECONDS)
+						dna_sig = H.bioHolder?.dna_signature
 			var/damage = istype(H.mutantrace, /datum/mutantrace/roach) ? 10 : 1
 			H.TakeDamage(zone, damage, 0, 0, DAMAGE_CRUSH)
 
 		else if (ismobcritter(target))
 			var/mob/living/critter/C = target
+			dna_sig = C.bioHolder?.dna_signature
 			if (C.ghost_spawned)
 				C.TakeDamage("All", 5)
 			else
@@ -424,6 +428,10 @@
 			src.gimmickbomb.detonate()
 			qdel(src.gimmickbomb)
 			src.gimmickbomb = null
+
+		if(dna_sig)
+			var/datum/forensic_data/dna/b_data = new(dna_sig, DNA_FORM_BLOOD)
+			src.add_evidence(b_data, FORENSIC_GROUP_DNA)
 		src.UpdateOverlays(null, "triggerable")
 		clear_armer()
 		return

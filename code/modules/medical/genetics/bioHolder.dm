@@ -396,7 +396,7 @@ var/list/datum/bioEffect/mutini_effects = list()
 		return ..()
 
 	proc/randomize_dna()
-		var/id_dna = build_id_pattern("Lllnn-Lllnn-Lllnn-Lllnn")
+		var/id_dna = build_id_pattern("Lllnn-Lllnn-Lllnn")
 		var/id_fingerprint = build_id_separated(build_id_norepeat(16, CHAR_LIST_FINGERPRINT), 4)
 		var/id_footprint = build_id_pattern("sllll") // Note: need to consider cow limbs, etc - LorrMaster
 		dna_signature = register_id(id_dna)

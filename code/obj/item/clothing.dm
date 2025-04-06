@@ -166,7 +166,7 @@ ABSTRACT_TYPE(/obj/item/clothing/under)
 
 	apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 		..()
-		src.track_spreader = new(5, blood_color, source?.dna_signature, "smear1")
+		src.track_spreader = new(7, blood_color, source?.dna_signature)
 
 	clean_forensic()
 		..()

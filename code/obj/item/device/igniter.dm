@@ -174,5 +174,5 @@ TYPEINFO(/obj/item/device/igniter)
 
 /obj/item/device/igniter/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
-		var/note = estimate_counter("Times ignited", src.times_ignited, scan_builder.base_accuracy, src.forensic_offset)
+		var/note = estimate_counter("Times ignited", src.times_ignited, scan_builder.accuracy, src.forensic_offset)
 		scan_builder.add_text(note)

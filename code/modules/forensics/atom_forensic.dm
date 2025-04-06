@@ -7,13 +7,10 @@
 	var/datum/forensic_holder/forensic_holder = new()
 	var/tmp/fingerprintslast = null // keeping this for now, since the forensic_holder might be shared (like with the Bible)
 
-/atom/movable
-	var/tracked_blood = null // list(bDNA, btype, color, count)
-
 /atom/proc/on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 	if(src.reagents)
 		src.reagents.forensic_scan_reagents(scan_builder)
-	return
+
 /atom/proc/add_evidence(var/datum/forensic_data/data, var/category = FORENSIC_GROUP_NOTE)
 	if(src.forensic_holder)
 		src.forensic_holder.add_evidence(data, category)
@@ -104,91 +101,7 @@
 			animate_fade_grayscale(H, 0)
 
 	src.set_clothing_icon_dirty()
-	src.tracked_blood = null
 	..()
-
-/atom/movable/proc/track_blood()
-	return
-/* needs adjustment so let's stick with mobs for now
-/obj/track_blood()
-	if (!islist(src.tracked_blood))
-		return
-	var/obj/decal/cleanable/blood/dynamic/B = locate(/obj/decal/cleanable/blood/dynamic) in get_turf(src)
-	var/blood_color_to_pass = src.tracked_blood["color"] ? src.tracked_blood["color"] : DEFAULT_BLOOD_COLOR
-
-	if (!B)
-		B = make_cleanable( /obj/decal/cleanable/blood/dynamic(get_turf(src))
-	B.add_volume(blood_color_to_pass, 1, src.tracked_blood, "smear3", src.last_move)
-
-	src.tracked_blood["count"] --
-	if (src.tracked_blood["count"] <= 0)
-		src.tracked_blood = null
-	return
-
-/obj/item/track_blood()
-	if (!islist(src.tracked_blood))
-		return
-	var/obj/decal/cleanable/blood/dynamic/B = locate(/obj/decal/cleanable/blood/dynamic) in get_turf(src)
-	var/blood_color_to_pass = src.tracked_blood["color"] ? src.tracked_blood["color"] : DEFAULT_BLOOD_COLOR
-
-	if (!B)
-		B = make_cleanable( /obj/decal/cleanable/blood/dynamic(get_turf(src))
-	var/Istate = src.w_class > 4 ? "3" : src.w_class > 2 ? "2" : "1"
-	B.add_volume(blood_color_to_pass, 1, src.tracked_blood, Istate, src.last_move)
-
-	src.tracked_blood["count"] --
-	if (src.tracked_blood["count"] <= 0)
-		src.tracked_blood = null
-	return
-*/
-/mob/living/track_blood()
-	if (!islist(src.tracked_blood))
-		return
-	if (HAS_ATOM_PROPERTY(src, PROP_ATOM_FLOATING))
-		return
-	var/turf/T = get_turf(src)
-	if(istype_exact(T, /turf/space)) //can't smear blood on space
-		return
-	var/obj/decal/cleanable/blood/dynamic/tracks/B = null
-	if (T.messy > 0)
-		B = locate(/obj/decal/cleanable/blood/dynamic) in T
-
-	var/blood_color_to_pass = src.tracked_blood["color"] ? src.tracked_blood["color"] : DEFAULT_BLOOD_COLOR
-
-	if (!B)
-		if (T.active_liquid)
-			return
-		B = make_cleanable(/obj/decal/cleanable/blood/dynamic/tracks, get_turf(src))
-		if(isnull(src.tracked_blood))
-			return
-		B.set_sample_reagent_custom(src.tracked_blood["sample_reagent"], 0)
-
-	var/list/states = src.get_step_image_states()
-
-	if (!src.lying && (states[1] || states[2]))
-		if (states[1])
-			B.add_volume(blood_color_to_pass, src.tracked_blood["sample_reagent"], 0.5, 0.5, src.tracked_blood, states[1], src.last_move, 0)
-		if (states[2])
-			B.add_volume(blood_color_to_pass, src.tracked_blood["sample_reagent"], 0.5, 0.5, src.tracked_blood, states[2], src.last_move, 0)
-	else
-		B.add_volume(blood_color_to_pass, src.tracked_blood["sample_reagent"], 1, 1, src.tracked_blood, "smear[min (3, round(src.tracked_blood["count"]/2, 1))]", src.last_move, 0)
-
-	if(B.forensic_holder)
-		if(ishuman(src))
-			var/mob/living/carbon/human/H = src
-			var/datum/forensic_data/multi/f_print = H.get_footprints(TIME)
-			B.add_evidence(f_print, FORENSIC_GROUP_TRACKS)
-
-	if (src.tracked_blood && isnum(src.tracked_blood["count"])) // mirror from below
-		src.tracked_blood["count"] --
-		if (src.tracked_blood["count"] <= 0)
-			src.tracked_blood = null
-			src.set_clothing_icon_dirty()
-			return
-	else
-		src.tracked_blood = null
-		src.set_clothing_icon_dirty()
-		return
 
 /mob/living/proc/get_step_image_states()
 	return list("footprints[rand(1,2)]", null)

@@ -948,7 +948,9 @@ proc/debug_map_apc_count(delim,zlim)
 			var/list/lines = list()
 			var/toucher = null
 			for(var/atom/A in list(theTurf) + theTurf.contents)
-				if(is_ok(A) && A.blood_DNA)
+				var/datum/forensic_group/dna/dna_group = A.forensic_holder?.get_group(FORENSIC_GROUP_DNA)
+				var/datum/forensic_id/b_sig = dna_group?.get_blood_recent(TRUE)
+				if(is_ok(A) && b_sig)
 					var/who = (A.blood_DNA in bioUids) ? bioUids[A.blood_DNA] : A.blood_DNA
 					if(isnull(toucher))
 						toucher = who

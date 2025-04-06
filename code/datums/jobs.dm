@@ -896,6 +896,7 @@ ABSTRACT_TYPE(/datum/job/civilian)
 	limit = 5
 	#endif
 	wages = PAY_TRADESMAN
+	trait_list = list("training_botany")
 	access_string = "Botanist"
 	slot_belt = list(/obj/item/device/pda2/botanist)
 	slot_jump = list(/obj/item/clothing/under/rank/hydroponics)

@@ -193,8 +193,8 @@ that cannot be itched
 //////////////////////////////////////// Forensic scanner ///////////////////////////////////
 
 TYPEINFO(/obj/item/device/detective_scanner)
-	mats = list("crystal" = 1,
-				"conductive" = 2)
+	mats = list("crystal" = 2,
+				"conductive" = 3)
 
 /obj/item/device/detective_scanner
 	name = "forensic scanner"
@@ -220,11 +220,14 @@ TYPEINFO(/obj/item/device/detective_scanner)
 
 	New()
 		..()
+		RegisterSignal(src, COMSIG_ITEM_ATTACKBY_PRE, PROC_REF(pre_attackby)) // Use to silently prevent storage in containers
 		src.screen = image(src.icon, icon_state = "standby" + src.screen_type)
 		src.AddOverlays(src.screen, "screen")
 
 	Topic(href, href_list)
 		..()
+		if(src.active)
+			return
 		if (href_list["print"])
 			if (!(src in usr.contents))
 				boutput(usr, SPAN_NOTICE("You must be holding [src] that made the record in order to print it."))
@@ -234,18 +237,24 @@ TYPEINFO(/obj/item/device/detective_scanner)
 				boutput(usr, SPAN_ALERT("ERROR: Scanner unable to load report data."))
 				return
 			if(!ON_COOLDOWN(src, "print", 2 SECOND))
+				src.active = TRUE
 				playsound(src, 'sound/machines/printer_thermal.ogg', 50, TRUE)
-				SPAWN(0.25 SECONDS)
-					var/obj/item/paper/P = new /obj/item/paper
-					usr.put_in_hand_or_drop(P)
-					var/index = scan_number % src.max_scans // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
-					P.info = scan_history[index].build_report()
-					P.name = scan_history[index].report_title
+				change_screen("print")
+				var/obj/item/paper/P = new()
+				usr.put_in_hand_or_drop(P)
+				var/index = scan_number % src.max_scans // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
+				P.info = scan_history[index].build_report(usr)
+				P.name = scan_history[index].report_title
+				sleep(1.25 SECOND)
+				change_screen("standby")
+				src.active = FALSE
 
 	attack_self(mob/user as mob)
 		src.add_fingerprint(user)
 		if(src.track_target)
 			src.track_target = null // Turn off tracking
+			return
+		if(src.active)
 			return
 
 		change_screen("report")
@@ -259,49 +268,32 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		user_search(user, search)
 		sleep(1)
 		change_screen("standby")
-		/*
-		search = lowertext(search)
-
-		for (var/datum/db_record/R as anything in data_core.general.records)
-			if (search == lowertext(R["dna"]) || search == lowertext(R["fingerprint"]) || search == lowertext(R["name"]))
-
-				var/data = "--------------------------------<br>\
-				<font color='blue'>Match found in security records:<b> [R["name"]]</b> ([R["rank"]])</font><br>\
-				<br>\
-				<i>Fingerprint:</i><font color='blue'> [R["fingerprint"]]</font><br>\
-				<i>Blood DNA:</i><font color='blue'> [R["dna"]]</font>"
-
-				boutput(user, data)
-				return
-
-		user.show_text("No match found in security records.", "red")
-		return
-		*/
-
 
 	pixelaction(atom/target, params, mob/user, reach)
+		if(src.active)
+			return
 		if(src.range)
 			if(!(BOUNDS_DIST(user, target) == 0) && IN_RANGE(user, target, src.range))
 				user.visible_message(SPAN_NOTICE("<b>[user]</b> takes a distant forensic scan of [target]."))
 				scan(target, user)
 				src.add_fingerprint(user)
 
+	proc/pre_attackby(obj/item/source, atom/target, mob/user)
+		if(target.storage && get_turf(target) != get_turf(user))
+			ADD_FLAG(src.item_function_flags, UNSTORABLE) // Scan storage instead of using it
+
 	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
-		if (BOUNDS_DIST(A, user) > 0 || istype(A, /obj/ability_button)) // Scanning for fingerprints over the camera network is fun, but doesn't really make sense (Convair880).
-			return
-
+		if (BOUNDS_DIST(A, user) > 0 || istype(A, /obj/ability_button))
+			return // Scanning for fingerprints over the camera network is fun, but doesn't really make sense (Convair880).
 		scan(A, user)
-		/*
-		var/scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
-		var/index = (number_of_scans % maximum_scans) + 1 // Once a number of scans equal to the maximum number of scans is made, begin to overwrite existing scans, starting from the earliest made.
-		scans[index] = last_scan
-		scan_output = last_scan + "<br>---- <a href='?src=\ref[src];print=[number_of_scans];'>PRINT REPORT</a> ----"
-		number_of_scans += 1
+		REMOVE_FLAG(src.item_function_flags, UNSTORABLE)
 
-		boutput(user, scan_output)
-		src.add_fingerprint(user)
-		*/
+	mouse_drop(atom/over_object, src_location, over_location, src_control, over_control, params)
+		REMOVE_FLAG(src.item_function_flags, UNSTORABLE) // click drag to store scanner
+		..()
+
 	proc/scan(atom/A, mob/user)
+		src.active = TRUE
 		playsound(src.loc , 'sound/machines/found.ogg', 30, 0, pitch = 1.5)
 		var/screen_delay = 0
 		var/scan_emagged = FALSE
@@ -310,30 +302,33 @@ TYPEINFO(/obj/item/device/detective_scanner)
 			var/mob/living/carbon/human/H = A
 			if(isalive(H))
 				visible = FALSE
-				scan_human(H, user) // Humans need to stand still for a scan
+				if(!scan_human(H, user)) // Humans need to stand still for a scan
+					return
 		else if(istype(A, /obj/item/card/emag))
 			var/obj/item/card/emag/E = A
 			scan_emagged = E.emag_target(src, user) // Scanning an EMAG isn't a good idea.
+		else if(istype(A, /obj/machinery/plantpot))
+			change_screen("scan_plant")
+			screen_delay = 1 SECOND
 		else
 			change_screen("scanning")
 			screen_delay = 1 SECOND
 		user.visible_message("<b>[user]</b> has scanned [A].")
-		if(!A.forensic_holder)
-			change_screen("standby")
-			return
 		var/datum/forensic_scan_builder/last_scan = scan_forensic(A, user, visible, scanner_accuracy = src.timestamp_modifier)
 		if(!last_scan)
 			change_screen("standby")
+			src.active = FALSE
 			return
 		if(src.scan_history.len >= src.max_scans)
-			src.scan_history.Cut(1, 2)
+			src.scan_history.Cut(1, 2) // Note: Fix this, it changes the index - LorrMaster
 		src.scan_history += last_scan
-		var/print_hyperlink = ": -<a href='?src=\ref[src];print=[src.scan_history.len];'>PRINT FULL REPORT</a> -"
-		var/scan_report = last_scan.build_report(TRUE, print_hyperlink) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
+		var/print_hyperlink = ": -<a href='?src=\ref[src];print=[src.scan_history.len];'>PRINT FULL REPORT</a>-"
+		var/scan_report = last_scan.build_report(user, TRUE, print_hyperlink) // Moved to scanprocs.dm to cut down on code duplication (Convair880).
 		boutput(user, scan_report)
 		if(!scan_emagged)
 			sleep(screen_delay)
 			change_screen("standby")
+		src.active = FALSE
 		return
 
 	proc/scan_human(mob/living/carbon/human/H, mob/user)
@@ -348,8 +343,9 @@ TYPEINFO(/obj/item/device/detective_scanner)
 				change_screen("cancel")
 				sleep(2.5 SECONDS)
 				change_screen("standby")
-				return
+				return FALSE
 		playsound(src.loc , 'sound/machines/ping.ogg', 10, 0, pitch = 1.5)
+		return TRUE
 
 	proc/change_screen(var/screen_state)
 		src.screen.icon_state = screen_state + src.screen_type
@@ -407,22 +403,22 @@ TYPEINFO(/obj/item/device/detective_scanner)
 
 TYPEINFO(/obj/item/device/detective_scanner/detective)
 	mats = list("crystal_dense" = 5,
-				"conductive" = 5)
+				"conductive_high" = 5)
 
 /obj/item/device/detective_scanner/detective
 	name = "detective's scanner"
 	desc = "Used to scan objects for DNA, fingerprints, and other forensic data. This model is upgraded to make more accurate time estimates. You feel cool holding it."
 	icon_state = "det"
-	timestamp_modifier = 0.7
+	timestamp_modifier = 0.75
 	max_scans = 50
 
 	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
-		scan_builder.add_text("Assembled between countless bottles of whiskey.")
+		scan_builder.add_text("Assembled based on the influences of countless bottles of whiskey.")
 
 TYPEINFO(/obj/item/device/detective_scanner/hos)
-	mats = list("telecrystal" = 1,
-				"conductive" = 5)
+	mats = list("telecrystal" = 5,
+				"conductive_high" = 5)
 
 /obj/item/device/detective_scanner/hos
 	name = "head of security's scanner"

@@ -410,17 +410,21 @@ ABSTRACT_TYPE(/obj/item/parts)
 
 	on_forensic_scan(var/datum/forensic_scan_builder/scan_builder)
 		..()
+		if(!isrobolimb(src) && !isitemlimb(src) && ishuman(scan_builder.scan_user))
+			var/mob/living/carbon/human/H = scan_builder.scan_user
+			if(H.traitHolder.hasTrait("training_medical"))
+				scan_builder.analysis_medical = TRUE
 		if(src.dna_signature)
 			var/note_dna = "[src]'s DNA: [src.dna_signature.id]"
 			scan_builder.add_text(note_dna)
 		var/note_print = null
 		if(src.limb_print)
 			if(slot == "r_arm" || slot == "l_arm")
-				note_print = "[src]'s Fingerprint: [src.limb_print.id]"
+				note_print = "[src]'s fingerprint: [src.limb_print.id]"
 			else if(slot == "r_leg" || slot == "l_leg")
-				note_print = "[src]'s Footprint: [src.limb_print.id]"
+				note_print = "[src]'s footprint: [src.limb_print.id]"
 			else if(slot == "head")
-				note_print = "[src]'s Bite mark: [src.limb_print.id]"
+				note_print = "Head's bite mark: [src.limb_print.id]"
 		if(note_print)
 			scan_builder.add_text(note_print)
 

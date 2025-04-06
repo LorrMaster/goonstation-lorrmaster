@@ -5,6 +5,10 @@ ABSTRACT_TYPE(/datum/plant/artifact)
 	cantscan = 0
 	vending = 0
 
+	get_pollen()
+		var/datum/forensic_data/basic/p_data = new(register_id("Spores: [src.name]"), flags = IS_TRACE)
+		return p_data
+
 // non-harvestables
 
 /datum/plant/artifact/pukeplant
@@ -142,6 +146,10 @@ ABSTRACT_TYPE(/datum/plant/artifact)
 	mutations = list(/datum/plantmutation/dripper/leaker)
 	assoc_reagents = list("plasma")
 
+	get_pollen()
+		var/datum/forensic_data/basic/p_data = new(register_id("Pollen: [src.name]"), flags = IS_TRACE)
+		return p_data
+
 /datum/plant/artifact/rocks
 	name = "Rock"
 	override_icon_state = "Rocks"
@@ -155,6 +163,10 @@ ABSTRACT_TYPE(/datum/plant/artifact)
 	endurance = 40
 	force_seed_on_harvest = 1
 	mutations = list(/datum/plantmutation/rocks/syreline,/datum/plantmutation/rocks/bohrum,/datum/plantmutation/rocks/mauxite,/datum/plantmutation/rocks/uqill)
+
+	get_pollen()
+		var/datum/forensic_data/basic/p_data = new(register_id("Dust: [src.crop]"), flags = IS_TRACE | REMOVABLE_CLEANING)
+		return p_data
 
 /datum/plant/artifact/litelotus
 	name = "Light Lotus"
@@ -255,6 +267,10 @@ ABSTRACT_TYPE(/datum/plant/artifact)
 
 		playsound(POT,'sound/voice/animal/cat_hiss.ogg',30,TRUE,-1)
 		POT.visible_message(SPAN_ALERT("<b>[POT.name]</b> hisses!"))
+
+	get_pollen()
+		var/datum/forensic_data/basic/p_data = new(register_id("Pollen: [src.name]"), flags = IS_TRACE)
+		return p_data
 
 /datum/plant/artifact/creeper
 	name = "Creeper"
@@ -374,6 +390,9 @@ ABSTRACT_TYPE(/datum/plant/artifact)
 		random_brute_damage(user, 9,1)
 		return 1
 
+	get_pollen()
+		return register_id("Pollen: [src.name]")
+
 	proc/feed_maneater(var/obj/machinery/plantpot/POT, var/mob/user, var/mob/living/carbon/victim)
 		var/datum/plantgenes/DNA = POT.plantgenes
 		if(POT && victim && victim.loc == user.loc && victim)
@@ -413,3 +432,7 @@ ABSTRACT_TYPE(/datum/plant/artifact)
 	endurance = 100
 	vending = 0
 	crop = /obj/item/raw_material/shard/plasmacrystal
+
+	get_pollen()
+		var/datum/forensic_data/basic/p_data = new(register_id("Dust: [src.crop]"), flags = IS_TRACE | REMOVABLE_CLEANING)
+		return p_data

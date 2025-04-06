@@ -126,8 +126,6 @@
 
 	/// Simulate standard atmos for any mobs inside
 	var/has_atmosphere = FALSE
-	var/static/datum/forensic_id/lead_kinetic = new("Kinetic Impact")
-	var/static/datum/forensic_id/lead_energy = new("Energy Impact")
 
 	disposing()
 		special_data = null
@@ -289,14 +287,24 @@
 			die()
 
 	proc/collide_forensics(var/atom/A) // Determine what kind of forensic evidence the projectile leaves behind
-		// if(src.proj_data.ie_type == "T")
-		// Tasers leave behind no evidence
+		var/datum/forensic_data/basic/f_data = null
 		if(src.proj_data.ie_type == "K") // Kinetic
-			var/datum/forensic_data/basic/k_data = new(lead_kinetic, flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE)
-			A.add_evidence(k_data, FORENSIC_GROUP_DAMAGE)
+			f_data = new(register_id("Kinetic Impact"), flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BRUTE)
 		else if(src.proj_data.ie_type == "E") // Energy
-			var/datum/forensic_data/basic/e_data = new(lead_energy, flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BURN)
-			A.add_evidence(e_data, FORENSIC_GROUP_DAMAGE)
+			f_data = new(register_id("Energy Impact"), flags = REMOVABLE_REPAIR | REMOVABLE_HEAL_BURN)
+		else
+			return // Tasers leave behind no evidence
+
+		if(!ishuman(A))
+			A.add_evidence(f_data, FORENSIC_GROUP_DAMAGE)
+		else
+			var/mob/living/carbon/human/H = A
+			if(H.organHolder?.chest)
+				H.organHolder.chest.add_evidence(f_data, FORENSIC_GROUP_DAMAGE)
+			if(H.wear_suit)
+				H.wear_suit.add_evidence(f_data.get_copy(), FORENSIC_GROUP_DAMAGE)
+			if(H.w_uniform)
+				H.w_uniform.add_evidence(f_data.get_copy(), FORENSIC_GROUP_DAMAGE)
 
 	proc/die()
 		has_died = TRUE

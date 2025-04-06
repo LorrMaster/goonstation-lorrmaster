@@ -173,7 +173,7 @@
 		f_data.display = f_data.disp_pair
 		return f_data
 	proc/get_chairprint_pattern()
-		return "l__l__l__l"
+		return "l_l_l_l"
 
 /obj/stool/pet_bed
 	name = "pet bed"
@@ -203,6 +203,9 @@
 /obj/stool/bee_bed/heisenbee
 	name = "heisenbed"
 
+	get_chairprint_pattern()
+		return "~~bee~~"
+
 /obj/stool/bee_bed/double // Prefab variant
 	name = "double bee bed"
 	icon_state = "beebed_double"
@@ -216,7 +219,7 @@
 	parts_type = /obj/item/furniture_parts/stool/bar
 
 	get_chairprint_pattern()
-		return "__lnl__"
+		return "_lnl_"
 
 /obj/stool/neon
 	name = "neon bar stool"
@@ -225,7 +228,7 @@
 	parts_type = /obj/item/furniture_parts/stool/neon
 
 	get_chairprint_pattern()
-		return "__lnl__"
+		return "_lnl_"
 
 TYPEINFO(/obj/stool/wooden)
 	mat_appearances_to_ignore = list("wood")
@@ -246,7 +249,7 @@ TYPEINFO(/obj/stool/wooden)
 	parts_type = /obj/item/furniture_parts/stool/sleek
 
 	get_chairprint_pattern()
-		return "__lnl__"
+		return "_lnl_"
 
 /* ================================================= */
 /* -------------------- Benches -------------------- */
@@ -291,6 +294,9 @@ TYPEINFO(/obj/stool/wooden)
 			if (B.auto)
 				B.set_up()
 		return
+
+	get_chairprint_pattern()
+		return "l--s--l"
 
 /obj/stool/bench/auto
 	auto = 1
@@ -361,6 +367,9 @@ TYPEINFO(/obj/stool/wooden)
 /obj/stool/bench/sauna
 	icon = 'icons/obj/furniture/chairs.dmi'
 	icon_state = "saunabench"
+
+	get_chairprint_pattern()
+		return "l==l==l"
 
 /* ============================================== */
 /* -------------------- beds -------------------- */
@@ -600,6 +609,9 @@ TYPEINFO(/obj/stool/wooden)
 		if (ishuman(user))
 			var/mob/living/carbon/human/H = user
 			H.hud.update_resting()
+
+	get_chairprint_pattern()
+		return "l=l---l=l"
 
 /* ================================================ */
 /* -------------------- Chairs -------------------- */
@@ -1541,7 +1553,7 @@ TYPEINFO(/obj/stool/chair/dining/wood)
 		src.anchored = !(src.anchored)
 		return
 	get_chairprint_pattern()
-		return "n__n__n__n"
+		return "n_n_n_n"
 
 /* ========================================================= */
 /* ---------------------- Pool Chairs ---------------------- */

@@ -320,7 +320,7 @@
 	parts_type = /obj/item/furniture_parts/barber_chair
 
 	get_chairprint_pattern()
-		return "__lnnl__"
+		return "_lnnl_"
 
 /obj/barber_pole
 	name = "barber pole"

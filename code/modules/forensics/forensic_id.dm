@@ -156,8 +156,8 @@ var/global/list/atom/scanner_id_list = new() // Used to find objects based on th
 	var/list/bunch_list = list(1, 2, 3, 4)
 	for(var/i=1; i<= reveal_count; i++)
 		var/rand_bunch = rand(1, bunch_list.len)
-		var/rand_pos = rand(1,4)
-		var/hex = num2hex(((rand_bunch * 4) - 4 + rand_pos - 1), 1)
+		var/rand_pos = rand(0,3)
+		var/hex = num2hex(((bunch_list[rand_bunch] * 4) - 4 + rand_pos), 1)
 		text_list[bunch_list[rand_bunch]] = "...[hex]..."
 		bunch_list.Cut(rand_bunch, rand_bunch+1)
 
@@ -169,21 +169,26 @@ var/global/list/atom/scanner_id_list = new() // Used to find objects based on th
 	// Probability (4): 1/64 chance of match
 	if(reveal_count < 2)
 		return "...????..."
-	else if(reveal_count > 4)
+	if(reveal_count > 4)
 		return null
 	var/list/hex_list = list("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F")
 	var/list/mask_list = new()
 	for(var/i=1; i<=reveal_count; i++)
-		var/k = rand(1, hex_list.len)
-		mask_list += hex_list[k]
+		var/k = rand(1, length(hex_list))
+		mask_list += text2ascii(hex_list[k])
 		hex_list.Cut(k, k+1)
-	if(reveal_count == 2)
-		return "...[mask_list[1]]...[mask_list[2]]..."
-	else
-		var/mask = "..."
-		for(var/i=1; i<=reveal_count; i++)
-			mask += "[mask_list[i]]..."
-		return mask
+
+	for(var/i=1; i<= length(mask_list)-1; i++)
+		for(var/k=2; k<= length(mask_list); k++)
+			if(mask_list[i] > mask_list[k])
+				var/temp = mask_list[i]
+				mask_list[i] = mask_list[k]
+				mask_list[k] = temp
+
+	var/mask = "..."
+	for(var/i=1; i<=reveal_count; i++)
+		mask += "[ascii2text(mask_list[i])]..."
+	return mask
 
 // -----| Forensic Display |-----
 

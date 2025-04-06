@@ -448,13 +448,13 @@
 	// Note: If you want evidence tied to a specific organ's health (ex. brain damage), use REMOVABLE_REPAIR
 	// 		 That way this proc will not remove the evidence if the organ itself is still damaged
 	var/removal_flags = 0
-	if(src.get_brute_damage() <= 5)
+	if(src.get_brute_damage() < FORENSIC_HEAL_THRESHOLD)
 		removal_flags = REMOVABLE_HEAL_BRUTE
-	if(src.get_burn_damage() <= 5)
+	if(src.get_burn_damage() < FORENSIC_HEAL_THRESHOLD)
 		removal_flags |= REMOVABLE_HEAL_BURN
-	if(src.get_toxin_damage() <= 5)
+	if(src.get_toxin_damage() < FORENSIC_HEAL_THRESHOLD)
 		removal_flags |= REMOVABLE_HEAL_TOXIN
-	if(src.get_oxygen_deprivation() <= 5)
+	if(src.get_oxygen_deprivation() < FORENSIC_HEAL_THRESHOLD)
 		removal_flags |= REMOVABLE_HEAL_OXYGEN
 	src.remove_evidence_organs(removal_flags)
 

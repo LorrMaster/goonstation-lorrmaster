@@ -192,8 +192,7 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 		src.group.reagents.add_reagent(reagent_name,volume)
 
 	proc/get_blood_bioholder()
-		// Used for getting blood's dna and such
-		return src.group.reagents.get_blood_bioholder()
+		return src.group.reagents.get_blood_bioholder() // Used for getting blood's dna and such
 
 	//incorporate touch_modifier?
 	Crossed(atom/movable/A)

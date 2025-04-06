@@ -21,6 +21,15 @@ ABSTRACT_TYPE(/datum/plant/weed)
 	assoc_reagents = list("space_fungus")
 	mutations = list(/datum/plantmutation/fungus/amanita,/datum/plantmutation/fungus/psilocybin,/datum/plantmutation/fungus/cloak)
 
+	get_pollen()
+		var/datum/forensic_data/basic/p_data = new(register_id("Spores: Space Fungus"), flags = IS_TRACE)
+		return p_data
+
+	apply_pollen(var/obj/machinery/plantpot/POT,var/mob/user)
+		if(istype(POT.plantgenes.mutation, /datum/plantmutation/fungus/cloak))
+			return
+		..()
+
 /datum/plant/weed/lasher
 	name = "Lasher"
 	seedcolor = "#00FFFF"

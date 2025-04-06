@@ -697,7 +697,6 @@
 	var/current_state = null
 	var/times_stamped = 0 // Number of stamps this has created
 	var/forensic_offset = 0.5 // offset for stamp usage estimation
-	var/static/datum/forensic_id/lead_void = new("VOID")
 
 /obj/item/stamp/New()
 	..()
@@ -763,17 +762,17 @@
 	user.TakeDamage("head", 250, 0)
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
-		var/datum/forensic_data/basic/f_data = new(src.lead_void)
+		var/datum/forensic_data/basic/f_data = new(register_id("VOID"))
 		H.head?.add_evidence(f_data, FORENSIC_GROUP_NOTE)
 	else
-		var/datum/forensic_data/basic/f_data = new(src.lead_void)
+		var/datum/forensic_data/basic/f_data = new(register_id("VOID"))
 		user.add_evidence(f_data, FORENSIC_GROUP_NOTE)
 	src.times_stamped++
 	return 1
 
 /obj/item/stamp/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 	..()
-	var/note = estimate_counter("Times stamped", src.times_stamped, scan_builder.base_accuracy, src.forensic_offset)
+	var/note = estimate_counter("Times stamped", src.times_stamped, scan_builder.accuracy, src.forensic_offset)
 	scan_builder.add_text(note)
 
 

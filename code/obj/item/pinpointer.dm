@@ -340,6 +340,64 @@ TYPEINFO(/obj/item/pinpointer)
 	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
 		if(active)
 			return
+		var/prev_timer = src.blood_timer // In case no target is found
+		var/datum/forensic_id/target_dna = get_blood(A, user)
+		if(!target_dna)
+			src.blood_timer = prev_timer
+			return
+		var/new_target = null
+		for(var/mob/living/carbon/human/H in mobs)
+			if(H.bioHolder?.dna_signature == target_dna)
+				new_target = H
+				break
+		if(!new_target)
+			src.blood_timer = prev_timer
+			return
+		src.target = new_target
+		src.turn_on()
+		user.visible_message(SPAN_NOTICE("<b>[user]</b> scans [A] with [src]!"),\
+			SPAN_NOTICE("You scan [A] with [src]!"))
+
+	proc/get_blood(atom/A as mob|obj|turf|area, mob/user as mob)
+		RETURN_TYPE(/datum/forensic_id)
+		if(active)
+			return null
+		var/blood_timer = TIME + 4 MINUTES
+		if(istype(A, /obj/decal/cleanable/blood))
+			var/obj/decal/cleanable/blood/B = A
+			if(B.dry > 0) //Fresh blood is -1
+				boutput(user, SPAN_ALERT("Targeted blood is too dry to be useful!"))
+				return null
+			var/datum/bioHolder/bio = B.get_blood_bioholder()
+			if(B.dry == -1 && bio)
+				blood_timer += 4 MINUTES
+			return bio?.dna_signature
+		else if(istype(A, /obj/item))
+			if(A.forensic_holder)
+				var/datum/forensic_group/dna/dna_group = A.forensic_holder.get_group(FORENSIC_GROUP_DNA)
+				if(istype(dna_group))
+					var/datum/forensic_id/blood_id = dna_group.get_blood_recent()
+					if(blood_id)
+						return blood_id
+		else if (CHECK_LIQUID_CLICK(A))
+			var/turf/T = get_turf(A)
+			var/datum/bioHolder/bio = T.active_liquid.get_blood_bioholder()
+			if(bio)
+				return bio.dna_signature
+
+		var/datum/reagents/reagents = A.reagents
+		if(isturf(A))
+			var/turf/T = A
+			reagents = T.active_liquid.group.reagents
+		if(!reagents)
+			var/datum/bioHolder/bio = reagents.get_blood_bioholder()
+			if(bio)
+				return bio.dna_signature
+		return null
+/*
+	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
+		if(active)
+			return
 		var/blood_dna = null
 		var/timer = TIME + 4 MINUTES
 		if(istype(A, /obj/decal/cleanable/blood))
@@ -376,7 +434,7 @@ TYPEINFO(/obj/item/pinpointer)
 		src.turn_on()
 		user.visible_message(SPAN_NOTICE("<b>[user]</b> scans [A] with [src]!"),\
 			SPAN_NOTICE("You scan [A] with [src]!"))
-
+*/
 	work_check()
 		if(TIME > blood_timer)
 			src.turn_off()

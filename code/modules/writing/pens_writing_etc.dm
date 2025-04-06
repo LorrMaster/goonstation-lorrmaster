@@ -929,7 +929,7 @@
 
 	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
-		var/note = estimate_counter("Times labeled", src.times_labeled, scan_builder.base_accuracy, src.forensic_offset)
+		var/note = estimate_counter("Times labeled", src.times_labeled, scan_builder.accuracy, src.forensic_offset)
 		scan_builder.add_text(note)
 
 	proc/RemoveLabel(var/atom/A, var/mob/user, var/no_message = 0)

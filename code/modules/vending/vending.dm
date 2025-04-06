@@ -748,6 +748,7 @@ ADMIN_INTERACT_PROCS(/obj/machinery/vending, proc/throw_item, proc/admin_command
 		if (src.vend_inhand)
 			user?.put_in_hand_or_eject(vended) // try to eject it into the users hand, if we can
 		src.postvend_effect()
+		src.items_vended++
 	return vended
 
 /obj/machinery/vending/attack_hand(mob/user as mob)
@@ -884,7 +885,6 @@ ADMIN_INTERACT_PROCS(/obj/machinery/vending, proc/throw_item, proc/admin_command
 					if (S)
 						playsound(src.loc, S, 50, 0)
 				src.postvend_effect()
-				src.items_vended++
 
 				SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_SIGNAL, "productDispensed=[R.product_name]")
 				src.scan = null

@@ -282,6 +282,21 @@
 	amount_per_transfer_from_this = 5
 	initial_reagents = "mercury"
 
+// Forensics
+/obj/item/reagent_containers/glass/bottle/silver_nitrate
+	name = "bottle (silver nitrate)"
+	desc = "A small bottle of silver nitrate, for detecting partial fingerprints."
+	icon_state = "bottle_3"
+	amount_per_transfer_from_this = 5
+	initial_reagents = "silver_nitrate"
+
+/obj/item/reagent_containers/glass/bottle/iodine
+	name = "bottle (iodine)"
+	desc = "A small bottle of iodine, for improved fingerprint analysis."
+	icon_state = "bottle_3"
+	amount_per_transfer_from_this = 5
+	initial_reagents = "iodine"
+
 /* ========================================================= */
 /* -------------------- Chem Precursors -------------------- */
 /* ========================================================= */

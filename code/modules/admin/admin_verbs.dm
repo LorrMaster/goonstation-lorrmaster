@@ -1028,7 +1028,7 @@ var/list/fun_images = list()
 	if(!O.forensic_holder)
 		alert("There is no forensic data on this object.", null, null, null, null, null)
 		return
-	var/datum/forensic_scan_builder/scan_builder = new(O, accuracy = 0, is_admin = TRUE)
+	var/datum/forensic_scan_builder/scan_builder = new(null, O.forensic_holder, accuracy = 0, is_admin = TRUE)
 	O.on_forensic_scan(scan_builder)
 	scan_builder.collect_data()
 	boutput(src, scan_builder.build_report())

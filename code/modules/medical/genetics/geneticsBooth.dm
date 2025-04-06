@@ -119,12 +119,19 @@ TYPEINFO(/obj/machinery/genetics_booth)
 
 			started++
 			if (started == 2)
+				var/datum/forensic_data/basic/f_data
 				if (!try_billing(occupant))
 					for (var/mob/O in hearers(src, null))
 						O.show_message(SPAN_SUBTLE(SPAN_SAY("[SPAN_NAME("[src]")] beeps, \"<b>[occupant.name]<b>! You can't afford [selected_product.name] with a bank account like that.\"")), 2)
 					occupant.show_message(SPAN_SUBTLE(SPAN_SAY("[SPAN_NAME("[src]")] beeps, \"<b>[occupant.name]<b>! You can't afford [selected_product.name] with a bank account like that.\"")), 2)
-
+					f_data = new(occupant.bioHolder.dna_signature, flags = REMOVABLE_DATA, value = 0)
 					eject_occupant(0)
+				else if(occupant.bioHolder)
+					f_data = new(occupant.bioHolder.dna_signature, flags = REMOVABLE_DATA, value = 1)
+				if(f_data)
+					f_data.display = f_data.disp_value
+					src.add_evidence(f_data, FORENSIC_GROUP_GENE_BOOTH)
+
 		else if (started)
 			eject_occupant(0)
 
@@ -410,6 +417,10 @@ TYPEINFO(/obj/machinery/genetics_booth)
 
 	was_deconstructed_to_frame(mob/user)
 		src.eject_occupant(do_throwing=FALSE)
+
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		scan_builder.include_abridged(HEADER_GENE_BOOTH)
+		..()
 
 //next :
 	//sound effects

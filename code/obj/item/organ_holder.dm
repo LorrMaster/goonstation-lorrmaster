@@ -1430,8 +1430,8 @@
 				O.on_transplant(src.donor)
 			if (is_full_robotic() && !istype(src.donor:mutantrace, /datum/mutantrace/cyberman))
 				donor.unlock_medal("Spaceship of Theseus", 1)
-			var/datum/forensic_data/dna/f_data = new(donor.bioHolder?.dna_signature, DNA_FORM_BLOOD)
-			I.add_evidence(f_data, FORENSIC_GROUP_DNA)
+			if(donor.bioHolder)
+				I.apply_blood(donor.bioHolder, donor.bioHolder.bloodColor)
 			return 1
 
 	//checks if this organholder has all cyberorgans instead of meat ones.

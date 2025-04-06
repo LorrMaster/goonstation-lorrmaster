@@ -373,7 +373,6 @@
 			var/datum/forensic_data/dna/dna_data = new(user.bioHolder.dna_signature, DNA_FORM_SALIVA)
 			src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 
-
 /obj/item/clothing/mask/cigarette/nicofree
 	name = "nicotine-free cigarette"
 	desc = "Smoking without the crippling addiction and lung cancer! Warning: side effects may include loss of breath and inability to relax."
@@ -582,6 +581,9 @@
 		. = ..()
 		. += "Hold this and drag a nearby cigarette onto it to auto-fill.\n \
 			Drag this onto a nearby table or floor while holding it to dump its contents."
+	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+		..()
+		scan_builder.add_text("The #1 leading cause of death among space station air filters.")
 
 /obj/item/cigpacket/proc/onLoading(atom/movable/incoming)
 	src.UpdateIcon()

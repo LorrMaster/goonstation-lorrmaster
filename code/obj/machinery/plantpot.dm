@@ -997,6 +997,7 @@ TYPEINFO(/obj/machinery/plantpot)
 		boutput(user, SPAN_ALERT("You can't seem to find anything that looks harvestable."))
 		// mostly a fix for a runtime error if getitem was null
 	else
+		src.current.apply_pollen(src, user)
 		var/cropcount = getamount
 		var/seedcount = 0
 

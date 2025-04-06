@@ -818,6 +818,11 @@ ABSTRACT_TYPE(/datum/trait/job)
 	desc = "Subject is experienced with analysing crime scenes."
 	id = "training_forensic"
 
+/datum/trait/job/botany
+	name = "Botany Training"
+	desc = "Subject knows their plants."
+	id = "training_botany"
+
 /datum/trait/job/clown
 	name = "Clown Training"
 	desc = "Subject is trained at being a clumsy buffoon."

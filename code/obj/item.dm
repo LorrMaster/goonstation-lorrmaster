@@ -389,6 +389,11 @@ ABSTRACT_TYPE(/obj/item)
 		src.UpdateOverlays(null, "blood_splatter")
 	src.forensic_holder?.remove_evidence(REMOVABLE_CLEANING)
 
+/obj/item/on_forensic_scan(datum/forensic_scan_builder/scan_builder)
+	if(src.contraband)
+		scan_builder.add_text("!! Contraband level: [src.contraband] !!")
+	..()
+
 //set up object properties on the block when blocking with the item. if overriding this proc, add the BLOCK_SETUP macro to new() to register for the signal and to get tooltips working right
 /obj/item/proc/block_prop_setup(var/source, var/obj/item/grab/block/B)
 	SHOULD_CALL_PARENT(1)

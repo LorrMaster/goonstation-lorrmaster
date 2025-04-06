@@ -94,7 +94,6 @@ var/global/list/datum/forensic_id/gun_profile_list = new/list()
 
 	var/datum/forensic_id/gun_profile = null
 	var/static/datum/forensic_display/disp_gun = new("Gun profile: @F") // /obj/item/gun::disp_gun
-	var/static/datum/forensic_id/lead_gun_residue = new("Gunshot residue found.")
 
 	buildTooltipContent()
 		. = ..() + src.current_projectile?.get_tooltip_content()
@@ -295,8 +294,9 @@ var/global/list/datum/forensic_id/gun_profile_list = new/list()
 
 	if (ishuman(user) && src.add_residue) // Additional forensic evidence for kinetic firearms (Convair880).
 		var/mob/living/carbon/human/H = user
-		var/datum/forensic_data/basic/a_data = new(src.lead_gun_residue, flags = REMOVABLE_CLEANING)
-		var/datum/forensic_data/basic/b_data = new(src.lead_gun_residue, flags = REMOVABLE_CLEANING)
+		var/datum/forensic_id/gunshot_id = register_id("Gunshot residue found.")
+		var/datum/forensic_data/basic/a_data = new(gunshot_id, flags = REMOVABLE_CLEANING)
+		var/datum/forensic_data/basic/b_data = new(gunshot_id, flags = REMOVABLE_CLEANING)
 		H.add_evidence(a_data)
 		src.add_evidence(b_data)
 
@@ -457,8 +457,9 @@ var/global/list/datum/forensic_id/gun_profile_list = new/list()
 		var/mob/M = user
 		if (ishuman(M) && src.add_residue) // Additional forensic evidence for kinetic firearms (Convair880).
 			var/mob/living/carbon/human/H = user
-			var/datum/forensic_data/basic/a_data = new(src.lead_gun_residue, flags = REMOVABLE_CLEANING)
-			var/datum/forensic_data/basic/b_data = new(src.lead_gun_residue, flags = REMOVABLE_CLEANING)
+			var/datum/forensic_id/gunshot_id = register_id("Gunshot residue found.")
+			var/datum/forensic_data/basic/a_data = new(gunshot_id, flags = REMOVABLE_CLEANING)
+			var/datum/forensic_data/basic/b_data = new(gunshot_id, flags = REMOVABLE_CLEANING)
 			H.add_evidence(a_data)
 			src.add_evidence(b_data)
 

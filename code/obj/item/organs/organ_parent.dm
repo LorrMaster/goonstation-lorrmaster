@@ -481,7 +481,12 @@
 				surgery_contexts += action
 
 			.+= length(surgery_contexts)
+
 	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
 		scan_builder.include_abridged(HEADER_DAMAGE)
+		if(ishuman(scan_builder.scan_user))
+			var/mob/living/carbon/human/H = scan_builder.scan_user
+			if(!src.robotic && H.traitHolder.hasTrait("training_medical"))
+				scan_builder.analysis_medical = TRUE
 

@@ -4,7 +4,7 @@
 #define EVIDENCE_SCAN 2
 
 /obj/item/device/fingerprinter
-	name = "fingerprinter M2"
+	name = "fingerprinter"
 	desc = "A grey-market tool used for scanning and planting forensic evidence."
 	icon_state = "reagentscan" // slightly sneaky. slightly.
 	is_syndicate = TRUE
@@ -49,7 +49,7 @@
 		var/datum/forensic_scan_builder/scan = scan_forensic(A, user, FALSE)
 		if(!scan)
 			return
-		var/last_scan = scan.build_report()
+		var/last_scan = scan.build_report(user, TRUE)
 		boutput(user, last_scan)
 		return
 
@@ -108,10 +108,14 @@
 		if (!data)
 			return
 		var/datum/forensic_data/f_data = data.get_copy()
+		if(f_data.time_start) // Do not set the time if it is zero
+			f_data.time_start = TIME
+		if(f_data.time_end)
+			f_data.time_end = TIME
 		target.add_evidence(f_data, f_data.category)
 
 	proc/evidence_plant_human(mob/user, mob/living/carbon/human/H) // Human forensics are made up of muliple items. Choose one.
-		var/list/target_groups = new()
+		var/list/list/atom/target_groups = new()
 		var/list/atom/clothing_list = new()
 		var/list/atom/body_parts_list = new()
 		var/list/atom/organ_list = new()
@@ -125,14 +129,14 @@
 		if(H.ears) clothing_list["[H.ears.name]"] = H.ears
 		if(H.wear_id) clothing_list["[H.wear_id.name]"] = H.wear_id
 		if(H.back) clothing_list["[H.back.name]"] = H.back
-		if(H.limbs?.r_arm) clothing_list["[H.limbs.r_arm.name]"] = H.limbs.r_arm
-		if(H.limbs?.l_arm) clothing_list["[H.limbs.l_arm.name]"] = H.limbs.l_arm
-		if(H.limbs?.r_leg) clothing_list["[H.limbs.r_leg.name]"] = H.limbs.r_leg
-		if(H.limbs?.l_leg) clothing_list["[H.limbs.l_leg.name]"] = H.limbs.l_leg
-		if(H.organHolder?.head) clothing_list["[H.organHolder.head.name]"] = H.organHolder.head
-		if(H.organHolder?.chest) clothing_list["[H.organHolder.chest.name]"] = H.organHolder.chest
+		if(H.limbs?.r_arm) body_parts_list["[H.limbs.r_arm.name]"] = H.limbs.r_arm
+		if(H.limbs?.l_arm) body_parts_list["[H.limbs.l_arm.name]"] = H.limbs.l_arm
+		if(H.limbs?.r_leg) body_parts_list["[H.limbs.r_leg.name]"] = H.limbs.r_leg
+		if(H.limbs?.l_leg) body_parts_list["[H.limbs.l_leg.name]"] = H.limbs.l_leg
+		if(H.organHolder?.head) body_parts_list["[H.organHolder.head.name]"] = H.organHolder.head
+		if(H.organHolder?.chest) body_parts_list["[H.organHolder.chest.name]"] = H.organHolder.chest
 		if(H.organHolder?.butt)
-			clothing_list["[H.organHolder.butt.name]"] = H.organHolder.butt
+			body_parts_list["[H.organHolder.butt.name]"] = H.organHolder.butt
 			organ_list["[H.organHolder.butt.name]"] = H.organHolder.butt
 
 		if(H.organHolder)
@@ -142,22 +146,20 @@
 						var/atom/A = i
 						organ_list[A.name] += A
 
-		var/atom/default_target = H.get_default_forensics_target()
-		if(default_target) target_groups["[default_target.name]"] = default_target
-		if(clothing_list.len > 0) target_groups["Clothing"] = clothing_list
-		if(body_parts_list.len > 0) target_groups["Body Parts"] = body_parts_list
-		if(organ_list.len > 0) target_groups["Organs"] = organ_list
+		// var/atom/default_target = H.get_default_forensics_target()
+		// if(default_target) target_groups["[default_target.name]"] = default_target
+		if(length(clothing_list) > 0) target_groups["Clothing"] = clothing_list
+		if(length(body_parts_list) > 0) target_groups["Body Parts"] = body_parts_list
+		if(length(organ_list) > 0) target_groups["Organs"] = organ_list
 
 		var/A_selected = tgui_input_list(user, "Select a target", "Fingerprinter", target_groups)
 		if (!A_selected)
 			return null
-		if(isatom(A_selected))
-			return A_selected
-		var/list/atom/B_list = A_selected
+		var/list/atom/B_list = target_groups[A_selected]
 		var/B_selected = tgui_input_list(user, "Select a target", "Fingerprinter", B_list)
-		if (!B_selected || !isatom(B_selected))
+		if (!B_selected)
 			return null
-		return B_selected
+		return B_list[B_selected]
 
 	proc/update_text()
 		if (src.mode == EVIDENCE_READ)

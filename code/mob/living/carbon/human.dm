@@ -3266,6 +3266,8 @@ Tries to put an item in an available backpack, belt storage, pocket, or hand slo
 	var/steps = 1
 	if (move_dir & (move_dir-1))
 		steps *= DIAG_MOVE_DELAY_MULT
+
+	// Spread blood
 	if(src.lying)
 		if(src.wear_suit)
 			if(src.wear_suit.track_spreader?.is_tracking())
@@ -3719,6 +3721,7 @@ mob/living/carbon/human/has_genetics()
 
 /mob/living/carbon/human/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")
 	return // Apply blood to clothing/limbs instead
+
 /mob/living/carbon/human/clean_forensic()
 	src.head?.clean_forensic()
 	src.wear_suit?.clean_forensic()
@@ -3755,11 +3758,11 @@ mob/living/carbon/human/has_genetics()
 	if(src.organHolder?.head && !(src.head?.body_parts_covered & HEAD) && !(src.wear_mask?.body_parts_covered & HEAD))
 		src.organHolder.head.forensic_holder?.copy_evidence(f_holder)
 		if(isdead(src))
-			scan_builder.add_text("[src]'s bite mark: [src.organHolder.head.bite_mark.id]")
+			scan_builder.add_text("Target's bite: [src.organHolder.head.bite_mark.id]")
 	// --- Hands ---
 	if(src.gloves)
 		src.gloves.forensic_holder?.copy_evidence(f_holder)
-		scan_builder.add_text("[src]'s gloves: [src.gloves.fiber_id.id]")
+		scan_builder.add_text("Target's gloves: [src.gloves.fiber_id.id]")
 		scan_builder.filter_gloves = src.gloves.fiber_id
 	else if(src.limbs)
 		if(src.limbs.r_arm)
@@ -3769,12 +3772,12 @@ mob/living/carbon/human/has_genetics()
 			src.limbs.l_arm.forensic_holder?.copy_evidence(f_holder)
 			scan_builder.filter_fingerprint_L = src.limbs.l_arm.limb_print
 		if(src.limbs.r_arm && src.limbs.l_arm && (src.limbs.r_arm.limb_print == src.limbs.l_arm.limb_print))
-			scan_builder.add_text("[src]'s fingerprints: [src.limbs.r_arm.limb_print.id]")
+			scan_builder.add_text("Target's fingerprints: [src.limbs.r_arm.limb_print.id]")
 		else
 			if(src.limbs.r_arm)
-				scan_builder.add_text("[src]'s fingerprints (right): [src.limbs.r_arm.limb_print.id]")
+				scan_builder.add_text("Target's fingerprints (right): [src.limbs.r_arm.limb_print.id]")
 			if(src.limbs.l_arm)
-				scan_builder.add_text("[src]'s fingerprints (left): [src.limbs.l_arm.limb_print.id]")
+				scan_builder.add_text("Target's fingerprints (left): [src.limbs.l_arm.limb_print.id]")
 	// --- Torso ---
 	if(src.wear_suit)
 		src.wear_suit.forensic_holder?.copy_evidence(f_holder)
@@ -3791,11 +3794,11 @@ mob/living/carbon/human/has_genetics()
 		if(src.limbs.l_leg)
 			src.limbs.l_leg.forensic_holder?.copy_evidence(f_holder)
 
-	var/datum/forensic_data/multi/f_data = get_footprints(ignore_chair = TRUE)
+	var/datum/forensic_data/multi/f_data = get_footprints(ignore_chair = TRUE, ignore_lying = TRUE)
 	var/note_footprints = f_data.get_text()
-	scan_builder.add_text("[src]'s footprints: [note_footprints]")
+	scan_builder.add_text("Target's footprints: [note_footprints]")
 
-/mob/living/carbon/human/proc/get_footprints(var/ignore_chair = FALSE)
+/mob/living/carbon/human/proc/get_footprints(var/ignore_chair = FALSE, var/ignore_lying = FALSE)
 	if(!ignore_chair)
 		var/status = src.hasStatus("buckled")
 		if(status && istype(status, /datum/statusEffect/buckled))
@@ -3803,9 +3806,9 @@ mob/living/carbon/human/has_genetics()
 			if(istype(b_status.buckled_to)) // Wheelchairs make their own footprints
 				return b_status.buckled_to.get_chairprint()
 	var/datum/forensic_data/multi/f_data = new()
-	if((!src.limbs?.l_leg && !src.limbs?.r_leg) || src.lying)
-		f_data.evidence_A = src.drag_mob_print
-		f_data.evidence_B = src.drag_mob_print
+	if((!src.limbs?.l_leg && !src.limbs?.r_leg) || (src.lying && !ignore_lying))
+		f_data.evidence_A = register_id("~~~~~")
+		f_data.evidence_B = f_data.evidence_A
 	else
 		if(!src.limbs.l_leg || src.limbs.l_leg.limb_print == null)
 			f_data.evidence_A = f_data.organ_empty
