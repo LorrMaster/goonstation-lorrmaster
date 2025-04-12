@@ -2421,6 +2421,7 @@
 	*/
 
 /mob/living/proc/get_retina_scan()
+	RETURN_TYPE(/datum/forensic_data/multi)
 	if(src.organHolder)
 		return src.organHolder.get_retina_scan()
 	else

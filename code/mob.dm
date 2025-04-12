@@ -1096,10 +1096,13 @@
 	TakeDamage(zone, brute - get_melee_protection(zone,damage_type), burn - get_melee_protection(zone,damage_type))
 
 /mob/proc/HealDamage(zone, brute, burn, tox)
-	health += max(0, brute)
-	health += max(0, burn)
-	health += max(0, tox)
-	health = min(max_health, health)
+	var/prev_health = src.health
+	src.health += max(0, brute)
+	src.health += max(0, burn)
+	src.health += max(0, tox)
+	src.health = min(src.max_health, src.health)
+	if(prev_health > FORENSIC_HEAL_THRESHOLD && src.health <= FORENSIC_HEAL_THRESHOLD)
+		src.heal_forensic_update()
 
 /// Which mob is pulling this movable currently
 /atom/movable/var/mob/pulled_by = null
@@ -3415,3 +3418,9 @@
 	src.ears?.clean_forensic()
 	src.wear_mask?.clean_forensic()
 	..()
+
+/mob/proc/heal_forensic_update()
+	if(!src.forensic_holder || src.health > FORENSIC_HEAL_THRESHOLD)
+		return
+	src.forensic_holder.remove_evidence(REMOVABLE_HEAL)
+	src.was_evidence_healed = REMOVABLE_HEAL

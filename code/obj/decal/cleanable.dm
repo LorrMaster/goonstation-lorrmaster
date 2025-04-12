@@ -1806,11 +1806,30 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 	icon_state = "hair"
 	random_dir = RANDOM_DIR_CARDINAL
 	var/color_name = ""
+	var/datum/forensic_id/hair_dna = new()
 
 	New()
 		..()
 		src.pixel_y += rand(-4,4)
 		src.pixel_x += rand(-4,4)
+
+	Crossed(atom/movable/AM as mob|obj)
+		..()
+		if(ishuman(AM))
+			var/mob/living/carbon/human/H = AM
+			if(H.lying)
+				if(H.wear_suit)
+					spread_hair(H.wear_suit)
+				else if(H.w_uniform)
+					spread_hair(H.w_uniform)
+			else
+				spread_hair(H.shoes)
+		else
+			spread_hair(AM)
+
+	proc/spread_hair(atom/A as mob|obj)
+		var/datum/forensic_data/dna/hair_data = new(hair_dna, DNA_FORM_HAIR)
+		A.add_evidence(hair_data, FORENSIC_GROUP_DNA)
 
 	proc/update_color()
 		if (src.color)

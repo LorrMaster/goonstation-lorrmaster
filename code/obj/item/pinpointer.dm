@@ -376,7 +376,7 @@ TYPEINFO(/obj/item/pinpointer)
 			if(A.forensic_holder)
 				var/datum/forensic_group/dna/dna_group = A.forensic_holder.get_group(FORENSIC_GROUP_DNA)
 				if(istype(dna_group))
-					var/datum/forensic_id/blood_id = dna_group.get_blood_recent()
+					var/datum/forensic_id/blood_id = dna_group.get_recent(DNA_FORM_BLOOD)
 					if(blood_id)
 						return blood_id
 		else if (CHECK_LIQUID_CLICK(A))

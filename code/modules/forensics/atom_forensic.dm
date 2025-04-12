@@ -43,13 +43,11 @@
 	if(H.gloves && !ignore_gloves)
 		fp.glove_print = H.gloves.fiber_id
 		fp.print_mask = H.gloves.fiber_mask
-	ADD_FLAG(fp.flags, REMOVABLE_CLEANING)
 	if(is_fake)
 		ADD_FLAG(fp.flags, IS_JUNK)
 	src.forensic_holder.add_evidence(fp, FORENSIC_GROUP_FINGERPRINT, admin_only)
 	if(M.mind && !ignore_sleuth)
-		var/datum/forensic_data/basic/color_data = new(M.mind.color)
-		ADD_FLAG(color_data.flags, REMOVABLE_CLEANING)
+		var/datum/forensic_data/basic/color_data = new(M.mind.color, flags = REMOVABLE_CLEANING)
 		src.forensic_holder.add_evidence(color_data, FORENSIC_GROUP_SLEUTH_COLOR)
 
 /atom/proc/apply_blood(var/datum/bioHolder/source = null, var/blood_color = "#FFFFFF")

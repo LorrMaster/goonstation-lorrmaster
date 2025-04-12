@@ -422,21 +422,25 @@
 	if (src.traitHolder && src.traitHolder.hasTrait("reversal"))
 		src.TakeDamage(zone, brute, burn, tox, null, FALSE, TRUE)
 
+	var/prev_bruteloss = src.bruteloss
+	var/prev_burnloss = src.burnloss
 	src.take_toxin_damage(-tox)
 	src.bruteloss = max(bruteloss - brute, 0)
 	src.burnloss = max(burnloss - burn, 0)
 
+	if(src.bruteloss <= FORENSIC_HEAL_THRESHOLD && prev_bruteloss > FORENSIC_HEAL_THRESHOLD)
+		src.heal_forensic_update()
+	else if(src.burnloss <= FORENSIC_HEAL_THRESHOLD && prev_burnloss > FORENSIC_HEAL_THRESHOLD)
+		src.heal_forensic_update()
+
 	if (brute > 0)
-		if (brute >= 10 || src.get_brute_damage() <= 5)
+		if (brute >= 10)
 			src.heal_slash_wound("all")
-			src.heal_forensic_update()
 		else if (prob(10))
 			src.heal_slash_wound("single")
-
 	if (burn > 0)
-		if (burn >= 10 || src.get_burn_damage() <= 5)
+		if (burn >= 10)
 			src.heal_laser_wound("all")
-			src.heal_forensic_update()
 		else if (prob(10))
 			src.heal_laser_wound("single")
 

@@ -7,6 +7,7 @@
 	var/time_start = 0 // What time the evidence was first applied, or 0 if not relavent
 	var/time_end = 0 // When the evidence was most recently applied
 	var/perc_offset = 0 // Error offset multiplier for time estimations
+	var/scan_order = rand(0,1000)
 	var/accuracy_mult = 1 // Individual accuracy multiplier for this piece of evidence
 	var/flags = 0
 	// var/user = null // The player responsible for this evidence (for admins)
@@ -92,6 +93,7 @@
 		src.evidence_B = idB
 		src.evidence_C = idC
 		src.display = disp
+
 	get_text()
 		var/scan_text = display.display_text
 		if(!evidence_A)

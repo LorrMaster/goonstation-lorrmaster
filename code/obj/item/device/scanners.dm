@@ -217,6 +217,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 	var/atom/track_target = null // The target to be tracking
 	var/image/screen = null // Visuals for the screen
 	var/screen_type = "" // string added to the end of the screen's icon state
+	var/ignore_storage = TRUE // Used to store the scanner with mouse_drop
 
 	New()
 		..()
@@ -257,17 +258,21 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		if(src.active)
 			return
 
+		src.active = TRUE
 		change_screen("report")
 		var/holder = src.loc
-		var/search = tgui_input_text(user, "Enter a name, fingerprint, blood DNA, or scanner ID.", "Find record")
+		var/search = tgui_input_text(user, "Enter a name, fingerprint, DNA sample, scanner ID, etc...", "Find record")
 		if (src.loc != holder || !search || user.stat)
 			sleep(1)
 			change_screen("standby")
+			src.active = FALSE
 			return
 		search = copytext(sanitize(search), 1, 200)
-		user_search(user, search)
+		search_user(user, search)
+		search_info(user, search)
 		sleep(1)
 		change_screen("standby")
+		src.active = FALSE
 
 	pixelaction(atom/target, params, mob/user, reach)
 		if(src.active)
@@ -279,20 +284,22 @@ TYPEINFO(/obj/item/device/detective_scanner)
 				src.add_fingerprint(user)
 
 	proc/pre_attackby(obj/item/source, atom/target, mob/user)
-		if(target.storage && get_turf(target) != get_turf(user))
-			ADD_FLAG(src.item_function_flags, UNSTORABLE) // Scan storage instead of using it
+		if(target.storage && get_turf(target) != get_turf(user) && src.ignore_storage)
+			return TRUE
+		src.ignore_storage = TRUE
 
 	afterattack(atom/A as mob|obj|turf|area, mob/user as mob)
-		if (BOUNDS_DIST(A, user) > 0 || istype(A, /obj/ability_button))
-			return // Scanning for fingerprints over the camera network is fun, but doesn't really make sense (Convair880).
-		scan(A, user)
-		REMOVE_FLAG(src.item_function_flags, UNSTORABLE)
+		if(!ON_COOLDOWN(src, "f_scan", 2 SECONDS))
+			scan(A, user)
 
 	mouse_drop(atom/over_object, src_location, over_location, src_control, over_control, params)
-		REMOVE_FLAG(src.item_function_flags, UNSTORABLE) // click drag to store scanner
+		src.ignore_storage = FALSE
 		..()
 
+
 	proc/scan(atom/A, mob/user)
+		if (BOUNDS_DIST(A, user) > 0 || istype(A, /obj/ability_button))
+			return // Scanning for fingerprints over the camera network is fun, but doesn't really make sense (Convair880).
 		src.active = TRUE
 		playsound(src.loc , 'sound/machines/found.ogg', 30, 0, pitch = 1.5)
 		var/screen_delay = 0
@@ -334,7 +341,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 	proc/scan_human(mob/living/carbon/human/H, mob/user)
 		change_screen("scan_human")
 		user.visible_message(SPAN_ALERT("<b>[user]</b> is attempting a forensics scan on [H]..."))
-		for(var/i=1; i<=5; i++)
+		for(var/i=1; i<=3; i++)
 			animate_scanning(H, "#c6df56", time = 5)
 			sleep(1 SECONDS)
 			if (BOUNDS_DIST(H, user) > 0)
@@ -351,7 +358,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		src.screen.icon_state = screen_state + src.screen_type
 		src.UpdateOverlays(src.screen, "screen")
 
-	proc/user_search(mob/user, var/search)
+	proc/search_user(mob/user, var/search)
 		var/match_found = FALSE
 		if(copytext(search, length(search) - 3, length(search) + 1) == "-PDA")
 			// PDA IDs are weird due to their ability to leave behind multiple types of scans.
@@ -365,16 +372,92 @@ TYPEINFO(/obj/item/device/detective_scanner)
 
 		var/search_low = lowertext(search)
 		for (var/datum/db_record/R as anything in data_core.general.records)
-			if (search_low == lowertext(R["dna"]) || search_low == lowertext(R["fingerprint"]) || search_low == lowertext(R["fingerprint_L"]) || search_low == lowertext(R["name"]))
+			var/match_name = (search_low == lowertext(R["name"]))
+			var/match_fingerprints = (search_low == lowertext(R["fingerprint"]) || search_low == lowertext(R["fingerprint_L"]))
+			var/match_dna = (search_low == lowertext(R["dna"]))
+			var/match_retinas = (search == R["retinas"])
+			if (match_name || match_fingerprints || match_dna || match_retinas)
 				var/data = "\
 				<font color='blue'>--- Match found in security records:<b> [R["name"]]</b> ([R["rank"]])</font><br>\
 				<i>Fingerprint (right):</i><font color='blue'> [R["fingerprint"]]</font><br>\
 				<i>Fingerprint (left):</i><font color='blue'> [R["fingerprint_L"]]</font><br>\
-				<i>Blood DNA:</i><font color='blue'> [R["dna"]]</font>"
+				<i>Blood DNA:</i><font color='blue'> [R["dna"]]</font><br>\
+				<i>Retina Scan:</i><font color='blue'> [R["retinas"]]</font>"
 				boutput(user, data)
 				match_found = TRUE
-		if(!match_found)
-			user.show_text("No match detected for [search].", "red")
+		return match_found
+		//if(!match_found)
+		//	user.show_text("No match detected for [search].", "red")
+
+	proc/search_info(mob/user, var/search)
+		var/result = null
+		var/search_low = lowertext(search)
+		switch(search_low)
+			// -----| Autopsy Info |-----
+			if("cytotoxicity")
+				result = "Damage resulting from exposure to cytotoxins."
+			if("fibrosis")
+				result = "Damage caused by extreme involuntary muscle spasms."
+			if("hyperinflammaging")
+				result = "Damage caused by a sudden drastic increase in the subject's aging process. \
+				Normally affects the entire body at once."
+			if("hypertension")
+				result = "When in the heart it is usually the result of an abnormal heart rhythm."
+			if("inflammation")
+				result = "The body's generic response to a variety of harmful stimuli."
+			if("insect bites")
+				result = "Damage from the direct presence of a swarm of aggressive insects, such as ants or spiders."
+			if("neurotoxicity")
+				result = "Damage resulting from exposure to neurotoxins."
+			if("oxidative damage")
+				result = "The result of mercury poisoning."
+			if("prions")
+				result = "<li>Prion proteins are present in the sample.</li>\
+				<li>[SPAN_ALERT("WARNING: Prions are difficult to destroy, incurable, and always lethal.\
+				Immediate emergency quarantine and biohazard response advised.")]</li>"
+			if("pulmonary edema")
+				result = "Lung damage that can be caused by either capulettium or cyanide poisoning."
+			// -----| Evidence Descriptions |-----
+			if("dna")
+				result = "Genetic organic pattern obtained from blood, tissue, saliva, etc."
+			if("blood")
+				result = "The stuff your heart pumps. Assuming you have one."
+			if("blood trace", "blood traces")
+				result = "Blood evidence detected after cleaning, typically through exposure to luminol."
+			if("saliva")
+				result = "Fluid used to break down food, normally remains after eating or drinking. \
+				Not produced by vampiric entities."
+			if("fingerprint", "fingerprints")
+				result = "Patterns left behind when touching or grabbing objects. Obscured by wearing gloves, \
+				though partial prints can sometimes still be salvaged when applied with silver nitrate."
+			if("flash imprint")
+				result = "Microburns in the retina left behind by a blinding flash. \
+				A detailed analysis can reveal information on the type of flash and/or lens used."
+			if("pollen")
+				result = "Imbeded in clothing while in proximity with plants. \
+				Resistant to most chemicals and will typically remain even after cleaning."
+			if("spore", "spores")
+				result = "Imbeded in clothing while in proximity with fungi."
+			if("dust")
+				result = "Small particles of rocks and minerals."
+			if("scanner particles", "scanner", "scan")
+				result = "Scanner particles are used by scanners to perform their analysis. \
+				Can be traced back to their source even from long distances."
+			// -----| Forensic Reagents Info |-----
+			if("charcoal")
+				result = "Used for... "
+			if("iodine")
+				result = "Used for... "
+			if("luminol")
+				result = "Used for... Effectiveness remains even when mixed with a large portion of water."
+			if("silver nitrate")
+				result = "Used for... "
+			if("space cleaner")
+				result = "Used for cleaning up messes. The bane of detectives everywhere."
+			// -----| Other Reagents Info |-----
+		var/data = "<li>[SPAN_NOTICE("--- Information on [search]:")]</li><li>[result]</li>"
+		boutput(user, data)
+		return result
 
 	proc/track(var/atom/target)
 		if(!target)
@@ -402,7 +485,7 @@ TYPEINFO(/obj/item/device/detective_scanner)
 		change_screen("standby")
 
 TYPEINFO(/obj/item/device/detective_scanner/detective)
-	mats = list("crystal_dense" = 5,
+	mats = list("crystal_dense" = 2,
 				"conductive_high" = 5)
 
 /obj/item/device/detective_scanner/detective

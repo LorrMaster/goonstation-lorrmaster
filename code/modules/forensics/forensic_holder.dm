@@ -18,6 +18,9 @@ datum/forensic_holder
 		var/list/datum/forensic_group/ev_list = src.group_list
 		if(scan_builder.is_admin)
 			ev_list = src.hidden_list
+		else if(suppress_scans)
+			scan_builder.scan_suppressed = TRUE
+			return
 		var/prev_accuracy = scan_builder.accuracy
 		scan_builder.accuracy *= src.accuracy_mult
 		for(var/i=1, i<= ev_list.len, i++) // Add all the text to its correct list

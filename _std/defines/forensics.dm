@@ -2,17 +2,14 @@
 TODO:
  - Fix dna sample duplicates
  - Remove & replace all the old forensics stuff in general
- - Contraband
- - Take another look at autopsy implementation
- - Temperary evidence disable?
+ - Redo autopsy evidence
  - admin scans
+ - Use COMSIG_ITEM_EQUIPPED
 
 Bugs:
  - Forensics does not carry over to final stage of ship construction
- - Blood time issues?
+ - Blood time issues / duplicate blood samples
  - Check if spamming forensic scanner leads to bugs?
- - Scanning storage message removal. Low priority.
- - 
 
 Lower Priority
  - Forensic_holder starts as null?
@@ -128,7 +125,7 @@ Lower Priority
 #define DNA_FORM_HAIR 3
 #define DNA_FORM_TISSUE 4
 #define DNA_FORM_BONE 5
-#define DNA_FORM_SALIVA 6
+#define DNA_FORM_SALIVA 6 // Note: Should exclude vampiric creatures
 #define DNA_FORM_VOMIT 7
 
 #define PROJ_BULLET_THROUGH 1

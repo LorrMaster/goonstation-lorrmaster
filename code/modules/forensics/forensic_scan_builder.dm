@@ -6,15 +6,16 @@
 	var/report_title = ""
 	var/list/list/datum/forensic_data/data_list = new() // Collected forensic data (from the POV of the scanner)
 	var/list/header_list = new() // List of headers (should probably loop through /list/list/data_list instead)
+	var/shift_time = -1
 
 	var/accuracy = -1 // How accurate the time estimates are, or negative if not included by default
-	var/base_accuracy = -1 // How accurate the time estimates are, or negative if not included by default
+	var/base_accuracy = -1 // Accuracy inherited by chained scans
 	var/is_admin = FALSE // Is this being analysed via admin commands?
 	var/ignore_text = FALSE // Only collect actual forensic data (used for the fingerprinter)
 	var/list/abridged_headers = list(HEADER_FINGERPRINTS, HEADER_DNA, HEADER_NOTES)
 
 	var/scan_states = "" // Text to show how the scan was taken
-	var/filter_dna = null // Used to ignore the DNA of the mob you are scanning (unless it is blood DNA)
+	var/filter_dna = null // Used to ignore the DNA of the mob you are scanning (not including blood DNA)
 	var/filter_fingerprint_L = null // Used to ignore gloves / fingerprints from the player you are scanning
 	var/filter_fingerprint_R = null
 	var/filter_gloves = null
@@ -31,6 +32,7 @@
 		src.accuracy = src.base_accuracy
 		src.is_admin = is_admin
 		src.ignore_text = ignore_text
+		src.shift_time = round(ticker.round_elapsed_ticks / (1 MINUTES), 0.01)
 		/*
 		if(isitem(target))
 			var/obj/item/I = target
@@ -39,7 +41,7 @@
 		*/
 		..()
 
-	proc/add_data(var/datum/forensic_data/f_data, var/header = "Notes", var/category = FORENSIC_GROUP_NOTE)
+	proc/add_data(var/datum/forensic_data/f_data, var/header = "Notes")
 		if(!data_list[header])
 			data_list[header] = new()
 		if(f_data)
@@ -61,6 +63,7 @@
 	proc/add_holder(var/datum/forensic_holder/new_holder, var/title = null, var/h_accuracy = src.base_accuracy) // Use this to scan multiple items or regions
 		if(!src.chain_scan)
 			src.chain_scan = new(src.scan_user, new_holder, h_accuracy, src.is_admin, src.ignore_text)
+			src.chain_scan.shift_time = -1 // Don't display the shift time multiple times
 			if(title)
 				src.chain_scan.report_title = title
 		else
@@ -85,9 +88,9 @@
 		var/list/h_list = src.header_list.Copy()
 		var/list/abridged_list = new()
 		for(var/i = 1; i<= length(h_list); i++)
-			abridged_list[h_list[i]] = is_abridged && !src.abridged_headers.Find(h_list[i])
+			abridged_list[h_list[i]] = is_abridged && (!src.abridged_headers.Find(h_list[i]) || (length(src.data_list[h_list[i]]) > 5 && h_list[i] != HEADER_NOTES))
 		var/report_text = ""
-		// Pick a header. Turn all data under that header into text (if not abridged)
+		// Pick a header. Turn all data under that header into text (or just the header if it is abridged)
 		var/h_count = length(h_list)
 		for(var/i = 1; i<= h_count; i++)
 			var/header = choose_header(h_list, abridged_list)
@@ -102,26 +105,27 @@
 			report_text = report_text + section_text
 		if(!report_text)
 			report_text = "No evidence detected."
-		//if(!is_abridged)
-		//	report_text = "<li>[TIME]<li>" + [report_text]
+
+		// Title the report, plus some additional info about the scan
 		var/title = SPAN_SUCCESS("<li><b style='color:#92e592;'>[src.report_title]</b>[print_hyperlink]</li>")
-		var/scan_states = ""
-		if(src.scan_states && !is_abridged)
-			scan_states = "<li>Reagents: [src.scan_states]</li>"
 		if(!is_abridged)
-			title += "<li></li>"
-			report_text = "<style> dt {margin-top:5px; color:#0000ff;} </style>" + report_text
+			if(src.shift_time >= 0)
+				title += "<li>Time: [time2text(TIME)] | Shift time: [floor(src.shift_time)] minutes</li>"
+			if(src.scan_states)
+				title += "<li>Applied reagents: [src.scan_states]</li>"
+			report_text = "<li></li><style> dt {margin-top:5px; color:#0000ff;} </style>" + report_text
 		else
 			report_text = "<style> dt {color:#0000ff;} </style>" + report_text
-		report_text = "<style> dd {margin-left:15px;} </style>[title][scan_states][report_text]"
+		report_text = "<style> dd {margin-left:15px;} </style>[title][report_text]"
 
+		// If there is another scan section to chain, add its report as well
 		if(src.chain_scan)
 			report_text += "<li></li>[src.chain_scan.build_report(user, is_abridged)]"
 		return report_text
 
 	proc/data_to_text(var/list/datum/forensic_data/d_list, var/is_abridged = FALSE)
 		var/text = ""
-		for(var/i=1; i<= d_list.len; i++)
+		for(var/i=1; i<= length(d_list); i++)
 			var/d_text = d_list[i].get_text()
 			if(d_list[i].accuracy_mult >= 0)
 				d_text += " [d_list[i].get_time_estimate(d_list[i].accuracy_mult)]"

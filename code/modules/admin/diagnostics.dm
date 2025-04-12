@@ -949,7 +949,7 @@ proc/debug_map_apc_count(delim,zlim)
 			var/toucher = null
 			for(var/atom/A in list(theTurf) + theTurf.contents)
 				var/datum/forensic_group/dna/dna_group = A.forensic_holder?.get_group(FORENSIC_GROUP_DNA)
-				var/datum/forensic_id/b_sig = dna_group?.get_blood_recent(TRUE)
+				var/datum/forensic_id/b_sig = dna_group?.get_recent(DNA_FORM_BLOOD, TRUE)
 				if(is_ok(A) && b_sig)
 					var/who = (A.blood_DNA in bioUids) ? bioUids[A.blood_DNA] : A.blood_DNA
 					if(isnull(toucher))
@@ -981,6 +981,15 @@ proc/debug_map_apc_count(delim,zlim)
 			else
 				img.app.color = debug_color_of(toucher)
 				img.app.overlays = list(src.makeText(toucher, RESET_ALPHA | RESET_COLOR))
+
+		proc/get_blood_dna(atom/A)
+			if(!A.forensic_holder)
+				return
+			var/datum/forensic_group/dna/dna_group = A.forensic_holder.get_group(FORENSIC_GROUP_DNA)
+			if(!istype(dna_group))
+				return
+			var/list/datum/forensic_id/dna_list = dna_group.get_recent(DNA_FORM_BLOOD, TRUE)
+			return
 		proc/is_ok(atom/A)
 			return TRUE
 

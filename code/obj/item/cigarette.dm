@@ -369,7 +369,7 @@
 		..()
 		if(!isliving(user))
 			return
-		if (slot == SLOT_WEAR_MASK && user.bioHolder)
+		if (slot == SLOT_WEAR_MASK && user.bioHolder && !isvampiricany(user))
 			var/datum/forensic_data/dna/dna_data = new(user.bioHolder.dna_signature, DNA_FORM_SALIVA)
 			src.add_evidence(dna_data, FORENSIC_GROUP_DNA)
 

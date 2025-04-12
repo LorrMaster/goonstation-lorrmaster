@@ -41,7 +41,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 
 	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		var/scan_accuracy = src.group_accuracy * scan_builder.accuracy
-		for(var/i=1, i<= src.notes_list.len; i++)
+		for(var/i=1, i<= length(src.notes_list); i++)
 			var/datum/forensic_data/f_data = src.notes_list[i].get_copy()
 			f_data.accuracy_mult *= scan_accuracy
 			scan_builder.add_data(f_data, get_header(), src.category)
@@ -50,12 +50,12 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		return HEADER_NOTES
 
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
-		for(var/i=1, i<= src.notes_list.len; i++)
+		for(var/i=1, i<= length(src.notes_list); i++)
 			if(src.notes_list[i].should_remove(removal_flags))
 				src.notes_list.Cut(i, i+1)
 
 	proc/apply_basic(var/datum/forensic_data/basic/E)
-		for(var/i=1, i<= notes_list.len; i++)
+		for(var/i=1, i<= length(notes_list); i++)
 			if(E.evidence == src.notes_list[i].evidence && matching_flags(E.flags, src.notes_list[i].flags))
 				notes_list[i].time_end = max(notes_list[i].time_end, E.time_end)
 				return
@@ -71,14 +71,14 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		var/datum/forensic_data/basic/E = data
 
 		var/oldest = 1
-		for(var/i=1, i<= evidence_list.len; i++)
+		for(var/i=1, i<= length(evidence_list); i++)
 			if(E.evidence == src.evidence_list[i].evidence)
 				evidence_list[i].time_end = max(evidence_list[i].time_end, E.time_end)
 				update_value(evidence_list[i], E)
 				return
 			if(evidence_list[i].time_end < evidence_list[oldest].time_end)
 				oldest = i
-		if(src.evidence_list.len < EVIDENCE_MAX)
+		if(length(src.evidence_list) < EVIDENCE_MAX)
 			src.evidence_list += E
 		else
 			var/datum/D = src.evidence_list[oldest]
@@ -104,13 +104,13 @@ ABSTRACT_TYPE(/datum/forensic_group)
 				new_holder.add_evidence(src.evidence_list[i].get_copy(), src.category)
 
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
-		for(var/i=1, i<= src.evidence_list.len; i++)
+		for(var/i=1, i<= length(src.evidence_list); i++)
 			if(src.evidence_list[i].should_remove(removal_flags))
 				src.evidence_list.Cut(i, i+1)
 
 	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		var/scan_accuracy = get_accuracy(scan_builder)
-		for(var/i=1, i<= src.evidence_list.len; i++)
+		for(var/i=1, i<= length(src.evidence_list); i++)
 			var/datum/forensic_data/f_data = src.evidence_list[i].get_copy()
 			f_data.accuracy_mult *= scan_accuracy
 			scan_builder.add_data(f_data, get_header(), src.category)
@@ -141,13 +141,13 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	group_accuracy = 1
 
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
-		for(var/i=1, i<= src.evidence_list.len; i++)
+		for(var/i=1, i<= length(src.evidence_list); i++)
 			if(src.evidence_list[i].should_remove(removal_flags))
 				ADD_FLAG(src.evidence_list[i].flags, IS_TRACE) // Mark as trace instead of outright removing. No effect for now.
 
 	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		var/scan_accuracy = get_accuracy(scan_builder)
-		for(var/i=1, i<= src.evidence_list.len; i++)
+		for(var/i=1, i<= length(src.evidence_list); i++)
 			var/datum/forensic_data/f_data = src.evidence_list[i].get_copy()
 			if(scan_builder.analysis_medical && HAS_ANY_FLAGS(f_data.flags, REMOVABLE_HEAL))
 				if(scan_accuracy < 0)
@@ -185,7 +185,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	proc/get_sleuth_text(var/atom/A)
 		var/data_text = ""
 		var/sleuth_accuracy = 0.35
-		for(var/i=1, i<= src.evidence_list.len; i++)
+		for(var/i=1, i<= length(src.evidence_list); i++)
 			var/color = src.evidence_list[i].evidence.id
 			var/time_since = TIME - src.evidence_list[i].time_end
 			var/time = src.evidence_list[i].get_time_estimate(sleuth_accuracy)
@@ -205,7 +205,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			data_text += "<li>[SPAN_NOTICE(c_text)] [time]</li>"
 		return data_text
 	proc/get_intensity(var/list/intensity_list, var/list/time_since_list, var/time_since)
-		for(var/i=2, i<= intensity_list.len; i++)
+		for(var/i=2, i<= length(intensity_list); i++)
 			if(time_since < time_since_list[i] MINUTES)
 				return intensity_list[i]
 		return intensity_list[1]
@@ -219,13 +219,13 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		var/datum/forensic_data/multi/E = data
 
 		var/oldest = 1
-		for(var/i=1, i<= evidence_list.len; i++)
+		for(var/i=1, i<= length(evidence_list); i++)
 			if(src.evidence_list[i].is_same(E))
 				evidence_list[i].time_end = max(evidence_list[i].time_end, E.time_end)
 				return
 			if(evidence_list[i].time_end < evidence_list[oldest].time_end)
 				oldest = i
-		if(src.evidence_list.len < 7)
+		if(length(src.evidence_list) < EVIDENCE_MAX)
 			src.evidence_list += E
 		else
 			var/datum/D = src.evidence_list[oldest]
@@ -238,13 +238,13 @@ ABSTRACT_TYPE(/datum/forensic_group)
 				new_holder.add_evidence(src.evidence_list[i].get_copy(), src.category)
 
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
-		for(var/i=1, i<= src.evidence_list.len; i++)
+		for(var/i=1, i<= length(src.evidence_list); i++)
 			if(src.evidence_list[i].should_remove(removal_flags))
 				src.evidence_list.Cut(i, i+1)
 
 	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
 		var/scan_accuracy = src.group_accuracy * scan_builder.accuracy
-		for(var/i=1, i<= src.evidence_list.len; i++)
+		for(var/i=1, i<= length(src.evidence_list); i++)
 			var/datum/forensic_data/f_data = src.evidence_list[i].get_copy()
 			f_data.accuracy_mult *= scan_accuracy
 			scan_builder.add_data(f_data, get_header(), src.category)
@@ -294,14 +294,14 @@ ABSTRACT_TYPE(/datum/forensic_group)
 		var/datum/forensic_data/fingerprint/fp = data
 
 		var/oldest = 1
-		for(var/i=1, i<= src.prints_list.len; i++)
+		for(var/i=1, i<= length(src.prints_list); i++)
 			if(src.prints_list[i].is_same(fp))
 				prints_list[i].time_end = max(prints_list[i].time_end, fp.time_end)
 				return
 			if(src.prints_list[i].time_end < src.prints_list[oldest].time_end)
 				oldest = i
 
-		if(src.prints_list.len < FINGERPRINTS_MAX)
+		if(length(src.prints_list) < FINGERPRINTS_MAX)
 			src.prints_list += fp
 		else
 			var/datum/D = src.prints_list[oldest]
@@ -325,7 +325,7 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			scan_builder.add_state("iodine")
 		if(silver_nitrate_time > TIME)
 			scan_builder.add_state("silver nitrate")
-		for(var/i=1, i<= src.prints_list.len; i++)
+		for(var/i=1, i<= length(src.prints_list); i++)
 			var/datum/forensic_data/fingerprint/f_data = src.prints_list[i].get_copy()
 			var/filtered = (f_data.print == scan_builder.filter_fingerprint_R) && f_data.print && !f_data.glove_print
 			filtered = filtered || (f_data.print == scan_builder.filter_fingerprint_L) && f_data.print && !f_data.glove_print
@@ -357,13 +357,13 @@ ABSTRACT_TYPE(/datum/forensic_group)
 			ev_list = dna_list
 
 		var/oldest = 1
-		for(var/i=1, i<= ev_list.len; i++)
+		for(var/i=1, i<= length(ev_list); i++)
 			if(ev_list[i].is_same(E))
 				ev_list[i].time_end = max(ev_list[i].time_end, E.time_end)
 				return
 			if(ev_list[i].time_end < ev_list[oldest].time_end)
 				oldest = i
-		if(ev_list.len < 7)
+		if(length(ev_list) < EVIDENCE_MAX)
 			ev_list += E
 		else
 			var/datum/D = ev_list[oldest]
@@ -382,13 +382,13 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	remove_evidence(var/datum/forensic_holder/parent, var/removal_flags)
 		if(!HAS_ANY_FLAGS((src.group_flags & REMOVABLE_ALL), removal_flags))
 			return
-		for(var/i=src.dna_list.len, i>= 1; i--)
+		for(var/i= length(src.dna_list), i>= 1; i--)
 			var/datum/forensic_data/dna/E = src.dna_list[i]
 			src.dna_list.Cut(i, i+1)
 			if(E.form == DNA_FORM_BLOOD)
 				ADD_FLAG(E.flags, IS_TRACE)
 				apply_evidence(E) // reapply this blood evidence as trace evidence
-		if(dna_list.len == 0 && dna_trace_list.len == 0)
+		if(length(dna_list) == 0 && length(dna_trace_list) == 0)
 			parent.cut_group(category)
 
 	get_scan_evidence(var/datum/forensic_scan_builder/scan_builder)
@@ -411,43 +411,43 @@ ABSTRACT_TYPE(/datum/forensic_group)
 	get_header()
 		return HEADER_DNA
 
-	proc/contains_blood(var/include_trace = FALSE) // Return true if there is blood evidence
-		for(var/i=1; i<= src.dna_list.len; i++)
-			if(src.dna_list[i].form == DNA_FORM_BLOOD)
-				return TRUE
-		if(include_trace == FALSE)
-			return FALSE
-		for(var/i=1; i<= src.dna_trace_list.len; i++)
-			if(src.dna_trace_list[i].form == DNA_FORM_BLOOD)
-				return TRUE
-		return FALSE
-
-	proc/conatins_blood_specific(var/datum/forensic_id/blood_id, var/include_trace = FALSE) // Looks for a specific blood DNA id
-		if(!blood_id)
-			return FALSE
+	proc/contains_form(var/dna_form, var/include_trace = FALSE) // Return true if there is blood evidence
 		for(var/i=1; i<= length(src.dna_list); i++)
-			if(src.dna_list[i].pattern == blood_id && src.dna_list[i].form == DNA_FORM_BLOOD)
+			if(src.dna_list[i].form == dna_form)
 				return TRUE
 		if(include_trace == FALSE)
 			return FALSE
 		for(var/i=1; i<= length(src.dna_trace_list); i++)
-			if(src.dna_trace_list[i].pattern == blood_id && src.dna_trace_list[i].form == DNA_FORM_BLOOD)
+			if(src.dna_trace_list[i].form == dna_form)
 				return TRUE
 		return FALSE
 
-	proc/get_blood_recent(var/is_admin = FALSE) // Return the most recent blood sample
+	proc/contains_specific(var/datum/forensic_id/blood_id, var/dna_form = DNA_FORM_NONE, var/include_trace = FALSE) // Looks for a specific blood DNA id
+		if(!blood_id)
+			return FALSE
+		for(var/i=1; i<= length(src.dna_list); i++)
+			if(src.dna_list[i].pattern == blood_id && (src.dna_list[i].form == dna_form || dna_form == DNA_FORM_NONE))
+				return TRUE
+		if(include_trace == FALSE)
+			return FALSE
+		for(var/i=1; i<= length(src.dna_trace_list); i++)
+			if(src.dna_trace_list[i].pattern == blood_id && (src.dna_trace_list[i].form == dna_form || dna_form == DNA_FORM_NONE))
+				return TRUE
+		return FALSE
+
+	proc/get_recent(var/dna_form = DNA_FORM_NONE, var/is_admin = FALSE) // Return the most recent blood sample
 		RETURN_TYPE(/datum/forensic_id)
 		var/datum/forensic_id/dna_id = null
 		var/b_time = 0
 		for(var/i=1; i<= length(src.dna_list); i++)
-			if(b_time < src.dna_list[i].time_end && src.dna_list[i].form == DNA_FORM_BLOOD)
+			if(b_time < src.dna_list[i].time_end && (src.dna_list[i].form == dna_form || dna_form == DNA_FORM_NONE))
 				dna_id = src.dna_list[i].pattern
 				b_time = src.dna_list[i].time_end
 		if(luminol_time < TIME || is_admin)
 			return dna_id
 		for(var/i=1; i<= length(src.dna_trace_list); i++)
 			var/ignore_junk = is_admin && HAS_FLAG(src.dna_trace_list[i].flags, IS_JUNK)
-			if(b_time < src.dna_trace_list[i].time_end && src.dna_trace_list[i].form == DNA_FORM_BLOOD && !ignore_junk)
+			if(b_time < src.dna_trace_list[i].time_end && (src.dna_trace_list[i].form == dna_form || dna_form == DNA_FORM_NONE) && !ignore_junk)
 				dna_id = src.dna_trace_list[i].pattern
 				b_time = src.dna_trace_list[i].time_end
 		return dna_id
