@@ -641,3 +641,13 @@ obj/item/organ/eye/skeleton
 			center_list = list("a=","c=","C=","D=","e=","Q=","u=","U=","v=","V=","0=")
 		var/id_text = build_id_retina(CHAR_LIST_RETINA_L, CHAR_LIST_RETINA_R, center_list, 1)
 		retina_scan = register_id(id_text)
+
+/obj/item/organ/eye/glass
+	name = "glass eye"
+	organ_name = "glass eye"
+	desc = "Straight out of the sixteenth century. Surprisingly lifelike!"
+	show_on_examine = TRUE
+	provides_sight = FALSE
+	created_decal = null
+	default_material = "glass"
+	blood_reagent = null

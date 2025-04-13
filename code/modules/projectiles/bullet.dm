@@ -914,6 +914,32 @@ toxic - poisons
 	dissipation_delay = 8
 	damage_type = D_KINETIC
 
+	splinters
+		name = "burning splinter"
+		armor_ignored = 0.25
+		brightness = 4
+		icon_state = "birdshot3"
+		damage_type = D_BURNING
+		hit_type = DAMAGE_STAB
+		impact_image_state = "bullethole-small-cluster-3"
+		ricochets = TRUE
+		projectile_speed = 96
+		implanted = /obj/item/implant/projectile/shrapnel
+		has_impact_particles = TRUE
+
+
+		on_launch(obj/projectile/O)
+			O.AddComponent(/datum/component/sniper_wallpierce, 1, 0, TRUE)
+			O.layer = EFFECTS_LAYER_4
+			O.plane = PLANE_ABOVE_LIGHTING
+
+		on_hit(atom/hit, direction, obj/projectile/P)
+			var/turf/T = get_turf(hit)
+			var/datum/effects/system/spark_spread/s = new /datum/effects/system/spark_spread
+			s.set_up(2, 1, T)
+			s.start()
+			..()
+
 /datum/projectile/bullet/stinger_ball
 	name = "rubber ball"
 	sname = "rubber ball"
@@ -1182,6 +1208,26 @@ toxic - poisons
 	pellets_to_fire = 7
 	has_impact_particles = TRUE
 
+/datum/projectile/bullet/cluster
+	name = "cluster munition"
+	damage = 15
+	icon_state = "40mm_lethal"
+	dissipation_delay = 0
+	dissipation_rate = 5
+	implanted = null
+	damage_type = D_KINETIC
+	hit_type = DAMAGE_BLUNT
+	impact_image_state = "bullethole"
+	casing = /obj/item/casing/shotgun/orange
+
+	on_hit(atom/hit)
+		new /obj/effects/explosion/fiery(get_turf(hit))
+		explosion_new(null, get_turf(hit), 2)
+
+	on_max_range_die(obj/projectile/O)
+		new /obj/effects/explosion/fiery(get_turf(O))
+		explosion_new(null, get_turf(O), 2)
+
 /datum/projectile/bullet/flare
 	name = "flare"
 	sname = "hotshot"
@@ -1224,11 +1270,19 @@ toxic - poisons
 
 	on_pre_hit(atom/hit, angle, obj/projectile/P)
 		. = ..()
-		if (istype(hit, /mob/living) && !istype(hit, /mob/living/critter/space_phoenix))
+		if ((istype(hit, /mob/living) && !istype(hit, /mob/living/silicon)) && !istype(hit, /mob/living/critter/space_phoenix))
 			var/mob/living/L = hit
 			L.TakeDamage("All", 2.5, 5, damage_type = src.damage_type)
 			L.bodytemperature -= 3
 			L.changeStatus("shivering", 3 SECONDS * (1 - 0.75 * L.get_cold_protection() / 100), TRUE)
+		else if (istype(hit, /mob/living/silicon/ai))
+			var/mob/living/L = hit
+			L.TakeDamage("All", 5, 15, damage_type = src.damage_type) // about 15 hits to kill
+		else if (istype(hit, /mob/living/silicon))
+			var/mob/living/L = hit
+			L.TakeDamage("All", 10, 30, damage_type = src.damage_type) // about 20 hits to kill a standard cyborg
+			boutput(L, SPAN_ALERT("Ice creeps into your servos!"))
+			L.changeStatus("shivering", 3 SECONDS, TRUE) // magical cold against cyborgs
 		else if (isvehicle(hit))
 			src.damage = 25
 			src.disruption = 5
