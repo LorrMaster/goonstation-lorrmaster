@@ -43,26 +43,20 @@
 		CRASH("Invalid Params for get_dir_alt: Source:[identify_object(source)] Target:[identify_object(target)]")
 	var/dir_angle = get_angle(source, target)
 	switch(dir_angle)
-		if(0 to 22.5)
-			return NORTH
 		if(22.5 to 67.5)
 			return NORTHEAST
 		if(67.5 to 112.5)
 			return EAST
 		if(112.5 to 157.5)
 			return SOUTHEAST
-		if(157.5 to 181)
+		if(157.5 to 181, -181 to -157.5)
 			return SOUTH
-		if(-22.5 to 0)
-			return NORTH
 		if(-67.5 to -22.5)
 			return NORTHWEST
 		if(-112.5 to -67.5)
 			return WEST
 		if(-157.5 to -112.5)
 			return SOUTHWEST
-		if(-181 to -157.5)
-			return SOUTH
 		else
 			return NORTH
 
