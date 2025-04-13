@@ -3423,4 +3423,3 @@
 	if(!src.forensic_holder || src.health > FORENSIC_HEAL_THRESHOLD)
 		return
 	src.forensic_holder.remove_evidence(REMOVABLE_HEAL)
-	src.was_evidence_healed = REMOVABLE_HEAL

@@ -7,7 +7,7 @@
 	var/time_start = 0 // What time the evidence was first applied, or 0 if not relavent
 	var/time_end = 0 // When the evidence was most recently applied
 	var/perc_offset = 0 // Error offset multiplier for time estimations
-	var/scan_order = rand(0,1000)
+	var/scan_order = 500
 	var/accuracy_mult = 1 // Individual accuracy multiplier for this piece of evidence
 	var/flags = 0
 	// var/user = null // The player responsible for this evidence (for admins)
@@ -17,6 +17,7 @@
 		src.time_end = time_start
 		src.perc_offset = (rand() - 0.5) * 2
 		src.accuracy_mult *= ((rand() - 0.5) * 0.15) + 1
+		scan_order = rand(0, 1000)
 	proc/get_text() // The text to display when scanned
 		return ""
 	proc/should_remove(var/remove_flags) // Should this evidence be removed?

@@ -1231,8 +1231,7 @@ var/list/blood_decal_violent_icon_states = list("floor1", "floor2", "floor3", "f
 
 	on_forensic_scan(datum/forensic_scan_builder/scan_builder)
 		..()
-		var/datum/forensic_data/basic/f_data = new(register_id("Spores: Space Fungus"))
-		scan_builder.add_data(f_data)
+		scan_builder.add_text("Spores: Space Fungus")
 
 /obj/decal/cleanable/martian_viscera
 	name = "chunky martian goop"

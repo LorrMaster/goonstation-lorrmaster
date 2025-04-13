@@ -1304,7 +1304,7 @@ datum
 				if(!istype(group, /datum/forensic_group/dna))
 					return 1
 				var/datum/forensic_group/dna/dna_group = group
-				if(dna_group.contains_blood(include_trace = TRUE) == FALSE)
+				if(dna_group.contains_form(DNA_FORM_BLOOD, TRUE) == FALSE)
 					return 1
 				var/fadetime = 0
 				if(dna_group.luminol_time > TIME)

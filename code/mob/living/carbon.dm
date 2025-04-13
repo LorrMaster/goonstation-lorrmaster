@@ -178,7 +178,6 @@
 	if(src.oxyloss <= FORENSIC_HEAL_THRESHOLD)
 		removal_flags |= REMOVABLE_HEAL_OXYGEN
 	src.forensic_holder.remove_evidence(removal_flags)
-	src.was_evidence_healed = removal_flags
 
 /mob/living/carbon/get_brain_damage()
 	return src.brainloss
