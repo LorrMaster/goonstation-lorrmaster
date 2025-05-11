@@ -1221,6 +1221,78 @@ TYPEINFO(/obj/item/mechanics)
 		icon_state = "[under_floor ? "u":""]comp_wait"
 		return
 
+// Equals: Send the signal if the inputs match (within timer) (sigText: need to match text, else need to match)
+// AND: Send the signal if two inputs arrive (within timer) (sigText: need to match text)
+// OR: Send the signal if a matching input arrives (timer: )
+// text: sigText
+// var: timeframe
+/obj/item/mechanics/boolcomp
+	name = "Boolean Component"
+	desc = "Can act as an AND or an OR component"
+	icon_state = "comp_and"
+	var/state = "and"
+	var/timeframe = 30
+	var/inp1 = 0
+	var/inp2 = 0
+	var/triggerSignal = "1"
+
+	get_desc()
+		switch(src.state)
+			if("and")
+				. += "<br>[SPAN_NOTICE("Current State: AND | Current Time Frame: [timeframe]")]"
+			if("or")
+				. += "<br>[SPAN_NOTICE("Current State: OR")]"
+
+	New()
+		..()
+		SEND_SIGNAL(src,COMSIG_MECHCOMP_ADD_INPUT,"input 1", PROC_REF(fire1))
+		SEND_SIGNAL(src,COMSIG_MECHCOMP_ADD_INPUT,"input 2", PROC_REF(fire2))
+		SEND_SIGNAL(src,COMSIG_MECHCOMP_ALLOW_MANUAL_SIGNAL)
+		SEND_SIGNAL(src,COMSIG_MECHCOMP_ADD_CONFIG,"Set Time Frame",PROC_REF(setTime))
+
+	update_icon()
+		icon_state = "[under_floor ? "u":""]comp_[src.state]"
+		return
+
+	proc/setTime(obj/item/W as obj, mob/user as mob)
+		var/inp = input(user, "Enter Time Frame in 10ths of a second:", "Set Time Frame", timeframe) as num
+		if(!in_interact_range(src, user) || user.stat)
+			return 0
+		if(!isnull(inp))
+			timeframe = inp
+			tooltip_rebuild = 1
+			boutput(user, "Set Time Frame to [inp]")
+			return 1
+		return 0
+
+	proc/fire1(var/datum/mechanicsMessage/input)
+		if(level == OVERFLOOR) return
+		if(inp1) return
+		LIGHT_UP_HOUSING
+		inp1 = 1
+		if(inp2)
+			SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_DEFAULT_MSG,input)
+			inp1 = 0
+			inp2 = 0
+			return
+		SPAWN(timeframe)
+			inp1 = 0
+		return
+
+	proc/fire2(var/datum/mechanicsMessage/input)
+		if(level == OVERFLOOR) return
+		if(inp2) return
+		LIGHT_UP_HOUSING
+		inp2 = 1
+		if(inp1)
+			SEND_SIGNAL(src,COMSIG_MECHCOMP_TRANSMIT_DEFAULT_MSG,input)
+			inp1 = 0
+			inp2 = 0
+			return
+		SPAWN(timeframe)
+			inp2 = 0
+		return
+
 //If two signals arrive within the timeframe: send the set signal
 /obj/item/mechanics/andcomp
 	name = "AND Component"
