@@ -1236,6 +1236,9 @@ TYPEINFO(/obj/item/clothing/under/gimmick/dawson)
 	setupProperties()
 		..()
 		setProperty("conductivity", 1)
+		setProperty("coldprot", 0)
+		setProperty("heatprot", 0)
+		setProperty("viralprot", 0)
 
 	attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
 		if ((user.bioHolder && user.bioHolder.HasEffect("clumsy") && prob(40)) || prob(1)) // honk

@@ -549,32 +549,26 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 	desc = "It is slowly melting."
 
 	execute(var/mob/M, var/obj/item/I, mult)
-		if (iscarbon(M))
-			var/mob/living/carbon/C = M
-			if (C.bodytemperature > 0)
-				C.bodytemperature -= 2
-			if (C.bodytemperature > T0C && probmult(4))
-				boutput(C, "Your [I] melts from your body heat!")
-				qdel(I)
-		return
+		if(M.bodytemperature > T0C)
+			if(ishuman(M))
+				var/mob/living/carbon/human/H = M
+				if(H.gloves)
+					var/coldprot = H.gloves.getProperty("coldprot")
+					if(coldprot >= 2)
+						return
+			I.setStatusMin("melting", 5 SECONDS)
+			M.bodytemperature -= 1
 
 /datum/materialProc/ice_melt
 	desc = "It would melt when exposed to heat."
 
 	execute(var/atom/owner, var/temp)
-		if(temp < T0C) return // less than reaction temp
-
-		var/turf/T = get_turf(owner)
-
-		// Make a water puddle and chunks
-		if (istype(T))
-			if (!istype(owner, /obj/item/raw_material))
-				var/obj/item/raw_material/ice/cube = new /obj/item/raw_material/ice(T)
-				cube.set_loc(T)
-			make_cleanable(/obj/decal/cleanable/water, T)
-			owner.visible_message(SPAN_NOTICE("[owner] melts, dissolving into water."))
-			playsound(owner, 'sound/misc/drain_glug.ogg', 50, TRUE, 5)
-			qdel(owner)
+		var/melting_point = owner.material.getProperty("melting_point")
+		if(melting_point && temp <= melting_point)
+			owner.delStatus("melting")
+		else
+			var/duration = ((temp - melting_point) / 10 KELVIN) SECONDS + 2 SECONDS
+			owner.setStatusMin("melting", duration)
 
 /datum/materialProc/soulsteel_entered
 	execute(var/obj/item/owner, var/atom/movable/entering)

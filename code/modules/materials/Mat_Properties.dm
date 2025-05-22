@@ -16,6 +16,8 @@ ABSTRACT_TYPE(/datum/material_property)
 	var/prefix_high_min = 7
 	/// Max value for low-prefix. Maximum for the prefix to show up on the object names.
 	var/prefix_low_max = 3
+	// Unit of measurment displayed
+	var/prefix_unit = ""
 
 
 	proc/onValueChanged(var/datum/material/M, var/new_value)
@@ -323,3 +325,30 @@ ABSTRACT_TYPE(/datum/material_property)
 				return "lots of active plasma"
 			if(8 to INFINITY)
 				return "filled with active plasma"
+
+/datum/material_property/melting_point
+	name = "Melting Point"
+	id = "melting_point"
+
+	min_value = 0
+	max_value = INFINITY
+	default_value = 0
+	prefix_high_min = 1 KELVIN
+	prefix_unit = "K"
+
+	getAdjective(var/datum/material/M)
+		switch(M.getProperty(id))
+			if(0 to 150)
+				return "solid at very low temperatures"
+			if(150 to (T0C-1))
+				return "solid at low temperatures"
+			if((T0C-1) to T20C)
+				return "liquid at room temperature"
+			if(T20C to T37C)
+				return "melts to the touch"
+			if(T37C to T100C)
+				return "melts when heated"
+			if(T100C to 800 KELVIN)
+				return "low melting point"
+			if(800 KELVIN to INFINITY)
+				return "high melting point"

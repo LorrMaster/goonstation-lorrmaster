@@ -3790,3 +3790,80 @@
 		boutput(M, SPAN_NOTICE("<b>Your magical barrier fades away!</b>"))
 		M.visible_message(SPAN_ALERT("The shield protecting [M] fades away."))
 		playsound(M, 'sound/effects/MagShieldDown.ogg', 50, TRUE)
+
+/datum/statusEffect/melting
+	id = "melting"
+	name = "Melting"
+	desc = "I'm melting! Melting! Oh, what a world!"
+	icon_state = "patho_oxy_speed"
+	effect_quality = STATUS_QUALITY_NEGATIVE
+	maxDuration = 300
+	var/mob/owner_mob = null // owner if they are a mob
+	var/melt_time = 15 SECONDS
+	var/melt_counter = 0 SECONDS // Time since last melting event
+	var/update_ice = TRUE
+
+	onAdd()
+		..()
+		if(istype(src.owner, /obj/item/raw_material/ice))
+			melt_time = 5 SECONDS
+		else
+			var/image/melt_image = image('icons/obj/items/materials/ice.dmi', icon_state = "overlay_melt")
+			melt_image.appearance_flags = PIXEL_SCALE | RESET_COLOR | RESET_ALPHA
+			melt_image.blend_mode = BLEND_INSET_OVERLAY
+			owner.appearance_flags |= KEEP_TOGETHER
+			owner.UpdateOverlays(melt_image, "status_melting")
+			if(ismob(src.owner))
+				src.owner_mob = src.owner
+		src.melt_counter = -5 SECONDS // Add a grace period
+
+	onUpdate(timePassed)
+		..()
+		if(!owner.material) // Assume that there is a material for now
+			return
+		if(src.update_ice)
+			src.owner.UpdateIcon() // hasStatus() doesn't work during onAdd()?
+			src.update_ice = FALSE
+		var/melting_point = owner.material.getProperty("melting_point")
+		var/turf/T = get_turf(owner)
+		if(owner.loc == T && T.temperature > melting_point)
+			src.duration += timePassed // Keep melting
+		src.melt_counter += timePassed
+
+		if(src.melt_counter < src.melt_time)
+			return
+		if(src.owner_mob)
+			src.owner_mob.TakeDamage("All", 0, 20, 0, DAMAGE_BURN)
+			var/obj/item/raw_material/ice/new_ice = new(get_turf(src.owner_mob))
+			new_ice.change_stack_amount(1)
+			new_ice.setStatus("melting", src.duration + 5 SECONDS)
+			playsound(src.owner_mob, 'sound/misc/splash_1.ogg', 50, TRUE)
+			src.owner_mob.emote("scream")
+		else
+			melt_obj(owner)
+		src.melt_counter = 0
+
+	onRemove()
+		..()
+		if(istype(src.owner, /obj/item/raw_material/ice))
+			src.owner.UpdateIcon()
+		else
+			owner.ClearSpecificOverlays("status_melting")
+
+	proc/melt_obj(var/obj/O)
+		var/datum/reagents/meltReagents = O.material.convert_reagents(1)
+		var/turf/location = get_turf(O)
+		if(meltReagents && meltReagents.total_volume && location)
+			meltReagents.reaction(location, TOUCH, meltReagents.total_volume)
+		if(istype(O, /obj/item/raw_material) || istype(O, /obj/item/material_piece))
+			var/obj/item/ore = O
+			if(ore.amount == 1)
+				playsound(src.owner_mob, 'sound/misc/splash_1.ogg', 50, TRUE)
+			ore.change_stack_amount(-1)
+		else
+			if(owner.material.getID() == "ice")
+				var/obj/item/raw_material/ice/new_ice = new(get_turf(src.owner))
+				new_ice.setStatus("melting", src.duration)
+				playsound(src.owner_mob, 'sound/misc/splash_1.ogg', 50, TRUE)
+			qdel(O)
+

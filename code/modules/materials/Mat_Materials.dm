@@ -452,6 +452,10 @@ ABSTRACT_TYPE(/datum/material)
 			X.execute(owner, attackatom, attacker, meleeorthrow)
 		return
 
+	/// Turn this material into reagents via
+	proc/convert_reagents(var/amount)
+		return null
+
 //Material definitions
 /datum/material/interpolated
 	mat_id = "imcoderium"
@@ -1181,7 +1185,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 	name = "ice"
 	desc = "The frozen state of water."
 	color = "#E8F2FF"
-	alpha = 100
+	alpha = 135
 
 	edible_exact = 1
 	edible = 1
@@ -1191,10 +1195,18 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		setProperty("electrical", 2)
 		setProperty("density", 1)
 		setProperty("hard", 2)
+		setProperty("melting_point", T0C)
 		addTrigger(TRIGGERS_ON_TEMP, new /datum/materialProc/ice_melt())
 		addTrigger(TRIGGERS_ON_LIFE, new /datum/materialProc/ice_life())
 		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/slippery_attack())
 		addTrigger(TRIGGERS_ON_ENTERED, new /datum/materialProc/slippery_entered())
+
+	convert_reagents(var/amount)
+		if(amount <= 0)
+			return null
+		var/datum/reagents/R = new/datum/reagents(amount * 5)
+		R.add_reagent("ice", amount * 5)
+		return R
 
 ABSTRACT_TYPE(/datum/material/crystal/wizard)
 /datum/material/crystal/wizard

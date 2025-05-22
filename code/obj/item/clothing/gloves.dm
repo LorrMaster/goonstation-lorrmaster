@@ -291,6 +291,8 @@ ABSTRACT_TYPE(/obj/item/clothing/gloves)
 		..()
 		setProperty("conductivity", 0.7)
 		setProperty("chemprot", 15)
+		setProperty("heatprot", 1)
+		setProperty("coldprot", 1)
 
 /obj/item/clothing/gloves/latex/blue
 	color = "#91d5e9"

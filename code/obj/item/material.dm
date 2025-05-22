@@ -654,6 +654,12 @@
 	crystal = 1
 	scoopable = 0
 
+	update_icon()
+		if(src.hasStatus("melting"))
+			src.icon_state = "ore[src.icon_stack_value]_melt$$[src.material.getName()]"
+		else
+			src.icon_state = "ore[src.icon_stack_value]_$$[src.material.getName()]"
+
 /obj/item/raw_material/scrap_metal
 	// this should only be spawned by the game, spawning it otherwise would just be dumb
 	name = "scrap"

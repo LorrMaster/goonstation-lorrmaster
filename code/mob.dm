@@ -93,8 +93,8 @@ TYPEINFO(/mob)
 	var/fakeloss = 0
 	var/health = 100
 	var/max_health = 100
-	var/bodytemperature = T0C + 37
-	var/base_body_temp = T0C + 37
+	var/bodytemperature = T37C
+	var/base_body_temp = T37C
 	var/temp_tolerance = 15 // iterations between each temperature state
 	var/thermoregulation_mult = 0.025 // how quickly the body's temperature tries to correct itself, higher = faster
 	var/innate_temp_resistance = 0.16  // how good the body is at resisting environmental temperature, lower = more resistant
