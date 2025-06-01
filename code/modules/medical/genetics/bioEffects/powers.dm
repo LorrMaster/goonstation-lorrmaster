@@ -1322,6 +1322,54 @@ ABSTRACT_TYPE(/datum/bioEffect/power)
 	stability_loss = 5
 	ability_path = /datum/targetable/geneticsAbility/midas
 	var/transmute_material = "gold"
+	var/fail_material = "flesh"
+	var/image/mat_image = null
+
+	OnAdd()
+		..()
+		var/mat_icon = null
+		var/mat_icon_state = null
+		if(src.transmute_material == "rock")
+			mat_icon = 'icons/obj/items/materials/rocks.dmi'
+			mat_icon_state = "rock4"
+		else if(src.transmute_material == "ice")
+			mat_icon = 'icons/obj/items/materials/ice.dmi'
+			mat_icon_state = "ore4_$$ice"
+		else if(src.transmute_material == "char")
+			mat_icon = 'icons/obj/items/materials/char.dmi'
+			mat_icon_state = "ore4_$$char"
+		else
+			return
+		ability.icon_state = "template"
+		ability.object.icon_state = "template"
+		mat_image = image(mat_icon, ability.object, mat_icon_state, pixel_y = 1)
+		ability.object.AddOverlays(mat_image, "material")
+
+	rock
+		name = "Medusa Touch"
+		desc = "Subject becomes the envy of masons everywhere and little else."
+		id = "midas_rock"
+		transmute_material = "rock"
+		fail_material = "glass"
+	crystal
+		name = "Crystalline Touch"
+		id = "midas_molitz"
+		transmute_material = "molitz"
+		fail_material = "char"
+	char
+		name = "Chared Touch"
+		desc = "Subject is placed on the naughty list at a cellular level."
+		id = "midas_char"
+		transmute_material = "char"
+		fail_material = "ice"
+	ectoplasm
+		name = "Ethereal Touch"
+		desc = "Allows the subject to turn solid matter into ghostly illusions."
+		id = "midas_ectoplasm"
+		transmute_material = "ectoplasm"
+		fail_material = "rock"
+		occur_in_genepools = 0
+		probability = 0
 
 /datum/targetable/geneticsAbility/midas
 	name = "Midas Touch"
@@ -1365,18 +1413,16 @@ ABSTRACT_TYPE(/datum/bioEffect/power)
 				split_item.set_loc(get_turf(the_item))
 				the_object = split_item
 
-		if (!linked_power)
+		if (!istype(linked_power,/datum/bioEffect/power/midas))
 			owner.visible_message("[owner] touches [the_object].")
-		else
-			if (istype(linked_power,/datum/bioEffect/power/midas))
-				var/datum/bioEffect/power/midas/linked = linked_power
-				logTheThing(LOG_COMBAT, owner, "uses [name] to transmute [log_object(the_object)] into [linked.transmute_material] at [log_loc(owner)].")
-				owner.visible_message(SPAN_ALERT("[owner] touches [the_object], turning it to [linked.transmute_material]!"))
-				the_object.setMaterial(getMaterial(linked.transmute_material))
-			else
-				logTheThing(LOG_COMBAT, owner, "uses [name] to transmute [log_object(the_object)] into gold at [log_loc(owner)].")
-				owner.visible_message(SPAN_ALERT("[owner] touches [the_object], turning it to gold!"))
-				the_object.setMaterial(getMaterial("gold"))
+			linked_power.using = 0
+			return 1
+
+		var/datum/bioEffect/power/midas/linked = linked_power
+		logTheThing(LOG_COMBAT, owner, "uses [name] to transmute [log_object(the_object)] into [linked.transmute_material] at [log_loc(owner)].")
+		owner.visible_message(SPAN_ALERT("[owner] touches [the_object], turning it to [linked.transmute_material]!"))
+		the_object.setMaterial(getMaterial(linked.transmute_material))
+
 		linked_power.using = 0
 
 	cast_misfire()
@@ -1392,6 +1438,7 @@ ABSTRACT_TYPE(/datum/bioEffect/power)
 		var/list/items = get_filtered_atoms_in_touch_range(owner,base_path)
 		if (!items.len)
 			boutput(usr, "/red You can't find anything nearby to touch.")
+			linked_power.using = 0
 			return 1
 
 		linked_power.using = 1
@@ -1408,13 +1455,15 @@ ABSTRACT_TYPE(/datum/bioEffect/power)
 				split_item.set_loc(get_turf(the_item))
 				the_object = split_item
 
-		if (!linked_power)
+		if (!istype(linked_power,/datum/bioEffect/power/midas))
 			owner.visible_message("[owner] touches [the_object].")
-		else
-			owner.visible_message(SPAN_ALERT("[owner] touches [the_object], turning it to flesh!"))
-			logTheThing(LOG_COMBAT, owner, "uses [name] to transmute [log_object(the_object)] into flesh at [log_loc(owner)].")
-			the_object.setMaterial(getMaterial("flesh"))
-		linked_power.using = 0
+			linked_power.using = 0
+			return 1
+
+		var/datum/bioEffect/power/midas/linked = linked_power
+		logTheThing(LOG_COMBAT, owner, "uses [name] to transmute [log_object(the_object)] into [linked.fail_material] at [log_loc(owner)].")
+		owner.visible_message(SPAN_ALERT("[owner] touches [the_object], turning it to [linked.fail_material]!"))
+		the_object.setMaterial(getMaterial(linked.fail_material))
 		return
 
 	logCast(atom/target)

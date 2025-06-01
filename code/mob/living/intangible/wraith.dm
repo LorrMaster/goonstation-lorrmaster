@@ -120,6 +120,7 @@ TYPEINFO(/mob/living/intangible/wraith)
 		if (!istype(src, /mob/living/intangible/wraith/wraith_trickster) && !istype(src, /mob/living/intangible/wraith/wraith_decay) && !istype(src, /mob/living/intangible/wraith/wraith_harbinger) && !istype(src, /mob/living/intangible/wraith/poltergeist))
 			src.addAbility(/datum/targetable/wraithAbility/specialize)
 		src.addAllBasicAbilities()
+		src.bioHolder.AddNewPoolEffect("midas_ectoplasm", scramble=TRUE)
 		last_life_update = TIME
 		src.hud = new hud_path (src)
 		src.attach_hud(hud)
