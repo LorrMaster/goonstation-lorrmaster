@@ -16,8 +16,6 @@ ABSTRACT_TYPE(/datum/material_property)
 	var/prefix_high_min = 7
 	/// Max value for low-prefix. Maximum for the prefix to show up on the object names.
 	var/prefix_low_max = 3
-	// Unit of measurment displayed
-	var/prefix_unit = ""
 
 
 	proc/onValueChanged(var/datum/material/M, var/new_value)
@@ -31,6 +29,10 @@ ABSTRACT_TYPE(/datum/material_property)
 
 	proc/getAdjective(var/datum/material/M)
 		return "odd"
+
+	/// Returns the property's unit of measurement, if any
+	proc/getPrefixUnit()
+		return null
 
 /datum/material_property/electrical_conductivity
 	name = "Electrical conductivity"
@@ -334,7 +336,6 @@ ABSTRACT_TYPE(/datum/material_property)
 	max_value = INFINITY
 	default_value = 0
 	prefix_high_min = 1 KELVIN
-	prefix_unit = "K"
 
 	getAdjective(var/datum/material/M)
 		switch(M.getProperty(id))
@@ -350,5 +351,29 @@ ABSTRACT_TYPE(/datum/material_property)
 				return "melts when heated"
 			if(T100C to 800 KELVIN)
 				return "low melting point"
-			if(800 KELVIN to INFINITY)
+			if(800 KELVIN to 2000 KELVIN)
 				return "high melting point"
+			if(2000 KELVIN to INFINITY)
+				return "very high melting point"
+
+	getPrefixUnit()
+		return "K"
+
+/datum/material_property/heat_capacity
+	name = "Specific Heat Capacity" // Apparently has no relation with thermal conductivity
+	id = "heat_capacity"
+
+	getAdjective(var/datum/material/M)
+		switch(M.getProperty(id))
+			if(0 to 1)
+				return "extremely low heat capacity"
+			if(1 to 2)
+				return "very low heat capacity"
+			if(2 to 4)
+				return "low heat capacity"
+			if(4 to 6)
+				return "moderate heat capacity"
+			if(6 to 8)
+				return "high heat capacity"
+			if(8 to INFINITY)
+				return "very high heat capacity"

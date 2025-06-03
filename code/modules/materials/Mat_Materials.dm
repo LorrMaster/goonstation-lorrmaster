@@ -847,7 +847,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 	mat_id = "molitz"
 	name = "molitz"
 	desc = "Molitz is a common crystalline substance."
-	color = "#FFFFFF"
+	color = list(-0.2,-0.2,-0.2,0, -0.2,-0.2,-0.2,0, -0.2,-0.2,-0.2,0, 0,0,0,0.65, 0.7,0.85,1,0)
 	alpha = 180
 
 	New()
@@ -1184,7 +1184,8 @@ ABSTRACT_TYPE(/datum/material/crystal)
 	mat_id = "ice"
 	name = "ice"
 	desc = "The frozen state of water."
-	color = "#E8F2FF"
+	color = list(0.4,0.4,0.5,0, 0.4,0.4,0.6,0, 0.4,0.6,0.6,0, 0,0,0,0.7, 0.375,0.4,0.5,0)
+	// Inverse Ice: list(-0.2,-0.2,-0.2,0, -0.2,-0.2,-0.2,0, -0.2,-0.2,-0.2,0, 0,0,0,0.65, 0.7,0.85,1,0)
 	alpha = 135
 
 	edible_exact = 1
@@ -1196,7 +1197,9 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		setProperty("density", 1)
 		setProperty("hard", 2)
 		setProperty("melting_point", T0C)
-		addTrigger(TRIGGERS_ON_TEMP, new /datum/materialProc/ice_melt())
+		setProperty("heat_capacity", 7)
+		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/melt_check_add())
+		addTrigger(TRIGGERS_ON_TEMP, new /datum/materialProc/melt_heated())
 		addTrigger(TRIGGERS_ON_LIFE, new /datum/materialProc/ice_life())
 		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/slippery_attack())
 		addTrigger(TRIGGERS_ON_ENTERED, new /datum/materialProc/slippery_entered())

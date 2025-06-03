@@ -668,9 +668,10 @@
 	default_material = "ice"
 	crystal = 1
 	scoopable = 0
+	var/is_melting = FALSE
 
 	update_icon()
-		if(src.hasStatus("melting"))
+		if(src.is_melting)
 			src.icon_state = "ore[src.icon_stack_value]_melt$$[src.material.getName()]"
 		else
 			src.icon_state = "ore[src.icon_stack_value]_$$[src.material.getName()]"

@@ -546,29 +546,34 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 		return
 
 /datum/materialProc/ice_life
-	desc = "It is slowly melting."
-
 	execute(var/mob/M, var/obj/item/I, mult)
 		if(M.bodytemperature > T0C)
 			if(ishuman(M))
 				var/mob/living/carbon/human/H = M
-				if(H.gloves)
+				if(H.gloves && H.gloves != I)
+					// Gloves prevent ice from melting (but not themselves, silly ice gloves)
 					var/coldprot = H.gloves.getProperty("coldprot")
 					if(coldprot >= 2)
 						return
 			I.setStatusMin("melting", 5 SECONDS)
 			M.bodytemperature -= 1
 
-/datum/materialProc/ice_melt
+/datum/materialProc/melt_heated
 	desc = "It would melt when exposed to heat."
 
 	execute(var/atom/owner, var/temp)
 		var/melting_point = owner.material.getProperty("melting_point")
-		if(melting_point && temp <= melting_point)
-			owner.delStatus("melting")
-		else
+		if(melting_point && temp > melting_point)
 			var/duration = ((temp - melting_point) / 10 KELVIN) SECONDS + 2 SECONDS
 			owner.setStatusMin("melting", duration)
+
+/datum/materialProc/melt_check_add
+	execute(var/atom/owner)
+		var/melting_point = owner.material.getProperty("melting_point")
+		var/turf/T = get_turf(owner)
+		var/temp = T?.temperature
+		if(melting_point < temp)
+			owner.setStatus("melting", 5 SECONDS)
 
 /datum/materialProc/soulsteel_entered
 	execute(var/obj/item/owner, var/atom/movable/entering)
