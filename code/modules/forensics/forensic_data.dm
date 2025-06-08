@@ -39,3 +39,19 @@
 		data_copy.time_start = src.time_start
 		data_copy.time_end = src.time_end
 		return data_copy
+
+/datum/forensic_data/text
+	var/text = null
+
+	New(var/datum/forensic_id/id, var/datum/forensic_display/disp = disp_empty, var/flags = 0, var/value = 0)
+		..()
+		src.evidence = id
+		src.display = disp
+		src.flags = flags
+		src.value = value
+
+	get_copy()
+		var/datum/forensic_data/basic/data_copy = new(src.evidence, src.display, src.flags, src.value)
+		data_copy.time_start = src.time_start
+		data_copy.time_end = src.time_end
+		return data_copy

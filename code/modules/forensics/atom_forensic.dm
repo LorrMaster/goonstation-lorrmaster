@@ -17,6 +17,11 @@
 	if(src.forensic_holder)
 		src.forensic_holder.add_evidence(data, category)
 
+/// Used to add info to a forensics scan or change what it detects
+/atom/proc/on_forensic_scan(var/datum/forensic_scan/scan)
+	
+	return
+
 /atom/movable
 	var/tracked_blood = null // list(bDNA, btype, color, count)
 
