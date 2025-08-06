@@ -463,3 +463,32 @@ proc/calculateHeatTransferCoefficient(var/datum/material/matA, var/datum/materia
 	//average thermal conductivity approximated as 10^(x/5)-1
 	//common values 0 = 0, 5 = 10, 10 = 100
 	return ((10**(hTC1/5)-1)+(10**(hTC2/5)-1))/2
+
+/// Interpolate a value linearly based on the object's material
+/atom/proc/calc_material_value(var/propID, var/minVal, var/maxVal, var/defaultVal = -INFINITY, var/default_matID = null, var/prefer_low = FALSE)
+	if(!src.material && defaultVal != -INFINITY)
+		return defaultVal
+	var/datum/material_property/property = global.materialProps[propID]
+	var/prop_min = property.min_value
+	var/prop_max = property.max_value
+	var/prop_material
+
+	if(src.material)
+		prop_material = src.material.getProperty(propID)
+	else
+		// Check if a baseline value is specified
+		if(defaultVal != -INFINITY)
+			// Estimate what the default property value should be
+			var/prop_default_perc = (defaultVal - minVal) / (maxVal - minVal)
+			prop_material = ((prop_max - prop_min) * prop_default_perc) + prop_min
+		else if(default_matID)
+			var/datum/material/default_mat = getMaterial(default_matID)
+			prop_material = default_mat.properties[propID].default_value
+		else
+			prop_material = prop_min
+
+	var/propPercent = (prop_material - prop_min) / (prop_max - prop_min)
+	if(prefer_low)
+		propPercent = 1 - propPercent
+	var/result_value = ((maxVal - minVal) * propPercent) + minVal
+	return result_value

@@ -316,7 +316,8 @@ ABSTRACT_TYPE(/datum/material)
 			buildMaterialPropertyCache()
 
 		//if it's not already in .properties, add it and trigger onadd
-		for(var/datum/material_property/P as anything in materialProps)
+		for(var/property_id in materialProps)
+			var/datum/material_property/P = materialProps[property_id]
 			if(P.id == property_id)
 				properties.Add(P)
 				P.onAdded(src, value)

@@ -254,7 +254,7 @@
 	if(materialProps.len) return
 	for(var/A in childrentypesof(/datum/material_property)) //Caching material props
 		var/datum/material_property/R = new A()
-		materialProps.Add(R)
+		materialProps[id] = R
 	return
 
 /proc/buildMaterialCache()
