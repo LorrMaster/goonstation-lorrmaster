@@ -332,24 +332,24 @@ ABSTRACT_TYPE(/datum/material_property)
 	name = "Melting Point"
 	id = "melting_point"
 
-	min_value = 0
+	min_value = 1 KELVIN
 	max_value = INFINITY
 	default_value = 0
 	prefix_high_min = 1 KELVIN
 
 	getAdjective(var/datum/material/M)
 		switch(M.getProperty(id))
-			if(0 to 150)
+			if(1 to 150 KELVIN)
 				return "solid at very low temperatures"
-			if(150 to (T0C-1))
+			if(150 KELVIN to (T0C-10))
 				return "solid at low temperatures"
-			if((T0C-1) to T20C)
+			if((T0C-10) to T20C)
 				return "liquid at room temperature"
 			if(T20C to T37C)
 				return "melts to the touch"
-			if(T37C to T100C)
+			if(T37C to (T100C + 50 KELVIN))
 				return "melts when heated"
-			if(T100C to 800 KELVIN)
+			if((T100C + 50 KELVIN) to 800 KELVIN)
 				return "low melting point"
 			if(800 KELVIN to 2000 KELVIN)
 				return "high melting point"

@@ -557,8 +557,8 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 		if(M.bodytemperature > T0C)
 			if(ishuman(M))
 				var/mob/living/carbon/human/H = M
-				if(H.gloves && H.gloves != I)
-					// Gloves prevent ice from melting (but not themselves, silly ice gloves)
+				if(H.gloves && !I.equipped_in_slot)
+					// Gloves prevent ice from melting (but not themselves, silly ice clothing)
 					var/coldprot = H.gloves.getProperty("coldprot")
 					if(coldprot >= 2)
 						return
@@ -571,7 +571,7 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 	execute(var/atom/owner, var/temp)
 		var/melting_point = owner.material.getProperty("melting_point")
 		if(melting_point && temp > melting_point)
-			var/duration = ((temp - melting_point) / 10 KELVIN) SECONDS + 2 SECONDS
+			var/duration = ((temp - melting_point) / 100 KELVIN) SECONDS + 5 SECONDS
 			owner.setStatusMin("melting", duration)
 
 /datum/materialProc/melt_check_add
