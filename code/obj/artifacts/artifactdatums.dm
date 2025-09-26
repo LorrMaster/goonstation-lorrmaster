@@ -9,6 +9,8 @@ ABSTRACT_TYPE(/datum/artifact/)
 	var/rarity_weight = 0
 	/// the name for this artifact type, used for displaying it visually (for instance in analysis forms)
 	var/type_name = "buggy artifact code"
+	/// What this looks like to
+	var/type_name_disguised = null
 	/// the size category of the artifact
 	// this could probably be determined via the icon of the associated_object type right now, but that'd be weird and dumb
 	var/type_size = ARTIFACT_SIZE_LARGE
@@ -250,6 +252,52 @@ ABSTRACT_TYPE(/datum/artifact/)
 	proc/hide_fx(obj/artifact)
 		artifact.vis_contents -= src.fx_image
 		artifact.vis_contents -= src.fx_fallback
+
+	proc/get_artifact_desc(var/mob/user)
+		var/know_type = FALSE
+		var/know_trigger = FALSE
+		var/is_disguised = artitype.name == artiappear.name
+		var/art_desc = ""
+
+		var/percieved_type = src.type_name
+		if(is_disguised)
+			if(!src.type_name_disguised)
+				src.type_name_disguised = pick(artifact_controls.artifact_type_names)
+			var/percieved_type = src.type_name_disguised
+
+		switch(artiappear.name)
+			if("eldrich")
+				if(iswraith(user))
+					know_type = TRUE
+					know_trigger = TRUE
+				if(isvampire(user))
+					know_trigger = TRUE
+			if("martian")
+				if(ismartian(user))
+					know_type = TRUE
+					know_trigger = TRUE
+				if(ischangeling(user))
+					know_trigger = TRUE
+			if("ancient")
+				if(isarcfiend(user))
+					know_trigger = TRUE
+			if("wizard")
+				if(iswizard(user))
+					know_type = TRUE
+					know_trigger = TRUE
+		var/observed_artitype
+		if(know_type)
+			art_desc = "This is " + pick("clearly", "definitely", "obviously", "probably", "doubtlessly") + " a "
+			if(is_disguised)
+				if(!src.type_name_disguised)
+					src.type_name_disguised = pick(artifact_controls.artifact_type_names)
+				art_desc += art_desc
+				if(src.activated)
+					return list("Well that wasn't supposed to happen.")
+
+
+
+		return list("You have no idea what this thing is!")
 
 // SPECIFIC DATUMS
 
