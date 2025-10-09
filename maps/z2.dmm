@@ -1062,7 +1062,7 @@
 /area/hospital/samostrel)
 "afV" = (
 /obj/fakeobject/firealarm_broken{
-	dir = 8;
+	dir = 4;
 	pixel_x = 24
 	},
 /turf/unsimulated/floor{
@@ -2090,7 +2090,8 @@
 /area/hospital)
 "akT" = (
 /obj/fakeobject/firealarm_broken{
-	pixel_y = 24
+	pixel_y = 24;
+	dir = 1
 	},
 /turf/unsimulated/floor,
 /area/hospital/samostrel)
@@ -2461,12 +2462,6 @@
 	name = "Trash bin"
 	},
 /turf/unsimulated/floor,
-/area/hospital)
-"amK" = (
-/obj/table,
-/obj/item/stamp,
-/obj/noticeboard,
-/turf/unsimulated/floor/black,
 /area/hospital)
 "amL" = (
 /obj/fakeobject{
@@ -3887,10 +3882,6 @@
 	},
 /turf/unsimulated/floor/white/grime,
 /area/hospital)
-"asU" = (
-/obj/noticeboard,
-/turf/unsimulated/floor/white/grime,
-/area/hospital)
 "asV" = (
 /obj/fakeobject{
 	anchored = 1;
@@ -3991,7 +3982,7 @@
 /area/hospital/samostrel)
 "atf" = (
 /obj/fakeobject/firealarm_broken{
-	dir = 8;
+	dir = 4;
 	pixel_x = 24
 	},
 /turf/unsimulated/floor,
@@ -6920,7 +6911,8 @@
 /area/owlery/gangzone)
 "aJa" = (
 /obj/fakeobject/firealarm_broken{
-	pixel_y = 24
+	pixel_y = 24;
+	dir = 1
 	},
 /turf/unsimulated/floor/black{
 	dir = 1
@@ -7168,7 +7160,8 @@
 /area/marsoutpost)
 "aJY" = (
 /obj/fakeobject/firealarm_broken{
-	pixel_y = 24
+	pixel_y = 24;
+	dir = 1
 	},
 /turf/unsimulated/floor/black,
 /area/marsoutpost)
@@ -8124,12 +8117,6 @@
 /obj/decal/cleanable/cobweb2,
 /obj/item/luggable_computer,
 /turf/unsimulated/floor/carpet/grime,
-/area/upper_arctic/pod2)
-"aNg" = (
-/obj/table/auto,
-/obj/item/kitchen/food_box/donut_box,
-/obj/noticeboard,
-/turf/unsimulated/floor/specialroom/bar,
 /area/upper_arctic/pod2)
 "aNh" = (
 /obj/table/auto,
@@ -9271,7 +9258,8 @@
 /area/marsoutpost)
 "aQL" = (
 /obj/fakeobject/firealarm_broken{
-	pixel_y = 24
+	pixel_y = 24;
+	dir = 1
 	},
 /turf/unsimulated/floor/stairs/wide{
 	dir = 4
@@ -10299,15 +10287,6 @@
 /obj/cable{
 	icon_state = "4-8"
 	},
-/turf/unsimulated/floor/neutral/side{
-	dir = 1
-	},
-/area/crater/biodome/crew)
-"aUz" = (
-/obj/cable{
-	icon_state = "4-8"
-	},
-/obj/noticeboard,
 /turf/unsimulated/floor/neutral/side{
 	dir = 1
 	},
@@ -13273,7 +13252,8 @@
 /area/marsoutpost/duststorm)
 "bec" = (
 /obj/fakeobject/firealarm_broken{
-	pixel_y = 24
+	pixel_y = 24;
+	dir = 1
 	},
 /turf/unsimulated/floor/grime,
 /area/marsoutpost)
@@ -13581,7 +13561,8 @@
 "bfa" = (
 /obj/table/auto,
 /obj/fakeobject/firealarm_broken{
-	pixel_y = 24
+	pixel_y = 24;
+	dir = 1
 	},
 /turf/unsimulated/floor/yellow{
 	dir = 4
@@ -15933,10 +15914,6 @@
 	dir = 1
 	},
 /area/drone/office)
-"blW" = (
-/obj/noticeboard,
-/turf/unsimulated/wall/auto/adventure/shuttle/dark,
-/area/drone/office)
 "blX" = (
 /obj/decal/mushrooms/type5,
 /obj/decal/cleanable/dirt,
@@ -16528,7 +16505,7 @@
 "bnJ" = (
 /obj/map/light/cyan,
 /obj/rack/precursor,
-/obj/item/skull/peculiar{
+/obj/item/skull/wizard{
 	pixel_x = -2;
 	pixel_y = 11
 	},
@@ -21548,7 +21525,7 @@
 "bID" = (
 /obj/stool/bed,
 /obj/item/clothing/suit/bedsheet,
-/obj/item/clothing/under/gimmick/donkini,
+/obj/item/clothing/under/swimsuit/donkini,
 /turf/unsimulated/floor/carpet{
 	dir = 10;
 	icon_state = "fred2"
@@ -23112,12 +23089,6 @@
 	},
 /turf/unsimulated/floor/red/side,
 /area/crunch)
-"bNV" = (
-/obj/noticeboard{
-	pixel_x = 28
-	},
-/turf/unsimulated/floor/red/side,
-/area/crunch)
 "bNW" = (
 /obj/decal/stripe_caution,
 /turf/unsimulated/floor,
@@ -23373,13 +23344,6 @@
 /turf/unsimulated/floor/carpet{
 	icon_state = "fred1"
 	},
-/area/crunch)
-"bOQ" = (
-/obj/fakeobject/firealarm_broken{
-	dir = 4;
-	pixel_x = -24
-	},
-/turf/unsimulated/floor,
 /area/crunch)
 "bOR" = (
 /obj/decal/tile_edge/line/black{
@@ -24200,7 +24164,7 @@
 /area/crunch)
 "bRv" = (
 /obj/fakeobject/firealarm_broken{
-	dir = 1;
+	dir = 2;
 	pixel_y = -24
 	},
 /turf/unsimulated/floor,
@@ -24237,7 +24201,7 @@
 "bRE" = (
 /obj/table/auto,
 /obj/fakeobject/firealarm_broken{
-	dir = 1;
+	dir = 2;
 	pixel_y = -24
 	},
 /obj/item/c_tube{
@@ -27486,7 +27450,7 @@
 /area/sim/bball)
 "ceI" = (
 /obj/fakeobject/firealarm_broken{
-	dir = 1;
+	dir = 2;
 	pixel_y = -24
 	},
 /turf/unsimulated/floor,
@@ -34989,7 +34953,7 @@
 /area/owlery/staffhall)
 "cDN" = (
 /obj/table/reinforced/auto,
-/obj/item/device/flash/turbo,
+/obj/item/assembly/flash_cell,
 /turf/unsimulated/floor/white,
 /area/owlery/lab)
 "cDO" = (
@@ -39684,6 +39648,10 @@
 	},
 /turf/unsimulated/grass,
 /area/owlery/owllock)
+"cRx" = (
+/obj/noticeboard/directional/north,
+/turf/unsimulated/floor,
+/area/drone/office)
 "cRz" = (
 /obj/shrub,
 /turf/unsimulated/grass,
@@ -45881,19 +45849,6 @@
 	name = "wood floor"
 	},
 /area/wizard_station)
-"dkv" = (
-/obj/item/device/light/magic_lantern{
-	dir = 4;
-	pixel_x = -21
-	},
-/obj/noticeboard/persistent{
-	desc = "A board for pinning important notices upon. Looks like this one doesn't get cleared out at the end of the shift. Must be some sort of magic.";
-	name = "wizard persistent notice board";
-	persistent_id = "wizard"
-	},
-/obj/decal/cleanable/dirt,
-/turf/unsimulated/floor/carpet/wizard/standard/edge/nw,
-/area/wizard_station)
 "dkw" = (
 /turf/unsimulated/floor/carpet/wizard/standard/innercorner/nw,
 /area/wizard_station)
@@ -51827,8 +51782,8 @@
 /obj/storage/closet/dresser,
 /obj/item/clothing/suit/bathrobe,
 /obj/item/clothing/suit/bathrobe,
-/obj/item/clothing/under/swimsuit/random,
-/obj/item/clothing/under/swimsuit/random,
+/obj/item/clothing/under/swimsuit/swimsuits/random,
+/obj/item/clothing/under/swimsuit/swimsuits/random,
 /obj/item/clothing/under/shorts/random_color{
 	name = "swimming trunks";
 	rand_pos = 1
@@ -54030,7 +53985,7 @@
 /turf/unsimulated/floor/wood/two,
 /area/afterlife/bar)
 "dSU" = (
-/obj/machinery/bot/skullbot/gold,
+/obj/machinery/bot/skullbot/macho,
 /obj/map/light/brightwhite,
 /turf/unsimulated/floor/specialroom/gym,
 /area/afterlife/bar)
@@ -56999,6 +56954,10 @@
 	icon_state = "floor2"
 	},
 /area/shuttle/merchant_shuttle/diner_centcom)
+"fYP" = (
+/obj/noticeboard/directional/north,
+/turf/unsimulated/floor/white/grime,
+/area/hospital)
 "fZb" = (
 /obj/mesh/catwalk,
 /obj/machinery/camera/watchful_eye/directional/west{
@@ -57303,7 +57262,7 @@
 	dir = 6;
 	icon_state = "delivery2"
 	},
-/obj/item/device/flash/turbo{
+/obj/item/assembly/flash_cell{
 	pixel_x = -2;
 	pixel_y = 5
 	},
@@ -58980,14 +58939,6 @@
 /obj/mesh/catwalk,
 /turf/unsimulated/floor/plating,
 /area/watchful_eye_sensor)
-"hxO" = (
-/obj/noticeboard{
-	pixel_y = 28
-	},
-/turf/unsimulated/floor/logo_xg{
-	icon_state = "logo_xg11"
-	},
-/area/iomoon/base)
 "hyC" = (
 /obj/effects/precipitation/rain/dense/tile,
 /turf/unsimulated/floor/carpet/darkcarpet/border{
@@ -61107,7 +61058,8 @@
 	name = "grimy pipe"
 	},
 /obj/fakeobject/firealarm_broken{
-	pixel_y = -24
+	pixel_y = -24;
+	dir = 2
 	},
 /turf/unsimulated/floor{
 	icon = 'icons/turf/shuttle.dmi';
@@ -61505,7 +61457,8 @@
 	tag = "icon-intact (NORTHWEST)"
 	},
 /obj/fakeobject/firealarm_broken{
-	pixel_y = -24
+	pixel_y = -24;
+	dir = 2
 	},
 /turf/unsimulated/floor/caution/south,
 /area/hospital/samostrel)
@@ -62649,6 +62602,12 @@
 	},
 /turf/unsimulated/floor/plating/random,
 /area/sim/gunsim/maintenance)
+"knq" = (
+/obj/machinery/disk_rack/office{
+	name = "stash rack"
+	},
+/turf/unsimulated/floor/wood/two,
+/area/centcom/offices/leah)
 "knY" = (
 /obj/lattice,
 /obj/machinery/vending/cola/red,
@@ -64215,7 +64174,7 @@
 /obj/table/reinforced/auto,
 /obj/item/currency/spacecash/million,
 /obj/item/clothing/gloves/ring/gold,
-/obj/item/skull/gold,
+/obj/item/skull/macho,
 /obj/item/sticker/gold_star,
 /turf/unsimulated/floor/black/side{
 	dir = 8
@@ -66690,7 +66649,7 @@
 /area/hospital/samostrel)
 "nCH" = (
 /obj/rack/precursor,
-/obj/item/skull/noface{
+/obj/item/skull/cluwne{
 	pixel_x = -2;
 	pixel_y = 11
 	},
@@ -66704,6 +66663,12 @@
 	icon_state = "shore-13"
 	},
 /area/titlescreen)
+"nDP" = (
+/obj/table/auto,
+/obj/item/kitchen/food_box/donut_box,
+/obj/noticeboard/directional/north,
+/turf/unsimulated/floor/specialroom/bar,
+/area/upper_arctic/pod2)
 "nEi" = (
 /turf/unsimulated/floor/black/corner{
 	dir = 8
@@ -67680,6 +67645,12 @@
 	},
 /turf/unsimulated/grasstodirt,
 /area/crypt/graveyard)
+"okl" = (
+/obj/noticeboard/directional/north,
+/turf/unsimulated/floor/logo_xg{
+	icon_state = "logo_xg11"
+	},
+/area/iomoon/base)
 "oko" = (
 /obj/fakeobject/lightbulb_broken,
 /obj/decal/cleanable/generic,
@@ -70655,7 +70626,7 @@
 /obj/stool/chair/comfy/throne_gold{
 	anchored = 1
 	},
-/obj/item/skull/gold,
+/obj/item/skull/macho,
 /obj/item/clothing/head/crown{
 	rarity = 5;
 	name = "crown of the underworld";
@@ -70980,27 +70951,6 @@
 	},
 /turf/space,
 /area/space)
-"qJM" = (
-/obj/noticeboard/persistent{
-	name = "aloe's personal persistent notice board";
-	persistent_id = "aloe"
-	},
-/obj/effects/precipitation/rain/dense/tile,
-/obj/storage/crate/bin,
-/obj/item/paper{
-	icon_state = "paper";
-	info = "<h1>IOU</h1><br>one lesson in how git works (realistically like 7)";
-	name = "IOU"
-	},
-/obj/item/paper{
-	icon_state = "paper";
-	info = "<h1>DO NOT TRUST THE WIDE AREA SPAWN TOOL</h1>";
-	name = "note to self";
-	pixel_x = -2;
-	pixel_y = -9
-	},
-/turf/unsimulated/floor/wood/six,
-/area/centcom/offices/aloe)
 "qJO" = (
 /obj/machinery/vending/cola/blue,
 /turf/unsimulated/floor,
@@ -71891,6 +71841,15 @@
 /obj/random_item_spawner/tools,
 /turf/unsimulated/floor/plating,
 /area/hospital/underground)
+"rvF" = (
+/obj/cable{
+	icon_state = "4-8"
+	},
+/obj/noticeboard/directional/north,
+/turf/unsimulated/floor/neutral/side{
+	dir = 1
+	},
+/area/crater/biodome/crew)
 "rvL" = (
 /obj/fakeobject/lightbulb_broken{
 	dir = 1
@@ -72102,7 +72061,7 @@
 	name = "grimy pipe"
 	},
 /obj/fakeobject/firealarm_broken{
-	dir = 8;
+	dir = 4;
 	pixel_x = 24
 	},
 /turf/unsimulated/floor{
@@ -72205,6 +72164,10 @@
 	},
 /turf/unsimulated/floor/void/channel,
 /area/adventure/channel)
+"rFL" = (
+/obj/noticeboard/directional/east,
+/turf/unsimulated/floor/red/side,
+/area/crunch)
 "rGr" = (
 /turf/unsimulated/wall/auto/adventure/fake_window,
 /area/observatory)
@@ -72453,6 +72416,26 @@
 	},
 /turf/unsimulated/outdoors/grass,
 /area/void_diner)
+"rPE" = (
+/obj/table/reinforced/bar/auto{
+	name = "table"
+	},
+/obj/machinery/light/small{
+	dir = 4
+	},
+/obj/machinery/computer/television{
+	camera_networks = list("Minerva5");
+	pixel_x = -3
+	},
+/obj/machinery/camera{
+	c_tag = "NT/SCI #41903";
+	desc = "";
+	invisibility = 100;
+	network = "Minerva5"
+	},
+/obj/map/light/screen,
+/turf/unsimulated/floor/black,
+/area/owlery/lab)
 "rPG" = (
 /obj/mesh/catwalk{
 	dir = 9;
@@ -72513,27 +72496,6 @@
 	},
 /turf/unsimulated/floor/plating,
 /area/hospital/samostrel)
-"rSU" = (
-/obj/table/reinforced/bar/auto{
-	name = "table"
-	},
-/obj/machinery/light/small{
-	dir = 4
-	},
-/obj/machinery/computer/television{
-	camera_networks = list("Minerva5");
-	pixel_x = -3
-	},
-/obj/machinery/camera/directional/north{
-	c_tag = "NT/SCI #41903";
-	desc = "";
-	invisibility = 100;
-	network = "Minerva5";
-	pixel_x = -10
-	},
-/obj/map/light/screen,
-/turf/unsimulated/floor/black,
-/area/owlery/lab)
 "rTv" = (
 /obj/fakeobject/pipe{
 	color = "b4b4b4";
@@ -73402,6 +73364,15 @@
 	dir = 9
 	},
 /area/owlery/gangzone)
+"sAT" = (
+/obj/item/device/light/magic_lantern{
+	dir = 4;
+	pixel_x = -21
+	},
+/obj/noticeboard/persistent/wizard/directional/north,
+/obj/decal/cleanable/dirt,
+/turf/unsimulated/floor/carpet/wizard/standard/edge/nw,
+/area/wizard_station)
 "sAZ" = (
 /obj/table/wood/auto/desk,
 /turf/unsimulated/floor/wood/seven,
@@ -76593,6 +76564,27 @@
 	},
 /turf/unsimulated/wall/auto/lead/blue,
 /area/upper_arctic/mining)
+"vmW" = (
+/obj/noticeboard/persistent/directional/north{
+	name = "aloe's personal persistent notice board";
+	persistent_id = "aloe"
+	},
+/obj/effects/precipitation/rain/dense/tile,
+/obj/storage/crate/bin,
+/obj/item/paper{
+	icon_state = "paper";
+	info = "<h1>IOU</h1><br>one lesson in how git works (realistically like 7)";
+	name = "IOU"
+	},
+/obj/item/paper{
+	icon_state = "paper";
+	info = "<h1>DO NOT TRUST THE WIDE AREA SPAWN TOOL</h1>";
+	name = "note to self";
+	pixel_x = -2;
+	pixel_y = -9
+	},
+/turf/unsimulated/floor/wood/six,
+/area/centcom/offices/aloe)
 "vnh" = (
 /obj/storage/crate/freezer,
 /obj/random_item_spawner/cola,
@@ -77425,17 +77417,6 @@
 	dir = 8
 	},
 /area/iomoon/base)
-"vOS" = (
-/obj/table/flock/auto,
-/obj/item/paper{
-	icon_state = "paper";
-	info = "<i>It's just the word \"CAW\" written over and over in increasingly shaky handwriting.</i>";
-	name = "The secret to Flock balance";
-	pixel_w = 1;
-	pixel_y = -1
-	},
-/turf/unsimulated/floor/feather,
-/area/centcom/offices/leah)
 "vPQ" = (
 /turf/unsimulated/floor/stairs/wide{
 	dir = 8
@@ -77489,28 +77470,6 @@
 /obj/machinery/door/airlock/pyro/maintenance,
 /turf/unsimulated/floor/plating,
 /area/iomoon/base)
-"vSe" = (
-/obj/table/wood/round/auto{
-	desc = "This table is also pretty dang old.";
-	name = "old wooden table"
-	},
-/obj/machinery/computer/television{
-	camera_networks = list("Minerva5");
-	pixel_y = 6
-	},
-/obj/machinery/camera/directional/north{
-	c_tag = "NT/ADMIN/SCI #51352";
-	desc = "";
-	invisibility = 100;
-	network = "Minerva5";
-	pixel_x = -10
-	},
-/obj/map/light/screen,
-/turf/unsimulated/floor/carpet{
-	dir = 4;
-	tag = "icon-blue1"
-	},
-/area/syndicate/minerva5/command)
 "vSm" = (
 /mob/living/critter/small_animal/cat{
 	desc = "This is Eloisa. She looks old, but sweet.";
@@ -79295,6 +79254,12 @@
 	},
 /turf/unsimulated/floor/plating,
 /area/retentioncenter)
+"xif" = (
+/obj/table,
+/obj/item/stamp,
+/obj/noticeboard/directional/north,
+/turf/unsimulated/floor/black,
+/area/hospital)
 "xih" = (
 /obj/cable{
 	icon_state = "4-8"
@@ -80146,6 +80111,27 @@
 	},
 /turf/unsimulated/floor/plating,
 /area/moon/museum/west)
+"xIo" = (
+/obj/table/wood/round/auto{
+	desc = "This table is also pretty dang old.";
+	name = "old wooden table"
+	},
+/obj/machinery/computer/television{
+	camera_networks = list("Minerva5");
+	pixel_y = 6
+	},
+/obj/machinery/camera{
+	c_tag = "NT/ADMIN/SCI #51352";
+	desc = "";
+	invisibility = 100;
+	network = "Minerva5"
+	},
+/obj/map/light/screen,
+/turf/unsimulated/floor/carpet{
+	dir = 4;
+	tag = "icon-blue1"
+	},
+/area/syndicate/minerva5/command)
 "xIB" = (
 /obj/fakeobject{
 	anchored = 1;
@@ -82848,7 +82834,7 @@ cYb
 cYD
 cWJ
 cWV
-vSe
+xIo
 cXg
 cWJ
 cXl
@@ -85923,7 +85909,7 @@ aKX
 aXn
 aLP
 mJF
-aNg
+nDP
 aNF
 aOB
 aPs
@@ -86093,7 +86079,7 @@ bKw
 bKw
 bKw
 bQi
-bOQ
+cdl
 ciH
 ciV
 cjA
@@ -91774,7 +91760,7 @@ aDC
 bMz
 bNb
 bNw
-bNV
+rFL
 bOs
 bOO
 bOq
@@ -92682,7 +92668,7 @@ bLn
 bNx
 bLn
 bOu
-bOQ
+cdl
 bPn
 bPE
 bLn
@@ -97008,7 +96994,7 @@ cDJ
 cAB
 cAB
 cFf
-rSU
+rPE
 cHo
 cAB
 cLQ
@@ -97473,7 +97459,7 @@ izT
 izT
 izT
 izT
-hxO
+okl
 byt
 jqz
 wHN
@@ -114015,7 +114001,7 @@ rtc
 aRZ
 aSX
 rtc
-aUz
+rvF
 aVn
 rtc
 aWJ
@@ -119491,8 +119477,8 @@ bjj
 bjX
 bjj
 bjX
-blW
-bmh
+rZe
+cRx
 bmh
 bmI
 tib
@@ -125406,7 +125392,7 @@ aeX
 aeX
 aeX
 aeX
-asU
+fYP
 adQ
 acb
 acb
@@ -135365,7 +135351,7 @@ ahO
 ahO
 ahO
 aeX
-amK
+xif
 anG
 ahO
 apt
@@ -156289,7 +156275,7 @@ nwN
 dnK
 niJ
 wel
-xxs
+knq
 vCK
 xyS
 wel
@@ -156895,7 +156881,7 @@ liR
 wel
 hqN
 obN
-vOS
+xxs
 wel
 dxw
 dyi
@@ -156909,7 +156895,7 @@ fll
 szA
 gQD
 wel
-qJM
+vmW
 hyC
 hZA
 wel
@@ -160999,7 +160985,7 @@ djX
 jmi
 lRx
 lRx
-dkv
+sAT
 dkB
 lRx
 oUi
