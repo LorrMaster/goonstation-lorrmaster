@@ -99,7 +99,8 @@ ABSTRACT_TYPE(/datum/material)
 	VAR_PROTECTED/list/triggersOnBlobHit = list()
 	/// Called when an obj hits something with this material assigned.
 	VAR_PROTECTED/list/triggersOnHit = list()
-
+	/// Associative list of reagent IDs and their amount per unit of material
+	VAR_PROTECTED/list/reagent_ids = null
 
 	New()
 		. = ..()
@@ -452,9 +453,16 @@ ABSTRACT_TYPE(/datum/material)
 			X.execute(owner, attackatom, attacker, meleeorthrow)
 		return
 
-	/// Turn this material into reagents via
-	proc/convert_reagents(var/amount)
-		return null
+	/// Get reagents that should be in this material
+	proc/get_reagents(var/amount)
+		if(amount <= 0)
+			return null
+		if(!src.reagent_ids)
+			return null
+		var/datum/reagents/R = new/datum/reagents(INFINITY)
+		for(var/id in src.reagent_ids)
+			R.add_reagent(id, amount * src.reagent_ids[id])
+		return R
 
 //Material definitions
 /datum/material/interpolated
@@ -1320,11 +1328,11 @@ ABSTRACT_TYPE(/datum/material/crystal)
 				0.30,0.40,0.50,0.00,\
 				0.00,0.00,0.00,1.00,\
 				0.15,0.20,0.20,0)
-	// Inverse Ice: list(-0.2,-0.2,-0.2,0, -0.2,-0.2,-0.2,0, -0.2,-0.2,-0.2,0, 0,0,0,0.65, 0.7,0.85,1,0)
 	alpha = 135
 
 	edible_exact = 1
 	edible = 1
+	reagent_ids = list("ice" = 5)
 
 	New()
 		..()
@@ -1338,13 +1346,6 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		addTrigger(TRIGGERS_ON_LIFE, new /datum/materialProc/ice_life())
 		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/slippery_attack())
 		addTrigger(TRIGGERS_ON_ENTERED, new /datum/materialProc/slippery_entered())
-
-	convert_reagents(var/amount)
-		if(amount <= 0)
-			return null
-		var/datum/reagents/R = new/datum/reagents(amount * 5)
-		R.add_reagent("ice", amount * 5)
-		return R
 
 ABSTRACT_TYPE(/datum/material/crystal/wizard)
 /datum/material/crystal/wizard

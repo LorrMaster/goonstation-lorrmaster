@@ -102,7 +102,7 @@
 			owner_mob.emote("scream")
 
 	proc/melt_obj(var/obj/O)
-		var/datum/reagents/meltReagents = O.material.convert_reagents(O.material_amt)
+		var/datum/reagents/meltReagents = O.material.get_reagents(O.material_amt)
 		var/turf/T = get_turf(O)
 		if(meltReagents && meltReagents.total_volume && T)
 			meltReagents.reaction(T, TOUCH, meltReagents.total_volume)
