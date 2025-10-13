@@ -36,8 +36,9 @@
 		else
 			// Bit of a struggle to get this overlay to look acceptable
 			var/image/melt_image = image('icons/obj/items/materials/ice.dmi', icon_state = "overlay_melt")
-			melt_image.appearance_flags = PIXEL_SCALE | RESET_COLOR | RESET_ALPHA | KEEP_APART
+			// melt_image.appearance_flags = PIXEL_SCALE | RESET_COLOR | RESET_ALPHA | KEEP_APART
 			melt_image.blend_mode = BLEND_INSET_OVERLAY
+			src.owner.appearance_flags |= KEEP_TOGETHER
 			owner.AddOverlays(melt_image, "status_melting")
 
 	onUpdate(timePassed)
@@ -130,6 +131,7 @@
 	proc/melt_turf(var/turf/T)
 		if(istype(T, /turf/simulated/floor))
 			var/turf/simulated/floor/sim_floor = T
+			sim_floor.pry_tile()
 			if(sim_floor.intact)
 				sim_floor.to_plating(TRUE)
 			else
