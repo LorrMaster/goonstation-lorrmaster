@@ -512,7 +512,6 @@
 		var/master_opacity = !src.drains_floor && src.reagents?.get_master_reagent_gas_opaque()
 
 		var/depth_changed = 0 //force icon update later in the proc if fluid member depth changed
-		var/last_icon = 0
 
 		for (var/obj/fluid/F as anything in src.members)
 			LAGCHECK(LAG_HIGH)
@@ -564,27 +563,8 @@
 
 
 			if (F.do_iconstate_updates)
-				last_icon = F.icon_state
+				F.set_appearance_update(fluid_ma, master_opacity, color_changed, depth_changed)
 
-				if (F.last_spread_was_blocked || (src.amt_per_tile > src.required_to_spread))
-					fluid_ma.icon_state = "15"
-				else
-					var/dirs = 0
-					for (var/dir in cardinal)
-						var/turf/simulated/T = get_step(F, dir)
-						if (T && T.active_liquid && T.active_liquid.group == F.group)
-							dirs |= dir
-					fluid_ma.icon_state = num2text(dirs)
-
-					if (F.overlay_refs && length(F.overlay_refs))
-						if (F)
-							F.ClearAllOverlays()
-
-				if (((color_changed || last_icon != F.icon_state) && F.last_spread_was_blocked) || depth_changed)
-					F.update_perspective_overlays()
-
-				if (fluid_ma.icon_state == "15" && F.last_depth_level >= 2)
-					fluid_ma.icon_state = "15-lines"
 			else
 				fluid_ma.icon_state = "airborne" //HACKY! BAD! BAD! WARNING!
 
@@ -592,9 +572,6 @@
 			//end
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			//air specific (messy)
-			fluid_ma.opacity = master_opacity
-			fluid_ma.overlays = F.overlays // gross, needed because of perspective overlays
 			F.appearance = fluid_ma
 			F.name = initial(F.name) // i don't know what the fuck is going on with the appearances here
 

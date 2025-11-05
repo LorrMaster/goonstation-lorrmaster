@@ -14,7 +14,7 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 	name = "fluid"
 	desc = "It's a free-flowing liquid state of matter!"
 	icon = 'icons/obj/fluid.dmi'
-	icon_state = "15"
+	icon_state = "center"
 	anchored = ANCHORED_ALWAYS
 	mouse_opacity = FALSE
 	layer = FLUID_LAYER
@@ -26,6 +26,8 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 	color = "#ffffff"
 	var/finalalpha = 100
 	alpha = 255
+	var/icon_number = 0 // Used so that puddles do not suddenly change shape
+	var/icon_dir = 0 // Store the default direction of the puddle
 
 	var/const/max_slip_volume = 30
 	var/const/max_slip_viscosity = 10
@@ -84,6 +86,8 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 		for (var/dir in cardinal)
 			blocked_perspective_objects["[dir]"] = 0
 
+		src.icon_number = rand(1,4)
+		src.icon_dir = pick(NORTH, SOUTH, EAST, WEST)
 		if (!fluid_ma)
 			fluid_ma = new(src)
 
@@ -142,7 +146,7 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 		if (isturf(src.loc))
 			src.turf_remove_cleanup(src.loc)
 
-		fluid_ma.icon_state = "15"
+		fluid_ma.icon_state = "center"
 		fluid_ma.alpha = 255
 		fluid_ma.color = "#ffffff"
 		fluid_ma.overlays = null
@@ -315,7 +319,7 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 				blocked_dirs++
 				if (t.active_liquid.group && t.active_liquid.group != src.group)
 					touched_other_group = t.active_liquid.group
-					t.active_liquid.icon_state = "15"
+					t.active_liquid.icon_state = "center"
 				continue
 
 			if(! t.density )
@@ -343,7 +347,7 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 
 				if(suc && src.group && !src.group.disposed) //group went missing? ok im doin a check here lol
 					spawned_any = 1
-					src.icon_state = "15"
+					src.icon_state = "center"
 					var/obj/fluid/F = new /obj/fluid
 					F.set_up(t,0)
 					if (!F || !src.group || src.group.disposed) continue //set_up may decide to remove F
@@ -525,8 +529,6 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 
 		if (!src.group || !src.group.reagents) return
 
-
-
 		var/color_changed = 0
 		var/datum/color/average = src.group.average_color ? src.group.average_color : src.group.reagents.get_average_color()
 		src.finalalpha = max(25, (average.a / 255) * src.group.max_alpha)
@@ -539,29 +541,83 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 			last_spread_was_blocked = 0
 			src.clear_overlay()
 
-		var/last_icon = icon_state
+		fluid_ma.color = src.color
+		fluid_ma.alpha = src.alpha
+		set_appearance_update(fluid_ma, src.opacity, color_changed, FALSE)
+		src.appearance = fluid_ma
+
+	proc/set_appearance_update(var/mutable_appearance/appearance, var/opacity, var/color_changed, var/depth_changed)
+		var/last_icon = src.icon_state
 
 		if (last_spread_was_blocked || (src.group && src.group.amt_per_tile > src.group.required_to_spread))
-			icon_state = "15"
+			icon_state = "center"
 		else
 			var/dirs = 0
 			for (var/dir in cardinal)
 				var/turf/simulated/T = get_step(src, dir)
 				if (T && T.active_liquid && T.active_liquid.group == src.group)
 					dirs |= dir
-			icon_state = num2text(dirs)
+			// Choose a sprite based on the surrounding fluid and set the sprite's direction
+			switch (dirs)
+				if(0)
+					if(src.amt < 10)
+						appearance.icon_state = "puddle_S[src.icon_number]"
+					else
+						appearance.icon_state = "puddle_L[src.icon_number]"
+					appearance.dir = src.icon_dir
+				if(1, 2, 4, 8)
+					appearance.icon_state = "out_[src.icon_number]"
+					appearance.dir = dirs
+				if(3, 12)
+					var/wall_NE = FALSE
+					var/wall_SW = FALSE
+					if(dirs == 3)
+						appearance.dir = pick(NORTH, SOUTH)
+						wall_NE = blocked_perspective_objects["[EAST]"]
+						wall_SW = blocked_perspective_objects["[WEST]"]
+					else if(dirs == 12)
+						appearance.dir = pick(EAST, WEST)
+						wall_NE = blocked_perspective_objects["[NORTH]"]
+						wall_SW = blocked_perspective_objects["[SOUTH]"]
+					if(wall_NE && wall_SW)
+						appearance.icon_state = "bridge_wall_both"
+					else if(wall_NE)
+						appearance.icon_state = "bridge_wall_NE"
+					else if(wall_SW)
+						appearance.icon_state = "bridge_wall_SW"
+					else
+						appearance.icon_state = pick("bridge_1","bridge_2")
+				if(5, 6, 9, 10)
+					appearance.icon_state = "cor_[src.icon_number]"
+					switch(dirs)
+						if(SOUTHWEST) appearance.dir = NORTH
+						if(SOUTHEAST) appearance.dir = SOUTH
+						if(NORTHWEST) appearance.dir = EAST
+						if(NORTHEAST) appearance.dir = WEST
+				if(7,11,13,14)
+					appearance.icon_state = pick("edge_1","edge_2","edge_3","edge_4")
+					var/edge_dir = ~dirs & (NORTH | SOUTH | EAST | WEST)
+					if(blocked_perspective_objects["[edge_dir]"])
+						appearance.icon_state = "edge_wall"
+					else
+						appearance.icon_state = "edge_[src.icon_number]"
+					appearance.dir = edge_dir
+				if(15)
+					appearance.icon_state = "center"
 
 			if (src.overlay_refs && length(src.overlay_refs))
 				src.clear_overlay()
-
-		if ((color_changed || last_icon != icon_state) && last_spread_was_blocked)
+		if (((color_changed || last_icon != src.icon_state) && src.last_spread_was_blocked) || depth_changed)
 			src.update_perspective_overlays()
+		if (src.icon_state == "center" && src.last_depth_level >= 2)
+			src.icon_state = "center-lines"
 
-		if (src.icon_state == "15" && src.last_depth_level >= 2)
-			src.icon_state = "15-lines"
+		//air specific (messy)
+		fluid_ma.opacity = opacity
+		fluid_ma.overlays = src.overlays // gross, needed because of perspective overlays
 
 	proc/update_perspective_overlays() // fancy perspective overlaying
-		if (icon_state != "15" && icon_state != "15-lines") return
+		if (icon_state != "center" && icon_state != "center-lines") return
 		var/blocked = 0
 		for( var/dir in cardinal )
 			if (dir == SOUTH) //No south perspective
@@ -616,8 +672,8 @@ ADMIN_INTERACT_PROCS(/obj/fluid, proc/admin_clear_fluid)
 			src.ClearSpecificOverlays(key)
 
 		if (!src.last_depth_level < 2)
-			if (src.icon_state == "15-lines")
-				src.icon_state = "15"
+			if (src.icon_state == "center-lines")
+				src.icon_state = "center"
 
 	proc/debug_search()
 		var/list/C = src.get_connected_fluids()
