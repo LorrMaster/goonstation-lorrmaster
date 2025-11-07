@@ -27,6 +27,8 @@
 					melt_time_mult *= 3
 			else
 				melt_time_mult *= 3
+		else if(isturf(src.owner))
+			melt_time_mult *= 5
 		src.melt_time = src.calc_melt_time()
 
 		if(istype(src.owner, /obj/item/raw_material/ice))
