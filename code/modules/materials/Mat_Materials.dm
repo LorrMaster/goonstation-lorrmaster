@@ -1379,16 +1379,23 @@ ABSTRACT_TYPE(/datum/material/crystal)
 	mat_id = "ice"
 	name = "ice"
 	desc = "The frozen state of water."
-	color = list(0.30,0.35,0.40,0.00, \
-				0.30,0.30,0.50,0.00,\
-				0.30,0.40,0.50,0.00,\
-				0.00,0.00,0.00,1.00,\
+	color = list(0.65,0.20,0.30,0.00, \
+				0.15,0.65,0.35,0.00,\
+				0.20,0.35,0.75,0.00,\
+				0.00,0.00,0.00,0.53,\
 				0.15,0.20,0.20,0)
+	hsl_color =	list(0.00, 0.00, 0.00, 0.00,\
+					0.00, 0.40, 0.00, 0.00,\
+					0.00, 0.00, 1.00, 0.00,\
+					0.00, 0.00, 0.00, 1.00,\
+					0.55, 0.00, 0.00, 0.00)
 	alpha = 135
+	texture = "ice"
+	texture_blend = BLEND_DEFAULT
 
 	edible_exact = 1
 	edible = 1
-	reagent_ids = list("ice" = 5)
+	reagent_ids = list("ice" = 10)
 
 	New()
 		..()

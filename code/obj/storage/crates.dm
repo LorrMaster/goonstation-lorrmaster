@@ -64,6 +64,11 @@
 	icon_opened = "dd_freezeropen"
 	icon_closed = "dd_freezer"
 	weld_image_offset_Y = -1
+	var/freezer_temp = T0C - 50 KELVIN // Extra cold!
+
+	New()
+		..()
+		src.AddComponent(/datum/component/temperature_controlled, freezer_temp, TRUE)
 
 	beverages
 		name = "Discount Dans beverages crate"
@@ -146,6 +151,11 @@
 	icon_opened = "freezeropen"
 	icon_closed = "freezer"
 	weld_image_offset_Y = -1
+	var/freezer_temp = T0C - 20 KELVIN
+
+	New()
+		..()
+		src.AddComponent(/datum/component/temperature_controlled, freezer_temp, TRUE)
 
 /obj/storage/crate/bloody
 	name = "dented crate"

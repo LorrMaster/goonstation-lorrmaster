@@ -676,9 +676,9 @@
 
 	update_icon()
 		if(src.is_melting)
-			src.icon_state = "ore[src.icon_stack_value]_melt$$[src.material.getName()]"
+			src.icon_state = "ore[src.icon_stack_value]_melt$$[src.default_material]"
 		else
-			src.icon_state = "ore[src.icon_stack_value]_$$[src.material.getName()]"
+			src.icon_state = "ore[src.icon_stack_value]_$$[src.default_material]"
 
 /obj/item/raw_material/scrap_metal
 	// this should only be spawned by the game, spawning it otherwise would just be dumb

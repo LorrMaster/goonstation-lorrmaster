@@ -946,6 +946,11 @@
 	open_sound = 'sound/misc/fridge_open.ogg'
 	close_sound = 'sound/misc/fridge_close.ogg'
 	volume = 80
+	var/fridge_temp = T0C + 2 KELVIN
+
+	New()
+		..()
+		src.AddComponent(/datum/component/temperature_controlled, fridge_temp, TRUE)
 
 /obj/storage/secure/closet/fridge/opened
 	New()

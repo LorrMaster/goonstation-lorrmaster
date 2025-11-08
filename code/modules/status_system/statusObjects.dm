@@ -16,6 +16,11 @@
 	var/melt_time_mult = 1 // Adjust how fast things melt
 	var/melt_material_count = 0 // Amount of material that has melted without turning into chunks
 
+	preCheck(atom/A)
+		if(isturf(src.owner) && !issimulatedturf(src.owner))
+			return FALSE
+		return ..()
+
 	onAdd()
 		..()
 		if(ismob(src.owner))
@@ -38,9 +43,11 @@
 		else
 			// Bit of a struggle to get this overlay to look acceptable
 			var/image/melt_image = image('icons/obj/items/materials/ice.dmi', icon_state = "overlay_melt")
-			// melt_image.appearance_flags = PIXEL_SCALE | RESET_COLOR | RESET_ALPHA | KEEP_APART
+			melt_image.appearance_flags = PIXEL_SCALE | RESET_COLOR | RESET_ALPHA | KEEP_APART
 			melt_image.blend_mode = BLEND_INSET_OVERLAY
-			src.owner.appearance_flags |= KEEP_TOGETHER
+			// src.owner.render_target = "*\ref[src.owner]"
+			// melt_image.filters += alpha_mask_filter(render_source = src.owner.render_target)
+			// src.owner.appearance_flags |= KEEP_TOGETHER
 			owner.AddOverlays(melt_image, "status_melting")
 
 	onUpdate(timePassed)
@@ -50,9 +57,9 @@
 			return
 
 		var/melting_point = owner.material.getProperty("melting_point")
-		var/turf/T = get_turf(owner)
-		if(owner.loc == T && T.temperature > melting_point)
-			var/min_duration = ((T.temperature - melting_point) / 100 KELVIN) SECONDS + 5 SECONDS
+		var/temperature = src.get_temperature()
+		if(temperature > melting_point)
+			var/min_duration = ((temperature - melting_point) / 100 KELVIN) SECONDS + 5 SECONDS
 			src.duration = max(src.duration, min_duration) // Keep melting if it is warm enough to melt
 		src.melt_time -= timePassed
 
@@ -65,7 +72,8 @@
 		else if(isobj(src.owner))
 			var/obj/O = src.owner
 			melt_obj(O)
-		else if(T == src.owner) // isTurf(src.owner)
+		else if(isturf(src.owner))
+			var/turf/T = src.owner
 			melt_turf(T)
 
 	onChange()
@@ -74,7 +82,6 @@
 		var/new_melt_time = src.calc_melt_time()
 		if(new_melt_time < src.melt_time)
 			src.melt_time = new_melt_time
-
 
 	onRemove()
 		..()
@@ -87,6 +94,13 @@
 		else
 			owner.ClearSpecificOverlays("status_melting")
 
+	proc/get_temperature()
+		var/datum/component/temperature_controlled/temperature_comp = src.owner.loc?.GetComponent(/datum/component/temperature_controlled)
+		if(temperature_comp)
+			return temperature_comp.temperature
+		var/turf/T = get_turf(src.owner)
+		return T.temperature
+
 	proc/calc_melt_time()
 		var/new_melt_time = MELT_TIME_MIN * (MELT_TIME_SCALE ** owner.material.getProperty("heat_capacity"))
 		var/duration_scaling = 0.5 ** (src.duration / MELT_DURATION_HALFLIFE)
@@ -94,37 +108,66 @@
 		new_melt_time *= owner.material_amt * src.melt_time_mult
 		return new_melt_time
 
+	proc/drop_material(var/mat_amt)
+		melt_material_count += mat_amt
+		mat_amt = round(melt_material_count)
+		melt_material_count -= mat_amt
+		if(mat_amt <= 0)
+			return
+		var/turf/T = get_turf(src.owner)
+		for (var/obj/item/raw_material/other in T.contents)
+			if (src.owner.material.isSameMaterial(other.material))
+				other.change_stack_amount(mat_amt)
+				chaff.setStatus("melting", src.duration)
+				return
+
+		var/obj/item/chaff
+		if(src.owner.material.getID() == "ice")
+			chaff = new/obj/item/raw_material/ice(T)
+		else
+			chaff = new/obj/item/raw_material/scrap_metal(T)
+			chaff.setMaterial(src.owner.material)
+		// chaff.set_loc(T)
+		if(mat_amt != 1)
+			chaff.set_stack_amount(mat_amt)
+		chaff.setStatus("melting", src.duration)
+
+	proc/drop_reagents(var/melt_amt, var/datum/reagents/other = null)
+		var/datum/reagents/meltReagents
+		if(melt_amt > 0)
+			meltReagents = src.owner.material.get_reagents(melt_amt)
+			meltReagents.set_reagent_temp(src.owner.material.getProperty("melting_point") + 1 KELVIN, TRUE)
+			other?.copy_to(meltReagents, copy_temperature = TRUE)
+		else if(other)
+			meltReagents = other
+		if(!meltReagents)
+			return
+
+		var/turf/T = get_turf(src.owner)
+		if(meltReagents && meltReagents.total_volume)
+			meltReagents.reaction(T, TOUCH, meltReagents.total_volume)
+		src.melt_material_count += src.owner.material_amt
+		playsound(src.owner, 'sound/misc/splash_1.ogg', 40, TRUE)
+
 	proc/melt_mob(var/mob/owner_mob)
-		owner_mob.TakeDamage("All", 0, 20, 0, DAMAGE_BURN)
-		var/obj/item/raw_material/ice/new_ice = new(get_turf(owner_mob))
-		new_ice.change_stack_amount(1)
-		new_ice.setStatus("melting", src.duration)
-		playsound(owner_mob, 'sound/misc/splash_1.ogg', 50, TRUE)
-		if(prob(50))
-			owner_mob.emote("scream")
+		if(isdead(owner_mob))
+			finish_melting()
+		else
+			owner_mob.TakeDamage("All", 0, 20, 0, DAMAGE_BURN)
+			drop_material(2)
+			if(prob(50))
+				owner_mob.emote("scream")
 
 	proc/melt_obj(var/obj/O)
-		var/datum/reagents/meltReagents = O.material.get_reagents(O.material_amt)
-		var/turf/T = get_turf(O)
-		if(meltReagents && meltReagents.total_volume && T)
-			meltReagents.reaction(T, TOUCH, meltReagents.total_volume)
-		src.melt_material_count += O.material_amt
-		playsound(O, 'sound/misc/splash_1.ogg', 50, TRUE)
+		drop_reagents(O.material_amt, src.owner.reagents)
 		if(!isitem(O))
-			if(src.melt_material_count >= 1)
-				var/obj/item/raw_material/ice/new_ice = new(get_turf(src.owner))
-				if(src.melt_material_count >= 2)
-					new_ice.change_stack_amount(floor(src.melt_material_count) - 1)
-				new_ice.setStatus("melting", src.duration)
+			drop_material(O.material_amt)
 			finish_melting()
 			return
 		var/obj/item/I = O
-		if(src.melt_material_count >= 1 && !istype(I, /obj/item/raw_material) && !istype(I, /obj/item/material_piece))
-			var/obj/item/raw_material/ice/new_ice = new(get_turf(src.owner))
-			if(src.melt_material_count >= 2)
-				new_ice.change_stack_amount(floor(src.melt_material_count) - 1)
-			new_ice.setStatus("melting", src.duration)
-			src.melt_material_count = src.melt_material_count - floor(src.melt_material_count)
+		if(istype(I, /obj/item/raw_material) || istype(I, /obj/item/material_piece))
+			return
+		drop_material(I.material_amt)
 		if(I.amount == 1)
 			finish_melting()
 		else
@@ -133,18 +176,20 @@
 	proc/melt_turf(var/turf/T)
 		if(istype(T, /turf/simulated/floor))
 			var/turf/simulated/floor/sim_floor = T
-			sim_floor.pry_tile()
-			if(sim_floor.intact)
+			if(sim_floor.pryable)
 				sim_floor.to_plating(TRUE)
+				drop_reagents(T.material_amt)
 			else
 				sim_floor.ReplaceWithSpace()
 		else
+			drop_reagents(T.material_amt)
 			T.ReplaceWithFloor()
+		remove_self()
 
 	proc/finish_melting()
 		if(istype(src.owner, /obj/storage))
 			var/obj/storage/S = src.owner
-			if(S.spawn_contents && S.make_my_stuff()) //Make the stuff when the locker is first opened.
+			if(S.spawn_contents && S.make_my_stuff()) // Make the stuff if the storage has not been opened yet.
 				S.spawn_contents = null
 		var/turf/T = get_turf(src.owner)
 		for(var/atom/movable/AM in src.owner)
