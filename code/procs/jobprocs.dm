@@ -720,6 +720,15 @@ Equip items from body traits.
 		trinket.quality = rand(5,80)
 		trinkets_to_equip += trinket
 
+	if(src.traitHolder?.hasTrait("trinket_material"))
+		if(trinket)
+			var/list/mats_common = list("wood","cardboard","plastic","steel","rock","glass","ice","leather","synthrubber")
+			var/list/mats_ores = list("mauxite","bohrum","telecrystal","erebite","pharosium")
+			var/list/mats_uncommon = list("electrum")
+			var/list/mats_unusual = list("ectoplasm","bone","honey","soulsteel")
+
+			var/datum/material
+
 	// fake trinket-like zippo lighter for the smoker trait
 	if (src.traitHolder && src.traitHolder.hasTrait("smoker"))
 		var/obj/item/device/light/zippo/smoker_zippo = new(src)

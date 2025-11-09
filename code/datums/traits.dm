@@ -684,6 +684,14 @@
 	category = list("trinkets")
 	points = 0
 
+/datum/trait/trinket_material
+	name = "Pawn Star"
+	desc = "Your trinket will be made of a random material."
+	id = "trinket_material"
+	icon_state = "pawnP"
+	points = -1
+	category = list("trinkets")
+
 // Skill - White Border
 
 /datum/trait/smoothtalker
