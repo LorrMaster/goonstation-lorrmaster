@@ -1426,3 +1426,10 @@ TYPEINFO(/atom/movable)
 		// possible idea for a future change: instead of direct deletion just decrease dries_up_time and only delete if <= current time
 		if(glued_comp?.glued_to == src && !isnull(glued_comp.glue_removal_time))
 			qdel(glued_comp)
+
+/atom/proc/get_temperature_exterior()
+	var/datum/component/temperature_controlled/temperature_comp = src.GetComponent(/datum/component/temperature_controlled)
+	if(temperature_comp?.controller)
+		return temperature_comp.controller.temperature
+	var/turf/T = get_turf(src)
+	return T.temperature

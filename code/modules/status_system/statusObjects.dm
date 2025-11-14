@@ -57,7 +57,7 @@
 			return
 
 		var/melting_point = owner.material.getProperty("melting_point")
-		var/temperature = src.get_temperature()
+		var/temperature = src.owner.get_temperature_exterior()
 		if(temperature > melting_point)
 			var/min_duration = ((temperature - melting_point) / 100 KELVIN) SECONDS + 5 SECONDS
 			src.duration = max(src.duration, min_duration) // Keep melting if it is warm enough to melt
@@ -94,13 +94,6 @@
 		else
 			owner.ClearSpecificOverlays("status_melting")
 
-	proc/get_temperature()
-		var/datum/component/temperature_controlled/temperature_comp = src.owner.loc?.GetComponent(/datum/component/temperature_controlled)
-		if(temperature_comp)
-			return temperature_comp.temperature
-		var/turf/T = get_turf(src.owner)
-		return T.temperature
-
 	proc/calc_melt_time()
 		var/new_melt_time = MELT_TIME_MIN * (MELT_TIME_SCALE ** owner.material.getProperty("heat_capacity"))
 		var/duration_scaling = 0.5 ** (src.duration / MELT_DURATION_HALFLIFE)
@@ -118,7 +111,7 @@
 		for (var/obj/item/raw_material/other in T.contents)
 			if (src.owner.material.isSameMaterial(other.material))
 				other.change_stack_amount(mat_amt)
-				chaff.setStatus("melting", src.duration)
+				other.setStatus("melting", src.duration)
 				return
 
 		var/obj/item/chaff
