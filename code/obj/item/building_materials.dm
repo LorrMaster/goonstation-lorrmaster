@@ -586,7 +586,7 @@ MATERIAL
 // RODS
 /obj/item/rods
 	name = "rods"
-	desc = "A set of metal rods, useful for constructing grilles and other objects, and decent for hitting people."
+	desc = "A set of sturdy rods, useful for constructing grilles and other objects. Also decent for hitting people."
 	icon = 'icons/obj/metal.dmi'
 	inhand_image_icon = 'icons/mob/inhand/hand_tools.dmi'
 	icon_state = "rods_5"
@@ -612,6 +612,16 @@ MATERIAL
 		SPAWN(0)
 			UpdateStackAppearance()
 		BLOCK_SETUP(BLOCK_ROD)
+
+	setMaterial(datum/material/mat1, appearance, setname, mutable, use_descriptors)
+		. = ..()
+		var/material_flags = src.material?.getMaterialFlags()
+		if(HAS_FLAG(material_flags, MATERIAL_WOOD) && !HAS_FLAG(material_flags, MATERIAL_METAL))
+			if(src.material.getID() == "cardboard")
+				src.real_name = "tubes"
+			else
+				src.real_name = "poles"
+		UpdateName()
 
 	check_valid_stack(atom/movable/O as obj)
 		if (!istype(O,/obj/item/rods/))
@@ -771,6 +781,11 @@ MATERIAL
 			src.change_stack_amount(-2)
 			logTheThing(LOG_STATION, user, "builds a grille (<b>Material:</b> [A.material?.getID() || "*UNKNOWN*"]) at [log_loc(user)].")
 			A.add_fingerprint(user)
+
+/obj/item/rods/bamboo
+	icon_state = "rods_5$$bamboo"
+	default_material = "bamboo"
+	amount = 20
 
 /obj/head_on_spike
 	name = "head on a spike"
