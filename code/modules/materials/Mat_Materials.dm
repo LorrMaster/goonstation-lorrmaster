@@ -1655,7 +1655,17 @@ ABSTRACT_TYPE(/datum/material/organic)
 	mat_id = "chitin"
 	name = "chitin"
 	desc = "Chitin is an organic material found in the exoskeletons of insects."
-	color = "#118800"
+	color = list(0.20, 0.00, 0.00, 0.00,\
+				0.00, 0.80, 0.20, 0.00,\
+				0.00, 0.20, 1.00, 0.00,\
+				0.00, 0.00, 0.00, 1.00,\
+				-0.20, -0.10, -0.05, 0.00)
+	hsl_color = list(0.00, 0.00, -0.10, 0.00,\
+					0.00, 1.25, 0.00, 0.00,\
+					0.00, 0.00, 0.60, 0.00,\
+					0.00, 0.00, 0.00, 1.00,\
+					0.53, -0.25, 0.05, 0.00)
+	texture = "chitin"
 
 	New()
 		..()
@@ -1709,7 +1719,16 @@ ABSTRACT_TYPE(/datum/material/organic)
 	mat_id = "frozenfart"
 	name = "frozen fart"
 	desc = "A semi-solid state of farts originally proposed to exist by Dr. Prof. Wonk in 2016."
-	color = "#003300"
+	color = list(0.70, 0.10, 0.00, 0.00,\
+				0.00, 1.00, 0.00, 0.00,\
+				0.00, 0.10, 0.70, 0.00,\
+				0.00, 0.00, 0.00, 1.00,\
+				0.00, 0.00, 0.00, 0.00)
+	hsl_color = list(0.00, 0.00, 0.00, 0.00,\
+					0.00, 0.50, 0.20, 0.00,\
+					0.00, 0.00, 0.55, 0.00,\
+					0.00, 0.00, 0.00, 1.00,\
+					0.27, 0.50, -0.05, 0.00)
 
 	New()
 		..()
@@ -1718,6 +1737,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("thermal", 1)
 		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/ffart_add())
 		addTrigger(TRIGGERS_ON_PICKUP, new /datum/materialProc/ffart_pickup())
+		addTrigger(TRIGGERS_ON_REMOVE, new /datum/materialProc/ffart_remove())
 
 
 /datum/material/organic/hamburgris

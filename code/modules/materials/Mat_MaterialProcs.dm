@@ -68,7 +68,19 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 
 /datum/materialProc/ffart_add
 	desc = "It's very hard to move around."
-	max_generations = 1
+	execute(var/atom/location)
+		if(endswith(location.icon_state, "$$frozenfart") || ("frozenfart" in location.get_typeinfo().mat_appearances_to_ignore))
+			return
+		if(location.default_material == "frozenfart" && !location.uses_default_material_appearance)
+			return
+		var/blur_filter = motion_blur_filter(0.8, 0.8)
+		location.add_filter("frozenfart_blur", 4, blur_filter)
+		return
+
+/datum/materialProc/ffart_remove
+	execute(var/atom/location)
+		location.remove_filter("frozenfart_blur")
+		return
 
 /datum/materialProc/ffart_pickup
 	execute(var/mob/M, var/obj/item/I)
