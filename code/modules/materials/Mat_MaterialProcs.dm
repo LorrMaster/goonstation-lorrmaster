@@ -674,6 +674,23 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 		location.remove_filter("spacelag_outline")
 		return
 
+/datum/materialProc/blob_add
+	execute(var/atom/location)
+		if(endswith(location.icon_state, "$$blob") || ("blob" in location.get_typeinfo().mat_appearances_to_ignore))
+			return
+		var/wave_filter = wave_filter(16, 16, 0.6, 0, flags = WAVE_SIDEWAYS | WAVE_BOUNDED)
+		location.add_filter("blob_wave", 4, wave_filter)
+		var/filter = location.get_filter("blob_wave")
+		var/blob_offset = TIME % 50
+		animate(filter, offset = blob_offset, time = 0, loop = -1)
+		animate(offset = blob_offset + 1, time = 50)
+		return
+
+/datum/materialProc/blob_remove
+	execute(var/atom/location)
+		location.remove_filter("blob_wave")
+		return
+
 /datum/materialProc/honey_add
 	execute(var/atom/location)
 		if(endswith(location.icon_state, "$$honey") || ("honey" in location.get_typeinfo().mat_appearances_to_ignore))

@@ -1465,10 +1465,17 @@ ABSTRACT_TYPE(/datum/material/organic)
 	mat_id = "blob"
 	name = "blob"
 	desc = "The material of the feared giant space amoeba."
-	color = "#44cc44"
+	color = list(0.50, 0.20, 0.00, 0.00,\
+				0.00, 0.50, 0.00, 0.00,\
+				0.00, 0.20, 0.50, 0.00,\
+				0.00, 0.00, 0.00, 1.00,\
+				0.10, 0.15, 0.10, 0.00)
+	hsl_color = list(0.00, 0.00, 0.00, 0.00,\
+					0.00, 0.50, 0.00, 0.00,\
+					0.00, 0.00, 1.00, 0.00,\
+					0.00, 0.00, 0.00, 1.00,\
+					0.33, 0.50, 0.00, 0.00)
 	alpha = 180
-	texture = "bubbles"
-	texture_blend = BLEND_ADD
 
 	edible_exact = 0.6 //Just barely edible
 	edible = 1
@@ -1480,6 +1487,8 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("density", 5)
 		setProperty("hard", 1)
 		setProperty("flammable", 5)
+		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/blob_add())
+		addTrigger(TRIGGERS_ON_REMOVE, new /datum/materialProc/blob_remove())
 		addTrigger(TRIGGERS_ON_EAT, new /datum/materialProc/oneat_blob())
 
 
