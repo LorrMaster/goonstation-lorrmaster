@@ -17,8 +17,13 @@
 	if (src.hasStatus("paralysis"))
 		return //pls stop emoting :((
 
-	if (voluntary && (src.hasStatus("unconscious") || isunconscious(src)))
-		return
+	if (voluntary)
+		if (src.hasStatus("unconscious") || isunconscious(src))
+			return
+	else if (ischangeling(src))
+		var/datum/abilityHolder/changeling/C = src.get_ability_holder(/datum/abilityHolder/changeling)
+		if (C?.in_fakedeath)
+			return
 
 	if (src.bioHolder.HasEffect("revenant"))
 		src.visible_message(SPAN_ALERT("[src] makes [pick("a rude", "an eldritch", "a", "an eerie", "an otherworldly", "a netherly", "a spooky")] gesture!"), group = "revenant_emote")
@@ -55,7 +60,7 @@
 			// most commonly used emotes first for minor performance improvements
 			if ("scream")
 				if (src.emote_check(voluntary, 5 SECONDS))
-					if(src.bioHolder?.HasEffect("mute"))
+					if(src.bioHolder?.HasEffect("mute") || src.muffled_by_grab())
 						var/pre_message = "[pick("vibrates for a moment, then stops", "opens [his_or_her(src)] mouth, but no sound comes out",
 						"tries to scream, but can't", "emits an audible silence", "huffs and puffs with all [his_or_her(src)] might, but can't seem to make a sound",
 						"opens [his_or_her(src)] mouth to produce a resounding lack of noise","flails desperately","")]..."
@@ -268,9 +273,11 @@
 							if (istype(T, /turf/space))
 								if (src.getStatusDuration("food_space_farts"))
 									src.inertia_dir = src.dir
+									src.inertia_value = 1
 									step(src, inertia_dir)
 									SPAWN(1 DECI SECOND)
 										src.inertia_dir = src.dir
+										src.inertia_value = 1
 										step(src, inertia_dir)
 							else
 								if(prob(10) && istype(src.loc, /turf/simulated/floor/specialroom/freezer)) //ZeWaka: Fix for null.loc
@@ -859,7 +866,7 @@
 					if (istype(I, /obj/item/cloth/handkerchief))
 						message = "<b>[src]</b> [act]s into [I]."
 						maptext_out = "<I>[act]s into [I]</I>"
-					else if (act == "sneeze" && prob(1) && (src.mind?.assigned_role == "Clown" || src.reagents.has_reagent("honky_tonic")))
+					else if (act == "sneeze" && prob(1) && (src.traitHolder?.hasTrait("training_clown") || src.reagents.has_reagent("honky_tonic")))
 						message = "<b>[src]</b> sneezes out a handkerchief!"
 						maptext_out = "<I>sneezes out a handkerchief!</I>"
 						var/obj/HK = new /obj/item/cloth/handkerchief/random(get_turf(src))
@@ -884,14 +891,20 @@
 
 				if (src.emote_check(voluntary,20))
 					if (act == "gasp")
+						var/sound_volume_mult = 1
+						var/sound_flags = 0
+						if (src.muffled_by_grab())
+							sound_volume_mult = 0.5
+							sound_flags = SOUND_DO_LOS
+
 						if (src.find_ailment_by_type(/datum/ailment/malady/flatline))
 							var/dying_gasp_sfx = "sound/voice/gasps/[src.gender == MALE ? MALE : FEMALE]_gasp_[pick(1,3)].ogg"
-							playsound(src, dying_gasp_sfx, 40, FALSE, 0, src.get_age_pitch())
+							playsound(src, dying_gasp_sfx, 40 * sound_volume_mult, FALSE, 0, src.get_age_pitch(), flags = sound_flags)
 						else if (src.health <= 0)
 							var/dying_gasp_sfx = "sound/voice/gasps/[src.gender == MALE ? MALE : FEMALE]_gasp_[pick(4,5)].ogg"
-							playsound(src, dying_gasp_sfx, 40, FALSE, 0, src.get_age_pitch())
+							playsound(src, dying_gasp_sfx, 40 * sound_volume_mult, FALSE, 0, src.get_age_pitch(), flags = sound_flags)
 						else
-							playsound(src, src.sound_gasp, 15, 0, 0, src.get_age_pitch())
+							playsound(src, src.sound_gasp, 15 * sound_volume_mult, 0, 0, src.get_age_pitch(), flags = sound_flags)
 
 			if ("laugh","chuckle","giggle","chortle","guffaw","cackle")
 				if (!muzzled)
@@ -1610,12 +1623,17 @@
 							SEND_SIGNAL(src, COMSIG_MOB_FAKE_DEATH)
 							#endif
 
+						var/muffled = src.muffled_by_grab()
+
 						// Active if XMAS or manually toggled.
-						if (deathConfettiActive)
-							src.deathConfetti()
+						if (global.deathConfettiActive)
+							src.deathConfetti(muffled)
 
 						message = SPAN_REGULAR("<b>[src]</b> seizes up and falls limp, [his_or_her(src)] eyes dead and lifeless...")
-						playsound(src, "sound/voice/death_[pick(1,2)].ogg", 40, 0, 0, src.get_age_pitch())
+						if (muffled)
+							playsound(src, "sound/voice/death_[pick(1,2)].ogg", 20, 0, 0, src.get_age_pitch(), flags = SOUND_DO_LOS)
+						else
+							playsound(src, "sound/voice/death_[pick(1,2)].ogg", 40, 0, 0, src.get_age_pitch())
 					m_type = 1
 
 			if ("johnny")
@@ -2253,7 +2271,7 @@
 										dab_id.dabbed_on_count++
 
 						if(get_dabbed_on == 0)
-							if (src.mind && src.mind.assigned_role == "Clown")
+							if (src.traitHolder?.hasTrait("training_clown"))
 								message = "<B>[src]</B> [pick("performs a sick dab", "dabs on the haters", "shows everybody [his_or_her(src)] dope dab skills", "performs a wicked dab", "dabs like nobody has dabbed before", "shows everyone how they dab in the circus")]!!!"
 							else
 								message = "<B>[src]</B> [pick("performs a sick dab", "dabs on the haters", "shows everybody [his_or_her(src)] dope dab skills", "performs a wicked dab", "dabs like nobody has dabbed before")]!!!"
@@ -2328,7 +2346,7 @@
 		for (var/mob/M in A.contents)
 			recipients += M
 
-	logTheThing(LOG_SAY, src, "EMOTE: [message]")
+	log_emote(src, message, voluntary)
 	act = lowertext(act)
 	for (var/mob/M as anything in recipients)
 		M.show_message(SPAN_EMOTE("[message]"), m_type, group = "[src]_[act]_[custom]")
@@ -2483,3 +2501,21 @@
 			for(var/obj/O in view(range, get_turf(src)))
 				targets += O
 	return targets
+
+///only clowns and the useless know the true art of dabbing
+proc/can_dab(mob/user)
+	if (user.traitHolder?.hasTrait("training_clown"))
+		return TRUE
+	if (user.mind && (user.mind.assigned_role in list("Staff Assistant", "Captain")))
+		return TRUE
+	if (istraitor(user) || isconspirator(user) || isnukeop(user) || isnukeopgunbot(user))
+		return TRUE
+	if (user.reagents && (user.reagents.has_reagent("puredabs") || user.reagents.has_reagent("extremedabs")))
+		return TRUE
+	if(!ishuman(user))
+		return FALSE
+	var/mob/living/carbon/human/H = user
+	var/obj/item/I = get_id_card(H.wear_id)
+	if (istype(H.head, /obj/item/clothing/head/bighat/syndicate/) || istype(I, /obj/item/card/id/dabbing_license))
+		return TRUE
+	return FALSE

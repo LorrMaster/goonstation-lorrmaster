@@ -229,6 +229,10 @@
 		unique = 1
 		change = 2
 
+		onAdd(optional=100)
+			. = ..()
+			change = 2 * (optional/100)
+
 	staminaregen/darkness
 		id = "darkness_stam_regen"
 		name = "Dark vigor"
@@ -1257,8 +1261,9 @@
 		getTooltip()
 			. = "Your stamina max is increased by [change]."
 
-		onAdd(optional=null)
+		onAdd(optional=100)
 			. = ..()
+			src.change = 10 * (optional/100)
 			if(hascall(owner, "add_stam_mod_max"))
 				owner:add_stam_mod_max("fitness_max", change)
 
@@ -1266,6 +1271,7 @@
 			. = ..()
 			if(hascall(owner, "remove_stam_mod_max"))
 				owner:remove_stam_mod_max("fitness_max")
+
 
 	handcuffed
 		id = "handcuffed"
@@ -1305,6 +1311,12 @@
 			. = ..()
 			if (ishuman(owner))
 				H = owner
+			APPLY_ATOM_PROPERTY(src.owner, PROP_ATOM_GRAVITY_IMMUNE, src)
+
+		onRemove()
+			. = ..()
+			REMOVE_ATOM_PROPERTY(src.owner, PROP_ATOM_GRAVITY_IMMUNE, src)
+
 
 	possessing
 		id = "possessing"
@@ -3529,12 +3541,17 @@
 		if (ismob(owner) && !QDELETED(owner))
 			var/mob/mob_owner = owner
 			APPLY_ATOM_PROPERTY(mob_owner, PROP_MOB_CANTMOVE, src.type)
+			APPLY_ATOM_PROPERTY(mob_owner, PROP_MOB_CANTTURN, src.type)
+			var/image/stasis_image = owner.SafeGetOverlayImage("stasis_field", 'icons/obj/ship.dmi', "tractor", FLOAT_LAYER)
+			owner.AddOverlays(stasis_image, "stasis_field")
 		..()
 
 	onRemove()
 		if (ismob(owner) && !QDELETED(owner))
 			var/mob/mob_owner = owner
 			REMOVE_ATOM_PROPERTY(mob_owner, PROP_MOB_CANTMOVE, src.type)
+			REMOVE_ATOM_PROPERTY(mob_owner, PROP_MOB_CANTTURN, src.type)
+			owner.ClearSpecificOverlays("stasis_field")
 		..()
 
 /datum/statusEffect/silicon_radiation

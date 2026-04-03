@@ -51,6 +51,8 @@ toxic - poisons
 
 	has_impact_particles = TRUE
 
+	affected_by_gravity = TRUE
+
 	/// can it ricochet off a wall?
 	var/ricochets = FALSE
 
@@ -99,7 +101,7 @@ toxic - poisons
 		casing = null
 		on_pre_hit(atom/hit, angle, var/obj/projectile/O)
 			if (isliving(hit))
-				if (ON_COOLDOWN(hit, "american180_miss", 3 DECI SECONDS))
+				if (ON_COOLDOWN(hit, "american180_miss", 2 DECI SECONDS))
 					return TRUE
 				else
 					return FALSE
@@ -766,7 +768,7 @@ toxic - poisons
 	icon_state = "birdshot1"
 	hit_ground_chance = 66
 	implanted = null
-	damage = 13
+	damage = 16
 	stun = 6
 	hit_type = DAMAGE_CUT //birdshot mutilates your skin more, but doesnt hurt organs like shotties
 	dissipation_rate = 4 //spread handles most of this
@@ -1114,6 +1116,12 @@ toxic - poisons
 				M.throw_at(target, throw_range, 1, throw_type = THROW_GUNIMPACT)
 				M.update_canmove()
 			hit.changeStatus("staggered", clamp(proj.power/8, 5, 1) SECONDS)
+
+/datum/projectile/bullet/abg/punchy
+	damage = 20
+	stun = 30
+	//it's heavy right, so um it's lower down?
+	hit_ground_chance = 100
 
 /datum/projectile/bullet/potatoslug		//Improvised slug
 	name = "potato"
@@ -2410,7 +2418,7 @@ ABSTRACT_TYPE(/datum/projectile/bullet/homing/rocket)
 			if(clown_tally > 0)
 				playsound(H, 'sound/musical_instruments/Bikehorn_1.ogg', 50, TRUE)
 
-			if (H.job == "Clown" || clown_tally >= 2)
+			if (H.traitHolder?.hasTrait("training_clown") || clown_tally >= 2)
 				H.drop_from_slot(H.shoes)
 				H.throw_at(get_offset_target_turf(H, rand(5)-rand(5), rand(5)-rand(5)), rand(2,4), 2, throw_type = THROW_GUNIMPACT)
 				H.emote("twitch_v")
