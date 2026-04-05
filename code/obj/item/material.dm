@@ -519,6 +519,14 @@
 	w_class = W_CLASS_POCKET_SIZED // Should fit in your pocket, since it is so dense.
 	dense = 2
 
+/obj/item/raw_material/batiline
+	name = "batiline ore"
+	desc = "A chunk of batiline. A dense but brittle ore often used in radiation shielding."
+	icon = 'icons/obj/items/materials/batiline.dmi'
+	material_name = "Batiline"
+	default_material = "batiline"
+	dense = 2
+
 /obj/item/raw_material/fibrilith
 	name = "fibrilith chunk"
 	desc = "A compressed chunk of Fibrilith, an odd mineral known for its high tensile strength."

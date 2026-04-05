@@ -270,8 +270,8 @@ proc/get_icon_states(icon)
 		src.material.triggerOnBullet(src, attacked, projectile)
 	return
 
-/// Called when an atom is hit by a bullet for mat effects
-/atom/proc/material_trigger_on_chems(var/chem, var/amount)
+/// Called when an atom comes into contact with reagents for mat effects
+/atom/proc/material_trigger_on_chems(var/datum/reagent/chem, var/amount)
 	if (src.material)
 		src.material.triggerChem(src, chem, amount)
 	return

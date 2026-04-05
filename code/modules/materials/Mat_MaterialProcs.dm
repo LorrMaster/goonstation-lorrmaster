@@ -3,7 +3,7 @@ triggerOnAttacked(var/obj/item/owner, var/mob/attacker, var/mob/attacked, var/at
 triggerOnAttack(var/obj/item/owner, var/mob/attacker, var/mob/attacked)
 triggerOnLife(var/mob/M, var/obj/item/I)
 triggerOnAdd(var/owner)
-triggerChem(var/location, var/chem, var/amount)
+triggerChem(var/location, var/datum/reagent/chem, var/amount)
 triggerPickup(var/mob/M, var/obj/item/I)
 triggerDrop(var/mob/M, var/obj/item/I)
 triggerTemp(var/owner, var/temp)
@@ -297,6 +297,23 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 	execute(var/atom/location)
 		if(particleMaster.CheckSystemExists(/datum/particleSystem/sparkles, location))
 			particleMaster.RemoveSystem(/datum/particleSystem/sparkles, location)
+		return
+
+/datum/materialProc/batiline_add
+	execute(var/atom/location)
+		var/datum/component/radioactive/rad_comp = location.GetComponent(/datum/component/radioactive)
+		rad_comp?.RemoveComponent()
+		return
+
+/datum/materialProc/batiline_chem
+	execute(var/atom/location, var/datum/reagent/chem, var/amount)
+		if(ON_COOLDOWN(location, "batiline_chem", 10 SECONDS))
+			return
+		var/prop_max = location.material.getProperty("chemical", VALUE_MAX)
+		var/prop_cur = location.material.getProperty("chemical")
+		var/corrode_rate = (prop_max - prop_cur) / prop_max
+		corrode_rate = (min(amount, 120) / 100) * corrode_rate * location.material_amt
+		chem.holder.add_reagent("lead", corrode_rate)
 		return
 
 /datum/materialProc/telecrystal_entered

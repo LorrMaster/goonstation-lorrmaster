@@ -1547,6 +1547,9 @@ TYPEINFO(/obj/item/clothing/suit/hazard/fire/armored)
 	proc/set_custom_mats(datum/material/fabrMat, datum/material/renfMat)
 		src.setMaterial(fabrMat)
 		name = "[renfMat]-reinforced [fabrMat] bespoke space suit"
+		if(!renfMat.hasProperty("radiation") && !renfMat.hasProperty("n_radiation"))
+			var/prot_rad = max((renfMat.getProperty("density") - 4) * 10, 0) + (renfMat.getProperty("reflective") * 5)
+			setProperty("radprot", prot_rad)
 		var/prot = max(0, renfMat.getProperty("density") - 3) / 2
 		setProperty("meleeprot", 3 + prot)
 		setProperty("rangedprot", 0.3 + prot / 5)
