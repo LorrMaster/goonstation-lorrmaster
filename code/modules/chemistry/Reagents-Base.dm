@@ -314,13 +314,18 @@
 	on_mob_life(var/mob/M, var/mult = 1)
 		if(!M)
 			M = holder.my_atom
-		M.take_brain_damage(0.1*mult)
-		if(ishuman(M))
-			var/mob/living/carbon/human/H = M
-			if (H.organHolder?.left_kidney && prob(30))
-				H.organHolder.damage_organ(0, 0, 0.2 * mult * (!H.organHolder.left_kidney.robotic), "left_kidney")
-			if (H.organHolder?.right_kidney && prob(30))
-				H.organHolder.damage_organ(0, 0, 0.2 * mult * (!H.organHolder.right_kidney.robotic), "right_kidney")
+		if(prob(10))
+			M.take_brain_damage(0.25*mult)
+			if(ishuman(M))
+				var/mob/living/carbon/human/H = M
+				if (H.organHolder?.left_kidney)
+					H.organHolder.damage_organ(0, 0, 0.25 * mult * (!H.organHolder.left_kidney.robotic), "left_kidney")
+				if (H.organHolder?.right_kidney)
+					H.organHolder.damage_organ(0, 0, 0.25 * mult * (!H.organHolder.right_kidney.robotic), "right_kidney")
+		if (blood_system && isliving(M))
+			var/mob/living/L = M
+			if (L.blood_volume < (6 / 5) * initial(L.blood_volume) && L.blood_volume >= 500)
+				L.blood_volume += 1 * mult
 		..()
 
 	on_plant_life(var/obj/machinery/plantpot/P, var/datum/plantgrowth_tick/growth_tick)

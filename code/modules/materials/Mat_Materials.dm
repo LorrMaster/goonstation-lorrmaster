@@ -861,13 +861,13 @@ ABSTRACT_TYPE(/datum/material/metal)
 	name = "batiline"
 	desc = "Batiline is a dense but brittle ore often used in radiation shielding."
 	icon_file = 'icons/obj/items/materials/batiline.dmi'
-	color = list(0.95, 0.00, 0.00, 0.00,\
-				0.00, 0.95, 0.00, 0.00,\
-				0.00, 0.00, 0.95, 0.00,\
+	color = list(0.90, 0.00, 0.00, 0.00,\
+				0.00, 0.90, 0.00, 0.00,\
+				0.00, 0.00, 1.00, 0.00,\
 				0.00, 0.00, 0.00, 1.00,\
 				0.00, 0.00, 0.00, 0.00)
 	hsl_color = list(0.00, 0.00, 0.00, 0.00,\
-					0.00, 0.50, 0.15, 0.00,\
+					0.00, 0.35, 0.15, 0.00,\
 					0.00, 0.00, 1.05, 0.00,\
 					0.00, 0.00, 0.00, 1.00,\
 					0.58, 0.00, -0.15, 0.00)
@@ -880,6 +880,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 		setProperty("chemical", 2)
 		setProperty("reflective", 2)
 		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/batiline_add())
+		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/batiline_onattack())
 		addTrigger(TRIGGERS_ON_CHEM, new /datum/materialProc/batiline_chem())
 		addTrigger(TRIGGERS_ON_MIX, new /datum/materialProc/batiline_mix())
 
@@ -2292,8 +2293,8 @@ ABSTRACT_TYPE(/datum/material/rubber)
 		var/rads = new_mat.getProperty("radioactive")
 		var/n_rads = new_mat.getProperty("n_radioactive")
 
-		new_mat.adjustProperty("density", rads / 2)
-		new_mat.adjustProperty("reflective", n_rads / 2)
+		new_mat.adjustProperty("reflective", rads / 2)
+		new_mat.adjustProperty("density", n_rads / 2)
 
 		new_mat.removeProperty("radioactive")
 		new_mat.removeProperty("n_radioactive")

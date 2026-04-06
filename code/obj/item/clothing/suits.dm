@@ -1548,7 +1548,9 @@ TYPEINFO(/obj/item/clothing/suit/hazard/fire/armored)
 		src.setMaterial(fabrMat)
 		name = "[renfMat]-reinforced [fabrMat] bespoke space suit"
 		if(!renfMat.hasProperty("radiation") && !renfMat.hasProperty("n_radiation"))
-			var/prot_rad = max((renfMat.getProperty("density") - 4) * 10, 0) + (renfMat.getProperty("reflective") * 5)
+			var/prot_rad = max((renfMat.getProperty("density") - 4) * 10, 0)
+			prot_rad += renfMat.getProperty("reflective") * 5
+			prot_rad *= renfMat.getAlpha() / 255
 			setProperty("radprot", prot_rad)
 		var/prot = max(0, renfMat.getProperty("density") - 3) / 2
 		setProperty("meleeprot", 3 + prot)

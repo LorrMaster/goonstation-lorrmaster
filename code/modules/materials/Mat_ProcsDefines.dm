@@ -254,6 +254,16 @@ proc/get_icon_states(icon)
 /proc/getFusedMaterial(var/datum/material/mat1,var/datum/material/mat2)
 	return new /datum/material/interpolated(mat1, mat2, 0.5)
 
+/atom/proc/material_amount_total()
+	if(src.material)
+		return src.material_amt
+	return 0
+
+/obj/item/material_amount_total()
+	if(src.material)
+		return src.material_amt * src.amount
+	return 0
+
 //custom matsci event procs
 //Use these if you want the stom in general to interact in a special way with the items procs e.g. spears on attack triggering the tip, but on pickup the shafts material
 //situation_modifier is for when you want something like specifying "chest" or "L_hand" for clothes
