@@ -527,6 +527,13 @@
 	default_material = "batiline"
 	dense = 2
 
+	update_icon()
+		if(src.icon_stack_value == 1)
+			var/ore_state = pick("ore1", "ore1b", "ore1c")
+			src.icon_state = "[ore_state]_$$[src.default_material]"
+		else
+			src.icon_state = "ore[src.icon_stack_value]_$$[src.default_material]"
+
 /obj/item/raw_material/fibrilith
 	name = "fibrilith chunk"
 	desc = "A compressed chunk of Fibrilith, an odd mineral known for its high tensile strength."
