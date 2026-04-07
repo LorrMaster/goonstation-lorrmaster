@@ -879,9 +879,8 @@ ABSTRACT_TYPE(/datum/material/metal)
 		setProperty("hard", 2)
 		setProperty("chemical", 2)
 		setProperty("reflective", 2)
+		// TODO: Add lead poisoning. Would probably be best to implement via the reagent reaction system.
 		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/batiline_add())
-		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/batiline_onattack())
-		addTrigger(TRIGGERS_ON_CHEM, new /datum/materialProc/batiline_chem())
 		addTrigger(TRIGGERS_ON_MIX, new /datum/materialProc/batiline_mix())
 
 /datum/material/metal/plasmasteel //This should have inverted plasmaglass stats

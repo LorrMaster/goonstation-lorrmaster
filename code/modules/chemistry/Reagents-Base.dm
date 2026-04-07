@@ -299,38 +299,6 @@
 		if(probmult(30))
 			M.nauseate(2)
 
-/datum/reagent/lead
-	name = "lead"
-	id = "lead"
-	description = "A chemical element."
-	reagent_state = SOLID
-	fluid_r = 180
-	fluid_g = 180
-	fluid_b = 200
-	transparency = 255
-	depletion_rate = 0.01
-	target_organs = list("left_kidney", "right_kidney")
-
-	on_mob_life(var/mob/M, var/mult = 1)
-		if(!M)
-			M = holder.my_atom
-		if(prob(10))
-			M.take_brain_damage(0.25*mult)
-			if(ishuman(M))
-				var/mob/living/carbon/human/H = M
-				if (H.organHolder?.left_kidney)
-					H.organHolder.damage_organ(0, 0, 0.25 * mult * (!H.organHolder.left_kidney.robotic), "left_kidney")
-				if (H.organHolder?.right_kidney)
-					H.organHolder.damage_organ(0, 0, 0.25 * mult * (!H.organHolder.right_kidney.robotic), "right_kidney")
-		if (blood_system && isliving(M))
-			var/mob/living/L = M
-			if (L.blood_volume < (6 / 5) * initial(L.blood_volume) && L.blood_volume >= 500)
-				L.blood_volume += 1 * mult
-		..()
-
-	on_plant_life(var/obj/machinery/plantpot/P, var/datum/plantgrowth_tick/growth_tick)
-		growth_tick.poison_damage += 0.25
-
 /datum/reagent/lithium
 	name = "lithium"
 	id = "lithium"

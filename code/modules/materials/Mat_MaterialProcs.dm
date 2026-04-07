@@ -305,24 +305,6 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 		rad_comp?.RemoveComponent()
 		return
 
-/datum/materialProc/batiline_onattack
-	execute(var/atom/owner, var/mob/attacker, var/atom/attacked)
-		if(isliving(attacked))
-			var/mob/living/L = attacked
-			L.reagents?.add_reagent("lead", 0.25)
-		return
-
-/datum/materialProc/batiline_chem
-	execute(var/atom/location, var/datum/reagent/chem, var/amount)
-		if(ON_COOLDOWN(location, "batiline_chem", 5 SECONDS))
-			return
-		var/prop_max = location.material.getProperty("chemical", VALUE_MAX) - 1
-		var/prop_cur = location.material.getProperty("chemical") - 1
-		var/corrode_rate = (prop_max - prop_cur) / prop_max
-		corrode_rate = (min(amount, 120) / 120) * corrode_rate * location.material_amt * 0.25
-		chem.holder.add_reagent("lead", corrode_rate)
-		return
-
 /datum/materialProc/telecrystal_entered
 	execute(var/atom/owner, var/atom/movable/entering)
 		if (isobserver(entering) || isintangible(entering) || entering.anchored)
