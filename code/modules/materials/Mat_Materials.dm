@@ -471,6 +471,16 @@ ABSTRACT_TYPE(/datum/material)
 			X.execute(new_mat, old_matA, old_matB, bias)
 		return
 
+	proc/calc_radiation_prot()
+		// Get roughly how many Ohms of radiation shielding should exist per unit of material
+		if(src.hasProperty("radiation") || src.hasProperty("n_radiation"))
+			return 0
+		var/effectiveness = src.getProperty("density") + (src.getProperty("reflective") * 0.2)
+		// This is a very fancy S-curve designed to make batiline the best bang-for-your-buck radiation shield
+		var/prot_rads = 1 + (2.5 ** (-1.25 * (effectiveness - 7)))
+		prot_rads = (80 / prot_rads) + (0.1 * (effectiveness ** 2.25))
+		return prot_rads
+
 //Material definitions
 /datum/material/interpolated
 	mat_id = "imcoderium"
@@ -879,7 +889,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 		setProperty("hard", 2)
 		setProperty("thermal", 5)
 		setProperty("chemical", 4)
-		setProperty("reflective", 2)
+		setProperty("reflective", 4)
 		// TODO: Add lead poisoning. Would probably be best to implement via the reagent reaction system.
 		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/batiline_add())
 		addTrigger(TRIGGERS_ON_MIX, new /datum/materialProc/batiline_mix())

@@ -415,18 +415,21 @@ ADMIN_INTERACT_PROCS(/obj/storage, proc/open, proc/close, proc/break_open)
 
 	onMaterialChanged()
 		. = ..()
-		src.radiation_protection = initial(src.radiation_protection)
 		if(isnull(src.material))
-			for(var/mob/M in src.contents)
-				M.setStatus("radiation_protection", INFINITE_STATUS, src)
+			src.set_radiation_protection(initial(src.radiation_protection))
 			return
 		if(contains_negative_matter(src))
 			src.AddComponent(/datum/component/extradimensional_storage/storage)
 		if(!src.material.hasProperty("radiation") && !src.material.hasProperty("n_radiation"))
-			var/mat_rad_prot = max((src.material.getProperty("density") - 4) * 10, 0)
-			mat_rad_prot += src.material.getProperty("reflective") * 5
-			mat_rad_prot *= (src.material.getAlpha() / 255) * src.material_amount_total() * 5
-			src.radiation_protection += mat_rad_prot
+			var/mat_rad_prot = src.material.calc_radiation_prot() * src.material_amount_total()
+			mat_rad_prot = round(mat_rad_prot, 5)
+			src.set_radiation_protection(initial(src.radiation_protection) + mat_rad_prot)
+		else
+			src.set_radiation_protection(0)
+
+	proc/set_radiation_protection(var/new_amount)
+		src.radiation_protection = new_amount
+		if(src.radiation_protection)
 			for(var/mob/M in src.contents)
 				M.setStatus("radiation_protection", INFINITE_STATUS, src)
 		else
