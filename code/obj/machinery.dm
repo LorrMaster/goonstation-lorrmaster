@@ -16,6 +16,7 @@
 	pass_unstable = FALSE // Machines hopefully are stable.
 	var/status = 0
 	var/power_usage = 0
+	var/usage_material_mult = 1.0
 	var/power_channel = EQUIP
 	var/power_credit = 0
 	var/wire_powered = 0
@@ -89,6 +90,11 @@
 	if(SEND_SIGNAL(src, COMSIG_MACHINERY_PROCESS, mult))
 		return
 	src.process(mult)
+
+/obj/machinery/proc/get_power_material_mult()
+	if(!src.material)
+		return 1.0
+	return (-80 * (src.material.getProperty("electrical") ** 0.0125)) + 82.635
 
 // Want a mult on your machine process? Put var/mult in its arguments and put mult wherever something could be mangled by lagg
 /obj/machinery/proc/process(var/mult) //<- like that, but in your machine's process()
