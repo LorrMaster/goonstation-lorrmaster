@@ -303,6 +303,17 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 	execute(var/atom/location)
 		var/datum/component/radioactive/rad_comp = location.GetComponent(/datum/component/radioactive)
 		rad_comp?.RemoveComponent()
+		if(ismob(location))
+			// Have mobs made out of batiline be immune to radiation
+			var/mob/M = location
+			APPLY_ATOM_PROPERTY(M, PROP_MOB_RADPROT_INT, src, 100)
+		return
+
+/datum/materialProc/batiline_remove
+	execute(var/atom/location)
+		if(ismob(location))
+			var/mob/M = location
+			REMOVE_ATOM_PROPERTY(M, PROP_MOB_RADPROT_INT, src)
 		return
 
 /datum/materialProc/telecrystal_entered
