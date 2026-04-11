@@ -299,7 +299,8 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 			particleMaster.RemoveSystem(/datum/particleSystem/sparkles, location)
 		return
 
-/datum/materialProc/batiline_add
+/datum/materialProc/radiation_immune_add
+	// Radiation component will check for this matProc to prevent radiation effects from being added later
 	execute(var/atom/location)
 		var/datum/component/radioactive/rad_comp = location.GetComponent(/datum/component/radioactive)
 		rad_comp?.RemoveComponent()
@@ -309,8 +310,10 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 			APPLY_ATOM_PROPERTY(M, PROP_MOB_RADPROT_INT, src, 100)
 		return
 
-/datum/materialProc/batiline_remove
+/datum/materialProc/radiation_immune_remove
 	execute(var/atom/location)
+		var/datum/component/radioactive/rad_comp = location.GetComponent(/datum/component/radioactive)
+		rad_comp?.RemoveComponent() // Can still get a radiation component after the material is added
 		if(ismob(location))
 			var/mob/M = location
 			REMOVE_ATOM_PROPERTY(M, PROP_MOB_RADPROT_INT, src)

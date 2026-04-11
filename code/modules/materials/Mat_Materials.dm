@@ -475,6 +475,9 @@ ABSTRACT_TYPE(/datum/material)
 		// Get roughly how many Ohms of radiation shielding should exist per unit of material
 		if(src.hasProperty("radiation") || src.hasProperty("n_radiation"))
 			return 0
+		// Realistically this should only be affected by density, but I needed a second property
+		// so that batiline wouldn't be overshadowed by other materials for radiation shielding
+		// (I didn't want to increase its density to the same as iridium) - LorrMaster
 		var/effectiveness = src.getProperty("density") + (src.getProperty("reflective") * 0.2)
 		// This is a very fancy S-curve designed to make batiline the best bang-for-your-buck radiation shield
 		var/prot_rads = 1 + (2.5 ** (-1.25 * (effectiveness - 7)))
@@ -891,8 +894,8 @@ ABSTRACT_TYPE(/datum/material/metal)
 		setProperty("chemical", 4)
 		setProperty("reflective", 4)
 		// TODO: Add lead poisoning. Would probably be best to implement via the reagent reaction system.
-		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/batiline_add())
-		addTrigger(TRIGGERS_ON_REMOVE, new /datum/materialProc/batiline_remove())
+		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/radiation_immune_add())
+		addTrigger(TRIGGERS_ON_REMOVE, new /datum/materialProc/radiation_immune_remove())
 		addTrigger(TRIGGERS_ON_MIX, new /datum/materialProc/batiline_mix())
 
 /datum/material/metal/plasmasteel //This should have inverted plasmaglass stats
