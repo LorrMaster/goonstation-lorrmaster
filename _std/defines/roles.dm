@@ -34,6 +34,8 @@
 #define ROLE_PHOENIX "space_phoenix"
 #define ROLE_EMAGGED_ROBOT "emagged_robot"
 #define ROLE_SYNDICATE_ROBOT "syndicate_robot"
+#define ROLE_ARTIFACT_ROBOT_HARMFUL "artifact_robot_harmful"
+#define ROLE_ARTIFACT_ROBOT_LIMITED "artifact_robot_limited"
 #define ROLE_CHANGELING_HIVEMIND_MEMBER "changeling_hivemind_member"
 #define ROLE_HANDSPIDER "handspider"
 #define ROLE_EYESPIDER "eyespider"

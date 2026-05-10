@@ -24,6 +24,7 @@ ABSTRACT_TYPE(/datum/artifact/)
 
 	/// the actual name of the artifact to be displayed once it is analyzed
 	var/internal_name = null
+	var/internal_name_force = FALSE // Use the actual name of the artifact even if it is marked with an incorrect origin
 	/// a number of "fake" names for each artifact origin, for when people put the wrong origin on an analysis form
 	var/used_names = list()
 	// These are automatically handled. They're used to make the artifact glow different colors.

@@ -1,6 +1,14 @@
 /obj/artifact/borgifier
 	name = "artifact human2cyborg converter"
 	associated_datum = /datum/artifact/borgifier
+	// Will give borgs a special law if set. Will also make repeat borging create bots instead of borgs
+	var/obj/machinery/lawrack/law_rack = null
+
+	disposing()
+		if(src.law_rack)
+			src.law_rack.DeleteAllLaws()
+			qdel(src.law_rack)
+		return ..()
 
 /datum/artifact/borgifier
 	associated_object = /obj/artifact/borgifier
@@ -18,12 +26,17 @@
 	examine_hint = "It looks vaguely foreboding."
 	var/escapable = TRUE //Can you be dragged out to cancel the borgifying
 	var/loops_per_conversion_step //Number of 0.4 second loops per 'step'- on each step a robolimb is added, and if all 4 limbs are robotic, they're borged
+	var/list/datum/mind/borged_minds = list()
+	var/custom_laws = FALSE
+	var/laws_harm_level = ARTLAW_HARM_PEACEFUL
 
 	New()
 		..()
 		if (prob(15))
 			escapable = FALSE
 		loops_per_conversion_step = escapable ? rand(4, 7) : rand(2, 4)
+		if(prob(100))
+			src.custom_laws = TRUE
 
 	effect_touch(var/obj/O,var/mob/living/user)
 		if (..())
@@ -32,6 +45,11 @@
 			return
 		if (converting)
 			return
+		if(!istype(O, /obj/artifact/borgifier))
+			return
+		var/obj/artifact/borgifier/borg_art = O
+		if(src.custom_laws && !borg_art.law_rack)
+			src.init_artifact_laws(borg_art)
 		if (ishuman(user))
 			var/mob/living/carbon/human/humanuser = user
 			if(!isalive(user) && user.ghost && user.ghost.mind && user.ghost.mind.get_player()?.dnr)
@@ -93,7 +111,9 @@
 			ArtifactLogs(user, null, O, "touched", "robotizing user", 0) // Added (Convair880).
 
 			user.set_loc(get_turf(O.loc))
-			if (isnpcmonkey(user) || jobban_isbanned(user, "Cyborg") || user.traitHolder?.hasTrait("cyber_incompatible"))
+			var/cannot_borg = isnpcmonkey(user) || jobban_isbanned(user, "Cyborg") || user.traitHolder?.hasTrait("cyber_incompatible")
+			var/previously_gave_law = borg_art.law_rack && borged_minds.Find(user.mind)
+			if (cannot_borg || previously_gave_law)
 				user.death()
 				user.ghostize()
 				var/robopath = pick(/obj/machinery/bot/guardbot,/obj/machinery/bot/secbot,
@@ -103,7 +123,24 @@
 				qdel(user)
 			else
 				var/mob/living/carbon/human/M = user
-				M.Robotize_MK2(1)
+				src.borged_minds |= user.mind
+				var/mob/living/silicon/robot/cyborg = M.Robotize_MK2(1)
+
+				// Reveal artifact name so that the cyborg's laws are clear. If artifact is disguised then just keep it as is
+				if(src.artitype == src.artiappear)
+					src.internal_name_force = TRUE
+					borg_art.real_name = src.internal_name
+					borg_art.UpdateName()
+				if(borg_art.law_rack)
+					cyborg.law_rack_connection = borg_art.law_rack
+					borg_art.law_rack.show_laws(cyborg)
+					logTheThing(LOG_STATION, cyborg, "[cyborg] was borged by artifact [borg_art] and had laws overrided at [log_loc(borg_art)].")
+					logTheThing(LOG_STATION, cyborg, "[cyborg] is connected to artifact law rack [constructName(borg_art.law_rack)]")
+
+					if(src.laws_harm_level == ARTLAW_HARM_ALLOWED)
+						cyborg.mind?.add_antagonist(ROLE_ARTIFACT_ROBOT_HARMFUL, respect_mutual_exclusives = FALSE, source = ANTAGONIST_SOURCE_CONVERTED)
+					else if(src.laws_harm_level == ARTLAW_HARM_LIMITED)
+						cyborg.mind?.add_antagonist(ROLE_ARTIFACT_ROBOT_LIMITED, respect_mutual_exclusives = FALSE, source = ANTAGONIST_SOURCE_CONVERTED)
 			converting = FALSE
 		else if (issilicon(user))
 			boutput(user, SPAN_ALERT("An imperious voice rings out in your head... \"<b>UPGRADE COMPLETE, RETURN TO ASSIGNED TASK</b>\""))
@@ -116,3 +153,33 @@
 		for (var/mob/M in O.contents)
 			O.visible_message(SPAN_ALERT("<b>[O]</b> grumbles before releasing [M]!"))
 			M.set_loc(get_turf(O))
+
+	proc/init_artifact_laws(var/obj/artifact/borgifier/borgifier)
+		borgifier.law_rack = new()
+		borgifier.law_rack.set_loc(borgifier)
+		borgifier.law_rack.name = "[src.internal_name] Law [pick("Subsystem","Unit","Center","Core","Enslaver")]"
+		borgifier.law_rack.DeleteAllLaws()
+
+		var/datum/artifact_lawset/ancient/chosen_lawset
+		if(src.artitype != src.artiappear)
+			chosen_lawset = pick_lawset_of_type(/datum/artifact_lawset/ancient_disguised)
+		if(!chosen_lawset)
+			chosen_lawset = pick_lawset_of_type(/datum/artifact_lawset/ancient)
+		if(!chosen_lawset)
+			CRASH("No lawset found for artifact.")
+
+		src.laws_harm_level = pick(70; ARTLAW_HARM_PEACEFUL, 20; ARTLAW_HARM_LIMITED, 10; ARTLAW_HARM_ALLOWED)
+		chosen_lawset.set_laws(src, borgifier.law_rack, src.laws_harm_level)
+
+	proc/pick_lawset_of_type(var/lawset_type)
+		RETURN_TYPE(/datum/artifact_lawset/ancient)
+		var/list/datum/artifact_lawset/possible_lawsets = concrete_typesof(lawset_type)
+		var/datum/artifact_lawset/chosen_lawset = null
+		while(length(possible_lawsets) > 0)
+			var/pick_lawset = pick(possible_lawsets)
+			chosen_lawset = new pick_lawset
+			if(chosen_lawset.is_lawset_allowed(src))
+				return chosen_lawset
+			else
+				possible_lawsets -= pick_lawset
+		return null

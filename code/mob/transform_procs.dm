@@ -215,6 +215,7 @@
 
 
 /mob/living/carbon/human/proc/Robotize_MK2(var/gory = FALSE, var/syndicate = FALSE)
+	RETURN_TYPE(/mob/living/silicon/robot)
 	if (src.transforming) return
 	src.unequip_all()
 	src.transforming = 1

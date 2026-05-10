@@ -55,13 +55,14 @@
 		src.artifactName = O.real_name
 		// get an instance of the artifact origin
 		for(var/datum/artifact_origin/origin as() in artifact_controls.artifact_origins)
-			if(origin.type_name == src.artifactOrigin)
+			if(origin.type_name == src.artifactOrigin || A.internal_name_force)
 				// have we already generated a name for that origin?
 				// the actual name with the actual origin should be in the list by default
 				if(!A.used_names[src.artifactOrigin])
 					// no, generate new one and store it
 					src.artifactName = origin.generate_name()
 					A.used_names[src.artifactOrigin] = src.artifactName
+					A.internal_name = src.artifactName
 				else
 					// yes, use it
 					src.artifactName = A.used_names[src.artifactOrigin]
