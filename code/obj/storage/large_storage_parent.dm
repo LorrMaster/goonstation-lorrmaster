@@ -66,7 +66,7 @@ ADMIN_INTERACT_PROCS(/obj/storage, proc/open, proc/close, proc/break_open)
 	var/made_stuff
 
 	var/grab_stuff_on_spawn = TRUE
-	var/radiation_protection = 0 // Materials can add additional shielding.
+	var/radiation_protection = 0 // Amount of rad protection while inside in Ohms. Materials can add additional shielding.
 
 	///Controls items that are 'inside' the crate, even when it's open. These will be dragged around with the crate until removed.
 	var/datum/vis_storage_controller/vis_controller
