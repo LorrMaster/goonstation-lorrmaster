@@ -30,6 +30,8 @@
 #define FORENSIC_HEADER_FINGERPRINTS "Fingerprints"
 #define FORENSIC_HEADER_DNA "DNA Samples"
 
+var/static/datum/forensic_display/gun_profile_display = new("Gun Profile: @F")
+
 #define FORENSIC_VALUE_IGNORE 1 // How basic data evidence value is affected when duplicate evidence is added
 #define FORENSIC_VALUE_SUM 2
 #define FORENSIC_VALUE_MULT 3

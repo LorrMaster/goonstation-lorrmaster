@@ -1,4 +1,3 @@
-var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder uID stuff
 
 /obj/item/gun
 	name = "gun"
@@ -92,6 +91,8 @@ var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder
 	var/camera_recoil_sway_min = 0 //! Minimum recoil variance
 	var/camera_recoil_sway_max = 20 //! Maximum recoil variance
 
+	var/datum/forensic_id/forensic_profile = null
+
 
 	buildTooltipContent()
 		. = ..() + src.current_projectile?.get_tooltip_content()
@@ -99,9 +100,8 @@ var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder
 
 	New()
 		src.AddComponent(/datum/component/log_item_pickup, first_time_only=FALSE, authorized_job=null, message_admins_too=FALSE)
-		SPAWN(2 SECONDS)
-			src.forensic_ID = src.CreateID()
-			forensic_IDs.Add(src.forensic_ID)
+		var/char_list_gun = list("=","=","+","-","#","H","8")
+		src.forensic_profile = register_id("=[build_id(char_list_gun, 9)]=")
 		return ..()
 
 	// equip handling for weapons that fit on your back
@@ -118,6 +118,11 @@ var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder
 		if (user.back.storage.check_can_hold(src) == STORAGE_CAN_HOLD)
 			user.back.Attackby(src, user)
 			return TRUE
+
+	on_forensic_scan(datum/forensic_scan/scan)
+		. = ..()
+		var/datum/forensic_data/basic/gun_profile_data = new(src.forensic_profile, gun_profile_display)
+		scan.add_data(gun_profile_data)
 
 ///CHECK_LOCK
 ///Call to run a weaponlock check vs the users implant
@@ -343,10 +348,11 @@ var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder
 			P.shooter = null
 			P.mob_shooter = user
 
-		P.forensic_ID = src.forensic_ID // Was missing (Convair880).
+		var/datum/forensic_data/basic/gun_profile_data = new(src.forensic_profile, gun_profile_display)
+		P.add_evidence(gun_profile_data, FORENSIC_GROUP_NOTES)
 		if(isobj(P.implanted))
 			var/obj/O = P.implanted
-			O.forensic_holder = P.forensic_holder
+			O.forensic_holder = P.forensic_holder // Any evidence applied to the projectile will also be applied to the bullet
 		if(BOUNDS_DIST(user, target) == 0)
 			P.was_pointblank = 1
 			hit_with_existing_projectile(P, target) // Includes log entry.
@@ -429,7 +435,8 @@ var/list/forensic_IDs = new/list() //Global list of all guns, based on bioholder
 
 	var/obj/projectile/P = shoot_projectile_ST_pixel_spread(user, current_projectile, target, POX, POY, spread, alter_proj = new/datum/callback(src, PROC_REF(alter_projectile)), called_target = called_target)
 	if (P)
-		P.forensic_ID = src.forensic_ID
+		var/datum/forensic_data/basic/gun_profile_data = new(src.forensic_profile, gun_profile_display)
+		P.add_evidence(gun_profile_data, FORENSIC_GROUP_NOTES)
 		if(isobj(P.implanted))
 			var/obj/O = P.implanted
 			O.forensic_holder = P.forensic_holder

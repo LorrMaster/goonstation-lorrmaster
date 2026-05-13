@@ -1963,6 +1963,7 @@ datum/projectile/bullet/autocannon
 				else
 					var/obj/item/implant/projectile/shrapnel/implanted = new /obj/item/implant/projectile/shrapnel
 					implanted.implanted(M, null, 2)
+					hit.forensic_holder.copy_to(implanted.forensic_holder)
 					boutput(M, SPAN_ALERT("You are struck by shrapnel!"))
 
 			T.hotspot_expose(700,125)
@@ -2077,6 +2078,7 @@ ABSTRACT_TYPE(/datum/projectile/bullet/homing/rocket)
 				else
 					var/obj/item/implant/projectile/shrapnel/implanted = new /obj/item/implant/projectile/shrapnel
 					implanted.implanted(M, null, 2)
+					hit.forensic_holder.copy_to(implanted.forensic_holder)
 					boutput(M, SPAN_ALERT("You are struck by shrapnel!"))
 
 			T.hotspot_expose(700,125)
