@@ -11,6 +11,7 @@ ABSTRACT_TYPE(/obj/item/preassembled_frame_box)
 		var/obj/O = new frame_type( get_turf(user) )
 		logTheThing(LOG_STATION, user, "builds [O] in [get_area(user)] ([log_loc(user)])")
 		O.forensic_holder = src.forensic_holder
+		O.setMaterial(src.material)
 		qdel(src)
 
 /obj/item/preassembled_frame_box/putt
@@ -74,6 +75,7 @@ ABSTRACT_TYPE(/obj/structure/preassembeled_vehicleframe)
 	density = TRUE
 	HELP_MESSAGE_OVERRIDE("Use a <b>wrench</b> to secure the parts together.")
 	var/step_build_time = 10 SECONDS //per each 7 steps
+	var/datum/material/frame_material // The material of the frame in case of disassembly, stored after armor is applied
 
 /obj/structure/preassembeled_vehicleframe/puttframe
 	name = "Preassembled MiniPutt Frame"
@@ -220,15 +222,15 @@ ABSTRACT_TYPE(/obj/structure/preassembeled_vehicleframe)
 	src.help_message = "Use any kind of pod armor from a manufacturer."
 
 /obj/structure/preassembeled_vehicleframe/proc/step_armor(var/mob/user, var/obj/item/podarmor/armor)
-	user.u_equip(armor)
-	qdel(armor)
 	src.overlays += image(src.icon, armor.overlay_state)
 	src.stage = BUILD_STEP_ARMOR
 	src.help_message = "Use a <b>wrench</b> to secure the pod's thrusters and control system."
 	src.armor_type = armor.type
 	src.vehicle_type = armor.vehicle_types["[src.type]"]
-	if(istype(armor, /obj/item/podarmor/armor_custom))
-		src.setMaterial(armor.material)
+	src.frame_material = src.material
+	src.setMaterial(armor.material)
+	user.u_equip(armor)
+	qdel(armor)
 
 /obj/structure/preassembeled_vehicleframe/proc/step_wrench_2(var/mob/user)
 	src.overlays += image(src.icon, "thrust")
@@ -243,9 +245,8 @@ ABSTRACT_TYPE(/obj/structure/preassembeled_vehicleframe)
 
 /obj/structure/preassembeled_vehicleframe/proc/step_screw_2(var/mob/user)
 	var/obj/machinery/vehicle/V = new vehicle_type( src.loc )
-	if (src.armor_type == /obj/item/podarmor/armor_custom)
-		V.name = src.vehicle_name
-		V.setMaterial(src.material)
+	V.forensic_holder = src.forensic_holder
+	V.setMaterial(src.material)
 	logTheThing(LOG_STATION, user, "finishes building a [V] in [get_area(user)] ([log_loc(user)])")
 	qdel(src)
 
@@ -272,13 +273,15 @@ ABSTRACT_TYPE(/obj/structure/preassembeled_vehicleframe)
 	if (src.stage >= BUILD_STEP_ARMOR)
 		O = new src.armor_type( get_turf(src) )
 		O.forensic_holder = src.forensic_holder
-		if (istype(O,/obj/item/podarmor/armor_custom))
-			O.setMaterial(src.material)
-			src.removeMaterial()
+		O.setMaterial(src.material)
 
 	O = new src.box_type( get_turf(src) )
 	logTheThing(LOG_STATION, user, "deconstructs [src] in [get_area(user)] ([log_loc(user)])")
 	O.forensic_holder = src.forensic_holder
+	if (src.stage >= BUILD_STEP_ARMOR)
+		O.setMaterial(src.frame_material)
+	else
+		O.setMaterial(src.material)
 	qdel(src)
 
 

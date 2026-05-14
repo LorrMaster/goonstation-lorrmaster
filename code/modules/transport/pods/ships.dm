@@ -358,6 +358,7 @@ ABSTRACT_TYPE(/obj/structure/vehicleframe)
 /obj/structure/vehicleframe
 	var/stage = 0
 	var/obj/item/podarmor/armor_type = null
+	var/datum/material/frame_material = null // The material of the frame in case of disassembly, stored after armor is applied
 	var/engine_type = null
 	var/control_type = null
 	var/boards_type = null
@@ -381,6 +382,7 @@ ABSTRACT_TYPE(/obj/structure/vehicleframe)
 		var/obj/O = new /obj/structure/vehicleframe/puttframe( get_turf(user) )
 		logTheThing(LOG_STATION, user, "builds [O] in [get_area(user)] ([log_loc(user)])")
 		O.forensic_holder = src.forensic_holder
+		O.setMaterial(src.material)
 		qdel(src)
 
 /obj/item/sub/frame_box
@@ -394,6 +396,7 @@ ABSTRACT_TYPE(/obj/structure/vehicleframe)
 		var/obj/O = new /obj/structure/vehicleframe/subframe( get_turf(user) )
 		logTheThing(LOG_STATION, user, "builds [O] in [get_area(user)] ([log_loc(user)])")
 		O.forensic_holder = src.forensic_holder
+		O.setMaterial(src.material)
 		qdel(src)
 
 /obj/structure/vehicleframe/puttframe
@@ -465,39 +468,33 @@ ABSTRACT_TYPE(/obj/structure/vehicleframe)
 	var/obj/O
 	if (stage == 10)
 		O = new src.control_type( get_turf(src) )
-		O.forensic_holder = src.forensic_holder
 		stage -= 2
 	if (stage == 9)
 		stage-- // no parts involved here, this construction step is welding the exterior
 	if (stage == 8)
 		O = new src.armor_type( get_turf(src) )
-		O.forensic_holder = src.forensic_holder
-		if (istype(O,/obj/item/podarmor/armor_custom))
-			O.setMaterial(src.material)
-			src.removeMaterial()
+		O.setMaterial(src.material)
+		src.setMaterial(src.frame_material)
 		stage--
 	if (stage == 7)
 		O = new src.engine_type( get_turf(src) )
-		O.forensic_holder = src.forensic_holder
 		stage--
 	if (stage == 6)
 		var/obj/item/sheet/steel/M = new ( get_turf(src) )
 		M.amount = src.metal_amt
-		M.forensic_holder = src.forensic_holder
 		stage--
 	if (stage == 5)
 		O = new src.boards_type( get_turf(src) )
-		O.forensic_holder = src.forensic_holder
 		stage--
 	if (stage == 4)
 		var/obj/item/cable_coil/cut/C = new ( get_turf(src) )
 		C.amount = src.cable_amt
-		C.forensic_holder = src.forensic_holder
 		// all other steps were tool applications, no more parts to create
 
 	O = new src.box_type( get_turf(src) )
 	logTheThing(LOG_STATION, usr, "deconstructs [src] in [get_area(usr)] ([log_loc(usr)])")
 	O.forensic_holder = src.forensic_holder
+	O.setMaterial(src.material)
 	qdel(src)
 
 /*-----------------------------*/
@@ -631,9 +628,9 @@ ABSTRACT_TYPE(/obj/structure/vehicleframe)
 				src.overlays += image(src.icon, armor.overlay_state)
 				stage = 8
 				armor_type = armor.type
+				src.frame_material = src.material
+				src.setMaterial(armor.material)
 				src.vehicle_type = armor.vehicle_types["[src.type]"]
-				if(istype(W, /obj/item/podarmor/armor_custom))
-					src.setMaterial(W.material)
 			else
 				boutput(user, "You don't think you're going anywhere without a skin, do you? Get some armor!")
 
@@ -687,9 +684,7 @@ ABSTRACT_TYPE(/obj/structure/vehicleframe)
 
 				var/obj/machinery/vehicle/V = new vehicle_type( src.loc )
 				V.forensic_holder = src.forensic_holder
-				if (src.armor_type == /obj/item/podarmor/armor_custom)
-					V.name = src.vehicle_name
-					V.setMaterial(src.material)
+				V.setMaterial(src.material)
 				logTheThing(LOG_STATION, user, "finishes building a [V] in [get_area(user)] ([log_loc(user)])")
 				qdel(src)
 
@@ -1195,19 +1190,6 @@ ABSTRACT_TYPE(/obj/item/podarmor)
 		"/obj/structure/preassembeled_vehicleframe/podframe" = /obj/machinery/vehicle/pod_smooth/light,
 		"/obj/structure/preassembeled_vehicleframe/subframe" = /obj/machinery/vehicle/tank/minisub/civilian)
 
-/obj/item/podarmor/armor_custom
-	name = "Pod Armor"
-	desc = "Plating for vehicle pods made from a custom compound."
-	icon = 'icons/obj/electronics.dmi'
-	icon_state = "dbox"
-	overlay_state = "skin1"
-	vehicle_types = list("/obj/structure/vehicleframe/puttframe" = /obj/machinery/vehicle/miniputt,
-		"/obj/structure/vehicleframe/podframe" = /obj/machinery/vehicle/pod_smooth/light,
-		"/obj/structure/vehicleframe/subframe" = /obj/machinery/vehicle/tank/minisub/civilian,
-		"/obj/structure/preassembeled_vehicleframe/puttframe" = /obj/machinery/vehicle/miniputt,
-		"/obj/structure/preassembeled_vehicleframe/podframe" = /obj/machinery/vehicle/pod_smooth/light,
-		"/obj/structure/preassembeled_vehicleframe/subframe" = /obj/machinery/vehicle/tank/minisub/civilian)
-
 /obj/item/podarmor/armor_heavy
 	name = "Heavy Pod Armor"
 	desc = "Reinforced exterior plating for vehicle pods."
@@ -1353,6 +1335,7 @@ ABSTRACT_TYPE(/obj/item/podarmor)
 			var/obj/O = new /obj/structure/vehicleframe/podframe( get_turf(user) )
 			logTheThing(LOG_STATION, user, "builds [O] in [get_area(user)] ([log_loc(user)])")
 			O.forensic_holder = src.forensic_holder
+			O.setMaterial(src.material)
 			qdel(src)
 
 /obj/item/pod/paintjob
