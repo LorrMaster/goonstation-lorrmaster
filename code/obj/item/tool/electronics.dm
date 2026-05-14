@@ -405,10 +405,14 @@
 	var/boot_time = null
 	var/data_initialized = FALSE
 
+	var/static/datum/forensic_display/forensic_pattern_disp = new("Recently Printed: @F")
+	var/datum/forensic_id/forensic_pattern
+
 /obj/machinery/rkit/New()
 	. = ..()
 	known_rucks = new
 	ruck_controls = new
+	src.forensic_pattern = register_id("RUCK-[build_id_pattern("L###")]")
 	MAKE_SENDER_RADIO_PACKET_COMPONENT(src.net_id, "pda", FREQ_PDA)
 
 	if(isnull(mechanic_controls)) mechanic_controls = ruck_controls //For objective tracking and admin
@@ -446,6 +450,10 @@
 		send_sync()
 	else
 		if (src.net_id == host_ruck) send_sync(1)
+
+/obj/machinery/rkit/on_forensic_scan(datum/forensic_scan/scan)
+		. = ..()
+		scan.add_text("Printing Pattern: [src.forensic_pattern.id]")
 
 /obj/machinery/rkit/proc/send_sync(var/dispose) //Request SYNCREPLY from other rucks
 	//If dispose is true we use "DROP" which won't be saved as the host
@@ -765,7 +773,9 @@
 				playsound(src.loc, 'sound/machines/printer_thermal.ogg', 25, 1)
 				SPAWN(2.5 SECONDS)
 					if (src)
-						new /obj/item/paper/manufacturer_blueprint(src.loc, M)
+						var/obj/item/paper/manufacturer_blueprint/blueprint = new(src.loc, M)
+						var/datum/forensic_data/basic/pattern_data = new(src.forensic_pattern, src.forensic_pattern_disp)
+						blueprint.add_evidence(pattern_data)
 				. = TRUE
 		if("lock")
 			if (!src.allowed(usr))
