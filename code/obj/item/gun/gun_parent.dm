@@ -100,8 +100,7 @@
 
 	New()
 		src.AddComponent(/datum/component/log_item_pickup, first_time_only=FALSE, authorized_job=null, message_admins_too=FALSE)
-		var/char_list_gun = list("=","=","+","-","#","H","8")
-		src.forensic_profile = register_id("=[build_id(char_list_gun, 9)]=")
+		src.forensic_profile = register_id("=[build_id(FORENSIC_CHARS_BALLISTICS, 9)]=")
 		return ..()
 
 	// equip handling for weapons that fit on your back

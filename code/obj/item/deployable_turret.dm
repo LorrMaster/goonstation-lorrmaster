@@ -149,8 +149,7 @@ ADMIN_INTERACT_PROCS(/obj/deployable_turret, proc/admincmd_shoot, proc/admincmd_
 		if (gun_id)
 			src.forensic_profile = gun_id
 		else
-			var/char_list_gun = list("=","=","+","-","#","H","8")
-			src.forensic_profile = register_id("=[build_id(char_list_gun, 9)]=")
+			src.forensic_profile = register_id("=[build_id(FORENSIC_CHARS_BALLISTICS, 9)]=")
 
 		src.icon_state = "[src.icon_tag]_base"
 		src.appearance_flags |= RESET_TRANSFORM
