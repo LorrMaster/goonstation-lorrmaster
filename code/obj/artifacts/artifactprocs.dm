@@ -161,7 +161,7 @@
 		if(is_chapel)
 			playsound(src.loc, 'sound/effects/bamf.ogg', 50, 1, pitch = 1.25)
 			var/turf/T = get_turf(src)
-			T.visible_message(SPAB_ALERT("<b>[src] attempts to activate but fails!</b>"))
+			T.visible_message(SPAN_ALERT("<b>[src] attempts to activate but fails!</b>"))
 			return 1
 	if (A.activ_sound)
 		playsound(src.loc, A.activ_sound, 100, 1)
