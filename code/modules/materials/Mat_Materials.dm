@@ -782,7 +782,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 		..()
 		setProperty("density", 4)
 		setProperty("hard", 3)
-		setProperty("melting_point", 1800 KELVIN)
+		setProperty("melting_point", 1750 KELVIN)
 
 
 /datum/material/metal/cerenkite
@@ -923,7 +923,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 		..()
 		setProperty("density", 7)
 		setProperty("hard", 3)
-		setProperty("melting_point", 2200 KELVIN) // Steel melting point + 500
+		setProperty("melting_point", 1800 KELVIN)
 
 
 /datum/material/metal/neutronium
@@ -1206,7 +1206,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		..()
 		setProperty("density", 3)
 		setProperty("hard", 7)
-		setProperty("melting_point", 2000 KELVIN) // Glass melting point + 500
+		setProperty("melting_point", 1600 KELVIN) // Glass melting point + 500
 
 /datum/material/crystal/gemstone
 	mat_id = "quartz"
@@ -1477,7 +1477,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		setProperty("electrical", 2)
 		setProperty("density", 1)
 		setProperty("hard", 2)
-		setProperty("melting_point", T0C)
+		setProperty("melting_point", round(T0C))
 		addTrigger(TRIGGERS_ON_TEMP, new /datum/materialProc/ice_melt())
 		addTrigger(TRIGGERS_ON_LIFE, new /datum/materialProc/ice_life())
 		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/slippery_attack())
@@ -1558,7 +1558,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("density", 5)
 		setProperty("hard", 1)
 		setProperty("flammable", 5)
-		setProperty("melting_point", 800 KELVIN)
+		setProperty("melting_point", 400 KELVIN)
 		addTrigger(TRIGGERS_ON_EAT, new /datum/materialProc/oneat_blob())
 
 
@@ -1672,7 +1672,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("hard", 1)
 		setProperty("chemical", 6)
 		setProperty("flammable", 2)
-		setProperty("melting_point", 2900 KELVIN)
+		setProperty("melting_point", 1500 KELVIN)
 		addTrigger(TRIGGERS_ON_EAT, new /datum/materialProc/oneat_viscerite())
 
 /datum/material/organic/tensed_viscerite
@@ -1689,7 +1689,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("hard", 3)
 		setProperty("chemical", 8)
 		setProperty("flammable", 2)
-		setProperty("melting_point", 2900 KELVIN)
+		setProperty("melting_point", 1500 KELVIN)
 
 /datum/material/organic/bone
 	mat_id = "bone"
@@ -1788,7 +1788,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("density", 1)
 		setProperty("hard", 2)
 		setProperty("flammable", 4)
-		setProperty("melting_point", 335 KELVIN) // Melting point of beeswax
+		setProperty("melting_point", 335 KELVIN)
 
 
 /datum/material/organic/honey
@@ -1813,7 +1813,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("density", 2)
 		setProperty("hard", 1)
 		setProperty("flammable", 4)
-		setProperty("melting_point", 323 KELVIN) // About the melting point of honey
+		setProperty("melting_point", 323 KELVIN)
 		// addTrigger(TRIGGERS_ON_EAT, new /datum/materialProc/oneat_honey())
 		// maybe make it sticky somehow?
 		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/honey_add())
@@ -1831,7 +1831,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("density", 3)
 		setProperty("hard", 2)
 		setProperty("thermal", 1)
-		setProperty("melting_point", 330 KELVIN) // I'm just picking a random number
+		setProperty("melting_point", 250 KELVIN)
 		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/ffart_add())
 		addTrigger(TRIGGERS_ON_PICKUP, new /datum/materialProc/ffart_pickup())
 
@@ -2124,7 +2124,6 @@ ABSTRACT_TYPE(/datum/material/fabric)
 		setProperty("hard", 4)
 		setProperty("thermal", 9)
 		setProperty("electrical", 7)
-		setProperty("melting_point", 4000 KELVIN) // Around the melting point of carbonfibre
 
 /datum/material/fabric/hauntium
 	mat_id = "hauntium"
@@ -2344,7 +2343,7 @@ ABSTRACT_TYPE(/datum/material/rubber)
 		setProperty("radioactive", 1)
 		setProperty("electrical", 2)
 		setProperty("thermal", 3)
-		setProperty("melting_point", 500 KELVIN) // Around the melting point of plastic
+		setProperty("melting_point", 550 KELVIN) // Around the melting point of plastic
 		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/glowstick_add())
 
 // Placed here because it needs to have /datum/material defined already to work
