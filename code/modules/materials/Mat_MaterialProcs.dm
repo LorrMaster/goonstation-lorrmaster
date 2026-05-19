@@ -588,7 +588,7 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 		if (iscarbon(M))
 			var/mob/living/carbon/C = M
 			C.changeBodyTemp(-2 KELVIN)
-			if (C.bodytemperature > T0C && probmult(4))
+			if (C.bodytemperature > I.material.getProperty("melting_point") && probmult(4))
 				boutput(C, "Your [I] melts from your body heat!")
 				qdel(I)
 		return
@@ -597,7 +597,7 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 	desc = "It would melt when exposed to heat."
 
 	execute(var/atom/owner, var/temp)
-		if(temp < T0C) return // less than reaction temp
+		if(temp < owner.material.getProperty("melting_point")) return // less than reaction temp
 
 		var/turf/T = get_turf(owner)
 
