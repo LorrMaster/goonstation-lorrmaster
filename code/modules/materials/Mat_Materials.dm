@@ -2368,5 +2368,5 @@ ABSTRACT_TYPE(/datum/material/rubber)
 		var/melt_B = old_matB.getProperty("melting_point")
 		if(melt_A == INFINITY || melt_B == INFINITY)
 			return
-		new_mat.adjustProperty("melting_point", max(melt_A, melt_B))
+		new_mat.setProperty("melting_point", max(melt_A, melt_B))
 		return
