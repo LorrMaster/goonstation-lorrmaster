@@ -161,14 +161,14 @@
 
 		fabrItemImg.apply_material_appearance(helmMat)
 		renfItemImg.apply_material_appearance(renfMat)
-		visrItemImg.apply_material_appearance(visrMat)
+		visrItemImg.apply_material_appearance(visrMat, ignore_alpha = TRUE) // Ignore alpha to keep color consistent
 		UpdateOverlays(fabrItemImg, "item-helmet")
 		UpdateOverlays(renfItemImg, "item-helmet-highlight")
 		UpdateOverlays(visrItemImg, "item-visor")
 
 		fabrWornImg.apply_material_appearance(helmMat)
 		renfWornImg.apply_material_appearance(renfMat)
-		visrWornImg.apply_material_appearance(visrMat)
+		visrWornImg.apply_material_appearance(visrMat, ignore_alpha = TRUE)
 		src.wear_image.overlays += fabrWornImg
 		src.wear_image.overlays += renfWornImg
 		src.wear_image.overlays += visrWornImg
