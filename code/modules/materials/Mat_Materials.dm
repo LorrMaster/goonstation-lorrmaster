@@ -1224,6 +1224,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 				name = "clear [src.name]"
 				setProperty("density", 6)
 				setProperty("hard", 7)
+				setProperty("melting_point", 2300 KELVIN)
 				addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/sparkles_add())
 				addTrigger(TRIGGERS_ON_REMOVE, new /datum/materialProc/sparkles_remove())
 			if(2)
@@ -1231,11 +1232,13 @@ ABSTRACT_TYPE(/datum/material/crystal)
 				name = "flawed [src.name]"
 				setProperty("density", 4)
 				setProperty("hard", 5)
+				setProperty("melting_point", 2000 KELVIN)
 			if(3)
 				value = 200
 				name = "inferior [src.name]"
 				setProperty("density", 3)
 				setProperty("hard", 4)
+				setProperty("melting_point", 1700 KELVIN)
 
 
 	diamond
@@ -1646,9 +1649,6 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("density", 5)
 		setProperty("melting_point", 6000 KELVIN)
 
-		// Koshmarite maintains its high melting point when combined
-		addTrigger(TRIGGERS_ON_MIX, new /datum/materialProc/koshmarite_mix())
-
 /datum/material/organic/viscerite
 	mat_id = "viscerite"
 	name = "viscerite"
@@ -1672,7 +1672,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 		setProperty("hard", 1)
 		setProperty("chemical", 6)
 		setProperty("flammable", 2)
-		setProperty("melting_point", 1500 KELVIN)
+		setProperty("melting_point", 750 KELVIN)
 		addTrigger(TRIGGERS_ON_EAT, new /datum/materialProc/oneat_viscerite())
 
 /datum/material/organic/tensed_viscerite
@@ -2359,13 +2359,4 @@ ABSTRACT_TYPE(/datum/material/rubber)
 		new_mat.removeProperty("n_radioactive")
 		new_mat.removeTrigger(TRIGGERS_ON_ADD, /datum/materialProc/radioactive_add)
 		new_mat.removeTrigger(TRIGGERS_ON_ADD, /datum/materialProc/n_radioactive_add)
-		return
-
-/datum/materialProc/koshmarite_mix
-	execute(var/datum/material/new_mat, var/datum/material/old_matA, var/datum/material/old_matB, var/bias)
-		var/melt_A = old_matA.getProperty("melting_point")
-		var/melt_B = old_matB.getProperty("melting_point")
-		if(melt_A == INFINITY || melt_B == INFINITY)
-			return
-		new_mat.setProperty("melting_point", max(melt_A, melt_B))
 		return

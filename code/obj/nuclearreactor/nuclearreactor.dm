@@ -541,7 +541,7 @@
 						return
 					var/obj/item/reactor_component/rod = equipped
 					if(rod.melted)
-						ui.user.visible_message(SPAN_ALERT("[ui.user] tries to shove \a [equipped] into the reactor. Silly [ui.user]!"), SPAN_ALERT("\The [rod] is too deformed to fit inside the reactor!."))
+						ui.user.visible_message(SPAN_ALERT("[ui.user] tries to insert \a [rod] into the reactor, but it is too deformed to fit!"), SPAN_ALERT("\The [rod] is too deformed to fit inside the reactor!."))
 						return
 
 					ui.user.visible_message(SPAN_ALERT("[ui.user] starts inserting \a [equipped]!"), SPAN_ALERT("You start inserting the [equipped]!"))
