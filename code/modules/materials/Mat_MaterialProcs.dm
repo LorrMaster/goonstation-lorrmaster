@@ -701,8 +701,7 @@ triggerOnImage(var/image/target, var/datum/material/source)
 
 /datum/materialProc/honey_image
 	execute(var/image/target, var/datum/material/source)
-		var/offset = rand()
-		var/wave_filter = wave_filter(16, 16, 1, offset, flags = WAVE_SIDEWAYS | WAVE_BOUNDED)
+		var/wave_filter = wave_filter(16, 16, 1, rand(), flags = WAVE_SIDEWAYS | WAVE_BOUNDED)
 		target.filters = wave_filter + target.filters
 		return
 

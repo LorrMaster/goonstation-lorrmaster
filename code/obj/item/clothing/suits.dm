@@ -1561,7 +1561,6 @@ TYPEINFO(/obj/item/clothing/suit/hazard/fire/armored)
 
 /obj/item/clothing/suit/space/custom // Used for nanofabs
 	icon_state = "spacemat"
-	inhand_image_icon = "s_suit"
 	item_state = "spacemat"
 	name = "bespoke space suit"
 	desc = "A custom built suit that protects your fragile body from hard vacuum."
@@ -1577,8 +1576,8 @@ TYPEINFO(/obj/item/clothing/suit/hazard/fire/armored)
 		fabrItemImg = SafeGetOverlayImage("item-suit", src.icon, "spacemat")
 		renfItemImg = SafeGetOverlayImage("item-suit-highlight", src.icon, "spacemat-armor")
 		// Prep the worn overlays
-		fabrWornImg = SafeGetOverlayImage("worn-suit", src.wear_image_icon, "spacemat")
-		renfWornImg = SafeGetOverlayImage("worn-suit-highlight", src.wear_image_icon, "spacemat-armor")
+		fabrWornImg = SafeGetOverlayImage("worn-suit", src.wear_image_icon, "spacemat", layer = MOB_ARMOR_LAYER)
+		renfWornImg = SafeGetOverlayImage("worn-suit-highlight", src.wear_image_icon, "spacemat-armor", layer = MOB_OVERSUIT_LAYER2)
 
 	onMaterialChanged()
 		. = ..()
@@ -1590,7 +1589,6 @@ TYPEINFO(/obj/item/clothing/suit/hazard/fire/armored)
 			prot =  clamp(((src.material.getProperty("chemical") - 4) * 15), 0, 70) // 30 would be default for metal.
 			setProperty("chemprot", prot)
 		return
-
 
 	proc/set_custom_mats(datum/material/fabrMat, datum/material/renfMat)
 		src.setMaterial(fabrMat, FALSE) // We want to purely rely on the overlay colours
@@ -1604,11 +1602,15 @@ TYPEINFO(/obj/item/clothing/suit/hazard/fire/armored)
 
 		fabrItemImg.apply_material_appearance(fabrMat)
 		renfItemImg.apply_material_appearance(renfMat)
+		fabrItemImg.override = 1
+		renfItemImg.override = 1
 		UpdateOverlays(fabrItemImg, "item-suit")
 		UpdateOverlays(renfItemImg, "item-suit-highlight")
 
 		fabrWornImg.apply_material_appearance(fabrMat)
 		renfWornImg.apply_material_appearance(renfMat)
+		fabrWornImg.override = 1
+		renfWornImg.override = 1
 		src.wear_image.overlays += fabrWornImg
 		src.wear_image.overlays += renfWornImg
 

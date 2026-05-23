@@ -140,9 +140,9 @@
 		renfItemImg = SafeGetOverlayImage("item-helmet-highlight", src.icon, "spacemat-highlight")
 		visrItemImg = SafeGetOverlayImage("item-visor", src.icon, "spacemat-vis")
 		// Prep the worn overlays
-		fabrWornImg = SafeGetOverlayImage("worn-helmet", src.wear_image_icon, "spacemat")
-		renfWornImg = SafeGetOverlayImage("worn-helmet-highlight", src.wear_image_icon, "spacemat-highlight")
-		visrWornImg = SafeGetOverlayImage("worn-visor", src.wear_image_icon, "spacemat-vis")
+		fabrWornImg = SafeGetOverlayImage("worn-helmet", src.wear_image_icon, "spacemat", layer = MOB_OVERSUIT_LAYER2)
+		renfWornImg = SafeGetOverlayImage("worn-helmet-highlight", src.wear_image_icon, "spacemat-highlight", layer = MOB_OVERSUIT_LAYER2)
+		visrWornImg = SafeGetOverlayImage("worn-visor", src.wear_image_icon, "spacemat-vis", layer = MOB_OVERSUIT_LAYER2)
 
 	proc/set_custom_mats(datum/material/helmMat, datum/material/visrMat, datum/material/renfMat)
 		src.setMaterial(helmMat, FALSE) // We want to purely rely on the overlay colours
@@ -161,14 +161,14 @@
 
 		fabrItemImg.apply_material_appearance(helmMat)
 		renfItemImg.apply_material_appearance(renfMat)
-		visrItemImg.apply_material_appearance(visrMat, ignore_alpha = TRUE) // Ignore alpha to keep color consistent
+		visrItemImg.apply_material_appearance(visrMat)
 		UpdateOverlays(fabrItemImg, "item-helmet")
 		UpdateOverlays(renfItemImg, "item-helmet-highlight")
 		UpdateOverlays(visrItemImg, "item-visor")
 
 		fabrWornImg.apply_material_appearance(helmMat)
 		renfWornImg.apply_material_appearance(renfMat)
-		visrWornImg.apply_material_appearance(visrMat, ignore_alpha = TRUE)
+		visrWornImg.apply_material_appearance(visrMat)
 		src.wear_image.overlays += fabrWornImg
 		src.wear_image.overlays += renfWornImg
 		src.wear_image.overlays += visrWornImg
