@@ -1576,8 +1576,8 @@ TYPEINFO(/obj/item/clothing/suit/hazard/fire/armored)
 		fabrItemImg = SafeGetOverlayImage("item-suit", src.icon, "spacemat")
 		renfItemImg = SafeGetOverlayImage("item-suit-highlight", src.icon, "spacemat-armor")
 		// Prep the worn overlays
-		fabrWornImg = SafeGetOverlayImage("worn-suit", src.wear_image_icon, "spacemat", layer = MOB_ARMOR_LAYER)
-		renfWornImg = SafeGetOverlayImage("worn-suit-highlight", src.wear_image_icon, "spacemat-armor", layer = MOB_OVERSUIT_LAYER2)
+		fabrWornImg = SafeGetOverlayImage("worn-suit", src.wear_image_icon, "spacemat")
+		renfWornImg = SafeGetOverlayImage("worn-suit-highlight", src.wear_image_icon, "spacemat-armor")
 
 	onMaterialChanged()
 		. = ..()
@@ -1602,15 +1602,11 @@ TYPEINFO(/obj/item/clothing/suit/hazard/fire/armored)
 
 		fabrItemImg.apply_material_appearance(fabrMat)
 		renfItemImg.apply_material_appearance(renfMat)
-		fabrItemImg.override = 1
-		renfItemImg.override = 1
 		UpdateOverlays(fabrItemImg, "item-suit")
 		UpdateOverlays(renfItemImg, "item-suit-highlight")
 
 		fabrWornImg.apply_material_appearance(fabrMat)
 		renfWornImg.apply_material_appearance(renfMat)
-		fabrWornImg.override = 1
-		renfWornImg.override = 1
 		src.wear_image.overlays += fabrWornImg
 		src.wear_image.overlays += renfWornImg
 

@@ -140,9 +140,9 @@
 		renfItemImg = SafeGetOverlayImage("item-helmet-highlight", src.icon, "spacemat-highlight")
 		visrItemImg = SafeGetOverlayImage("item-visor", src.icon, "spacemat-vis")
 		// Prep the worn overlays
-		fabrWornImg = SafeGetOverlayImage("worn-helmet", src.wear_image_icon, "spacemat", layer = MOB_OVERSUIT_LAYER2)
-		renfWornImg = SafeGetOverlayImage("worn-helmet-highlight", src.wear_image_icon, "spacemat-highlight", layer = MOB_OVERSUIT_LAYER2)
-		visrWornImg = SafeGetOverlayImage("worn-visor", src.wear_image_icon, "spacemat-vis", layer = MOB_OVERSUIT_LAYER2)
+		fabrWornImg = SafeGetOverlayImage("worn-helmet", src.wear_image_icon, "spacemat")
+		renfWornImg = SafeGetOverlayImage("worn-helmet-highlight", src.wear_image_icon, "spacemat-highlight")
+		visrWornImg = SafeGetOverlayImage("worn-visor", src.wear_image_icon, "spacemat-vis")
 
 	proc/set_custom_mats(datum/material/helmMat, datum/material/visrMat, datum/material/renfMat)
 		src.setMaterial(helmMat, FALSE) // We want to purely rely on the overlay colours
