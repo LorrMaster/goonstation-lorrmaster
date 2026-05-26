@@ -579,10 +579,9 @@
 	icon = 'icons/obj/items/materials/miracle.dmi'
 	material_name = "Miracle"
 	default_material = "miracle"
-	var/static/shape = pick("ore","sphere","torus") // This round's randomized miracle matter shape
 
 	update_icon()
-		src.icon_state = "[src.shape][src.icon_stack_value]_$$[src.default_material]"
+		src.icon_state = "[miraclium_shape][src.icon_stack_value]_$$[src.default_material]"
 
 	get_stack_value()
 		switch(src.amount)
@@ -596,6 +595,13 @@
 				return 4
 			else
 				return 5
+
+	update_stack_name()
+		UpdateName(src)
+		if(src.amount == 1)
+			name = "[src.name]"
+		else
+			name = "[miraclium_shape] of [amount] [src.name]"
 
 /obj/item/raw_material/starstone
 	name = "starstone"

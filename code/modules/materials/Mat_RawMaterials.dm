@@ -524,6 +524,7 @@ ABSTRACT_TYPE(/obj/item/material_piece/rubber)
 	name = "scrap"
 	desc = "Plutonium metal, commonly used as a power source for engines and machinery alike."
 	icon = 'icons/obj/items/materials/plutonium.dmi'
+	icon_state = "scrap1_$$plutonium"
 	default_material = "plutonium"
 
 	New()

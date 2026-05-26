@@ -365,6 +365,8 @@ proc/get_icon_states(icon)
 		return "suddenly vanishes into nothingness"
 	if(flag & MATERIAL_RUBBER)
 		return "melts into an unworkable pile of slop"
+	if(flag & MATERIAL_ROCK)
+		return "crumbles into dusty fragments"
 	return "comes apart"
 
 /// Translates a material flag into a string.
@@ -382,6 +384,8 @@ proc/get_icon_states(icon)
 			return "Energy Source"
 		if(MATERIAL_RUBBER)
 			return "Rubber"
+		if(MATERIAL_ROCK)
+			return "Rock"
 		else
 			return "Unknown"
 

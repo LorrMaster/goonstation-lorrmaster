@@ -604,6 +604,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("density", 2)
 		setProperty("hard", 2)
 		setProperty("electrical", 4)
@@ -645,6 +646,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("electrical", 4)
 		setProperty("thermal", 1)
 		setProperty("density", 4)
@@ -708,6 +710,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 				0.00, 0.00, 0.00, 0.00)
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("electrical", 7)
 		setProperty("density", 2)
 		setProperty("hard", 2)
@@ -726,6 +729,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		value = 175
 		setProperty("density", 4)
 		setProperty("hard", 2)
@@ -751,6 +755,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("density", 6)
 		setProperty("hard", 5)
 		setProperty("chemical", 7)
@@ -773,6 +778,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("density", 4)
 		setProperty("hard", 3)
 
@@ -795,6 +801,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		value = 200
 
 		material_flags |= MATERIAL_ENERGY
@@ -815,6 +822,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		value = 400
 
 		setProperty("density", 1)
@@ -838,6 +846,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		value = 300
 
 		setProperty("density", 6)
@@ -888,6 +897,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("density", 7)
 		setProperty("hard", 2)
 		setProperty("thermal", 5)
@@ -946,6 +956,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		value = 10
 		setProperty("density", 2) //fucked up values for fucked up material but not silly putty
 		setProperty("hard", 2)
@@ -1060,6 +1071,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("density", 3)
 		setProperty("hard", 4)
 		setProperty("molitz_bubbles", 4)
@@ -1110,6 +1122,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("density", 3)
 		setProperty("hard", 1)
 		setProperty("electrical", 8)
@@ -1132,7 +1145,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 
 	New()
 		..()
-		material_flags |= MATERIAL_ENERGY
+		material_flags |= MATERIAL_ENERGY | MATERIAL_ROCK
 		setProperty("density", 7)
 		setProperty("hard", 3)
 		setProperty("electrical", 6)
@@ -1160,7 +1173,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 
 	New()
 		..()
-		material_flags |= MATERIAL_ENERGY
+		material_flags |= MATERIAL_ENERGY | MATERIAL_ROCK
 		setProperty("density", 1)
 		setProperty("hard", 2)
 		setProperty("electrical", 5)
@@ -1196,6 +1209,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		switch(gem_tier)
 			if(1)
 				value = 700
@@ -1337,8 +1351,13 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		color = "#615757"
 		alpha = 180
 
+		New()
+			..()
+			material_flags &= ~MATERIAL_ROCK
+
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("density", 8)
 		setProperty("hard", 4)
 		setProperty("chemical", 9)
@@ -1383,7 +1402,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 
 	New()
 		..()
-		material_flags |= MATERIAL_ENERGY
+		material_flags |= MATERIAL_ENERGY | MATERIAL_ROCK
 		setProperty("density", 1)
 		setProperty("hard", 2)
 		setProperty("reflective", 8)
@@ -1392,7 +1411,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/telecrystal_onattack())
 
 
-
+var/static/miraclium_shape = pick("block","sphere","torus") // This round's randomized miracle matter shape
 /datum/material/crystal/miracle
 	mat_id = "miracle"
 	name = "miraclium"
@@ -1402,6 +1421,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		addTrigger(TRIGGERS_ON_ADD, new /datum/materialProc/miracle_add())
 		alpha = rand(20, 255)
 		setProperty("density", rand(1, 8))
@@ -1426,6 +1446,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("reflective", 9)
 		setProperty("density", 9)
 		setProperty("hard", 9)
@@ -1447,6 +1468,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("electrical", 2)
 		setProperty("density", 1)
 		setProperty("hard", 2)
@@ -1585,6 +1607,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 
 	New()
 		..()
+		material_flags |= MATERIAL_ROCK
 		setProperty("flammable", 5)
 		setProperty("hard", 3)
 		setProperty("density", 2)
@@ -1610,7 +1633,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 
 	New()
 		..()
-		material_flags |= MATERIAL_CRYSTAL
+		material_flags |= MATERIAL_CRYSTAL | MATERIAL_ROCK
 		setProperty("hard", 3)
 		setProperty("reflective", 6)
 		setProperty("n_radioactive", 1)
@@ -1634,7 +1657,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 
 	New()
 		..()
-		material_flags |= MATERIAL_CLOTH
+		material_flags |= MATERIAL_CLOTH | MATERIAL_ROCK
 		setProperty("density", 4)
 		setProperty("hard", 1)
 		setProperty("chemical", 6)
@@ -2042,7 +2065,7 @@ ABSTRACT_TYPE(/datum/material/fabric)
 
 	New()
 		..()
-		material_flags |= MATERIAL_CRYSTAL
+		material_flags |= MATERIAL_CRYSTAL | MATERIAL_ROCK
 		setProperty("density", 3)
 		setProperty("hard", 2)
 		setProperty("thermal", 1)
@@ -2224,9 +2247,9 @@ ABSTRACT_TYPE(/datum/material/rubber)
 	mat_id = "plastic"
 	name = "plastic"
 	desc = "A synthetic material made of polymers. Great for polluting oceans."
-	color = list(2.00, -0.25, -0.25, 0.00,\
-				-0.25, 2.00, -0.25, 0.00,\
-				-0.25, -0.25, 2.00, 0.00,\
+	color = list(1.75, -0.20, -0.20, 0.00,\
+				-0.20, 1.75, -0.20, 0.00,\
+				-0.20, -0.20, 1.75, 0.00,\
 				0.00, 0.00, 0.00, 1.00,\
 				0.00, 0.00, 0.00, 0.00) // Increase saturation and brightness
 
@@ -2262,7 +2285,7 @@ ABSTRACT_TYPE(/datum/material/rubber)
 
 	New()
 		..()
-		material_flags |= MATERIAL_CRYSTAL
+		material_flags |= MATERIAL_CRYSTAL | MATERIAL_ROCK
 		setProperty("density", 7)
 		setProperty("hard", 5)
 		setProperty("n_radioactive", 3)

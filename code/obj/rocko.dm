@@ -1,3 +1,4 @@
+#define ROCKO_ALT_MATERIAL_CHANCE 100
 
 // CE's pet rock! A true hellburn companion
 /obj/item/rocko
@@ -8,14 +9,17 @@
 	force = 10
 	throwforce = 15
 	throw_range = 3
+	material_amt = 10
 	can_arcplate = FALSE
+	uses_default_material_appearance = TRUE
 
-	var/static/list/rocko_is
+	var/list/rocko_is
 	var/smile = TRUE
 	var/painted
 	var/bright = FALSE
 	var/mob/living/holder
 	var/obj/item/clothing/head/hat
+	var/material_desc = null
 
 	New()
 		. = ..()
@@ -133,8 +137,8 @@
 		else
 			. = "A rock with a [src.smile ? "smiley" : "frowny"] face painted on it."
 
-		if (src.material?.getID() != "rock")
-			. += "<br>Wait, that isn't a rock. It's a [pick("hunk", "chunk")] of [src.material.getName()]!"
+		if (src.material_desc)
+			. += "<br>[src.material_desc]"
 
 	attackby(obj/item/W, mob/living/user)
 		if(istype(W,/obj/item/clothing/head))
@@ -170,43 +174,208 @@
 	proc/choose_rocko_material()
 		src.icon_state = pick("rock1","rock1b","rock1c","rock1d")
 		src.transform = matrix(1.3,0,0,0,1.3,-3) // Scale 1.3 and Shift Down 3
-		src.color = "#CCC" // Darken slightly to allow lighter colors to be more visibile
-		if(prob(90))
+		// src.color = "#CCC" // Darken slightly to allow lighter colors to be more visibile
+		if(prob(100 - ROCKO_ALT_MATERIAL_CHANCE))
 			src.setMaterial(getMaterial("rock"), appearance = FALSE, setname = FALSE)
 			return
 
-		// Give rocko a random material
-		var/new_material = pick(childrentypesof(/datum/material/metal))
-		var/datum/material/dummy = new new_material
-		src.setMaterial(getMaterial(dummy.getID()), setname = FALSE)
+		// We want to give rocko a special material! Find a suitable type of rock.
+		var/list/material_list = childrentypesof(/datum/material)
+		// Lots of types of gemstones. Make them more common.
+		var/rock_list = list("gemstone","gemstone","gemstone","plastic","plutonium","chitin")
+		for(var/mat in material_list)
+			var/datum/material/dummy = new mat
+			if(HAS_FLAG(dummy.getMaterialFlags(), MATERIAL_ROCK) && !istype(dummy, /datum/material/crystal/gemstone))
+				if(dummy.getID() != "rock")
+					rock_list += dummy.getID()
 
-		// Use ore sprites if available
-		var/list/rock_list = list("bohrum","cerenkite","cobryl","gold","mauxite","pharosium","syreline","plutonium","veranium","batiline")
-		if(!rock_list.Find(src.material.getID()))
-			return
-		src.icon = src.material.getIconFile()
+		var/chosen_material = pick(rock_list)
+		switch(chosen_material)
+			if("gemstone")
+				var/chosen_gem = pick(childrentypesof(/datum/material/crystal/gemstone))
+				var/datum/material/dummy = new chosen_gem
+				src.icon = 'icons/obj/items/materials/materials.dmi'
+				src.icon_state = pick("gem1","gem2","gem3")
+				src.transform = matrix(1.5,0,0,0,1.5,-4)
+				src.setMaterial(getMaterial(dummy.getID()), TRUE, FALSE)
+				material_desc = "This is a large [dummy.getName()]! It likes to be the center of attention."
+				return
+			if("plastic")
+				src.setMaterial(getMaterial(chosen_material), FALSE, FALSE)
+				src.color = list(1.05,0,0,0,1.05,0,0,0,1.05) // Brighten it a bit
+				material_desc = "This isn't a rock, it's just a piece of plastic! It looks like it came out of a gift shop."
+				src.rocko_is = list("a penny-pincher")
+				return
+			if("slag")
+				src.icon = 'icons/obj/items/materials/materials.dmi'
+				src.icon_state = "wad"
+				src.setMaterial(getMaterial(chosen_material), setname = FALSE)
+				src.transform = matrix(1,0,0,0,1,-4)
+				src.bright = TRUE
+				material_desc = "This isn't a rock, it's just a pile of slag! It looks a bit bland."
+				return
+			if("yuranite")
+				src.icon = 'icons/obj/items/materials/materials.dmi'
+				src.icon_state = "ore$$yuranite"
+				src.transform = matrix(1.3,0,0,0,1.3,-1)
+				src.bright = TRUE
+				material_desc = "This is a hunk of yuranite!"
+				return
+
+		// Get a sprite for Rocko that matches its material. Also give it some relevant info.
+		var/datum/material/material = getMaterial(chosen_material)
+		var/offset = -3
+		var/set_appearance = FALSE
 		var/sprite_prefix = "ore"
 		var/sprite_value = pick(1,2,3,4,5,6)
 		var/list/sprite_variants = list("")
-		switch(src.material.getID())
+		src.icon = material.getIconFile()
+		switch(chosen_material)
 			if("bohrum")
 				sprite_value = pick(1,2,3,4) // Larger bohrum stack sizes are more piles of rocks than rocks
+			if("bohrum")
+				sprite_value = pick(1,2,3) // Remove char piles. Want the rock
+			if("miracle")
+				sprite_value = pick(1,2,3,4,5)
+				sprite_prefix = miraclium_shape
 			if("plutonium")
 				sprite_prefix = "scrap"
 		// Include variants of ores if they exist
 		for(var/letter in list("b","c","d"))
-			if(is_valid_icon_state("[sprite_prefix][sprite_value][letter]_$$[src.material.getID()]"))
+			if(is_valid_icon_state("[sprite_prefix][sprite_value][letter]_$$[chosen_material]"))
 				sprite_variants += letter
 			else
 				break
-		src.icon_state = "[sprite_prefix][sprite_value][pick(sprite_variants)]_$$[src.material.getID()]"
-		var/scale = 1 // Scale depending on chosen ore size
+		src.icon_state = "[sprite_prefix][sprite_value][pick(sprite_variants)]_$$[chosen_material]"
+		var/rock_scale = 1 // Scale depending on chosen ore size
 		switch(sprite_value)
-			if(1) scale = 1.3
-			if(2) scale = 1.2
-			if(3) scale = 1
-			if(4) scale = 0.9
-			if(5) scale = 0.85
-			if(6) scale = 0.8
-		src.transform = matrix(scale,0,0,0,scale,-3)
+			if(1) rock_scale = 1.3
+			if(2) rock_scale = 1.15
+			if(3) rock_scale = 1
+			if(4) rock_scale = 0.95
+			if(5) rock_scale = 0.9
+			if(6) rock_scale = 0.85
 
+		switch(chosen_material)
+			if("batiline")
+				src.bright = TRUE
+				offset = -4
+				material_desc = "This is a hunk of [material.getName()]! It can be a bit toxic, but is also very protective of others."
+				src.rocko_is = list("reminding you to drink water","a good swimmer",
+					"shielding you from the worst the world has to offer")
+			if("bohrum")
+				src.bright = TRUE
+				material_desc = "This is a chunk of [material.getName()]! It is every bit as tough as it looks."
+				// src.rocko_is = list("practically glowing","a bright mind","outgoing","optimistic")
+			if("cerenkite")
+				material_desc = "This is a hunk of [material.getName()]!"
+				src.rocko_is = list("practically glowing","a bright mind","outgoing","optimistic")
+			if("char")
+				src.bright = TRUE
+				material_desc = "This is a bunch of [material.getName()]!"
+			if("chitin")
+				src.bright = TRUE
+				rock_scale += 0.1
+				offset = -4
+				material_desc = "This isn't a rock, it's just a stack of [material.getName()]! It is just a shell of its former self."
+			if("claretine")
+				offset = -2
+				material_desc = "This is a pile of [material.getName()]! It tends to fall apart under pressure."
+				src.rocko_is = list("a wizard with electronics","enchanting","magnificent")
+			if("erebite")
+				src.bright = TRUE
+				offset = -2
+				material_desc = "This is a piece of [material.getName()]! It feels like it could explode at any moment."
+				src.rocko_is = list("ready to burst","spicing things up","pretty hot","somehow keeping it together")
+			if("fibrilith")
+				rock_scale = 1
+				material_desc = "This is a pile of [material.getName()]! It can be incredibly irritating sometimes."
+				src.rocko_is = list("insulative","a great builder","being difficult","gonna be the death of you")
+			if("gold")
+				material_desc = "This is a huge nugget of [material.getName()]! It must be worth a fortune."
+				src.rocko_is = list("a heart of gold","a valuable friend")
+			if("ice")
+				material_desc = "This is a block of [material.getName()]! It tends to melt into the crowd."
+				src.rocko_is = list("giving you the cold shoulder","keeping it cool","cool under pressure",
+					"still warming up to the crew","pretty chilling","cold hearted")
+			if("koshmarite")
+				src.bright = TRUE
+				material_desc = "This is a piece of [material.getName()]! It looks a bit gloomy."
+			if("mauxite")
+				src.bright = TRUE
+				material_desc = "This is a piece of [material.getName()]! A bit rusty, but the station couldn't ask for a better pet."
+			if("miracle")
+				switch(sprite_value)
+					if(1) rock_scale = 1.25
+					if(2) rock_scale = 1.15
+					if(3) rock_scale = 1
+					if(4) rock_scale = 0.85
+					if(5) rock_scale = 0.75
+				if(miraclium_shape == "torus")
+					offset += -1
+				material_desc = "This is a [miraclium_shape] of [material.getName()]! It likes to keep people guessing."
+				src.rocko_is = list("talking nonsense","a miracle worker","dreamy","colorful","doing the impossible","silly","a goofball")
+			if("molitz")
+				if(rock_scale < 1)
+					rock_scale = 1
+				offset = -2
+				material_desc = "This is a chunk of [material.getName()]! It likes to be transparent with people."
+				src.rocko_is = list("clear-eyed","always open","a sharp mind")
+			if("molitz_beta")
+				src.bright = TRUE
+				if(rock_scale < 1)
+					rock_scale = 1
+				offset = -2
+				material_desc = "This is a chunk of [material.getName()]!"
+			if("molitz_expended")
+				src.bright = TRUE
+				if(rock_scale < 1)
+					rock_scale = 1
+				offset = -2
+				material_desc = "This is a chunk of [material.getName()]! It feels drained for most of the day."
+				src.rocko_is = list("not up to it right now","hardworking","giving it its all","trying its best","pushing itself too hard")
+			if("plasmastone")
+				src.bright = TRUE
+				material_desc = "This is a sparkling sphere of [material.getName()]! It is very pretty, but can also be quite dangerous."
+				src.rocko_is = list("sparkling","going with the flow","very fluid","always ready to light up the room")
+			if("plutonium")
+				material_desc = "This isn't a rock! This is a scrap of [material.getName()]!"
+				// src.rocko_is = list("sparkling","going with the flow","very fluid","always ready to light up the room")
+			if("starstone")
+				if(rock_scale < 1)
+					rock_scale = 1
+				material_desc = "This is an unbelievable piece of [material.getName()]! How did the Chief Engineer even find this?"
+				src.rocko_is = list("punctual","a movie star","a sharp mind")
+			if("syreline")
+				material_desc = "This is a pile of [material.getName()]! It likes to be the center of attention."
+				src.rocko_is = list("fashionable","a pretty face","fabulously wealthy","a gittering smile")
+			if("telecrystal")
+				material_desc = "This is an cut of [material.getName()]! It has a hard time keeping still."
+				src.rocko_is = list("always there for you","a good travel companion","an explorer","hard to keep up with")
+			if("veranium")
+				src.bright = TRUE
+				material_desc = "This is a bolt of [material.getName()]! It likes to shock people when they least expect it."
+				src.rocko_is = list("good with arcfiends","eccentric","always alert","shockingly beautiful","attentive")
+			if("viscerite")
+				src.bright = TRUE
+				material_desc = "This is a clunk of [material.getName()]! It may look tough, but it's actually just a big softie."
+			if("uqill")
+				src.bright = TRUE
+				if(rock_scale < 1.2)
+					rock_scale = 1.2
+				material_desc = "This is a chunk of [material.getName()]! It can be very dense sometimes."
+				src.rocko_is = list("hard to read")
+			else
+				material_desc = "This is a hunk of [material.getName()]!"
+
+		if(!is_valid_icon_state(src.icon_state) && !is_valid_icon_state("[src.icon_state]$$[chosen_material]"))
+			// Something went wrong and Rocko is now invisible! Just color a normal rock sprite and hope no one notices.
+			src.icon = 'icons/obj/items/materials/rocks.dmi'
+			src.icon_state = pick("rock1","rock1b","rock1c","rock1d")
+			src.transform = matrix(1.3,0,0,0,1.3,-3)
+			src.color = "#CCC"
+			src.setMaterial(material, TRUE, FALSE)
+			return
+		src.setMaterial(material, set_appearance, FALSE)
+		src.transform = matrix(rock_scale,0,0,0,rock_scale,offset)
+		return
