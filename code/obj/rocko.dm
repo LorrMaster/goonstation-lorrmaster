@@ -306,11 +306,11 @@
 				material_desc = "This is a piece of [material.getName()]! A bit rusty, but the station couldn't ask for a better pet."
 			if("miracle")
 				switch(sprite_value)
-					if(1) rock_scale = 1.25
-					if(2) rock_scale = 1.15
+					if(1) rock_scale = 1.2
+					if(2) rock_scale = 1.1
 					if(3) rock_scale = 1
-					if(4) rock_scale = 0.85
-					if(5) rock_scale = 0.75
+					if(4) rock_scale = 0.9
+					if(5) rock_scale = 0.8
 				if(miraclium_shape == "torus")
 					offset += -1
 				material_desc = "This is a [miraclium_shape] of [material.getName()]! It likes to keep people guessing."
@@ -357,8 +357,8 @@
 				material_desc = "This is a bolt of [material.getName()]! It likes to shock people when they least expect it."
 				src.rocko_is = list("good with arcfiends","eccentric","always alert","shockingly beautiful","attentive")
 			if("viscerite")
-				src.bright = TRUE
 				material_desc = "This is a clunk of [material.getName()]! It may look tough, but it's actually just a big softie."
+				src.rocko_is = list("a kindred spirit")
 			if("uqill")
 				src.bright = TRUE
 				if(rock_scale < 1.2)
@@ -379,3 +379,5 @@
 		src.setMaterial(material, set_appearance, FALSE)
 		src.transform = matrix(rock_scale,0,0,0,rock_scale,offset)
 		return
+
+#undef ROCKO_ALT_MATERIAL_CHANCE
