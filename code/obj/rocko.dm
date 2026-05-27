@@ -269,7 +269,7 @@
 				// src.rocko_is = list("practically glowing","a bright mind","outgoing","optimistic")
 			if("cerenkite")
 				material_desc = "This is a hunk of [material.getName()]!"
-				src.rocko_is = list("practically glowing","a bright mind","outgoing","optimistic")
+				src.rocko_is = list("practically glowing","a bright mind","outgoing","optimistic","radiating kindness")
 			if("char")
 				src.bright = TRUE
 				material_desc = "This is a bunch of [material.getName()]!"
@@ -290,10 +290,10 @@
 			if("fibrilith")
 				rock_scale = 1
 				material_desc = "This is a pile of [material.getName()]! It can be incredibly irritating sometimes."
-				src.rocko_is = list("insulative","a great builder","being difficult","gonna be the death of you")
+				src.rocko_is = list("insulative","a great builder","being difficult","gonna be the death of you","a bundle of fun")
 			if("gold")
 				material_desc = "This is a huge nugget of [material.getName()]! It must be worth a fortune."
-				src.rocko_is = list("a heart of gold","a valuable friend")
+				src.rocko_is = list("a heart of gold","a valuable friend","a treasured crewmember","the pride of the station")
 			if("ice")
 				material_desc = "This is a block of [material.getName()]! It tends to melt into the crowd."
 				src.rocko_is = list("giving you the cold shoulder","keeping it cool","cool under pressure",
@@ -340,7 +340,7 @@
 				src.rocko_is = list("sparkling","going with the flow","very fluid","always ready to light up the room")
 			if("plutonium")
 				material_desc = "This isn't a rock! This is a scrap of [material.getName()]!"
-				// src.rocko_is = list("sparkling","going with the flow","very fluid","always ready to light up the room")
+				src.rocko_is = list("a blast to be around","radiating happiness","a launchpad for good ideas")
 			if("starstone")
 				if(rock_scale < 1)
 					rock_scale = 1
@@ -351,14 +351,14 @@
 				src.rocko_is = list("fashionable","a pretty face","fabulously wealthy","a gittering smile")
 			if("telecrystal")
 				material_desc = "This is an cut of [material.getName()]! It has a hard time keeping still."
-				src.rocko_is = list("always there for you","a good travel companion","an explorer","hard to keep up with")
+				src.rocko_is = list("always there for you","a good travel companion","an explorer","hard to keep up with","an adventurer")
 			if("veranium")
 				src.bright = TRUE
 				material_desc = "This is a bolt of [material.getName()]! It likes to shock people when they least expect it."
 				src.rocko_is = list("good with arcfiends","eccentric","always alert","shockingly beautiful","attentive")
 			if("viscerite")
 				material_desc = "This is a clunk of [material.getName()]! It may look tough, but it's actually just a big softie."
-				src.rocko_is = list("a kindred spirit")
+				src.rocko_is = list("a kindred spirit","a flexible partner")
 			if("uqill")
 				src.bright = TRUE
 				if(rock_scale < 1.2)
