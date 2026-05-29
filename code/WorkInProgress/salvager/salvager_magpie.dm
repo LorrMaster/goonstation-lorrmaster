@@ -1064,6 +1064,12 @@ ABSTRACT_TYPE(/datum/commodity/magpie/sell)
 		comtype = /obj/item/tool/omnitool/dualconstruction_device
 		price = 10
 
+	device_analyzer
+		comname = "Salvager Device Analyzer"
+		desc = "A jailbroken device analyzer. It contains an integrated ruckingenur kit without the network capability."
+		comtype = /obj/item/electronics/scanner/salvager
+		price = 500
+
 	omnitool
 		comname = "Omnitool"
 		desc = "Replacement omnitool.  No one wants to carry around each tool individually."

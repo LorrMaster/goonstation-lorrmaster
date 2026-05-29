@@ -79,6 +79,36 @@
 		)
 		animate_scanning(target, "#FFFF00")
 
+/obj/item/electronics/scanner/salvager
+	name = "salvager device analyzer"
+	icon_state = "deviceana_salvager"
+	desc = "Modified with a jailbroken scan system and fully internalized ruckingenur kit."
+	is_syndicate = TRUE // Not actually syndicate, but lets it scan crushers and stuff
+	var/obj/machinery/rkit/ruck
+
+	New()
+		. = ..()
+		src.ruck = new()
+		src.ruck.set_loc(src)
+		src.ruck.requires_power = FALSE
+		src.ruck.blueprint_type = /obj/item/paper/manufacturer_blueprint/salvager
+		src.ruck.req_access = list()
+		src.ruck.packet_read_enabled = FALSE
+		src.ruck.packet_send_enabled = FALSE
+		src.ruck.print_delay = 0.5 SECONDS
+
+	disposing()
+		qdel(ruck)
+		..()
+
+	attack_self(mob/user)
+		. = ..()
+		src.ruck.ui_interact(user)
+
+	pre_attackby(obj/item/parent_item, atom/A, mob/user)
+		. = ..()
+		src.ruck.download_from_scanner(src)
+
 
 /datum/computer/file/electronics_scan
 	name = "scanfile"

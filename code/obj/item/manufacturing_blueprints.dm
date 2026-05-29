@@ -10,6 +10,9 @@
 	var/datum/manufacture/blueprint = null
 	var/override_name_desc = TRUE //! If non-zero, the name and description of this blueprint will be overriden on New() with standardized values
 
+	salvager
+		icon_state = "blueprint_salvager"
+
 	New(loc, schematic = null)
 		..()
 		if(istype(schematic, /datum/manufacture))

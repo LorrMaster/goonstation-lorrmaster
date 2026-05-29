@@ -405,6 +405,10 @@
 	var/list/known_rucks = null
 	var/boot_time = null
 	var/data_initialized = FALSE
+	var/blueprint_type = /obj/item/paper/manufacturer_blueprint
+	var/packet_read_enabled = TRUE
+	var/packet_send_enabled = TRUE
+	var/print_delay = 2.5 SECONDS
 
 /obj/machinery/rkit/New()
 	. = ..()
@@ -450,6 +454,8 @@
 
 /obj/machinery/rkit/proc/send_sync(var/dispose) //Request SYNCREPLY from other rucks
 	//If dispose is true we use "DROP" which won't be saved as the host
+	if(!packet_send_enabled)
+		return
 	SPAWN(rand(5, 10)) //Keep these out of sync a little, less spammy
 		if(!boot_time) boot_time = world.time
 		host_ruck = src.net_id //We're the host until someone else proves they are
@@ -464,6 +470,8 @@
 		SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, newsignal, null, "ruck")
 
 /obj/machinery/rkit/proc/upload_blueprint(var/datum/electronics/scanned_item/O, var/target, var/internal)
+	if(!packet_send_enabled)
+		return
 	SPAWN(0.5 SECONDS) //This proc sends responses so there must be a delay
 		var/datum/computer/file/electronics_scan/scanFile = new
 		scanFile.scannedName = O.name
@@ -482,6 +490,8 @@
 		SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, newsignal, null, "ruck")
 
 /obj/machinery/rkit/proc/pda_message(var/target, var/message)
+	if(!packet_send_enabled)
+		return
 	SPAWN(0.5 SECONDS) //response proc
 		var/datum/signal/newsignal = get_free_signal()
 		newsignal.source = src
@@ -496,6 +506,8 @@
 /obj/machinery/rkit/proc/transfer_database(target)
 	//If we have a database of items, and we're the host, and we see a new ruck
 	//Upload our database to it
+	if(!packet_send_enabled)
+		return
 	var/datum/computer/file/electronics_bundle/rkitFile = new
 	rkitFile.ruckData = ruck_controls
 	rkitFile.target = target
@@ -506,6 +518,7 @@
 		newsignal.data["command"] = "UPLOAD"
 		newsignal.data["address_1"] = target
 		newsignal.data["sender"] = src.net_id
+		// newsignal.data["group"] = src.net_group
 		newsignal.data_file = rkitFile
 		SEND_SIGNAL(src, COMSIG_MOVABLE_POST_RADIO_PACKET, newsignal, null, "ruck")
 	known_rucks |= target
@@ -513,6 +526,8 @@
 //Run this if there's a file and return
 //This will either work, or you rejected a signal that had a file it didn't need
 /obj/machinery/rkit/proc/process_upload(datum/signal/signal)
+	if(!packet_send_enabled)
+		return
 	var/target = signal.data["sender"]
 	var/command = signal.data["command"]
 	if(!target || (command != "add" && command != "UPLOAD") || (!istype(signal.data_file, /datum/computer/file/electronics_scan) && !istype(signal.data_file, /datum/computer/file/electronics_bundle)))
@@ -567,8 +582,31 @@
 
 	pda_message(target, "Notice: Item entered into database.")
 
+/obj/machinery/rkit/proc/download_from_scanner(var/obj/item/electronics/scanner/scanner)
+	var/add_count = 0
+	var/match_check = 1
+	for(var/X in scanner.scanned)
+		match_check = 0
+		for(var/datum/electronics/scanned_item/O in ruck_controls.scanned_items)
+			if(X == O.item_type)
+				scanner.scanned -= X
+				match_check = 1
+				break
+		if (!match_check)
+			var/typeinfo/obj/typeinfo = get_type_typeinfo(X)
+			var/obj/typedummy = X
+			var/datum/electronics/scanned_item/O = ruck_controls.scan_in(initial(typedummy.name), X, typeinfo.mats)
+			if(O)
+				upload_blueprint(O, "TRANSRKIT", 1)
+			scanner.scanned -= X
+			add_count++
+	tgui_process.update_uis(src)
+	return add_count
+
 /obj/machinery/rkit/receive_signal(datum/signal/signal)
 	if(status & NOPOWER)
+		return
+	if(!packet_read_enabled)
 		return
 
 	if(!signal || !signal.data["sender"] || isnull(boot_time))
@@ -593,8 +631,7 @@
 	if(signal.encryption)
 		return
 
-
-	if((signal.data["address_1"] == "ping") && target)
+	if((signal.data["address_1"] == "ping") && target && src.packet_send_enabled)
 		SPAWN(0.5 SECONDS)	//Send a reply for those curious jerks
 								//Any replies in receive signal need a delay
 			var/datum/signal/newsignal = get_free_signal()
@@ -642,6 +679,8 @@
 			if (target > host_ruck && command == "SYNC") //Unless they are
 				host_ruck = target
 
+			if(!src.packet_send_enabled)
+				return
 			SPAWN(0.5 SECONDS)
 				var/datum/signal/newsignal = get_free_signal()
 				newsignal.source = src
@@ -667,24 +706,8 @@
 		return
 
 	if(istype(W,/obj/item/electronics/scanner))
-		var/obj/item/electronics/scanner/S = W
-		var/add_count = 0
-		var/match_check = 1
-		for(var/X in S.scanned)
-			match_check = 0
-			for(var/datum/electronics/scanned_item/O in ruck_controls.scanned_items)
-				if(X == O.item_type)
-					S.scanned -= X
-					match_check = 1
-					break
-			if (!match_check)
-				var/typeinfo/obj/typeinfo = get_type_typeinfo(X)
-				var/obj/typedummy = X
-				var/datum/electronics/scanned_item/O = ruck_controls.scan_in(initial(typedummy.name), X, typeinfo.mats)
-				if(O)
-					upload_blueprint(O, "TRANSRKIT", 1)
-				S.scanned -= X
-				add_count++
+		var/obj/item/electronics/scanner/scanner = W
+		var/add_count = download_from_scanner(scanner)
 		if (add_count==  1)
 			boutput(user, SPAN_NOTICE("[add_count] new items entered into kit."))
 			pda_message(null, "Notice: Item entered into database.")
@@ -693,8 +716,6 @@
 			pda_message(null, "Notice: [add_count] new items entered into database.")
 		else
 			boutput(user, SPAN_ALERT("No new items entered into kit."))
-
-		tgui_process.update_uis(src)
 
 	else
 		..()
@@ -736,7 +757,7 @@
 
 	if (usr.stat)
 		return
-	if (!(in_interact_range(src, usr) && istype(src.loc, /turf)) && !(issilicon(usr)))
+	if (!in_interact_range(src.loc, usr) && !(issilicon(usr)))
 		return
 
 	switch(action)
@@ -762,11 +783,18 @@
 					return
 				logTheThing(LOG_STATION, usr, "printed manufactuerer blueprint for [O.item_type] from [src]")
 				usr.show_text("Print job started...", "blue")
-				var/datum/manufacture/mechanics/M = O.blueprint
+				var/datum/manufacture/mechanics/mech = O.blueprint
 				playsound(src.loc, 'sound/machines/printer_thermal.ogg', 25, 1)
-				SPAWN(2.5 SECONDS)
+				SPAWN(src.print_delay)
 					if (src)
-						new /obj/item/paper/manufacturer_blueprint(src.loc, M)
+						var/obj/item/paper/manufacturer_blueprint/blueprint = new blueprint_type(get_turf(src), mech)
+						// For the salvager device analyzer, put the blueprint in the salvager's hand if able
+						if(isitem(src.loc))
+							var/obj/item/I = src.loc
+							if(ishuman(I.loc))
+								var/mob/living/carbon/human/H = I.loc
+								if(H.r_hand == src.loc || H.l_hand == src.loc)
+									H.put_in_hand_or_drop(blueprint)
 				. = TRUE
 		if("lock")
 			if (!src.allowed(usr))
