@@ -90,6 +90,7 @@
 		. = ..()
 		src.ruck = new()
 		src.ruck.set_loc(src)
+		src.ruck.name = "ruckingenur subsystem"
 		src.ruck.requires_power = FALSE
 		src.ruck.blueprint_type = /obj/item/paper/manufacturer_blueprint/salvager
 		src.ruck.req_access = list()
