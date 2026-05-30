@@ -608,6 +608,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 		setProperty("hard", 2)
 		setProperty("electrical", 4)
 		setProperty("thermal", 4)
+		setProperty("melting_point", 1500 KELVIN)
 
 
 /datum/material/metal/electrum
@@ -736,7 +737,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 		setProperty("density", 4)
 		setProperty("hard", 2)
 		setProperty("chemical", 8)
-		setProperty("melting_point", 1100 KELVIN)
+		setProperty("melting_point", 900 KELVIN)
 
 
 /datum/material/metal/bohrum
@@ -965,7 +966,7 @@ ABSTRACT_TYPE(/datum/material/metal)
 		setProperty("density", 2) //fucked up values for fucked up material but not silly putty
 		setProperty("hard", 2)
 		setProperty("electrical", 2)
-
+		setProperty("melting_point", 1500 KELVIN)
 
 /datum/material/metal/spacelag
 	mat_id = "spacelag"
@@ -1232,13 +1233,13 @@ ABSTRACT_TYPE(/datum/material/crystal)
 				name = "flawed [src.name]"
 				setProperty("density", 4)
 				setProperty("hard", 5)
-				setProperty("melting_point", 2000 KELVIN)
+				setProperty("melting_point", 2100 KELVIN)
 			if(3)
 				value = 200
 				name = "inferior [src.name]"
 				setProperty("density", 3)
 				setProperty("hard", 4)
-				setProperty("melting_point", 1700 KELVIN)
+				setProperty("melting_point", 1800 KELVIN)
 
 
 	diamond
@@ -1393,6 +1394,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		setProperty("hard", 5) // very hard
 		setProperty("reflective", 9) // shiny
 		setProperty("electrical", 7) // good conductor
+		setProperty("melting_point", 1000 KELVIN)
 
 
 /datum/material/crystal/telecrystal
@@ -1413,6 +1415,7 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		setProperty("density", 1)
 		setProperty("hard", 2)
 		setProperty("reflective", 8)
+		setProperty("melting_point", 1331 KELVIN)
 		addTrigger(TRIGGERS_ON_LIFE, new /datum/materialProc/telecrystal_life())
 		addTrigger(TRIGGERS_ON_ENTERED, new /datum/materialProc/telecrystal_entered())
 		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/telecrystal_onattack())
@@ -1865,6 +1868,7 @@ ABSTRACT_TYPE(/datum/material/organic)
 	New()
 		..()
 		setProperty("hard", 1)
+		setProperty("melting_point", 330 KELVIN) // Around the melting point of cheese
 
 
 /datum/material/organic/coral
