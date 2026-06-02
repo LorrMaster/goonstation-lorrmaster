@@ -21,13 +21,6 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 
 	proc/execute()
 		return
-
-	/// Should this trigger effect continue to the next generation?
-	proc/should_keep(var/datum/material/new_material, var/gen_count)
-		if(src.max_generations == -1)
-			return TRUE
-		if(gen_count > src.max_generations)
-			return FALSE
 /*
 /datum/materialProc/oneat_flesh
 	max_generations = -1
@@ -512,13 +505,6 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 
 /datum/materialProc/explosion
 	desc = "It looks dangerously unstable."
-
-	should_keep(var/datum/material/new_material, var/gen_count)
-		. = ..()
-		var/rads = new_material.getProperty("radioactive")
-		var/n_rads = new_material.getProperty("n_radioactive")
-		if(!rads && !n_rads)
-			return FALSE
 
 	proc/material_explode(var/atom/owner)
 		if(ON_COOLDOWN(owner, "material_explode", 5 SECONDS))

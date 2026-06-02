@@ -525,12 +525,7 @@ ABSTRACT_TYPE(/datum/material)
 		//haha gross
 		for(var/triggername in triggerVars)
 			src.vars[triggername] = getFusedTriggers(mat1.vars[triggername], mat2.vars[triggername], src)
-			var/list/toDo = src.vars[triggername]
-			for(var/datum/materialProc/current in toDo)
-				if(!current.should_keep(src, toDo[current] + 1))
-					toDo.Remove(current)
-				else
-					toDo[current] = toDo[current] + 1
+			handleTriggerGenerations(src.vars[triggername])
 
 		//Make sure the newly merged properties are informed about the fact that they just changed. Has to happen after triggers.
 		for(var/datum/material_property/nProp in src.properties)

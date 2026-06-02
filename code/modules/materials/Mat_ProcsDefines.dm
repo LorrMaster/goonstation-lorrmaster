@@ -214,6 +214,14 @@ proc/get_icon_states(icon)
 
 	return /obj/item/material_piece
 
+/proc/handleTriggerGenerations(var/list/toDo)
+	for(var/datum/materialProc/current in toDo)
+		if(current.max_generations != -1 && (toDo[current] + 1) > current.max_generations)
+			toDo.Remove(current)
+		else
+			toDo[current] = (toDo[current] + 1)
+	return toDo
+
  /// Fuses two material trigger lists.
 /proc/getFusedTriggers(var/list/L1 , var/list/L2, datum/material/newMat)
 	var/list/newList = list()
