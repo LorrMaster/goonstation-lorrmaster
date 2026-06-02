@@ -515,7 +515,7 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 		var/n_rads = material.getProperty("n_radioactive")
 		var/power = (rads + (n_rads * 1.2)) * material_amount * 0.25
 		var/brisance_bonus = n_rads / 9
-		explosion_new(owner, get_turf(owner), 1 + power, 1 + brisance_bonus)
+		explosion_new(owner, get_turf(owner), 0.25 + power, 1 + brisance_bonus)
 		if(owner && istype(owner, /turf/simulated/wall))
 			//if an erebite wall is exploded and still standing, let's rather dismantle it
 			//noone would like repeatable exploding of reinforced erebite walls
