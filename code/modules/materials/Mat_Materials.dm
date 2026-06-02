@@ -430,7 +430,7 @@ ABSTRACT_TYPE(/datum/material)
 			X.execute(location)
 		return
 
-	proc/triggerChem(var/location, var/datum/reagent/chem, var/amount)
+	proc/triggerChem(var/atom/location, var/datum/reagent/chem, var/amount)
 		for(var/datum/materialProc/X in triggersChem)
 			X.execute(location, chem, amount)
 		return
@@ -525,7 +525,12 @@ ABSTRACT_TYPE(/datum/material)
 		//haha gross
 		for(var/triggername in triggerVars)
 			src.vars[triggername] = getFusedTriggers(mat1.vars[triggername], mat2.vars[triggername], src)
-			handleTriggerGenerations(src.vars[triggername])
+			var/list/toDo = src.vars[triggername]
+			for(var/datum/materialProc/current in toDo)
+				if(!current.should_keep(src, toDo[current] + 1))
+					toDo.Remove(current)
+				else
+					toDo[current] = toDo[current] + 1
 
 		//Make sure the newly merged properties are informed about the fact that they just changed. Has to happen after triggers.
 		for(var/datum/material_property/nProp in src.properties)
@@ -1142,11 +1147,13 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		setProperty("electrical", 6)
 		setProperty("radioactive", 8)
 
-		addTrigger(TRIGGERS_ON_TEMP, new /datum/materialProc/erebite_temp())
-		addTrigger(TRIGGERS_ON_EXPLOSION, new /datum/materialProc/erebite_exp())
-		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/generic_explode_attack(33))
-		addTrigger(TRIGGERS_ON_ATTACKED, new /datum/materialProc/generic_explode_attack(33))
-		addTrigger(TRIGGERS_ON_HIT, new /datum/materialProc/generic_explode_attack(33))
+		// Explodes if you look at it funny
+		addTrigger(TRIGGERS_ON_TEMP, new /datum/materialProc/explosion/heated())
+		addTrigger(TRIGGERS_ON_EXPLOSION, new /datum/materialProc/explosion/exp())
+		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/explosion/generic())
+		addTrigger(TRIGGERS_ON_ATTACKED, new /datum/materialProc/explosion/generic())
+		addTrigger(TRIGGERS_ON_HIT, new /datum/materialProc/explosion/impact())
+		addTrigger(TRIGGERS_ON_CHEM, new /datum/materialProc/explosion/erebite_water())
 
 
 /datum/material/crystal/plasmastone

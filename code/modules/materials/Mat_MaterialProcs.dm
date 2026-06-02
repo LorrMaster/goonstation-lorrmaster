@@ -3,7 +3,7 @@ triggerOnAttacked(var/obj/item/owner, var/mob/attacker, var/mob/attacked, var/at
 triggerOnAttack(var/obj/item/owner, var/mob/attacker, var/mob/attacked)
 triggerOnLife(var/mob/M, var/obj/item/I)
 triggerOnAdd(var/owner)
-triggerChem(var/location, var/datum/reagent/chem, var/amount)
+triggerChem(var/atom/location, var/datum/reagent/chem, var/amount)
 triggerPickup(var/mob/M, var/obj/item/I)
 triggerDrop(var/mob/M, var/obj/item/I)
 triggerTemp(var/owner, var/temp)
@@ -21,6 +21,13 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 
 	proc/execute()
 		return
+
+	/// Should this trigger effect continue to the next generation?
+	proc/should_keep(var/datum/material/new_material, var/gen_count)
+		if(src.max_generations == -1)
+			return TRUE
+		if(gen_count > src.max_generations)
+			return FALSE
 /*
 /datum/materialProc/oneat_flesh
 	max_generations = -1
@@ -110,38 +117,6 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 		if(prob(trigger_chance))
 			if(attacked.reagents)
 				attacked.reagents.add_reagent(reagent_id, reagent_amount, null, T0C)
-		return
-
-/datum/materialProc/generic_explode_attack
-	var/trigger_chance = 100
-	var/explode_limit = 0
-	var/explode_count = 0
-	var/lastTrigger = 0
-
-	desc = "It looks dangerously unstable."
-
-	New(var/chance = 100, var/limit = 0)
-		trigger_chance = chance
-		explode_limit = limit
-		..()
-
-	execute(var/atom/owner)
-		if(explode_limit && explode_count >= explode_limit) return
-		if(world.time - lastTrigger < 50) return
-		lastTrigger = world.time
-		if(prob(trigger_chance))
-			explode_count++
-			var/turf/tloc = get_turf(owner)
-			explosion(owner, tloc, 0, 1, 2, 3)
-			tloc.visible_message(SPAN_ALERT("[owner] explodes!"))
-			if(isitem(owner))
-				var/obj/item/deleted_item = owner
-				qdel(deleted_item)
-			if(owner && istype(owner, /turf/simulated/wall))
-				//if an erebite wall is exploded and still standing, let's rather dismantle it
-				//noone would like repeatable exploding of reinforced erebite walls
-				var/turf/simulated/wall/dismantled_wall = owner
-				dismantled_wall.dismantle_wall(1)
 		return
 
 /datum/materialProc/generic_fireflash
@@ -535,33 +510,63 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 		R?.RemoveComponent()
 		return
 
-/datum/materialProc/erebite_temp
-	execute(var/atom/owner, var/temp)
-		if(temp < T0C + 900) return
-		if(ON_COOLDOWN(owner, "erebite_temp", 10 SECONDS))
+/datum/materialProc/explosion
+	desc = "It looks dangerously unstable."
+
+	should_keep(var/datum/material/new_material, var/gen_count)
+		. = ..()
+		var/rads = new_material.getProperty("radioactive")
+		var/n_rads = new_material.getProperty("n_radioactive")
+		if(!rads && !n_rads)
+			return FALSE
+
+	proc/material_explode(var/atom/owner)
+		if(ON_COOLDOWN(owner, "material_explode", 5 SECONDS))
 			return
-		if((temp < T0C + 1200) && prob(80)) return //some leeway for triggering at lower temps
-		var/turf/tloc = get_turf(owner)
-		explosion(owner, tloc, 0, 1, 2, 3)
+		var/datum/material/material = owner.material
+		var/material_amount = owner.material_amount_total()
+		var/rads = material.getProperty("radioactive")
+		var/n_rads = material.getProperty("n_radioactive")
+		var/power = (rads + (n_rads * 1.2)) * material_amount * 0.25
+		var/brisance_bonus = n_rads / 9
+		explosion_new(owner, get_turf(owner), 1 + power, 1 + brisance_bonus)
+		if(owner && istype(owner, /turf/simulated/wall))
+			//if an erebite wall is exploded and still standing, let's rather dismantle it
+			//noone would like repeatable exploding of reinforced erebite walls
+			var/turf/simulated/wall/dismantled_wall = owner
+			dismantled_wall.dismantle_wall(1)
 		owner.visible_message(SPAN_ALERT("[owner] explodes!"))
+		qdel(owner)
+
+/datum/materialProc/explosion/generic
+	execute(var/atom/owner)
+		material_explode(owner)
 		return
 
-/datum/materialProc/erebite_exp
-	execute(var/atom/owner, var/sev)
-		if(ON_COOLDOWN(owner, "erebite_exp", 10 SECONDS))
+/datum/materialProc/explosion/heated
+	execute(var/atom/owner, var/temp)
+		if(temp < T0C + 900)
 			return
-		var/turf/tloc = get_turf(owner)
-		if(sev > 0 && sev < 4)
-			owner.visible_message(SPAN_ALERT("[owner] explodes!"))
-			switch(sev)
-				if(1)
-					explosion(owner, tloc, 0, 1, 2, 3)
-				if(2)
-					explosion(owner, tloc, -1, 0, 1, 2)
-				if(3)
-					explosion(owner, tloc, -1, -1, 0, 1)
-			qdel(owner)
+		material_explode(owner)
 		return
+
+/datum/materialProc/explosion/impact
+	execute(var/atom/owner, var/atom/attackatom, var/mob/attacker, var/meleeorthrow)
+		if(meleeorthrow != 2)
+			return
+		material_explode(owner)
+
+/datum/materialProc/explosion/exp
+	execute(var/atom/owner, var/sev)
+		if(sev > 0 && sev < 4)
+			material_explode(owner)
+		return
+
+/datum/materialProc/explosion/erebite_water
+	execute(var/atom/location, var/datum/reagent/chem, var/amount)
+		if(!istype(chem, /datum/reagent/water) || amount < 5)
+			return
+		material_explode(location)
 
 /datum/materialProc/slippery_attack
 	execute(var/atom/owner, var/mob/attacker, var/atom/attacked)
