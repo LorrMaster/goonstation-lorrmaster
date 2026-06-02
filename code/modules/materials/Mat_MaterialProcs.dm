@@ -548,12 +548,6 @@ triggerOnEntered(var/atom/owner, var/atom/entering)
 			material_explode(owner)
 		return
 
-/datum/materialProc/explosion/erebite_water
-	execute(var/atom/location, var/datum/reagent/chem, var/amount)
-		if(!istype(chem, /datum/reagent/water) || amount < 5)
-			return
-		material_explode(location)
-
 /datum/materialProc/slippery_attack
 	execute(var/atom/owner, var/mob/attacker, var/atom/attacked)
 		if (isitem(owner) && prob(20) && (owner in attacker?.equipped_list()))

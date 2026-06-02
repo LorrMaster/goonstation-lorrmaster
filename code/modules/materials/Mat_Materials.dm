@@ -1148,7 +1148,6 @@ ABSTRACT_TYPE(/datum/material/crystal)
 		addTrigger(TRIGGERS_ON_ATTACK, new /datum/materialProc/explosion/generic())
 		addTrigger(TRIGGERS_ON_ATTACKED, new /datum/materialProc/explosion/generic())
 		addTrigger(TRIGGERS_ON_HIT, new /datum/materialProc/explosion/impact())
-		addTrigger(TRIGGERS_ON_CHEM, new /datum/materialProc/explosion/erebite_water())
 
 
 /datum/material/crystal/plasmastone
