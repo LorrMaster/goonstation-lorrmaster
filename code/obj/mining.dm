@@ -1164,7 +1164,7 @@ TYPEINFO_NEW(/turf/simulated/wall/auto/asteroid)
 			if(ishuman(L))
 				H = L
 			var/obj/item/held = L.equipped()
-			if(istype(held, /obj/item/mining_tool) || istype(held, /obj/item/mining_tools) || (isnull(held) && H && (H.is_hulk() || istype(H.gloves, /obj/item/clothing/gloves/concussive))) || istype(held, /obj/item/tool/omnitool/excavator))
+			if(istype(held, /obj/item/mining_tool) || istype(held, /obj/item/mining_tools) || (isnull(held) && H && (H.is_hulk() || istype(H.gloves, /obj/item/clothing/gloves/concussive)))))
 				UNLINT(L.click(src, list(), null, null))
 			return
 
