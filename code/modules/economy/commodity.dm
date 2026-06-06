@@ -233,6 +233,14 @@
 	onmarket = 1
 	value = 5
 
+/datum/commodity/fossil
+	comname = "Fossil"
+	comtype = /obj/item/fossil
+	desc = "The imprint or remains of a creature from long ago. Prized by researchers and collectors alike."
+	onmarket = 1
+	price = PAY_EXECUTIVE * 2
+	subtype_valid = TRUE
+
 /datum/commodity/goldbar
 	comname = "Stamped Gold Bullion"
 	comtype = /obj/item/stamped_bullion
