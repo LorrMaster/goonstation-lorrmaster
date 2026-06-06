@@ -149,6 +149,18 @@
 				src.setItemSpecial(/datum/item_special/simple)
 			if (OMNI_MODE_SAWING)
 				src.setItemSpecial(/datum/item_special/simple)
+			if (OMNI_MODE_MINING_PICK)
+				src.setItemSpecial(/datum/item_special/simple)
+			if (OMNI_MODE_MINING_DRILL)
+				src.setItemSpecial(/datum/item_special/simple)
+			if (OMNI_MODE_MINING_HAMMER)
+				src.setItemSpecial(/datum/item_special/simple)
+			if (OMNI_MODE_MINING_SHOVEL)
+				src.setItemSpecial(/datum/item_special/simple)
+			if (OMNI_MODE_MINING_LASER)
+				src.setItemSpecial(/datum/item_special/simple)
+			if (OMNI_MODE_MINING_CONCUSSION)
+				src.setItemSpecial(/datum/item_special/simple)
 
 	proc/pre_attackby(source, atom/target, mob/user)
 		if(src.mode == OMNI_MODE_DECON)
@@ -181,6 +193,12 @@
 			if(OMNI_MODE_SPOONING) return "spooning"
 			if(OMNI_MODE_UNCAPPING) return "uncapping"
 			if(OMNI_MODE_SAWING) return "sawing"
+			if(OMNI_MODE_MINING_PICK) return "pick"
+			if(OMNI_MODE_MINING_DRILL) return "drill"
+			if(OMNI_MODE_MINING_HAMMER) return "hammer"
+			if(OMNI_MODE_MINING_SHOVEL) return "shovel"
+			if(OMNI_MODE_MINING_LASER) return "laser"
+			if(OMNI_MODE_MINING_CONCUSSION) return "concussion"
 			else return null
 
 	proc/mode_to_type(var/omni_mode)
@@ -197,6 +215,12 @@
 			if(OMNI_MODE_SPOONING) return /obj/item/kitchen/utensil/spoon
 			if(OMNI_MODE_UNCAPPING) return /obj/item/kitchen/utensil
 			if(OMNI_MODE_SAWING) return /obj/item/kitchen/utensil/fork
+			if(OMNI_MODE_MINING_PICK) return /obj/item/mining_tool
+			if(OMNI_MODE_MINING_DRILL) return /obj/item/mining_tool
+			if(OMNI_MODE_MINING_HAMMER) return /obj/item/mining_tool
+			if(OMNI_MODE_MINING_SHOVEL) return /obj/item/shovel
+			if(OMNI_MODE_MINING_LASER) return /obj/item/mining_tool
+			if(OMNI_MODE_MINING_CONCUSSION) return /obj/item/mining_tool/concussive_gloves_internal
 			else return null
 
 	//
@@ -353,6 +377,58 @@ TYPEINFO(/obj/item/tool/omnitool/dualconstruction_device)
 		else if(src.mode == OMNI_MODE_SOLDERING)
 			src.change_mode_delayed(OMNI_MODE_DECON, user)
 
+/// FYI this "omnitool" is more like a regular pickaxe that gets slightly modified when modes are changed
+/obj/item/tool/omnitool/excavator
+	name = "excavation omnitool"
+	desc = "Contains a variety of tools for digging up delicate objects, though it struggles to break through dense rock."
+	icon_state = "excavator-pick"
+	prefix = "excavator"
+	inhand_image_icon = 'icons/mob/inhand/hand_tools.dmi'
+	item_state = "pick"
+	w_class = W_CLASS_NORMAL
+	c_flags = ONBELT
+	animated_delay = TRUE
+	modes = list(OMNI_MODE_MINING_HAMMER, OMNI_MODE_MINING_SHOVEL, OMNI_MODE_MINING_LASER,
+				 OMNI_MODE_MINING_CONCUSSION, OMNI_MODE_MINING_PICK, OMNI_MODE_MINING_DRILL)
+	mode = OMNI_MODE_MINING_PICK
+	switch_delay = 1 SECONDS
+	var/obj/item/mining_tool/internal_tool
+
+	New()
+		internal_tool = new()
+		internal_tool.set_loc(src)
+		..()
+
+	change_mode(var/mode, var/mob/holder)
+		. = ..()
+		switch(mode)
+			if(OMNI_MODE_MINING_PICK)
+				internal_tool.mining_type = MINING_DMG_PICKAXE
+				item_state = "pick"
+			if(OMNI_MODE_MINING_DRILL)
+				internal_tool.mining_type = MINING_DMG_DRILL
+				item_state = "rods"
+			if(OMNI_MODE_MINING_HAMMER)
+				internal_tool.mining_type = MINING_DMG_HAMMER
+				item_state = "rods"
+			if(OMNI_MODE_MINING_SHOVEL)
+				internal_tool.mining_type = MINING_DMG_SHOVEL
+				item_state = "shovel"
+			if(OMNI_MODE_MINING_LASER)
+				internal_tool.mining_type = MINING_DMG_LASER
+				item_state = "rods"
+			if(OMNI_MODE_MINING_CONCUSSION)
+				internal_tool.mining_type = MINING_DMG_CONCUSSIVE
+				item_state = "rods"
+		holder?.update_inhands()
+
+	pre_attackby(source, atom/target, mob/user)
+		. = ..()
+		if(istype(target, /turf/simulated/wall/auto/asteroid))
+			var/turf/simulated/wall/auto/asteroid/asteroid = target
+			asteroid.dig_asteroid(user, src.internal_tool)
+			return TRUE
+
 // Context actions for switching omnitool modes
 /datum/contextAction/omnitool
 	icon = 'icons/ui/context16x16.dmi'
@@ -360,6 +436,7 @@ TYPEINFO(/obj/item/tool/omnitool/dualconstruction_device)
 	close_moved = FALSE
 	desc = ""
 	icon_state = "wrench"
+	icon_background = "bunsen_bg"
 	var/mode = OMNI_MODE_PRYING
 
 	execute(var/obj/item/tool/omnitool/omnitool, var/mob/user)
@@ -416,6 +493,30 @@ TYPEINFO(/obj/item/tool/omnitool/dualconstruction_device)
 		name = "Saw"
 		icon_state = "saw"
 		mode = OMNI_MODE_SAWING
+	pick
+		name = "Pickaxe"
+		icon_state = "mine_pickaxe"
+		mode = OMNI_MODE_MINING_PICK
+	drilling
+		name = "Drill"
+		icon_state = "mine_drill"
+		mode = OMNI_MODE_MINING_DRILL
+	hammering
+		name = "Hammer"
+		icon_state = "mine_hammer"
+		mode = OMNI_MODE_MINING_HAMMER
+	shoveling
+		name = "Shovel"
+		icon_state = "mine_shovel"
+		mode = OMNI_MODE_MINING_SHOVEL
+	drilling_laser
+		name = "Laser"
+		icon_state = "mine_laser"
+		mode = OMNI_MODE_MINING_LASER
+	blast_concussive
+		name = "Concussion"
+		icon_state = "mine_concussive"
+		mode = OMNI_MODE_MINING_CONCUSSION
 
 
 // Action bar delay for omnitool switching

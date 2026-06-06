@@ -1553,6 +1553,11 @@ TYPEINFO(/obj/item/clothing/suit/hazard/fire/armored)
 		item_state = "es_suit-alt"
 		wear_state = "espace-alt"
 
+/obj/item/clothing/suit/space/genetics
+	name = "genetics space suit"
+	desc = "A space suit designed for excavating asteroids."
+	icon_state = "genespace"
+
 /obj/item/clothing/suit/space/neon
 	name = "neon space suit"
 	desc = "It comes in fun colours, but is as bulky and slow to move in as any standard space suit..."

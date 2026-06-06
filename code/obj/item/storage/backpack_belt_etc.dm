@@ -791,6 +791,20 @@
 	)
 	slots = 5
 
+/obj/item/storage/fanny/genenny
+	name = "genenny pack"
+	desc = "It's a genenny fanny, a fanny for storing geneies."
+	icon_state = "genenny"
+	item_state = "genenny"
+	spawn_contents = list(
+		/obj/item/clothing/suit/space/genetics,
+		/obj/item/clothing/head/helmet/space/engineer/genetics,
+		/obj/item/tool/omnitool/excavator,
+		/obj/item/clothing/glasses/toggleable/meson,
+		/obj/item/oreprospector
+	)
+	slots = 5
+
 /* -------------------- Belts -------------------- */
 
 /obj/item/storage/belt
@@ -980,7 +994,8 @@
 	item_state = "mining"
 	can_hold = list(
 		/obj/item/mining_tool,
-		/obj/item/mining_tools)
+		/obj/item/mining_tools,
+		/obj/item/tool/omnitool/excavator)
 	check_wclass = STORAGE_CHECK_W_CLASS_INCLUDE
 
 /obj/item/storage/belt/mining/prepared

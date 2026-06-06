@@ -90,6 +90,11 @@
 	base_icon_state = "espace-alt"
 	icon_state = "espace-alt0"
 
+/obj/item/clothing/head/helmet/space/engineer/genetics
+	name = "genetics space helmet"
+	icon_state = "genespace0"
+	base_icon_state = "genespace"
+
 /obj/item/clothing/head/helmet/space/engineer/abilities = list(/obj/ability_button/flashlight_engiehelm)
 
 /obj/item/clothing/head/helmet/space/captain
