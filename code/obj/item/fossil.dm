@@ -26,7 +26,7 @@ ABSTRACT_TYPE(/obj/item/fossil)
 /obj/item/fossil/stone
 	name = "fossil"
 	default_material = "rock"
-	sprite_count = 7
+	sprite_count = 8
 
 /obj/item/fossil/ice
 	name = "frozen fossil"
@@ -36,7 +36,7 @@ ABSTRACT_TYPE(/obj/item/fossil)
 
 /obj/item/fossil/batiline
 	name = "batiline fossil"
-	desc = "An imprint of some long-dead space creature. Possibly poisoned by the toxic metals in the ore, or otherwise lived in the deposits as protection against space radiation."
+	desc = "An imprint of some long-dead space creature. Possibly poisoned by the toxic metals in the ore, or otherwise used it as protection against the radiation of space."
 	default_material = "batiline"
 	sprite_count = 3
 
@@ -44,6 +44,7 @@ ABSTRACT_TYPE(/obj/item/fossil)
 	name = "cerenkite fossil"
 	desc = "An imprint of some long-dead space creature. Best be careful with it before you're added to the exibit too."
 	default_material = "cerenkite"
+	sprite_count = 3
 
 /obj/item/fossil/cobryl
 	name = "cobryl fossil"
@@ -76,6 +77,7 @@ ABSTRACT_TYPE(/obj/item/fossil)
 	name = "plasmastone fossil"
 	desc = "Some strange creature entombed in solid plasma. At least you think it's a tomb."
 	default_material = "plasmastone"
+	sprite_count = 3
 
 /obj/item/fossil/syreline
 	name = "syreline fossil"
