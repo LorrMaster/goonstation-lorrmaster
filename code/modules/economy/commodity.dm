@@ -238,7 +238,7 @@
 	comtype = /obj/item/fossil
 	desc = "The imprint or remains of a creature from long ago. Prized by researchers and collectors alike."
 	onmarket = 1
-	price = PAY_EXECUTIVE * 2
+	price = PAY_DOCTORATE * 4
 	subtype_valid = TRUE
 
 /datum/commodity/goldbar
