@@ -34,13 +34,13 @@ ABSTRACT_TYPE(/obj/item/fossil)
 
 /obj/item/fossil/batiline
 	name = "batiline fossil"
-	desc = "An imprint of some long-dead space creature. Possibly poisoned by the numerous toxic metals in the ore, or otherwise evolved to live in the deposits as protection against space radiation."
+	desc = "An imprint of some long-dead space creature. Possibly poisoned by the toxic metals in the ore, or otherwise lived in the deposits as protection against space radiation."
 	default_material = "batiline"
 	sprite_count = 3
 
 /obj/item/fossil/cerenkite
 	name = "cerenkite fossil"
-	desc = "An imprint of some long-dead space creature. Did its radioactive tomb kill it or protect it?"
+	desc = "An imprint of some long-dead space creature. Best be careful with it before you're added to the exibit too."
 	default_material = "cerenkite"
 
 /obj/item/fossil/cobryl
@@ -50,6 +50,7 @@ ABSTRACT_TYPE(/obj/item/fossil)
 
 /obj/item/fossil/koshmarite
 	name = "koshmarite fossil"
+	desc = "A koshmarite imprint of some creature. Probably best to assume it's haunted until proven otherwise."
 	default_material = "koshmarite"
 	sprite_count = 3
 
