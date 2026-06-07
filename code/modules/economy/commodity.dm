@@ -238,7 +238,7 @@
 	comtype = /obj/item/fossil
 	desc = "The imprint or remains of a creature from long ago. Prized by researchers and collectors alike."
 	onmarket = 1
-	price = PAY_DOCTORATE*6
+	price = 3600 // Runtime checker getting mad at pay defines for some reason
 
 /datum/commodity/goldbar
 	comname = "Stamped Gold Bullion"
