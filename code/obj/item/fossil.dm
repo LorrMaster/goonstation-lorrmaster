@@ -12,9 +12,11 @@ ABSTRACT_TYPE(/obj/item/fossil)
 	afterattack(var/atom/A, var/mob/user)
 		if(istype(A, /obj/machinery/computer/genetics))
 			var/obj/machinery/computer/genetics/genetics_computer = A
-			genResearch.researchMaterial += 250
+			genResearch.researchMaterial += 100
 			for(var/chromosome_type in concrete_typesof(/datum/dna_chromosome))
 				var/datum/dna_chromosome/C = new chromosome_type(src)
+				genetics_computer.saved_chromosomes += C
+				C = new chromosome_type(src)
 				genetics_computer.saved_chromosomes += C
 			user.drop_item()
 			playsound(genetics_computer, 'sound/machines/scan2.ogg', 125, TRUE)
