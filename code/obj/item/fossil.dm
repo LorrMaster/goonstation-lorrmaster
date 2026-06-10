@@ -85,6 +85,7 @@ ABSTRACT_TYPE(/obj/item/fossil)
 	// "A syreline imprint of an ancient creature. It is very difficult to research these specimens
 	// due to the supply being entirely bought up by billionaire collectors."
 	default_material = "syreline"
+	sprite_count = 3
 
 /obj/item/fossil/uqill
 	name = "uqill fossil"
