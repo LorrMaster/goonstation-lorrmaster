@@ -71,10 +71,10 @@ TYPEINFO(/datum/component/radioactive)
 		src.do_filters()
 
 	proc/do_filters()
+		if(!src.radStrength && !src.radStrength_neutron)
+			return
 		var/atom/PA = parent
-		var/perc_neutron = 0
-		if(src.radStrength || src.radStrength_neutron)
-			perc_neutron = src.radStrength_neutron / (src.radStrength + src.radStrength_neutron)
+		var/perc_neutron = src.radStrength_neutron / (src.radStrength + src.radStrength_neutron)
 		var/perc_rads = 1 - perc_neutron
 
 		var/list/rgb_rads = rgb2num("#18e022")
