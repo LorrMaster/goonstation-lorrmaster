@@ -212,6 +212,7 @@
 #include "math.dm"
 #include "macros\luck.dm"
 #include "matrix.dm"
+#include "vector.dm"
 #include "parallax.dm"
 #include "pathfinding.dm"
 #include "plain_data.dm"
