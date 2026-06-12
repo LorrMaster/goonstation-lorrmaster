@@ -1,73 +1,58 @@
 var/datum/artifact_controller/artifact_controls
 
 /datum/artifact_controller
-	/// list of all artifacts
-	var/list/artifacts = list()
-	/// list with an instance of each artifact type, sorted by size and alphabetically
-	var/list/datum/artifact/artifact_types = list()
-	/// associative list with the instance from above, with the key being the type name
-	var/list/datum/artifact/artifact_types_from_name = list()
-	/// associative list of lists, with the keys being artifact origin names (and "all") and artifact types
-	/// the value is the rarity of the type.
-	/// This is used with weighted_pick for randomly generated artifacts (sometimes of specific origin)
-	var/list/artifact_rarities = list()
-	/// list with an instance of each artifact origin
-	var/list/artifact_origins = list()
 
-	/// list of artifact origin names, for artifact forms
-	var/list/artifact_origin_names = list()
-	/// list of artifact type names, for artifact forms
-	var/list/artifact_type_names = list()
-	/// list of artifact fault names, for artifact forms
-	var/list/artifact_fault_names = list()
-	/// list of artifact trigger names, for artifact forms (unused)
-	var/list/artifact_trigger_names = list()
 	var/spawner_type = null
 	var/spawner_cine = 0
 
 	New()
 		..()
-		artifact_rarities["all"] = list()
+		ARTIFACT::list_origins = list()
+		ARTIFACT::list_types = list()
+		ARTIFACT::types_from_name = list()
+		ARTIFACT::list_artifacts = list()
+		ARTIFACT::list_rarities = list()
+		ARTIFACT::list_rarities["all"] = list()
 
 		// origin list
 		for (var/X in childrentypesof(/datum/artifact_origin))
 			var/datum/artifact_origin/AO = new X
-			artifact_origins += AO
-			artifact_origin_names += AO.type_name
-			artifact_rarities[AO.name] = list()
+			ARTIFACT::list_origins += AO
+			ARTIFACT::list_name_origins += AO.type_name
+			ARTIFACT::list_rarities[AO.name] = list()
 
 		for (var/A in concrete_typesof(/datum/artifact))
 			var/datum/artifact/AI = new A
 			if(!AI.type_name)
 				continue
-			artifact_types += AI
-			artifact_types_from_name[AI.type_name] = AI
+			ARTIFACT::list_types += AI
+			ARTIFACT::types_from_name[AI.type_name] = AI
 
-			artifact_rarities["all"][A] = AI.rarity_weight
-			for (var/origin in artifact_rarities)
+			ARTIFACT::list_rarities["all"][A] = AI.rarity_weight
+			for (var/origin in ARTIFACT::list_rarities)
 				if(origin in AI.validtypes)
-					artifact_rarities[origin][A] = AI.rarity_weight
+					ARTIFACT::list_rarities[origin][A] = AI.rarity_weight
 
-		sortList(artifact_types, /proc/compareArtifactTypes)
+		sortList(ARTIFACT::list_types, /proc/compareArtifactTypes)
 
-		for (var/datum/artifact/AI in artifact_types)
-			artifact_type_names += list(list(AI.type_name, AI.type_size))
+		for (var/datum/artifact/AI in ARTIFACT::list_types)
+			ARTIFACT::list_name_types += list(list(AI.type_name, AI.type_size))
 
 		// fault list
 		for (var/X in concrete_typesof(/datum/artifact_fault))
 			var/datum/artifact_fault/AF = new X
-			artifact_fault_names += AF.type_name
+			ARTIFACT::list_name_faults += AF.type_name
 
 		// trigger list
 		for (var/X in concrete_typesof(/datum/artifact_trigger))
 			var/datum/artifact_trigger/AT = new X
 			if(AT.used)
-				artifact_trigger_names += AT.type_name
+				ARTIFACT::list_name_triggers += AT.type_name
 
 	proc/get_origin_from_string(var/string)
 		if (!istext(string))
 			return
-		for (var/datum/artifact_origin/AO in src.artifact_origins)
+		for (var/datum/artifact_origin/AO in ARTIFACT::list_origins)
 			if (AO.name == string)
 				return AO
 		return null
@@ -110,7 +95,7 @@ var/datum/artifact_controller/artifact_controls
 
 		var/datum/artifact/A = null
 		var/turf/T = null
-		for (var/obj/O in src.artifacts)
+		for (var/obj/O in ARTIFACT::list_artifacts)
 			if (!istype(O.artifact,/datum/artifact/))
 				continue
 			A = O.artifact
@@ -148,7 +133,7 @@ var/datum/artifact_controller/artifact_controls
 	Topic(href, href_list[])
 		USR_ADMIN_ONLY
 		if (href_list["Activate"])
-			var/obj/O = locate(href_list["Activate"]) in src.artifacts
+			var/obj/O = locate(href_list["Activate"]) in ARTIFACT::list_artifacts
 			if (!istype(O,/obj/))
 				return
 			if (!istype(O.artifact,/datum/artifact/))
@@ -162,7 +147,7 @@ var/datum/artifact_controller/artifact_controls
 			src.log_me(usr, O, A.activated ? "activates" : "deactivates", 1)
 
 		else if (href_list["Jumpto"])
-			var/obj/O = locate(href_list["Jumpto"]) in src.artifacts
+			var/obj/O = locate(href_list["Jumpto"]) in ARTIFACT::list_artifacts
 			if (!istype(O,/obj/))
 				return
 			var/turf/T = O.loc
@@ -171,7 +156,7 @@ var/datum/artifact_controller/artifact_controls
 			src.log_me(usr, O, "jumps to", 0)
 
 		else if (href_list["Get"])
-			var/obj/O = locate(href_list["Get"]) in src.artifacts
+			var/obj/O = locate(href_list["Get"]) in ARTIFACT::list_artifacts
 			if (!istype(O,/obj/))
 				return
 			var/turf/T = usr.loc
@@ -180,7 +165,7 @@ var/datum/artifact_controller/artifact_controls
 			src.log_me(usr, O, "teleports", 0)
 
 		else if (href_list["Destroy"])
-			var/obj/O = locate(href_list["Destroy"]) in src.artifacts
+			var/obj/O = locate(href_list["Destroy"]) in ARTIFACT::list_artifacts
 			if (!istype(O,/obj/))
 				return
 			if (!istype(O.artifact,/datum/artifact/))
@@ -222,7 +207,6 @@ var/datum/artifact_controller/artifact_controls
 	var/fx_alpha_max = 255
 	var/nofx = 0 // If set to 1, does not apply an overlay but a flat icon_state change.
 	var/scramblechance = 10 //probability to have "fake" artifact with altered appearance
-	var/chapel_block = FALSE // Artifact does not work inside chapels
 	var/list/activation_sounds = list()
 	var/list/instrument_sounds = list()
 	var/list/lightswitch_sounds = list('sound/misc/lightswitch.ogg')
@@ -252,9 +236,24 @@ var/datum/artifact_controller/artifact_controls
 			if(artifact.blend_mode == BLEND_SUBTRACT)
 				artifact.plane = PLANE_FLOOR
 
+	proc/may_activate(var/obj/artifact)
+		return TRUE
+
+	proc/pre_destroyed(var/obj/artifact)
+		return
+
 	proc/generate_name()
 		return "unknown object"
 
+	proc/Artifact_chapel_block(var/datum/component/component, var/area/old_area, var/area/new_area)
+		var/obj/O = component.parent
+		var/datum/artifact/artifact = O.artifact
+		var/is_chapel = istype(new_area, /area/station/chapel)
+		if(is_chapel && artifact.activated)
+			playsound(O.loc, 'sound/effects/bamf.ogg', 50, 1, pitch = 1.25)
+			O.ArtifactDeactivated()
+		if(!is_chapel && !artifact.activated && artifact.automatic_activation)
+			O.ArtifactActivated()
 
 /datum/artifact_origin/ancient
 	type_name = "Silicon"
@@ -285,8 +284,20 @@ var/datum/artifact_controller/artifact_controls
 	nouns_small = list("implement","device","instrument","apparatus","appliance","mechanism","tool")
 	touch_descriptors = list("It feels cold.","It feels smooth.","Touching it makes you feel uneasy.")
 
+	New()
+		. = ..()
+		if(ARTIFACT::origin_ancient != null)
+			CRASH("Duplicate artifact origin of type \"Ancient\" created.")
+		ARTIFACT::origin_ancient = src
+
 	post_setup(obj/artifact)
 		. = ..()
+		post_setup_appearance(artifact)
+
+	generate_name()
+		return "unit [pick("alpha","sigma","tau","phi","gamma","epsilon")]-[pick("x","z","d","e","k")] [rand(100,999)]"
+
+	proc/post_setup_appearance(obj/artifact)
 		var/datum/artifact/AD = artifact.artifact
 		var/rarityMod = AD.get_rarity_modifier()
 		if(prob(50 * rarityMod))
@@ -300,9 +311,6 @@ var/datum/artifact_controller/artifact_controls
 		else if(prob(100 * rarityMod))
 			var/bright = randfloat(1.1, 1.5)
 			artifact.color = list(bright, 0, 0, 0, bright, 0, 0, 0, bright)
-
-	generate_name()
-		return "unit [pick("alpha","sigma","tau","phi","gamma","epsilon")]-[pick("x","z","d","e","k")] [rand(100,999)]"
 
 /datum/artifact_origin/martian
 	type_name = "Martian"
@@ -338,6 +346,12 @@ var/datum/artifact_controller/artifact_controls
 	var/list/prefix = list("cardio","neuro","physio","morpho","brachio","bronchi","dermo","ossu")
 	var/list/thingy = list("cystic","genetic","metabolic","static","vascular","muscular")
 	var/list/action = list("stimulator","suppressor","regenerator","depressor","mutator")
+
+	New()
+		. = ..()
+		if(ARTIFACT::origin_martian != null)
+			CRASH("Duplicate artifact origin of type \"Martian\" created.")
+		ARTIFACT::origin_martian = src
 
 	post_setup(obj/artifact)
 		. = ..()
@@ -400,7 +414,6 @@ var/datum/artifact_controller/artifact_controls
 		/datum/artifact_fault/messager/what_dead_people_said = 5,
 		/datum/artifact_fault/messager/what_people_said = 5,
 		/datum/artifact_fault/messager/emoji = 5)
-	chapel_block = TRUE
 	activation_sounds = list('sound/machines/ArtifactWiz1.ogg')
 	instrument_sounds = list('sound/musical_instruments/artifact/Artifact_Wizard_1.ogg',
 		'sound/musical_instruments/artifact/Artifact_Wizard_2.ogg',
@@ -426,8 +439,31 @@ var/datum/artifact_controller/artifact_controls
 	var/list/object = list("jewel","trophy","favor","boon","token","crown","treasure","sacrament","oath")
 	var/list/aspect = list("wonder","splendor","power","plenty","mystery","glory","majesty","eminence","grace")
 
-	post_setup(obj/artifact)
+	New()
 		. = ..()
+		if(ARTIFACT::origin_wizard != null)
+			CRASH("Duplicate artifact origin of type \"Wizard\" created.")
+		ARTIFACT::origin_wizard = src
+
+	post_setup(var/obj/artifact)
+		. = ..()
+		RegisterSignal(artifact, XSIG_MOVABLE_AREA_CHANGED, PROC_REF(Artifact_chapel_block))
+		src.post_setup_appearance(artifact)
+
+	pre_destroyed(var/obj/artifact)
+		. = ..()
+		UnregisterSignal(artifact, XSIG_MOVABLE_AREA_CHANGED)
+
+	may_activate(var/obj/artifact)
+		. = ..()
+		var/is_chapel = istype(get_area(artifact), /area/station/chapel)
+		if(is_chapel)
+			playsound(artifact.loc, 'sound/effects/bamf.ogg', 50, 1, pitch = 1.25)
+			var/turf/T = get_turf(artifact)
+			T.visible_message(SPAN_ALERT("<b>[artifact] attempts to activate but fails!</b>"))
+			return FALSE
+
+	proc/post_setup_appearance(obj/artifact)
 		var/datum/artifact/AD = artifact.artifact
 		var/rarityMod = AD.get_rarity_modifier()
 		if(prob(300*rarityMod))
@@ -475,7 +511,6 @@ var/datum/artifact_controller/artifact_controls
 /datum/artifact_origin/eldritch
 	type_name = "Eldritch"
 	name = "eldritch"
-	chapel_block = TRUE
 	activation_sounds = list('sound/machines/ArtifactEld1.ogg','sound/machines/ArtifactEld2.ogg')
 	instrument_sounds = list('sound/musical_instruments/artifact/Artifact_Eldritch_1.ogg',
 		'sound/musical_instruments/artifact/Artifact_Eldritch_2.ogg',
@@ -516,6 +551,29 @@ var/datum/artifact_controller/artifact_controls
 	var/list/horror_name_start = list("trog","yogg","ta","y","has","shub","az","cth","cha","ul","xel","og","flu","wrk")
 	var/list/horror_name_mid = list("sog","ran","gon","ni","a","hul","ttur","ay","o","lo","ncac","sin","fel","di")
 	var/list/horror_name_end = list("dyte","oth","tula","olac","tur","bburath","thoth","hu","dha","aoth","tath","goth","ter")
+
+	New()
+		. = ..()
+		if(ARTIFACT::origin_eldritch != null)
+			CRASH("Duplicate artifact origin of type \"Eldritch\" created.")
+		ARTIFACT::origin_eldritch = src
+
+	post_setup(var/obj/artifact)
+		. = ..()
+		RegisterSignal(artifact, XSIG_MOVABLE_AREA_CHANGED, PROC_REF(Artifact_chapel_block))
+
+	pre_destroyed(var/obj/artifact)
+		. = ..()
+		UnregisterSignal(artifact, XSIG_MOVABLE_AREA_CHANGED)
+
+	may_activate(var/obj/artifact)
+		. = ..()
+		var/is_chapel = istype(get_area(artifact), /area/station/chapel)
+		if(is_chapel)
+			playsound(artifact.loc, 'sound/effects/bamf.ogg', 50, 1, pitch = 1.25)
+			var/turf/T = get_turf(artifact)
+			T.visible_message(SPAN_ALERT("<b>[artifact] attempts to activate but fails!</b>"))
+			return FALSE
 
 	generate_name()
 		var/the_horror = src.horror_name()
@@ -584,6 +642,12 @@ var/datum/artifact_controller/artifact_controls
 	var/list/prefixes = list("meta","poly","anti","hyper","hypo","nano","mega","infra","ultra","trans","micro","macro")
 	var/list/particles = list("quark","tachyon","neutron","positron","photon","neutrino","lepton","baryon","atom","molecule")
 	var/list/verber = list("stabilizer","synchroniser","generator","coupler","fuser","linker","materializer")
+
+	New()
+		. = ..()
+		if(ARTIFACT::origin_precursor != null)
+			CRASH("Duplicate artifact origin of type \"Precursor\" created.")
+		ARTIFACT::origin_precursor = src
 
 	post_setup(obj/artifact)
 		. = ..()
@@ -671,6 +735,12 @@ var/datum/artifact_controller/artifact_controls
 	nouns_large = list("heap", "craft", "harp")
 	nouns_small = list("instrument", "bell", "tool")
 	touch_descriptors = list("You feel air rushing around the surface.", "It feels almost like running water.", "You feel vibrations.")
+
+	New()
+		. = ..()
+		if(ARTIFACT::origin_lattice != null)
+			CRASH("Duplicate artifact origin of type \"Lattice\" created.")
+		ARTIFACT::origin_lattice = src
 
 	generate_name()
 		var/namestring = ""

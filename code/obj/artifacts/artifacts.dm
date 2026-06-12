@@ -22,7 +22,7 @@
 			src.ArtifactSetup()
 
 	disposing()
-		artifact_controls.artifacts -= src
+		ARTIFACT::list_artifacts -= src
 		..()
 
 	UpdateName()
@@ -129,7 +129,7 @@
 			src.ArtifactSetup()
 
 	disposing()
-		artifact_controls.artifacts -= src
+		ARTIFACT::list_artifacts -= src
 		..()
 
 	examine()
@@ -234,7 +234,7 @@
 			src.ArtifactSetup()
 
 	disposing()
-		artifact_controls.artifacts -= src
+		ARTIFACT::list_artifacts -= src
 		..()
 
 	examine()

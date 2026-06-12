@@ -54,7 +54,7 @@
 		// start with obscured name
 		src.artifactName = O.real_name
 		// get an instance of the artifact origin
-		for(var/datum/artifact_origin/origin as() in artifact_controls.artifact_origins)
+		for(var/datum/artifact_origin/origin as() in ARTIFACT::list_origins)
 			if(origin.type_name == src.artifactOrigin)
 				// have we already generated a name for that origin?
 				// the actual name with the actual origin should be in the list by default
@@ -119,9 +119,9 @@
 
 	ui_static_data(mob/user)
 		. = list(
-			"allArtifactOrigins" = artifact_controls.artifact_origin_names,
-			"allArtifactTypes" = artifact_controls.artifact_type_names,
-			"allArtifactTriggers" = artifact_controls.artifact_trigger_names
+			"allArtifactOrigins" = ARTIFACT::list_name_origins,
+			"allArtifactTypes" = ARTIFACT::list_name_types,
+			"allArtifactTriggers" = ARTIFACT::list_name_triggers
 		)
 
 	ui_act(action, params)

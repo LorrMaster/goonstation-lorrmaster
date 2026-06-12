@@ -73,5 +73,5 @@
 		O.ArtifactFaultUsed(user)
 		playsound(O.loc, 'sound/effects/warp2.ogg', 50, 1)
 		O.remove_artifact_forms()
-		artifact_controls.artifacts -= src
+		ARTIFACT::list_artifacts -= src
 		qdel(O)

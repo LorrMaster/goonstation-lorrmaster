@@ -43,7 +43,7 @@ TYPEINFO(/obj/item/device/appraisal)
 			if (pap?.artifactType)
 				out_text = "<strong>The following values depend on correct analysis of the artifact<br>Average price for [pap.artifactType] type artifacts</strong><br>"
 				// the unrandomized sell value for an artifact of the type detailed on the form, with perfect analysis
-				sell_value = shippingmarket.calculate_artifact_price(artifact_controls.artifact_types_from_name[pap.artifactType].get_rarity_modifier(), 3)
+				sell_value = shippingmarket.calculate_artifact_price(ARTIFACT::types_from_name[pap.artifactType].get_rarity_modifier(), 3)
 				sell_value = round(sell_value, 5)
 			else if (pap)
 				boutput(user, SPAN_ALERT("Attached Analysis Form&trade; needs to be filled out!"))

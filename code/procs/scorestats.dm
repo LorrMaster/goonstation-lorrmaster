@@ -156,7 +156,7 @@ var/datum/score_tracker/score_tracker
 		final_score_eng = (score_power_outages + score_structural_damage) * 0.5
 
 		// RESEARCH DEPARTMENT SECTION
-		for(var/obj/O in artifact_controls.artifacts)
+		for(var/obj/O in ARTIFACT::list_artifacts)
 			if(O.disposed)
 				continue
 			var/obj/item/sticker/postit/artifact_paper/pap = locate(/obj/item/sticker/postit/artifact_paper/) in O.vis_contents
