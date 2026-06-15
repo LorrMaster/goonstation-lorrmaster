@@ -1483,6 +1483,44 @@ TYPEINFO(/datum/trait/partyanimal)
 		var/datum/trait/job/chaplain/chap_trait = owner.traitHolder?.getTrait("training_chaplain")
 		chap_trait?.faith_mult = 1
 
+/datum/trait/artifact_skill
+	name = "Error Knowledge"
+	desc = "This is an error."
+	id = "artiknow"
+	points = 0
+	unselectable = TRUE
+	var/origin = null
+
+	ancient_tinkering // arcfiend
+		name = "Ancient Tinkering"
+		desc = "."
+		id = "artiskill_ancient_tinker"
+		origin = "ancient"
+	eldritch_tinkering // wraith, vampire
+		name = "Eldritch Tinkering"
+		desc = "You know enough about eldritch creations to unlock their secrets, but not enough to know why you shouldn't."
+		id = "artiskill_eldritch_tinker"
+		origin = "eldritch"
+	eldritch_knowledge // wraith
+		name = "Eldritch Knowledge"
+		desc = "The unfathomable horrors of the unknown are fairly mundane to you."
+		id = "artiskill_eldritch_knowledge"
+		origin = "eldritch"
+	martian_tinkering // changling
+		name = "Martian Tinkering"
+		desc = "."
+		id = "artiskill_martian_tinker"
+		origin = "martian"
+	martian_knowledge // martians
+		name = "Martian Knowledge"
+		desc = "The strange organic constructs of the Martians are ."
+		id = "artiskill_martian_knowledge"
+		origin = "martian"
+	wizard_knowledge // wizards
+		name = "Wizard's Knowledge"
+		desc = "Wizard artifacts of unimaginable power are well within your imagination."
+		id = "artiskill_wizard_knowledge"
+		origin = "wizard"
 
 /datum/trait/lizard
 	name = "Reptilian"

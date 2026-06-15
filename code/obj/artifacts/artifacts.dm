@@ -106,6 +106,22 @@
 		src.ArtifactTakeDamage(rand(5,20))
 		boutput(user, SPAN_ALERT("It seems to be a bit more damaged!"))
 
+	proc/get_artifact_knowledge(var/disguise_fooled, var/know_trigger, var/know_type, var/know_faults)
+		// disguise_fooled: If this artifact is disguised, feed the viewer some fake information
+		if(!know_trigger && !know_type && !know_faults)
+			return null
+		var/result = "The [src] "
+		if(know_type)
+			result += "is a [src.artifact.type_name]. It "
+
+		if(know_trigger)
+			if(src.artifact.automatic_activation)
+				result += "is always active."
+			else
+				for(var/datum/artifact_trigger/trig in src.artifact.triggers)
+		return
+
+
 /obj/machinery/artifact
 	name = "artifact large art piece"
 	icon = 'icons/obj/artifacts/artifacts.dmi'
