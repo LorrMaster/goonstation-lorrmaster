@@ -93,7 +93,7 @@ ABSTRACT_TYPE(/datum/job)
 	var/request_limit = 0 //!Maximum total `limit` via RoleControl request function
 	var/request_cost = null //!Cost to open an additional slot using RoleControl
 	var/player_requested = FALSE //! Flag if currently requested via RoleControl
-
+	var/email_group = null //! Which email workgroup does this role belong to
 
 
 	New()
@@ -135,6 +135,7 @@ ABSTRACT_TYPE(/datum/job)
 
 	proc/special_setup(var/mob/M, no_special_spawn)
 		SHOULD_NOT_SLEEP(TRUE)
+		SHOULD_CALL_PARENT(TRUE)
 		if (!M)
 			return
 		if (src.receives_miranda)
@@ -179,13 +180,18 @@ ABSTRACT_TYPE(/datum/job)
 				boutput(M, "<B>Your OPTIONAL Crew Objectives are as follows:</b>")
 				boutput(M, "<B>Objective #1</B>: [newObjective.explanation_text]")
 
-			if (M.client && src.change_name_on_spawn && !jobban_isbanned(M, "Custom Names"))
-				//if (ishuman(M)) //yyeah this doesn't work with critters fix later
-				var/default = M.real_name + " the " + src.name
-				var/orig_real = M.real_name
-				M.choose_name(3, src.name, default)
-				if(M.real_name != default && M.real_name != orig_real)
-					phrase_log.log_phrase("name-[ckey(src.name)]", M.real_name, no_duplicates=TRUE)
+			if (M.client && src.change_name_on_spawn)
+				if (!jobban_isbanned(M, "Custom Names"))
+					//if (ishuman(M)) //yyeah this doesn't work with critters fix later
+					var/default = M.real_name + " the " + src.name
+					var/orig_real = M.real_name
+					M.choose_name(3, src.name, default)
+					if(M.real_name != default && M.real_name != orig_real)
+						phrase_log.log_phrase("name-[ckey(src.name)]", M.real_name, no_duplicates=TRUE)
+				if (src.radio_announcement)
+					for (var/obj/machinery/computer/announcement/A as anything in machine_registry[MACHINES_ANNOUNCEMENTS])
+						if (!A.status && A.announces_arrivals)
+							A.announce_arrival(M)
 
 	proc/can_be_antag(var/role)
 		if (!src.can_roll_antag)

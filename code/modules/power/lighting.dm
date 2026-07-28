@@ -15,6 +15,7 @@
 #define WORN_LIGHT_BREAKPROB 5
 
 TYPEINFO(/obj/item/light_parts)
+	analyser_flags = parent_type::analyser_flags | ANALYSER_ELECTRONIC
 	mats = 4
 
 /obj/item/light_parts
@@ -725,6 +726,7 @@ DEFINE_DELAYS(/obj/machinery/light/traffic_light/medical_pathology)
 	desc = "A large portable light tripod."
 	density = 1
 	anchored = ANCHORED
+	plane = PLANE_DEFAULT
 	icon_state = "tripod1"
 	base_state = "tripod"
 	fitting = "bulb"
@@ -977,6 +979,8 @@ DEFINE_DELAYS(/obj/machinery/light/traffic_light/medical_pathology)
 		return TRUE
 
 /obj/machinery/light/proc/do_burn_out()
+	if(src.current_lamp.light_status != LIGHT_OK)
+		return
 	var/original_brightness = src.light.brightness
 	playsound(src, 'sound/effects/snaptape.ogg', 30, TRUE)
 	src.light.set_brightness(original_brightness * 3)
@@ -1135,6 +1139,7 @@ DEFINE_DELAYS(/obj/machinery/light/traffic_light/medical_pathology)
 
 	// attempt to break the light
 	else if(current_lamp.light_status != LIGHT_BROKEN)
+		attack_particle(user, src)
 		user.lastattacked = get_weakref(src)
 		if(prob(1+W.force * 5))
 
@@ -1156,6 +1161,7 @@ DEFINE_DELAYS(/obj/machinery/light/traffic_light/medical_pathology)
 
 		else
 			boutput(user, "You hit the light!")
+			playsound(src.loc, 'sound/impact_sounds/Glass_Hit_1.ogg', 100, 1)
 
 /obj/machinery/light/proc/uninstall_fixture()
 	var/obj/item/light_parts/parts = new /obj/item/light_parts(get_turf(src))
@@ -1238,7 +1244,7 @@ DEFINE_DELAYS(/obj/machinery/light/traffic_light/medical_pathology)
 		return
 
 	if(current_lamp.light_status == LIGHT_OK || current_lamp.light_status == LIGHT_BURNED)
-		playsound(src.loc, 'sound/impact_sounds/Glass_Hit_1.ogg', 75, 1)
+		playsound(src.loc, "sound/impact_sounds/Glass_Shatter_[rand(1,3)].ogg", 75, 1)
 
 	if(!nospark)
 		if(on)
@@ -1363,6 +1369,7 @@ DEFINE_DELAYS(/obj/machinery/light/traffic_light/medical_pathology)
 // will fit into empty /obj/machinery/light of the corresponding type
 
 TYPEINFO(/obj/item/light)
+	analyser_flags = parent_type::analyser_flags | ANALYSER_ELECTRONIC
 	mats = 1
 
 /obj/item/light

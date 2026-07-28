@@ -356,7 +356,7 @@
 		animate(pixel_x = (diff_x*32) + target.pixel_x, pixel_y = (diff_y*32)  + target.pixel_y, time = 2, easing = BOUNCE_EASING,  flags = ANIMATION_PARALLEL)
 		sleep(0.5 SECONDS)
 		//animate(M.attack_particle, alpha = 0, time = 2, flags = ANIMATION_PARALLEL)
-		M.attack_particle.alpha = 0
+		M.attack_particle?.alpha = 0
 
 
 
@@ -875,6 +875,19 @@ proc/muzzle_flash_any(var/atom/movable/A, var/firing_angle, var/muzzle_anim, var
 			var/initial_y = A.pixel_y
 			animate(A, pixel_y = initial_y + 4, transform = A.transform.Multiply(matrix(floatdegrees * (side == 1 ? 1:-1), MATRIX_ROTATE)), time = floatspeed, loop = loopnum, easing = SINE_EASING, flags = ANIMATION_PARALLEL)
 			animate(pixel_y = initial_y, transform = M, time = floatspeed, loop = loopnum, easing = SINE_EASING)
+	return
+
+/proc/animate_drift(var/atom/A, var/loopnum = -1, floatspeed = 25)
+	if (!istype(A))
+		return
+
+	SPAWN(rand(1,10))
+		if (A)
+			var/matrix/M = matrix(A.transform)
+			var/initial_y = A.pixel_y
+			animate(A, pixel_y = initial_y + 4, time = floatspeed, loop = loopnum, easing = SINE_EASING, flags = ANIMATION_PARALLEL, tag="grav_drift")
+			animate(pixel_y = initial_y, transform = M, time = floatspeed, loop = loopnum, easing = QUAD_EASING)
+			A.temp_flags |= DRIFT_ANIMATION // make sure we will be cleared, needed due to SPAWN
 	return
 
 /proc/animate_lag(atom/A, steps=15, loopnum=-1, magnitude=10, step_time_low=0.2 SECONDS, step_time_high = 0.25 SECONDS)
@@ -1988,3 +2001,9 @@ proc/animate_orbit(atom/orbiter, center_x = 0, center_y = 0, radius = 32, time=8
 	animate(spark, alpha = 255, time = 2 DECI SECONDS)
 	SPAWN(0.6 SECONDS)
 		qdel(spark)
+
+/proc/animate_squish_flat(atom/A)
+	var/matrix/squish_matrix = matrix(A.transform)
+	squish_matrix.Scale(1,0.2)
+	squish_matrix.Translate(0, -14)
+	animate(A, transform = squish_matrix, time = 10, easing = CIRCULAR_EASING, flags=ANIMATION_PARALLEL)

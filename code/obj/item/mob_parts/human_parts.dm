@@ -14,7 +14,6 @@
 	skintoned = TRUE
 	hitsound = 'sound/impact_sounds/meat_smack.ogg'
 	var/original_DNA = null
-	var/original_fprints = null
 	var/show_on_examine = FALSE
 	var/mimic_edible = TRUE
 
@@ -166,17 +165,15 @@
 		return 1
 
 	remove(var/show_message = 1)
-		if ((isnull(src.original_DNA) || isnull(src.original_fprints)) && ismob(src.original_holder))
+		if ((isnull(src.original_DNA)) && ismob(src.original_holder))
 			if (src.original_holder && src.original_holder.bioHolder) //ZeWaka: Fix for null.bioHolder
 				src.original_DNA = src.original_holder.bioHolder.Uid
-				src.original_fprints = src.original_holder.bioHolder.fingerprints
 		return ..()
 
 	sever(mob/user)
-		if ((isnull(src.original_DNA) || isnull(src.original_fprints)) && ismob(src.original_holder))
+		if ((isnull(src.original_DNA)) && ismob(src.original_holder))
 			if (src.original_holder && src.original_holder.bioHolder) //ZeWaka: Fix for null.bioHolder
 				src.original_DNA = src.original_holder.bioHolder.Uid
-				src.original_fprints = src.original_holder.bioHolder.fingerprints
 		return ..()
 
 	attach(mob/living/carbon/human/attachee, mob/attacher, both_legs)
@@ -187,7 +184,6 @@
 					src.original_holder = attachee // Now it does
 					if (src.original_holder?.bioHolder)
 						src.original_DNA = src.original_holder.bioHolder.Uid
-						src.original_fprints = src.original_holder.bioHolder.fingerprints
 					return
 				if(src.original_DNA != attachee.bioHolder.Uid) // Limb isnt ours
 					src.limb_is_transplanted = TRUE
@@ -368,12 +364,10 @@
 			I.set_loc(holder.loc)
 		. = ..()
 
-	on_forensic_scan(datum/forensic_scan/scan)
-		. = ..()
-		if(src.original_fprints)
-			scan.add_text("Arm's fingerprints: [src.original_fprints]")
-
-
+	get_limb_print()
+		if(holder?.bioHolder?.default_fingerprints)
+			return holder.bioHolder.default_fingerprints.id
+		return build_id_fingerprint(FORENSIC_CHARS_FINGERPRINTS)
 
 /obj/item/parts/human_parts/arm/left
 	name = "left arm"
@@ -646,6 +640,9 @@
 		if (src.remove_object)
 			return "has [bicon(src.remove_object)] \an [src.remove_object] attached as a"
 
+	get_limb_print()
+		return null
+
 /obj/item/parts/human_parts/arm/right/item
 	name = "right item arm"
 	decomp_affected = FALSE
@@ -771,6 +768,9 @@
 	on_holder_examine()
 		if (src.remove_object)
 			return "has [bicon(src.remove_object)] \an [src.remove_object] attached as a"
+
+	get_limb_print()
+		return null
 
 /obj/item/parts/human_parts/arm/left/brullbar
 	name = "left brullbar arm"
@@ -1050,7 +1050,8 @@
 		var/obj/item/parts/human_parts/arm/left/claw/newlimb = new(src.loc)
 		newlimb.original_DNA = src.original_DNA
 		newlimb.original_holder = src.original_holder
-		newlimb.original_fprints = src.original_fprints
+		newlimb.forensic_holder = src.forensic_holder
+		newlimb.limb_print = src.limb_print
 		qdel(src)
 
 	remove(show_message)
@@ -1059,7 +1060,8 @@
 		var/obj/item/parts/human_parts/arm/left/claw/newlimb = new(src.loc)
 		newlimb.original_DNA = src.original_DNA
 		newlimb.original_holder = src.original_holder
-		newlimb.original_fprints = src.original_fprints
+		newlimb.forensic_holder = src.forensic_holder
+		newlimb.limb_print = src.limb_print
 		qdel(src)
 
 /obj/item/parts/human_parts/arm/right/abomination
@@ -1088,7 +1090,8 @@
 		var/obj/item/parts/human_parts/arm/right/claw/newlimb = new(src.loc)
 		newlimb.original_DNA = src.original_DNA
 		newlimb.original_holder = src.original_holder
-		newlimb.original_fprints = src.original_fprints
+		newlimb.forensic_holder = src.forensic_holder
+		newlimb.limb_print = src.limb_print
 		qdel(src)
 
 	remove(show_message)
@@ -1097,7 +1100,8 @@
 		var/obj/item/parts/human_parts/arm/right/claw/newlimb = new(src.loc)
 		newlimb.original_DNA = src.original_DNA
 		newlimb.original_holder = src.original_holder
-		newlimb.original_fprints = src.original_fprints
+		newlimb.forensic_holder = src.forensic_holder
+		newlimb.limb_print = src.limb_print
 		qdel(src)
 
 /obj/item/parts/human_parts/arm/left/zombie
@@ -1451,46 +1455,46 @@
 	partlistPart = "foot_right"
 	step_image_state = "footprintsR"
 
-//// AMPHIBIAN LIMBS ////
+//// ABZUNIAN LIMBS ////
 //////  PARENT  //////
 
-/obj/item/parts/human_parts/arm/mutant/amphibian
-	icon = 'icons/mob/amphibian.dmi'
-	partIcon = 'icons/mob/amphibian.dmi'
+/obj/item/parts/human_parts/arm/mutant/abzunian
+	icon = 'icons/mob/abzunian.dmi'
+	partIcon = 'icons/mob/abzunian.dmi'
 
-/obj/item/parts/human_parts/leg/mutant/amphibian
-	icon = 'icons/mob/amphibian.dmi'
-	partIcon = 'icons/mob/amphibian.dmi'
+/obj/item/parts/human_parts/leg/mutant/abzunian
+	icon = 'icons/mob/abzunian.dmi'
+	partIcon = 'icons/mob/abzunian.dmi'
 
-////// ACTUAL AMPHIBIAN LIMBS //////
-/obj/item/parts/human_parts/arm/mutant/amphibian/left
-	name = "left amphibian arm"
-	desc = "A amphibian's left arm. Croak."
+////// ACTUAL ABZUNIAN LIMBS //////
+/obj/item/parts/human_parts/arm/mutant/abzunian/left
+	name = "left abzunian arm"
+	desc = "An Abzunian's left arm. Croak."
 	icon_state = "arm_left"
 	slot = "l_arm"
 	side = "left"
 	handlistPart = "hand_left"
 
-/obj/item/parts/human_parts/arm/mutant/amphibian/right
-	name = "right amphibian arm"
-	desc = "A amphibian's right arm. Froak."
+/obj/item/parts/human_parts/arm/mutant/abzunian/right
+	name = "right abzunian arm"
+	desc = "An Abzunian's right arm. Froak."
 	icon_state = "arm_right"
 	slot = "r_arm"
 	side = "right"
 	handlistPart = "hand_right"
 
-/obj/item/parts/human_parts/leg/mutant/amphibian/left
-	name = "left amphibian leg"
-	desc = "A amphibian's left leg. Croak."
+/obj/item/parts/human_parts/leg/mutant/abzunian/left
+	name = "left abzunian leg"
+	desc = "An Abzunian's left leg. Croak."
 	icon_state = "leg_left"
 	slot = "l_leg"
 	side = "left"
 	partlistPart = "foot_left"
 	step_image_state = "footprintsL"
 
-/obj/item/parts/human_parts/leg/mutant/amphibian/right
-	name = "right amphibian leg"
-	desc = "A amphibian's right leg. Froak"
+/obj/item/parts/human_parts/leg/mutant/abzunian/right
+	name = "right abzunian leg"
+	desc = "An Abzunian's right leg. Froak"
 	icon_state = "leg_right"
 	slot = "r_leg"
 	side = "right"
@@ -1537,6 +1541,52 @@
 /obj/item/parts/human_parts/leg/mutant/shelterfrog/right
 	name = "right shelterfrog leg"
 	desc = "A shelterfrog's right leg. FroOoak"
+	icon_state = "leg_right"
+	slot = "r_leg"
+	side = "right"
+	partlistPart = "foot_right"
+	step_image_state = "footprintsR"
+
+//// AMPHIBIAN LIMBS ////
+//////  PARENT  //////
+
+/obj/item/parts/human_parts/arm/mutant/amphibian
+	icon = 'icons/mob/amphibian/frog.dmi'
+	partIcon = 'icons/mob/amphibian/frog.dmi'
+
+/obj/item/parts/human_parts/leg/mutant/amphibian
+	icon = 'icons/mob/amphibian/frog.dmi'
+	partIcon = 'icons/mob/amphibian/frog.dmi'
+
+////// ACTUAL AMPHIBIAN LIMBS //////
+/obj/item/parts/human_parts/arm/mutant/amphibian/left
+	name = "left frog arm"
+	desc = "A frog's left arm. Ribbit."
+	icon_state = "arm_left"
+	slot = "l_arm"
+	side = "left"
+	handlistPart = "hand_left"
+
+/obj/item/parts/human_parts/arm/mutant/amphibian/right
+	name = "right frog arm"
+	desc = "A frog's right arm. Fribbit."
+	icon_state = "arm_right"
+	slot = "r_arm"
+	side = "right"
+	handlistPart = "hand_right"
+
+/obj/item/parts/human_parts/leg/mutant/amphibian/left
+	name = "left frog leg"
+	desc = "A frog's left leg. Ribbit."
+	icon_state = "leg_left"
+	slot = "l_leg"
+	side = "left"
+	partlistPart = "foot_left"
+	step_image_state = "footprintsL"
+
+/obj/item/parts/human_parts/leg/mutant/amphibian/right
+	name = "right frog leg"
+	desc = "A frog's right leg. Fribbit"
 	icon_state = "leg_right"
 	slot = "r_leg"
 	side = "right"

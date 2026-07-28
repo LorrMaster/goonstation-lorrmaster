@@ -253,6 +253,11 @@
 			target.visible_message(SPAN_COMBAT("<b>[src] tries to grab [target], [target.grabresistmessage]</B>"))
 		return
 
+	var/obj/item/target_weapon = target.equipped()
+	if (target_weapon?.chokehold?.affecting == src)
+		target.visible_message(SPAN_COMBAT(SPAN_BOLD("[src] scrabbles at [target]!")))
+		return
+
 	if (istype(H))
 		if(H.traitHolder && !H.traitHolder.hasTrait("glasscannon"))
 			H.process_stamina(STAMINA_GRAB_COST)
@@ -954,10 +959,21 @@
 					target.changeStatus("knockdown", 2 SECONDS)
 					target.force_laydown_standup()
 					disarm_log += " shoving them down"
+					target.inertia_dir = get_dir(owner, target)
+					target.inertia_value = 1
+					target.update_traction(get_turf(target))
+					owner.inertia_dir = get_dir(target, owner)
+					owner.inertia_value = 1
+					owner.update_traction(get_turf(owner))
 				if ("shoved" in src.disarm_RNG_result)
+					target.inertia_value = 1
 					step_away(target, owner, 1)
 					target.OnMove(owner)
+					target.update_traction(get_turf(target))
 					disarm_log += " shoving them away"
+					owner.inertia_dir = get_dir(target, owner)
+					owner.inertia_value = 1
+					owner.update_traction(get_turf(owner))
 			else
 				target.deliver_move_trigger("bump")
 			logTheThing(LOG_COMBAT, owner, "disarms [constructTarget(target,"combat")][jointext(disarm_log, ", ")] at [log_loc(owner)].")
@@ -1131,7 +1147,11 @@
 	SHOULD_CALL_PARENT(TRUE)
 	. = 0
 	//drunkards get a 2/5 chance of bonus damage
-	if (src.reagents && (src.reagents.get_reagent_amount("ethanol") >= 100) && prob(40))
+	var/alc_amt = src.reagents.get_reagent_amount("ethanol")
+	//no permanent boost for the alc immune
+	if (!isalcoholresistant(src))
+		alc_amt += GET_ATOM_PROPERTY(src, PROP_MOB_ALCOHOL_RESIST)
+	if (src.reagents && (alc_amt >= 100) && prob(40))
 		. += rand(3,5)
 		msgs.show_message_self(SPAN_ALERT("You drunkenly throw a brutal punch!"))
 	//wrestlers have a 2/3 chance of a big hit
@@ -1194,7 +1214,11 @@
 	return null
 
 /mob/living/check_attack_resistance(var/obj/item/I, var/mob/attacker)
-	if (reagents?.get_reagent_amount("ethanol") >= 100 && prob(40) && !I)
+	var/alc_amt = src.reagents.get_reagent_amount("ethanol")
+	//no permanent boost for the alc immune
+	if (!isalcoholresistant(src))
+		alc_amt += GET_ATOM_PROPERTY(src, PROP_MOB_ALCOHOL_RESIST)
+	if (alc_amt >= 100 && prob(40) && !I)
 		return SPAN_ALERT("You drunkenly shrug off the blow!")
 	return null
 

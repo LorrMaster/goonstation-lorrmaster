@@ -964,10 +964,6 @@ TYPEINFO(/obj/machinery/bot/secbot)
 		if(istype(perp.mutantrace, /datum/mutantrace/abomination))
 			threatcount += 5
 
-		if(perp.traitHolder.hasTrait("stowaway") && perp.traitHolder.hasTrait("jailbird"))
-			if(isnull(data_core.security.find_record("name", perp.name)))
-				threatcount += 5
-
 		// we have grounds to make an arrest, don't bother with further analysis
 		if(threatcount >= 4)
 			return threatcount
@@ -976,7 +972,7 @@ TYPEINFO(/obj/machinery/bot/secbot)
 			var/perpname = perp.face_visible() ? perp.real_name : perp.name
 
 			for (var/datum/db_record/R as anything in data_core.security.find_records("name", perpname))
-				if(R["criminal"] == ARREST_STATE_ARREST)
+				if(R["criminal"] == SECURITY::ARREST::STATE::ARREST)
 					threatcount = 7
 					break
 

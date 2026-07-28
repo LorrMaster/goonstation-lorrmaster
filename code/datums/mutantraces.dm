@@ -234,6 +234,8 @@ ABSTRACT_TYPE(/datum/mutantrace)
 	var/self_click_fluff //used when clicking self on help intent
 
 	/// Abilityholder associated with this mutantrace, will be automatically given to mobs on spawn
+	///
+	/// This **MUST** be a subtype of `/datum/abilityHolder/mutantrace` or changing mutantraces will erase other abilities!!!
 	var/mutant_abilityholder = null
 	/// List of abilities associated with this mutantrace, requires mutant_abilityholder to be set
 	var/list/mutant_abilities = list()
@@ -359,6 +361,7 @@ ABSTRACT_TYPE(/datum/mutantrace)
 		if (src.mob)
 			src.mob.set_face_icon_dirty()
 			src.mob.set_body_icon_dirty()
+			src.mob.update_burning_icon()
 
 			if (movement_modifier)
 				REMOVE_MOVEMENT_MODIFIER(src.mob, movement_modifier, src.type)
@@ -794,7 +797,7 @@ TYPEINFO(/datum/mutantrace/virtual)
 	l_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/virtual/left
 	mutant_appearance_flags = (NOT_DIMORPHIC | HAS_NO_SKINTONE | HAS_HUMAN_HAIR | HAS_HUMAN_EYES | BUILT_FROM_PIECES)
 
-	mutant_abilityholder = /datum/abilityHolder/virtual
+	mutant_abilityholder = /datum/abilityHolder/mutantrace/virtual
 	mutant_abilities = list(/datum/targetable/virtual/logout)
 
 	on_attach(var/mob/living/carbon/human/H)
@@ -873,7 +876,7 @@ TYPEINFO_NEW(/datum/mutantrace/lizard)
 
 	ghost_icon_state = "ghost-lizard"
 
-	mutant_abilityholder = /datum/abilityHolder/lizard
+	mutant_abilityholder = /datum/abilityHolder/mutantrace/lizard
 	mutant_abilities = list(
 		/datum/targetable/lizardAbility/colorshift,
 		/datum/targetable/lizardAbility/colorchange,
@@ -883,7 +886,7 @@ TYPEINFO_NEW(/datum/mutantrace/lizard)
 	on_attach(var/mob/living/carbon/human/H)
 		..()
 		if(ishuman(H))
-			H.AddComponent(/datum/component/consume/organpoints, /datum/abilityHolder/lizard)
+			H.AddComponent(/datum/component/consume/organpoints, /datum/abilityHolder/mutantrace/lizard)
 			H.AddComponent(/datum/component/consume/can_eat_inedible_organs)
 			H.mob_flags |= SHOULD_HAVE_A_TAIL
 
@@ -970,8 +973,10 @@ TYPEINFO_NEW(/datum/mutantrace/lizard)
 
 			SPAWN(rand(4, 30))
 				M.emote("scream")
-			M.mind.add_antagonist(ROLE_ZOMBIE, "Yes", "Yes", ANTAGONIST_SOURCE_MUTANT, FALSE)
-			M.show_antag_popup(ROLE_ZOMBIE)
+			SPAWN(0) // Wait for antag role to be added to their list during setup
+				if(!M.mind.get_antagonist(ROLE_ZOMBIE)) //Mutantrace adds antag role, antag role adds mutantrace, avoid cyclical application from both.
+					M.mind.add_antagonist(ROLE_ZOMBIE, TRUE, TRUE, ANTAGONIST_SOURCE_MUTANT, FALSE)
+					M.show_antag_popup(ROLE_ZOMBIE)
 
 	proc/make_bubs(var/mob/living/carbon/human/M)
 		M.bioHolder.AddEffect("strong", do_stability = FALSE, scannable = FALSE, innate = TRUE)
@@ -1003,6 +1008,8 @@ TYPEINFO_NEW(/datum/mutantrace/lizard)
 			src.mob.can_bleed = TRUE
 			src.mob.remove_stam_mod_max("zombie")
 			REMOVE_ATOM_PROPERTY(src.mob, PROP_MOB_STAMINA_REGEN_BONUS, "zombie")
+			if(findtext(src.mob.real_name, "Zombie") && src.mob.bioHolder?.ownerName)
+				src.mob.real_name = src.mob.bioHolder.ownerName
 		..()
 
 	proc/add_ability(var/mob/living/carbon/human/H)
@@ -1658,7 +1665,7 @@ TYPEINFO_NEW(/datum/mutantrace/monkey)
 			if ("scream")
 				if (src.mob.emote_check(voluntary, 5 SECONDS))
 					. = "<B>[src.mob]</B> screams!"
-					playsound(src.mob, src.sound_monkeyscream, 80, 0, 0, src.mob.get_age_pitch(), channel=VOLUME_CHANNEL_EMOTE)
+					playsound(src.mob, src.sound_monkeyscream, 80, 0, 0, src.mob.get_age_pitch(), channel=VOLUME_CHANNEL_FARTS)
 			if ("fart")
 				if(farting_allowed && (!src.mob.reagents || !src.mob.reagents.has_reagent("anti_fart")))
 					if (!src.mob.emote_check(voluntary, 1 SECOND))
@@ -1699,7 +1706,7 @@ TYPEINFO_NEW(/datum/mutantrace/monkey)
 							if(25) . = "<B>[src.mob]</B> makes a big goofy grin and farts loudly."
 							if(26) . = "<B>[src.mob]</B> hovers off the ground for a moment using a powerful fart."
 							if(27) . = "<B>[src.mob]</B> plays drums on its ass while farting."
-					playsound(src.mob.loc, 'sound/voice/farts/poo2.ogg', 80, 0, 0, src.mob.get_age_pitch(), channel=VOLUME_CHANNEL_EMOTE)
+					playsound(src.mob.loc, 'sound/voice/farts/poo2.ogg', 80, 0, 0, src.mob.get_age_pitch(), channel=VOLUME_CHANNEL_FARTS)
 
 					src.mob.remove_stamina(STAMINA_DEFAULT_FART_COST)
 					src.mob.stamina_stun()
@@ -1807,7 +1814,7 @@ TYPEINFO(/datum/mutantrace/premature_clone)
 				src.mob.changeStatus("knockdown", 15 SECONDS)
 				src.mob.make_jittery(1000)
 				sleep(rand(40, 120))
-				src.mob.gib()
+				src.mob?.gib()
 
 	disposing()
 		REMOVE_ATOM_PROPERTY(src.mob, PROP_HUMAN_DROP_BRAIN_ON_GIB, "puritan")
@@ -1931,36 +1938,153 @@ TYPEINFO(/datum/mutantrace/cat/bingus)
 	dna_mutagen_banned = FALSE
 	genetics_removable = FALSE
 	aquaphobic = TRUE
-	mutant_appearance_flags = (NOT_DIMORPHIC | HAS_NO_SKINTONE | HAS_NO_EYES | HAS_NO_HEAD | USES_STATIC_ICON)
+	mutant_appearance_flags = (NOT_DIMORPHIC | HAS_NO_EYES | HEAD_HAS_OWN_COLORS | BUILT_FROM_PIECES | WEARS_UNDERPANTS)
 	r_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/cat/bingus/right
 	l_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/cat/bingus/left
 	r_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/cat/bingus/right
 	l_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/cat/bingus/left
 
-
-/obj/effect/rt/frog_distorts
-	icon = 'icons/mob/shelterfrog.dmi'
-/obj/effect/rt/frog_distorts/uniform // frogs are wide
+/obj/effect/rt/abzunian_distorts
+	icon = 'icons/mob/abzunian.dmi'
+/obj/effect/rt/abzunian_distorts/uniform // frogs are wide
 	icon_state = "suit_distort"
-/obj/effect/rt/frog_distorts/shoes // frogs have long feet
+/obj/effect/rt/abzunian_distorts/shoes // frogs have long feet
 	icon_state = "shoes_distort"
 
-TYPEINFO(/datum/mutantrace/amphibian)
-	icon = 'icons/mob/amphibian.dmi'
-/datum/mutantrace/amphibian
-	name = "amphibian"
+/obj/effect/rt/frog_distorts
+	icon = 'icons/mob/amphibian/frog.dmi'
+/obj/effect/rt/frog_distorts/uniform
+	icon_state = "suit_distort"
+/obj/effect/rt/frog_distorts/headset
+	icon_state = "headset_distort"
+/obj/effect/rt/frog_distorts/backpack
+	icon_state = "backpack_distort"
+/obj/effect/rt/frog_distorts/shoes
+	icon_state = "shoes_distort"
+
+TYPEINFO(/datum/mutantrace/frog) /// abstract parent for traits shared across amphibians, abzunians, and shelterfrogs
+	icon = 'icons/mob/abzunian.dmi'
+/datum/mutantrace/frog
+	name = "frog"
 	icon_state = "body_m"
 	firevuln = 1.3
 	brutevuln = 0.7
+	toxvuln = 2
 	human_compatible = 0
 	uses_human_clothes = 1
 	aquatic = 1
 	voice_name = "amphibian"
+	voice_override = "amphibian"
 	jerk = FALSE
 	mutantrace_speech_modifier = SPEECH_MODIFIER_MUTANTRACE_AMPHIBIAN
 	movement_modifier = /datum/movement_modifier/amphibian
 	var/original_blood_color = null
-	mutant_folder = 'icons/mob/amphibian.dmi'
+	var/datum/fluid_group/last_fluid_group = null // why the fuck did i put this here anyhow
+	mutant_folder = 'icons/mob/abzunian.dmi'
+	special_head = HEAD_FROG
+	r_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/abzunian/right
+	l_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/abzunian/left
+	r_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/abzunian/right
+	l_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/abzunian/left
+	mutant_appearance_flags = (NOT_DIMORPHIC | HAS_NO_SKINTONE | HAS_NO_EYES | BUILT_FROM_PIECES | HEAD_HAS_OWN_COLORS)
+	blood_color = "#22EE99"
+
+	ghost_icon_state = "ghost-abzunian"
+
+	say_verb()
+		return "croaks"
+
+	on_attach(var/mob/living/carbon/human/M)
+		..()
+		if(ishuman(src.mob))
+			M.bioHolder.AddEffect("accent_frog", do_stability = FALSE, scannable = FALSE, innate = TRUE)
+		if(mob.sims?.getValue("Thirst"))
+			return
+		else
+			mob.sims = new /datum/simsHolder(mob)
+			mob.sims.addMotive(/datum/simsMotive/hunger/thirst) // allows dehydration for amphibians on classic
+			mob.sims.add_hud()
+
+	disposing()
+		if(ishuman(src.mob))
+			src.mob.bioHolder.RemoveEffect("accent_frog")
+		#ifndef RP_MODE
+			mob.sims.removeMotive("Thirst")
+		#endif
+		..()
+
+	emote(act, voluntary)
+		var/message = null
+
+		switch (act)
+			if ("scream","howl")
+				if (src.mob.emote_check(voluntary, 3 SECONDS))
+					message = SPAN_ALERT("<B>[src.mob] makes an awful noise!</B>")
+					playsound(src.mob, pick('sound/voice/screams/frogscream1.ogg','sound/voice/screams/frogscream3.ogg','sound/voice/screams/frogscream4.ogg'), 60, 1, channel=VOLUME_CHANNEL_EMOTE)
+					return message
+
+			if("burp","fart")
+				if (src.mob.emote_check(voluntary, 1 SECOND))
+					message = "<B>[src.mob]</B> croaks."
+					playsound(src.mob, 'sound/voice/farts/frogfart.ogg', 60, 1, channel=VOLUME_CHANNEL_FARTS)
+					return message
+			else
+				..()
+
+	onLife(var/mult = 1)
+		src.dermal_absorbtion(5)
+		if (isdead(src.mob))
+			return
+		if(src.mob.sims.getValue("Thirst") < 25.0) // dehydration effect
+			if (prob(10))
+				src.mob.visible_message(SPAN_EMOTE(pick("[mob] wrinkles up conspicuously.", "[mob] quietly wheezes.", "[mob]'s third eyelids stick to [his_or_her(src.mob)] eyes for a moment.")))
+		if(src.mob.sims.getValue("Thirst") < 1.0)
+			if (prob(50))
+				src.mob.take_oxygen_deprivation(15)
+			if (prob(10))
+				src.mob.visible_message(SPAN_ALERT(pick("[mob] struggles to breathe!", "[mob] gasps for air!")))
+			if (prob(20))
+				src.mob.emote(pick("choke","gasp"))
+
+	proc/dermal_absorbtion(var/absorbtion_rate) // it's actually spelled "absorption" but every other absorption proc is misspelled too
+		if(!src.mob)
+			return
+		var/turf/T = get_turf(src.mob)
+		if(!T.active_liquid?.group?.reagents)
+			src.last_fluid_group = null
+			return
+		if(!ishuman(src.mob))
+			return
+
+				// Less likely to absorb based on chem protection
+		var/chem_prot = clamp(GET_ATOM_PROPERTY(src.mob, PROP_MOB_CHEMPROT), 0, 40)
+		if(chem_prot >= 55)
+			return
+		var/absorb_prob = (30 - (chem_prot / 2))
+		if(!prob(absorb_prob))
+			return
+		absorb_reagents(T.active_liquid.group, absorbtion_rate)
+
+	proc/absorb_reagents(var/datum/fluid_group/fluids, var/absorbtion_rate)
+		var/datum/reagents/R = fluids.reagents
+		if(!R.total_volume)
+			return
+		R.reaction(src.mob, TOUCH, clamp(R.total_volume, CHEM_EPSILON, min(absorbtion_rate, (src.mob.reagents?.maximum_volume - src.mob.reagents?.total_volume))))
+		R.trans_to(src.mob, min(R.total_volume, absorbtion_rate))
+		playsound(src.mob.loc,'sound/items/drink.ogg', rand(10,20), 1)
+		eat_twitch(src.mob)
+		if(fluids != src.last_fluid_group)
+			src.mob.visible_message(SPAN_NOTICE("[src.mob]'s skin begins to absorb the surrounding fluid."),"[SPAN_NOTICE("Your skin begins to absorb the surrounding fluid.")]", group = "[src.mob]_drink_messages")
+			src.last_fluid_group = fluids
+
+TYPEINFO(/datum/mutantrace/frog/abzunian)
+	icon = 'icons/mob/abzunian.dmi'
+/datum/mutantrace/frog/abzunian
+	name = "Abzunian"
+	icon_state = "body_m"
+	human_compatible = 1
+	jerk = FALSE
+	mutant_folder = 'icons/mob/abzunian.dmi'
 	mutant_organs = list(\
 		"left_eye"=/obj/item/organ/eye/beady,\
 		"right_eye"=/obj/item/organ/eye/beady,\
@@ -1977,21 +2101,18 @@ TYPEINFO(/datum/mutantrace/amphibian)
 		"spleen"=/obj/item/organ/spleen/amphibian,\
 		"stomach"=/obj/item/organ/stomach/amphibian)
 	special_head = HEAD_FROG
-	r_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/amphibian/right
-	l_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/amphibian/left
-	r_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/amphibian/right
-	l_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/amphibian/left
+	r_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/abzunian/right
+	l_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/abzunian/left
+	r_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/abzunian/right
+	l_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/abzunian/left
 	mutant_appearance_flags = (NOT_DIMORPHIC | HAS_NO_SKINTONE | HAS_NO_EYES | BUILT_FROM_PIECES | HEAD_HAS_OWN_COLORS)
 	blood_color = "#22EE99"
 
-	ghost_icon_state = "ghost-amphibian"
+	ghost_icon_state = "ghost-abzunian"
 
 	var/clothes_filters_active = TRUE // see cow for explanation
-	var/obj/effect/rt/frog_distorts/uniform/distort_uniform = new
-	var/obj/effect/rt/frog_distorts/shoes/distort_shoes = new
-
-	say_verb()
-		return "croaks"
+	var/obj/effect/rt/abzunian_distorts/uniform/distort_uniform = new
+	var/obj/effect/rt/abzunian_distorts/shoes/distort_shoes = new
 
 	on_attach(var/mob/living/carbon/human/M)
 		..()
@@ -1999,7 +2120,6 @@ TYPEINFO(/datum/mutantrace/amphibian)
 			M.bioHolder.AddEffect("mattereater", do_stability = FALSE, scannable = FALSE, innate = TRUE)
 			M.bioHolder.AddEffect("jumpy", do_stability = FALSE, scannable = FALSE, innate = TRUE)
 			M.bioHolder.AddEffect("vowelitis", do_stability = FALSE, scannable = FALSE, innate = TRUE)
-			M.bioHolder.AddEffect("accent_frog", do_stability = FALSE, scannable = FALSE, innate = TRUE)
 			src.mob.vis_contents += list(src.distort_uniform,src.distort_shoes)
 
 	disposing()
@@ -2007,34 +2127,8 @@ TYPEINFO(/datum/mutantrace/amphibian)
 			src.mob.bioHolder.RemoveEffect("mattereater")
 			src.mob.bioHolder.RemoveEffect("jumpy")
 			src.mob.bioHolder.RemoveEffect("vowelitis")
-			src.mob.bioHolder.RemoveEffect("accent_frog")
 			src.mob.vis_contents -= list(src.distort_uniform,src.distort_shoes)
 		..()
-
-	emote(act, voluntary)
-		var/message = null
-
-		switch (act)
-			if ("scream","howl","laugh")
-				if (src.mob.emote_check(voluntary, 3 SECONDS))
-					message = SPAN_ALERT("<B>[src.mob] makes an awful noise!</B>")
-					playsound(src.mob, pick('sound/voice/screams/frogscream1.ogg','sound/voice/screams/frogscream3.ogg','sound/voice/screams/frogscream4.ogg'), 60, 1, channel=VOLUME_CHANNEL_EMOTE)
-					return message
-
-			if("burp","fart","gasp")
-				if (src.mob.emote_check(voluntary, 1 SECOND))
-					message = "<B>[src.mob]</B> croaks."
-					playsound(src.mob, 'sound/voice/farts/frogfart.ogg', 60, 1, channel=VOLUME_CHANNEL_EMOTE)
-					return message
-
-			if ("clothes")
-				src.clothes_filters_active = !src.clothes_filters_active
-				boutput(src.mob, src.clothes_filters_active ? "Amphibian-specific clothes filters activated." : "Disabled amphibian-specific clothes filters.")
-				src.mob.update_clothing()
-				message = "<B>[src.mob]</B> adjusts [his_or_her(src.mob)] clothing."
-				return message
-			else
-				..()
 
 	apply_clothing_filters(var/obj/item/worn)
 		. = ..()
@@ -2049,9 +2143,9 @@ TYPEINFO(/datum/mutantrace/amphibian)
 			output += filter(type="displace", render_source = src.distort_shoes.render_target, size = 127)
 		return output
 
-TYPEINFO(/datum/mutantrace/amphibian/shelter)
+TYPEINFO(/datum/mutantrace/frog/shelter)
 	icon = 'icons/mob/shelterfrog.dmi'
-/datum/mutantrace/amphibian/shelter
+/datum/mutantrace/frog/shelter
 	name = "Shelter Amphibian"
 	icon_state = "body_m"
 	human_compatible = 1
@@ -2082,6 +2176,118 @@ TYPEINFO(/datum/mutantrace/amphibian/shelter)
 	blood_color = "#91b978"
 
 	ghost_icon_state = "ghost-shelterfrog"
+
+	var/clothes_filters_active = TRUE // see cow for explanation
+	var/obj/effect/rt/abzunian_distorts/uniform/distort_uniform = new
+	var/obj/effect/rt/abzunian_distorts/shoes/distort_shoes = new
+
+	on_attach(var/mob/living/carbon/human/M)
+		..()
+		if(ishuman(src.mob))
+			M.bioHolder.AddEffect("mattereater", do_stability = FALSE, scannable = FALSE, innate = TRUE)
+			M.bioHolder.AddEffect("jumpy", do_stability = FALSE, scannable = FALSE, innate = TRUE)
+			M.bioHolder.AddEffect("vowelitis", do_stability = FALSE, scannable = FALSE, innate = TRUE)
+			src.mob.vis_contents += list(src.distort_uniform,src.distort_shoes)
+
+	disposing()
+		if(ishuman(src.mob))
+			src.mob.bioHolder.RemoveEffect("mattereater")
+			src.mob.bioHolder.RemoveEffect("jumpy")
+			src.mob.bioHolder.RemoveEffect("vowelitis")
+			src.mob.vis_contents -= list(src.distort_uniform,src.distort_shoes)
+		..()
+
+	apply_clothing_filters(var/obj/item/worn)
+		. = ..()
+		if (!src.clothes_filters_active) return
+		var/list/output = list()
+
+		if (istype(worn, /obj/item/clothing/suit))
+			output += filter(type="displace", render_source = src.distort_uniform.render_target, size = 127)
+		else if (istype(worn, /obj/item/clothing/under))
+			output += filter(type="displace", render_source = src.distort_uniform.render_target, size = 127)
+		else if (istype(worn, /obj/item/clothing/shoes))
+			output += filter(type="displace", render_source = src.distort_shoes.render_target, size = 127)
+		return output
+
+TYPEINFO(/datum/mutantrace/frog/amphibian) // trait mutantrace
+	icon = 'icons/mob/amphibian/frog.dmi'
+	special_styles = list("standard" = 'icons/mob/amphibian/frog.dmi',
+	"golden" = 'icons/mob/amphibian/golden.dmi',
+	"lichen" = 'icons/mob/amphibian/lichen.dmi',
+	"russet" = 'icons/mob/amphibian/russet.dmi',
+	"gills" = 'icons/mob/amphibian/gills.dmi')
+/datum/mutantrace/frog/amphibian
+	name = "Amphibian"
+	icon_state = "body_m"
+	jerk = FALSE
+	eye_state = "eyes_amphibian"
+	race_mutation = /datum/bioEffect/mutantrace/frog
+	mutant_folder = 'icons/mob/amphibian/frog.dmi'
+	mutant_organs = list(\
+		"left_eye"=/obj/item/organ/eye/amphibian,\
+		"right_eye"=/obj/item/organ/eye/amphibian,\
+		"heart"=/obj/item/organ/heart/amphibian,\
+		"appendix"=/obj/item/organ/appendix/amphibian,\
+		"brain"=/obj/item/organ/brain/amphibian,\
+		"intestines"=/obj/item/organ/intestines/amphibian,\
+		"left_kidney"=/obj/item/organ/kidney/amphibian/left,\
+		"right_kidney"=/obj/item/organ/kidney/amphibian/right,\
+		"liver"=/obj/item/organ/liver/amphibian,\
+		"left_lung"=/obj/item/organ/lung/amphibian/left,\
+		"right_lung"=/obj/item/organ/lung/amphibian/right,\
+		"pancreas"=/obj/item/organ/pancreas/amphibian,\
+		"spleen"=/obj/item/organ/spleen/amphibian,\
+		"stomach"=/obj/item/organ/stomach/amphibian)
+	special_head = HEAD_FROG
+	r_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/amphibian/right
+	l_limb_arm_type_mutantrace = /obj/item/parts/human_parts/arm/mutant/amphibian/left
+	r_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/amphibian/right
+	l_limb_leg_type_mutantrace = /obj/item/parts/human_parts/leg/mutant/amphibian/left
+	mutant_appearance_flags = (NOT_DIMORPHIC | HAS_HUMAN_EYES | HAS_NO_SKINTONE | BUILT_FROM_PIECES | HEAD_HAS_OWN_COLORS | WEARS_UNDERPANTS | LIGHT_EYES)
+	blood_color = "#50b558"
+
+	ghost_icon_state = "ghost-amphibian"
+
+	var/clothes_filters_active = TRUE
+	var/obj/effect/rt/frog_distorts/uniform/distort_uniform = new
+	var/obj/effect/rt/frog_distorts/headset/distort_headset = new
+	var/obj/effect/rt/frog_distorts/backpack/distort_backpack = new
+	var/obj/effect/rt/frog_distorts/shoes/distort_shoes = new
+
+	say_verb()
+		return "croaks"
+
+	on_attach(var/mob/living/carbon/human/M)
+		..()
+		if(ishuman(src.mob))
+			M.bioHolder.AddEffect("accent_frog", do_stability = FALSE, scannable = FALSE, innate = TRUE)
+			M.bioHolder.AddEffect("stickytongue", do_stability = FALSE, scannable = FALSE, innate = TRUE)
+			src.mob.vis_contents += list(src.distort_uniform,src.distort_headset,src.distort_backpack,src.distort_shoes)
+
+	disposing()
+		if(ishuman(src.mob))
+			src.mob.bioHolder.RemoveEffect("accent_frog")
+			src.mob.bioHolder.RemoveEffect("stickytongue")
+			src.mob.vis_contents -= list(src.distort_uniform,src.distort_headset,src.distort_backpack,src.distort_shoes)
+		..()
+
+	apply_clothing_filters(var/obj/item/worn)
+		. = ..()
+		if (!src.clothes_filters_active) return
+		var/list/output = list()
+
+		if (istype(worn, /obj/item/clothing/suit))
+			output += filter(type="displace", render_source = src.distort_uniform.render_target, size = 127)
+		else if (istype(worn, /obj/item/clothing/under))
+			output += filter(type="displace", render_source = src.distort_uniform.render_target, size = 127)
+		else if (istype(worn, /obj/item/device/radio/headset))
+			output += filter(type="displace", render_source = src.distort_headset.render_target, size = 127)
+		else if (istype(worn, /obj/item/storage/backpack))
+			output += filter(type="displace", render_source = src.distort_backpack.render_target, size = 127)
+		else if (istype(worn, /obj/item/clothing/shoes))
+			output += filter(type="displace", render_source = src.distort_shoes.render_target, size = 127)
+		return output
 
 TYPEINFO(/datum/mutantrace/kudzu)
 	icon = 'icons/mob/kudzu.dmi'
@@ -2127,7 +2333,7 @@ TYPEINFO(/datum/mutantrace/kudzu)
 	override_attack = 1
 	persists_on_clone = FALSE
 
-	mutant_abilityholder = /datum/abilityHolder/kudzu
+	mutant_abilityholder = /datum/abilityHolder/mutantrace/kudzu
 	mutant_abilities = list(
 		/datum/targetable/kudzu/guide,
 		/datum/targetable/kudzu/growth,
@@ -2155,13 +2361,13 @@ TYPEINFO(/datum/mutantrace/kudzu)
 				H.add_stam_mod_max("kudzu", -100)
 				APPLY_ATOM_PROPERTY(H, PROP_MOB_STAMINA_REGEN_BONUS, "kudzu", -5)
 				APPLY_ATOM_PROPERTY(H, PROP_MOB_NIGHTVISION_WEAK, "kudzu")
-				H.bioHolder.AddEffect("xray", power = 2, do_stability = FALSE, scannable = FALSE, innate = TRUE)
+				APPLY_ATOM_PROPERTY(H, PROP_MOB_XRAYVISION, "kudzu")
 				H.ensure_speech_tree().AddSpeechOutput(SPEECH_OUTPUT_KUDZUCHAT)
 				H.ensure_listen_tree().AddListenInput(LISTEN_INPUT_KUDZUCHAT)
 
 				if (istype(H.abilityHolder, /datum/abilityHolder/composite))
 					var/datum/abilityHolder/composite/ch = H.abilityHolder
-					ch.addHolder(/datum/abilityHolder/kudzu)
+					ch.addHolder(/datum/abilityHolder/mutantrace/kudzu)
 
 	disposing()
 		if(ishuman(src.mob))
@@ -2169,6 +2375,7 @@ TYPEINFO(/datum/mutantrace/kudzu)
 			H.remove_stam_mod_max("kudzu")
 			REMOVE_ATOM_PROPERTY(H, PROP_MOB_STAMINA_REGEN_BONUS, "kudzu")
 			REMOVE_ATOM_PROPERTY(H, PROP_MOB_NIGHTVISION_WEAK, "kudzu")
+			REMOVE_ATOM_PROPERTY(H, PROP_MOB_XRAYVISION, "kudzu")
 
 			H.ensure_speech_tree().RemoveSpeechOutput(SPEECH_OUTPUT_KUDZUCHAT)
 			H.ensure_listen_tree().RemoveListenInput(LISTEN_INPUT_KUDZUCHAT)
@@ -2189,8 +2396,8 @@ TYPEINFO(/datum/mutantrace/kudzu)
 	//Should figure out what I'm doing with this and the onLife in the abilityHolder one day. I'm thinking, maybe move it all to the abilityholder, but idk, composites are weird.
 	onLife(var/mult = 1)
 		// if (!src.mob.abilityHolder)
-		// 	src.mob.abilityHolder = new /datum/abilityHolder/kudzu(src.mob)
-		var/datum/abilityHolder/kudzu/KAH = src.mob.get_ability_holder(/datum/abilityHolder/kudzu)
+		// 	src.mob.abilityHolder = new /datum/abilityHolder/mutantrace/kudzu(src.mob)
+		var/datum/abilityHolder/mutantrace/kudzu/KAH = src.mob.get_ability_holder(/datum/abilityHolder/mutantrace/kudzu)
 		if (!istype(KAH))
 			KAH = src.mob.abilityHolder
 
@@ -2200,7 +2407,7 @@ TYPEINFO(/datum/mutantrace/kudzu)
 		if (T && T.temp_flags & HAS_KUDZU)
 			if (KAH.points < KAH.MAX_POINTS)
 				// KAH.points += round_mult
-				KAH.addPoints(round_mult, /datum/abilityHolder/kudzu)
+				KAH.addPoints(round_mult, /datum/abilityHolder/mutantrace/kudzu)
 
 			//ALWAYS HEAL ON KUDZU TILES
 			src.mob.take_toxin_damage(-round_mult)
@@ -2213,7 +2420,7 @@ TYPEINFO(/datum/mutantrace/kudzu)
 			//nutrients for a bit of grace period
 			if (KAH.points > 0)
 				// KAH.points -= 10
-				KAH.addPoints(-10, /datum/abilityHolder/kudzu)
+				KAH.addPoints(-10, /datum/abilityHolder/mutantrace/kudzu)
 			else
 				//do effects from not being on kudzu here.
 				src.mob.take_toxin_damage(2 * round_mult)
@@ -2359,13 +2566,16 @@ TYPEINFO(/datum/mutantrace/cow)
 					. = "<B>[src.mob]</B> moos!"
 					playsound(src.mob, 'sound/voice/screams/moo.ogg', 50, 0, 0, src.mob.get_age_pitch(), channel=VOLUME_CHANNEL_EMOTE)
 			if ("milk")
-				if (src.mob.emote_check(voluntary))
+				if (src.mob.emote_check(voluntary, 5 SECONDS))
 					.= release_milk()
 			if ("udder")
 				src.clothes_filters_active = !src.clothes_filters_active
 				boutput(src.mob, src.clothes_filters_active ? "Bovine-specific clothes filters activated." : "Disabled bovine-specific clothes filters.")
 				src.mob.update_clothing()
 				. = "<B>[src.mob]</B> adjusts [his_or_her(src.mob)] clothing."
+			if ("rage","fury","angry")
+				if (src.mob.emote_check(voluntary, 5 SECONDS))
+					. = "<b>[src.mob]</b> becomes udderly furious!"
 			else
 				.= ..()
 

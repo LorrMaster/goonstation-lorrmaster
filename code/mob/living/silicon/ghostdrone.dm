@@ -60,7 +60,7 @@ TYPEINFO(/mob/living/silicon/ghostdrone)
 		if (rand(1, 1000) == 69 && ticker?.mode) //heh
 			//Nuke op radio freq
 			if (istype(ticker.mode, /datum/game_mode/nuclear))
-				name = "Drone [R_FREQ_SYNDICATE]"
+				name = "Drone [RADIO::FREQ::SYNDICATE]"
 			else if (length(flocks))
 				name = "Flockdrone"
 			else
@@ -892,7 +892,7 @@ TYPEINFO(/mob/living/silicon/ghostdrone)
 				return
 
 		if (message && isalive(src))
-			logTheThing(LOG_SAY, src, "EMOTE: [message]")
+			log_emote(src, message, voluntary)
 			if (m_type & 1)
 				for (var/mob/living/silicon/ghostdrone/O in viewers(src, null))
 					O.show_message(SPAN_EMOTE("[message]"), m_type)

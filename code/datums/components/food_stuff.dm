@@ -34,7 +34,7 @@ TYPEINFO(/datum/component/consume/can_eat_inedible_organs)
 	. = ..()
 
 /datum/component/consume/organpoints
-	var/target_abilityholder = /datum/abilityHolder/lizard
+	var/target_abilityholder = /datum/abilityHolder/mutantrace/lizard
 	var/static/list/organ2points = list(/obj/item/organ/head=2,/obj/item/skull=0,/obj/item/organ/brain=3,/obj/item/organ/chest=5,/obj/item/organ/heart=2,/obj/item/organ/appendix=0,/obj/item/clothing/head/butt=0)
 
 TYPEINFO(/datum/component/consume/organpoints)
@@ -274,7 +274,7 @@ TYPEINFO(/datum/component/consume/food_effects)
 		return COMPONENT_INCOMPATIBLE
 	src.food_parent = parent
 	src.status_effects = _status_effects
-	RegisterSignal(parent, list(COMSIG_ITEM_CONSUMED_PARTIAL, COMSIG_ITEM_CONSUMED), PROC_REF(apply_food_effects))
+	RegisterSignals(parent, list(COMSIG_ITEM_CONSUMED_PARTIAL, COMSIG_ITEM_CONSUMED), PROC_REF(apply_food_effects))
 
 /datum/component/consume/food_effects/InheritComponent(datum/component/consume/food_effects/C, i_am_original, _new_status_effects)
 	if(C?.status_effects)

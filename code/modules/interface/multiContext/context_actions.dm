@@ -414,7 +414,6 @@
 			return FALSE
 		if (GBP && GB && (BOUNDS_DIST(target, user) == 0 && isliving(user)) && !GB?.occupant)
 			. = TRUE
-			GB.show_admin_panel(user)
 
 	buildBackgroundIcon(atom/target, mob/user)
 		var/image/background = image('icons/ui/context32x32.dmi', src, "[getBackground(target, user)]0")
@@ -1362,7 +1361,7 @@
 	close_clicked = TRUE
 	desc = ""
 	icon_state = "wrench"
-	var/mode = RCD_MODE_FLOORSWALLS
+	var/mode = RCD_MODE::FLOORSWALLS
 
 	execute(var/obj/item/rcd/rcd, var/mob/user)
 		if (!istype(rcd))
@@ -1377,27 +1376,27 @@
 	deconstruct
 		name = "Deconstruct"
 		icon_state = "close"
-		mode = RCD_MODE_DECONSTRUCT
+		mode = RCD_MODE::DECONSTRUCT
 	airlock
 		name = "Airlocks"
 		icon_state = "door"
-		mode = RCD_MODE_AIRLOCK
+		mode = RCD_MODE::AIRLOCK
 	floorswalls
 		name = "Floors/walls"
 		icon_state = "wall"
-		mode = RCD_MODE_FLOORSWALLS
+		mode = RCD_MODE::FLOORSWALLS
 	lighttubes
 		name = "Light tubes"
 		icon_state = "tube"
-		mode = RCD_MODE_LIGHTTUBES
+		mode = RCD_MODE::LIGHTTUBES
 	lightbulbs
 		name = "Lightbulbs"
 		icon_state = "bulb"
-		mode = RCD_MODE_LIGHTBULBS
+		mode = RCD_MODE::LIGHTBULBS
 	windows
 		name = "Windows"
 		icon_state = "window"
-		mode = RCD_MODE_WINDOWS
+		mode = RCD_MODE::WINDOWS
 
 /datum/contextAction/reagent
 	icon_background = "whitebg"

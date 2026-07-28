@@ -434,6 +434,8 @@ TRAYS
 		return 1
 
 /obj/item/kitchen/utensil/knife/pizza_cutter/traitor
+	SYNDICATE_STEALTH_DESCRIPTION("The blade is illegally sharp.", null)
+	tooltip_flags = REBUILD_USER
 	var/sharpener_mode = FALSE
 
 	attack_self(mob/user as mob)
@@ -575,7 +577,8 @@ TRAYS
 	desc = "It's like a frisbee, but more dangerous!"
 	icon = 'icons/obj/foodNdrink/food_related.dmi'
 	icon_state = "plate"
-	item_state = "zippo"
+	inhand_image_icon = 'icons/mob/inhand/hand_food.dmi'
+	item_state = "plate"
 	throwforce = 3
 	throw_speed = 3
 	throw_range = 8
@@ -610,6 +613,8 @@ TRAYS
 	var/plate_stacked = FALSE
 	/// Can this smash someone on the head?
 	var/can_headsmash = TRUE
+	/// Sets the iconstring to this, if an item is on the plate
+	var/loaded_icon_state = "plate_1"
 
 	New()
 		..()
@@ -642,6 +647,21 @@ TRAYS
 					for (var/obj/item/food_maybe in src.loc)
 						// This will fail for non-edibles so we can just blindfire the proc at everything
 						src.add_contents(food_maybe)
+
+	proc/update_inhand_icon()
+		if(!src.loaded_icon_state)
+			return
+		if(!length(src.contents))
+			src.item_state = initial(src.item_state)
+		else
+			src.item_state = src.loaded_icon_state
+		if(ismob(src.loc))
+			var/mob/potential_user = src.loc
+			potential_user.update_inhands()
+
+	update_icon()
+		..()
+		src.update_inhand_icon()
 
 	proc/check_height(obj/item/plate/other) //we go down and then we go up because plates are bidirectional like that
 		. = 1
@@ -894,17 +914,17 @@ TYPEINFO(/obj/item/plate/pizza_box)
 /obj/item/plate/pizza_box
 	name = "pizza box"
 	desc = "Can hold wedding rings, clothes, weaponry... and sometimes pizza."
-	icon = 'icons/obj/large_storage.dmi'
+	icon = 'icons/obj/storage/crate_wood.dmi'
 	icon_state = "pizzabox"
 	pickup_sfx = 0 // to avoid using plate SFX
 	w_class = W_CLASS_BULKY
-	inhand_image_icon = 'icons/mob/inhand/hand_food.dmi'
 	item_state = "pizza_box"
 	is_plate = FALSE
 	max_space = 6
 	space_left = 6
 	can_headsmash = FALSE
 	default_material = "cardboard"
+	loaded_icon_state = null
 	var/open = FALSE
 
 	add_contents(obj/item/food, mob/user, click_params) // Due to non-plates skipping some checks in the original add_contents() we'll have to do our own checks.
@@ -1047,7 +1067,7 @@ TYPEINFO(/obj/item/plate/pizza_box)
 		..()
 		BLOCK_SETUP(BLOCK_ALL)
 
-	proc/update_inhand_icon()
+	update_inhand_icon()
 		var/weighted_num = round(length(contents) / 5) //6 inhand sprites, 30 possible foods on the tray
 		if(!length(src.contents))
 			src.item_state = "tray"
@@ -1069,9 +1089,6 @@ TYPEINFO(/obj/item/plate/pizza_box)
 			else
 				src.item_state = "tray_6"
 
-	update_icon()
-		..()
-		src.update_inhand_icon()
 
 	get_desc()
 		. = ..()
@@ -1113,6 +1130,7 @@ TYPEINFO(/obj/item/plate/pizza_box)
 	hit_sound = "step_lattice"
 	can_headsmash = FALSE // no unbreakable smashing tool for you!
 	stackable = FALSE // and no stacking them on plates!
+	loaded_icon_state = null
 
 	New()
 		. = ..()

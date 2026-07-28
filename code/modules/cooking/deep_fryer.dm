@@ -52,6 +52,12 @@ TYPEINFO(/obj/machinery/deep_fryer)
 	if (istype(W, /obj/item/reagent_containers/food/snacks/shell/deepfry))
 		boutput(user, SPAN_ALERT("Your cooking skills are not up to the legendary Doublefry technique."))
 		return
+	if (istype(W, /obj/item/phone_handset)) // to prevent handset duping
+		var/obj/item/phone_handset/H = W
+		user.visible_message(SPAN_COMBAT("<b>[user] attempts to put [H] into the [src] but the hot oil splashed on [his_or_her(user)] hand! Ouch!</b>"))
+		H.parent.hang_up()
+		user.TakeDamage("All", burn = 5)
+		return
 	if (HAS_FLAG(status, BROKEN))
 		boutput(user, SPAN_ALERT("It looks like the fryer is broken!"))
 		return
@@ -159,7 +165,7 @@ TYPEINFO(/obj/machinery/deep_fryer)
 			src.say("Oh, now I can die a warrior's death! Thank you!")
 			ADD_FLAG(src.status, BROKEN)
 			name = "Satiated [initial(src.name)]"
-			ice_feeder = ice_feeder || ckey_to_mob(src.fryitem.fingerprintslast) // in case someone else had to fufill, no direct ref
+			ice_feeder = ice_feeder || ckey_to_mob(src.fryitem.get_last_ckey()) // in case someone else had to fufill, no direct ref
 			ice_feeder?.unlock_medal("Deep Freeze", TRUE)
 
 		qdel(src.fryitem)

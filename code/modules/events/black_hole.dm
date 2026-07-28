@@ -58,6 +58,7 @@
 			shake_camera(C.mob, 5, 16)
 
 		playsound(src,'sound/effects/creaking_metal1.ogg',100,FALSE,5,0.5)
+		SEND_GLOBAL_SIGNAL(COMSIG_GRAVITY_EVENT, GRAVITY_EVENT_DISRUPT, src.z)
 
 		sleep(lifespan / 2)
 		if (!stable)
@@ -218,8 +219,10 @@
 	proc/shred_terrain(var/turf/simulated/T)
 		if (!T)
 			return
+		if (!issimulatedturf(T))
+			return
 
-		if(istype(T,/turf/simulated/floor))
+		if (istype(T,/turf/simulated/floor))
 			var/turf/simulated/floor/F = T
 			if(!F.broken)
 				if(prob(80))
@@ -235,22 +238,9 @@
 			else
 				F.ReplaceWithSpace()
 
-		else if (istype(T,/turf/simulated/wall))
-			var/atom/A = new /obj/structure/girder/reinforced(T)
-
-			var/atom/movable/B = new /obj/item/raw_material/scrap_metal
-			B.set_loc(T)
-
-			if(T.material)
-				A.setMaterial(T.material)
-				B.setMaterial(T.material)
-			else
-				var/datum/material/M = getMaterial("steel")
-				A.setMaterial(M)
-				B.setMaterial(M)
-
-			T.ReplaceWithFloor()
-
+		else if (istype(T, /turf/simulated/wall))
+			var/turf/simulated/wall/W = T
+			W.dismantle_wall()
 		else
 			return
 

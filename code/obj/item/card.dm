@@ -26,6 +26,7 @@ GAUNTLET CARDS
 		..()
 
 TYPEINFO(/obj/item/card/emag)
+	analyser_flags = parent_type::analyser_flags | ANALYSER_SYNDIE_ONLY
 	mats = 8
 
 /obj/item/card/emag
@@ -35,7 +36,6 @@ TYPEINFO(/obj/item/card/emag)
 	item_state = "card-id"
 	flags = TABLEPASS | SUPPRESSATTACK
 	layer = 6.0 // TODO fix layer
-	is_syndicate = 1
 	contraband = 6
 
 	afterattack(var/atom/A, var/mob/user)
@@ -51,6 +51,17 @@ TYPEINFO(/obj/item/card/emag)
 		if(!hit_atom || !thr)
 			return
 		hit_atom.emag_act(thr.user, src)
+
+	emag_act(mob/user, obj/item/card/emag/E)
+		. = ..()
+		if(!src.throw_return)
+			boutput(user, SPAN_ALERT("You run [E] over [src], causing an internal magnetisim feedback loop!"))
+			src.throw_return = TRUE
+			return
+
+	demag(mob/user)
+		. = ..()
+		src.throw_return = FALSE
 
 /obj/item/card/emag/attack_self(mob/user as mob)
 	if(ON_COOLDOWN(user, "showoff_item", SHOWOFF_COOLDOWN))
@@ -327,8 +338,10 @@ TYPEINFO(/obj/item/card/emag)
 		switch (color)
 			if ("clown")
 				src.icon_state = "id_clown"
+				src.keep_icon = TRUE
 			if ("golden")
 				src.icon_state = "id_gold"
+				src.keep_icon = TRUE
 			if ("No band")
 				src.icon_state = "id_basic"
 			if ("civilian")
@@ -345,8 +358,10 @@ TYPEINFO(/obj/item/card/emag)
 				src.icon_state = "id_eng"
 			if ("nanotrasen")
 				src.icon_state = "id_nanotrasen"
+				src.keep_icon = TRUE
 			if ("syndicate")
 				src.icon_state = "id_syndie"
+				src.keep_icon = TRUE
 			else
 				return // Abort process.
 		src.registered = reg

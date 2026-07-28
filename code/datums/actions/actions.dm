@@ -146,7 +146,7 @@
 		if (end_message)
 			src.end_message = end_message
 
-		//generate a id
+		//generate an id
 		if (src.proc_path)
 			src.id = "[src.proc_path]"
 
@@ -472,7 +472,7 @@
 			src.end_message = end_message
 		if (interrupt_flags != null)
 			src.interrupt_flags = interrupt_flags
-		//generate a id
+		//generate an id
 		if (src.proc_path)
 			src.id = "[src.proc_path]"
 
@@ -1564,6 +1564,7 @@
 			food.take_a_bite(consumer, mob_owner)
 		else
 			drink.take_a_drink(consumer, mob_owner)
+		consumer.lastgasp()
 
 /datum/action/bar/icon/syringe
 	duration = 3 SECONDS

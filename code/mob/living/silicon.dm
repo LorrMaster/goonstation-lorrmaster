@@ -35,6 +35,8 @@ TYPEINFO(/mob/living/silicon)
 	speech_verb_say = "states"
 	speech_verb_ask = "queries"
 	speech_verb_exclaim = "declares"
+	speech_verb_stammer = "states"
+	speech_verb_gasp = "states"
 	default_speech_output_channel = SAY_CHANNEL_OUTLOUD
 	say_language = LANGUAGE_ENGLISH
 	speech_bubble_icon_sing = "noterobot"
@@ -100,6 +102,9 @@ TYPEINFO(/mob/living/silicon)
 
 /mob/living/silicon/proc/show_laws()
 	return
+
+/mob/living/silicon/on_close_viewport(datum/viewport/vp)
+	src.mainframe?.on_close_viewport(vp)
 
 /mob/living/silicon/proc/return_mainframe()
 	if (mainframe)

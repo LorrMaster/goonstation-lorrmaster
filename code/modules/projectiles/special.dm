@@ -814,6 +814,7 @@ ABSTRACT_TYPE(/datum/projectile/special)
 		P.event_handler_flags |= IMMUNE_MINERAL_MAGNET
 		src.eye_glider.anchored = ANCHORED_ALWAYS
 		APPLY_ATOM_PROPERTY(P, PROP_ATOM_FLOATING, src)
+		APPLY_ATOM_PROPERTY(P, PROP_ATOM_GRAVITY_IMMUNE_INSIDE, src)
 		for (var/mob/M in P.contents)
 			if(M.client)
 				M.client.eye = src.eye_glider
@@ -1211,6 +1212,7 @@ ABSTRACT_TYPE(/datum/projectile/special)
 	spread_projectile_type = /datum/projectile/special/spawner/wasp
 	pellets_to_fire = 4
 	has_impact_particles = FALSE
+	affected_by_gravity = TRUE
 	var/spread_angle = 60
 	var/current_angle = 0
 	var/angle_adjust_per_pellet = 0
@@ -1239,6 +1241,7 @@ ABSTRACT_TYPE(/datum/projectile/special)
 	implanted= null
 	casing = null
 	impact_image_state = null
+	affected_by_gravity = TRUE
 	var/typetospawn = null
 	var/hit_sound = null
 	///Do we get our icon from typetospawn?
@@ -1350,7 +1353,7 @@ ABSTRACT_TYPE(/datum/projectile/special)
 	max_range = 30
 	cost = 0
 	shot_sound = 'sound/weapons/rocket.ogg'
-	icon = 'icons/obj/large_storage.dmi'
+	icon = 'icons/obj/storage/crate.dmi'
 	icon_state = "attachecase"
 	typetospawn = /obj/lootbox
 	var/explosion_power = 15
@@ -1403,13 +1406,11 @@ ABSTRACT_TYPE(/datum/projectile/special)
 
 		var/datum/reagents/copied = new/datum/reagents(amt_to_emit)
 		copied = chemR.copy_to(copied, amt_to_emit/chemR.total_volume, copy_temperature = 1)
-
-		if(!T.reagents) // first get the turf
-			T.create_reagents(100)
-		copied.copy_to(T.reagents, 1, copy_temperature = 1)
+		//now we create a temporary chemistry holder so we don't need to inject chems into turfs but still can handle delayed reactions
+		T.AddComponent(/datum/component/temp_reagent_holder, copied)
 		copied.reaction(T, TOUCH, 0, src.can_spawn_fluid)
 		if(special_data["IS_LIT"]) // Heat if needed
-			T.reagents?.set_reagent_temp(special_data["burn_temp"], TRUE)
+			copied.set_reagent_temp(special_data["burn_temp"], TRUE)
 		for(var/atom/A in T.contents) // then all the stuff in the turf
 			if(istype(A, /obj/overlay) || istype(A, /obj/projectile))
 				continue

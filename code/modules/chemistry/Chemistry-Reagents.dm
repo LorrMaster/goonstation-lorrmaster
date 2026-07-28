@@ -41,7 +41,6 @@ datum
 		var/thirst_value = 0
 		var/hunger_value = 0
 		var/hygiene_value = 0
-		var/bladder_value = 0
 		var/energy_value = 0
 		var/blob_damage = 0 // If this is a poison, it may be useful for poisoning the blob.
 		var/viscosity = 0 // determines interactions in fluids. 0 for least viscous, 1 for most viscous. use decimals!
@@ -160,7 +159,8 @@ datum
 							did_not_react = 0
 					if (ishuman(M))
 						var/mob/living/carbon/human/H = M
-						if (H.mutantrace?.aquaphobic && istype(src, /datum/reagent/water))
+						var/is_sealed = H.is_sealed()
+						if (H.mutantrace?.aquaphobic && istype(src, /datum/reagent/water) && !is_sealed)
 							animate_shake(H)
 							if (prob(50))
 								H.emote("scream")
@@ -175,7 +175,7 @@ datum
 							var/hygiene_distance_from_cap = hygiene_cap - hygiene
 							var/hygiene_change = min(volume * hygiene_restore * (1 - (H.get_chem_protection() / 100)), max(hygiene_distance_from_cap, 0))
 
-							if (H.mutantrace.aquaphobic)
+							if (H.mutantrace.aquaphobic && !is_sealed)
 								if (istype(src, /datum/reagent/oil))
 									hygiene_restore = 3
 								else if (istype(src, /datum/reagent/water))
@@ -242,8 +242,6 @@ datum
 						H.sims.affectMotive("Thirst", thirst_value)
 					if (src.hunger_value)
 						H.sims.affectMotive("Hunger", hunger_value)
-					if (src.bladder_value)
-						H.sims.affectMotive("Bladder", bladder_value)
 					if (src.energy_value)
 						H.sims.affectMotive("Energy", energy_value)
 

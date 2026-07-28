@@ -20,7 +20,7 @@
 /obj/disposalpipe/segment/transport{
 	dir = 4
 	},
-/obj/machinery/light_switch/south,
+/obj/machinery/light_switch/directional/south,
 /turf/simulated/floor/yellow/side,
 /area/mining/dock)
 "at" = (
@@ -32,8 +32,8 @@
 /area/noGenerate)
 "ax" = (
 /obj/machinery/vending/air_vendor/plasma,
-/obj/machinery/light_switch/north,
-/turf/simulated/floor/orangeblack/side{
+/obj/machinery/light_switch/directional/north,
+/turf/simulated/floor/caution/side{
 	dir = 1
 	},
 /area/mining/hangar)
@@ -167,7 +167,7 @@
 /obj/item/scrap,
 /obj/landmark/spawner/artifact,
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "ce" = (
 /obj/lattice{
 	dir = 4;
@@ -354,6 +354,9 @@
 	dir = 10
 	},
 /area/mining/mainasteroid)
+"fp" = (
+/turf/simulated/wall/auto/martian,
+/area/evilreaver/crew)
 "fr" = (
 /obj/mesh/catwalk{
 	dir = 4
@@ -378,7 +381,7 @@
 /obj/landmark/spawner/artifact,
 /obj/lattice,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "fA" = (
 /obj/fakeobject/lighttube_broken,
 /obj/decal/cleanable/dirt,
@@ -823,6 +826,10 @@
 	},
 /turf/simulated/floor/martian,
 /area/noGenerate)
+"nJ" = (
+/obj/machinery/gravity_tether/multi_area/mining_outpost,
+/turf/simulated/floor/plating,
+/area/tech_outpost)
 "nK" = (
 /obj/table/auto,
 /turf/simulated/floor/yellow/side{
@@ -855,17 +862,17 @@
 "nR" = (
 /obj/machinery/door/unpowered/martian,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "nV" = (
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "nW" = (
 /obj/decal/cleanable/oil,
 /obj/item/clothing/suit/space/old,
 /obj/item/clothing/head/helmet/space/old,
 /obj/storage/crate,
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "nX" = (
 /obj/rail{
 	dir = 8;
@@ -922,6 +929,7 @@
 	noalerts = 1;
 	pixel_x = -24
 	},
+/obj/storage/crate/furnacefuel,
 /turf/simulated/floor/plating,
 /area/tech_outpost)
 "ol" = (
@@ -983,7 +991,7 @@
 	icon_state = "diagonal"
 	},
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "oB" = (
 /obj/decal/cleanable/rust,
 /turf/simulated/wall/auto/reinforced/old,
@@ -995,12 +1003,12 @@
 	icon_state = "diagonal"
 	},
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "oH" = (
 /obj/table/reinforced/auto,
 /obj/machinery/light/incandescent,
 /obj/item/shipcomponent/mainweapon/bad_mining,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 8
 	},
 /area/mining/hangar)
@@ -1013,7 +1021,7 @@
 /obj/item/furniture_parts/table,
 /obj/item/furniture_parts/table,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "oN" = (
 /obj/machinery/door/airlock/pyro/classic{
 	dir = 4;
@@ -1198,11 +1206,11 @@
 /obj/item/cigpacket/propuffs,
 /obj/item/clothing/head/XComHair,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "pN" = (
 /obj/item/sheet/glass/reinforced,
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "pO" = (
 /obj/item/old_grenade/spawner/banana,
 /obj/item/bananapeel,
@@ -1210,7 +1218,7 @@
 /obj/storage/cart/trash,
 /obj/lattice,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "pP" = (
 /obj/machinery/camera/mining/directional/north{
 	pixel_x = 10
@@ -1229,7 +1237,7 @@
 /obj/map/light/dimred,
 /obj/marker/supplymarker,
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "pT" = (
 /obj/machinery/portable_reclaimer,
 /turf/simulated/floor/caution/east,
@@ -1245,7 +1253,7 @@
 "qd" = (
 /obj/item/beach_ball,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "qe" = (
 /obj/cable{
 	icon_state = "2-4"
@@ -1268,7 +1276,7 @@
 "qg" = (
 /obj/item/tile/steel,
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "qi" = (
 /obj/computerframe{
 	anchored = 1;
@@ -1301,7 +1309,7 @@
 /turf/simulated/floor/caution/west,
 /area/mining/miningoutpost)
 "qo" = (
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 8
 	},
 /area/mining/hangar)
@@ -1342,7 +1350,7 @@
 	name = "rusty airlock"
 	},
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "qw" = (
 /obj/table/wood/auto,
 /obj/random_item_spawner/desk_stuff,
@@ -1642,7 +1650,7 @@
 "sp" = (
 /obj/table/reinforced/auto,
 /obj/item/mining_tool/powered/pickaxe,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 8
 	},
 /area/mining/hangar)
@@ -1718,7 +1726,7 @@
 "sL" = (
 /obj/decal/cleanable/dirt,
 /obj/random_item_spawner/junk/one_or_zero,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 1
 	},
 /area/mining/hangar)
@@ -1806,7 +1814,7 @@
 /turf/simulated/floor/martian,
 /area/evilreaver/atmospherics)
 "tv" = (
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 9
 	},
 /area/mining/hangar)
@@ -1908,6 +1916,7 @@
 /area/mining/miningoutpost)
 "uc" = (
 /obj/rack,
+/obj/item/device/camera_viewer/outpost/mining,
 /obj/item/disk/data/floppy/read_only/communications,
 /turf/simulated/floor/grime,
 /area/mining/comms)
@@ -2022,7 +2031,7 @@
 /area/mining/magnet_control)
 "ve" = (
 /obj/storage/closet/welding_supply,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 4
 	},
 /area/mining/hangar)
@@ -2154,7 +2163,7 @@
 /area/evilreaver/storage/tools)
 "wm" = (
 /obj/machinery/light/incandescent,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 1
 	},
 /area/mining/hangar)
@@ -2343,7 +2352,7 @@
 /obj/item/shipcomponent/secondary_system/orescoop,
 /obj/item/shipcomponent/communications/mining,
 /obj/machinery/power/apc/autoname_north,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 1
 	},
 /area/mining/hangar)
@@ -2352,7 +2361,7 @@
 	icon_state = "4-8"
 	},
 /obj/machinery/light/incandescent,
-/obj/item/paper/businesscard/gragg2{
+/obj/item/paper/image/businesscard/gragg2{
 	pixel_y = 24
 	},
 /obj/random_item_spawner/junk/one_or_zero,
@@ -2512,7 +2521,7 @@
 /obj/item/shipcomponent/sensor/mining,
 /obj/item/shipcomponent/sensor/mining,
 /obj/machinery/firealarm/directional/north,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 1
 	},
 /area/mining/hangar)
@@ -2580,7 +2589,7 @@
 /turf/simulated/floor/red/side,
 /area/evilreaver/security)
 "za" = (
-/obj/machinery/light_switch/west,
+/obj/machinery/light_switch/directional/west,
 /turf/simulated/floor/plating/damaged3,
 /area/spyshack)
 "zb" = (
@@ -2692,7 +2701,7 @@
 /turf/simulated/floor/caution/east,
 /area/mining/hangar)
 "zL" = (
-/obj/machinery/light_switch/north,
+/obj/machinery/light_switch/directional/north,
 /turf/simulated/floor/grime,
 /area/mining/manufacturing)
 "zP" = (
@@ -2763,11 +2772,11 @@
 /area/mining/refinery)
 "Al" = (
 /obj/machinery/vending/coffee,
-/obj/item/paper/businesscard/josh{
+/obj/item/paper/image/businesscard/josh{
 	pixel_x = 15;
 	pixel_y = 27
 	},
-/obj/machinery/light_switch/north,
+/obj/machinery/light_switch/directional/north,
 /turf/simulated/floor/grime,
 /area/tech_outpost)
 "Am" = (
@@ -2936,7 +2945,7 @@
 /area/mining/magnet_control)
 "Bi" = (
 /obj/reagent_dispensers/fueltank,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 4
 	},
 /area/mining/hangar)
@@ -3014,6 +3023,10 @@
 	dir = 8
 	},
 /area/mining/refinery)
+"BD" = (
+/obj/map/light/white,
+/turf/simulated/wall/auto/martian,
+/area/evilreaver/crew)
 "BE" = (
 /obj/machinery/manufacturer/mining,
 /turf/simulated/floor,
@@ -3099,6 +3112,7 @@
 	icon_state = "1-2"
 	},
 /obj/random_item_spawner/junk/one_or_zero,
+/obj/item/rods/steel,
 /turf/simulated/floor/grime,
 /area/mining/comms)
 "Ci" = (
@@ -3146,6 +3160,14 @@
 "CJ" = (
 /turf/simulated/floor/grime,
 /area/tech_outpost)
+"CK" = (
+/obj/indestructible/shuttle_corner{
+	dir = 9;
+	icon = 'icons/turf/walls/martian.dmi';
+	icon_state = "diagonal"
+	},
+/turf/simulated/floor/martian,
+/area/evilreaver/crew)
 "CM" = (
 /turf/simulated/floor/plating,
 /area/tech_outpost)
@@ -3241,7 +3263,7 @@
 "Dw" = (
 /obj/decal/cleanable/oil,
 /obj/decal/cleanable/dirt,
-/obj/item/paper/businesscard/lawyers{
+/obj/item/paper/image/businesscard/lawyers{
 	pixel_y = 27
 	},
 /turf/simulated/floor/red/side{
@@ -3262,6 +3284,7 @@
 /area/evilreaver/security)
 "DT" = (
 /obj/machinery/light/incandescent,
+/obj/item/rods/steel,
 /turf/simulated/floor/grime,
 /area/mining/comms)
 "DW" = (
@@ -3409,7 +3432,7 @@
 	icon_state = "4-8"
 	},
 /obj/decal/stripe_delivery,
-/obj/machinery/light_switch/north,
+/obj/machinery/light_switch/directional/north,
 /turf/simulated/floor,
 /area/mining/miningoutpost)
 "EM" = (
@@ -3482,7 +3505,7 @@
 /obj/table/reinforced/auto,
 /obj/item/shipcomponent/secondary_system/cargo,
 /obj/item/shipcomponent/secondary_system/cargo,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 1
 	},
 /area/mining/hangar)
@@ -3517,7 +3540,7 @@
 	pixel_y = 10
 	},
 /obj/random_item_spawner/junk/one_or_zero,
-/obj/machinery/light_switch/west,
+/obj/machinery/light_switch/directional/west,
 /turf/simulated/floor/grime,
 /area/mining/magnet_control)
 "Fr" = (
@@ -3686,11 +3709,6 @@
 	},
 /turf/simulated/floor/grime,
 /area/mining/dock)
-"Gr" = (
-/obj/lattice,
-/obj/item/device/infra_sensor,
-/turf/simulated/floor/martian,
-/area/evilreaver/bridge)
 "Gs" = (
 /obj/cable{
 	icon_state = "1-4"
@@ -4161,7 +4179,7 @@
 /turf/simulated/floor/grime,
 /area/mining/refinery)
 "JB" = (
-/obj/machinery/light_switch/south,
+/obj/machinery/light_switch/directional/south,
 /obj/decal/cleanable/dirt,
 /turf/simulated/floor/damaged2,
 /area/mining/refinery)
@@ -4185,7 +4203,7 @@
 	},
 /obj/item/crowbar,
 /obj/item/clothing/shoes/magnetic,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 4
 	},
 /area/mining/hangar)
@@ -4229,11 +4247,11 @@
 /area/mining/mainasteroid)
 "Kb" = (
 /obj/stool/chair/comfy,
-/obj/item/paper/businesscard/lawyers{
+/obj/item/paper/image/businesscard/lawyers{
 	pixel_x = -11;
 	pixel_y = 27
 	},
-/obj/item/paper/businesscard/bonktek{
+/obj/item/paper/image/businesscard/bonktek{
 	pixel_y = 31
 	},
 /turf/simulated/floor/carpet/office,
@@ -4258,7 +4276,7 @@
 /turf/simulated/floor/carpet/office,
 /area/mining/hangar)
 "Kh" = (
-/obj/machinery/light_switch/east,
+/obj/machinery/light_switch/directional/east,
 /turf/simulated/floor/grime,
 /area/mining/miningoutpost)
 "Kk" = (
@@ -4314,7 +4332,7 @@
 /turf/simulated/floor/caution/south,
 /area/mining/refinery)
 "KH" = (
-/obj/submachine/chef_sink/chem_sink{
+/obj/machinery/sink/slim{
 	desc = "A water-filled unit intended for hand-washing purposes.";
 	dir = 1
 	},
@@ -4398,7 +4416,7 @@
 	desc = "Caution! Construction Zone!";
 	name = "caution sign"
 	},
-/obj/machinery/light_switch/east,
+/obj/machinery/light_switch/directional/east,
 /turf/simulated/floor/yellow/side{
 	dir = 5
 	},
@@ -4429,9 +4447,6 @@
 /turf/simulated/floor,
 /area/mining/miningoutpost)
 "Lw" = (
-/obj/item/rods/steel,
-/obj/item/rods/steel,
-/obj/item/rods/steel,
 /turf/simulated/floor/grime,
 /area/mining/comms)
 "Lx" = (
@@ -4502,7 +4517,7 @@
 /obj/item/rods/steel,
 /obj/item/rods/steel,
 /obj/random_item_spawner/junk/one_or_zero,
-/obj/machinery/light_switch/south,
+/obj/machinery/light_switch/directional/south,
 /turf/simulated/floor/grime,
 /area/mining/comms)
 "LL" = (
@@ -4594,11 +4609,11 @@
 /area/noGenerate)
 "Mo" = (
 /obj/table/auto,
-/obj/item/storage/firstaid/regular,
 /obj/decal/cleanable/cobweb,
 /obj/cable{
 	icon_state = "1-4"
 	},
+/obj/item/storage/firstaid/regular,
 /turf/simulated/floor/grime,
 /area/mining/comms)
 "Mq" = (
@@ -4647,7 +4662,7 @@
 /obj/item/parts/robot_parts/head/antique,
 /obj/item/parts/robot_parts/head/antique,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "MF" = (
 /turf/simulated/floor/caution/north{
 	dir = 8
@@ -4669,7 +4684,7 @@
 	},
 /obj/lattice,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "MJ" = (
 /obj/structure/girder,
 /turf/simulated/floor/plating,
@@ -4901,7 +4916,7 @@
 	name = "crab"
 	},
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "Or" = (
 /obj/machinery/door/airlock/pyro/external{
 	name = "Mining Outpost Airlock"
@@ -4921,7 +4936,7 @@
 /obj/npc/trader/martian,
 /obj/map/light/dimred,
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "Ox" = (
 /obj/cable{
 	icon_state = "1-8"
@@ -4943,7 +4958,7 @@
 "OA" = (
 /obj/item/cable_coil/cut,
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "OD" = (
 /obj/overlay{
 	density = 1;
@@ -4953,7 +4968,7 @@
 	name = "old busted turbine thingy"
 	},
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "OG" = (
 /turf/simulated/floor/caution/east,
 /area/mining/hangar)
@@ -5016,6 +5031,9 @@
 /obj/landmark/spawner/loot,
 /turf/simulated/floor/plating/damaged3,
 /area/evilreaver/genetics)
+"Pi" = (
+/turf/simulated/floor/martian,
+/area/evilreaver/crew)
 "Pm" = (
 /obj/decal/cleanable/fungus,
 /turf/simulated/wall/auto/reinforced/old,
@@ -5024,7 +5042,7 @@
 /turf/simulated/floor/damaged2,
 /area/mining/magnet_control)
 "Px" = (
-/obj/machinery/light_switch/west,
+/obj/machinery/light_switch/directional/west,
 /obj/decal/cleanable/dirt,
 /obj/random_item_spawner/junk/one_or_zero,
 /obj/decal/tile_edge/stripe/corner/extra_big2{
@@ -5114,7 +5132,7 @@
 	},
 /obj/lattice,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "Qh" = (
 /obj/machinery/manufacturer/hangar,
 /turf/simulated/floor/caution/east,
@@ -5154,7 +5172,7 @@
 /obj/item/seed/cannabis,
 /obj/item/seed/cannabis,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "QE" = (
 /obj/fakeobject{
 	anchored = 1;
@@ -5181,7 +5199,7 @@
 "QN" = (
 /obj/table/auto,
 /obj/item/magnet_parts/construction,
-/obj/item/paper/businesscard/lawyers{
+/obj/item/paper/image/businesscard/lawyers{
 	pixel_y = 27
 	},
 /turf/simulated/floor/grime,
@@ -5315,7 +5333,7 @@
 	icon_state = "4-8"
 	},
 /obj/decal/stripe_delivery,
-/obj/machinery/light_switch/north,
+/obj/machinery/light_switch/directional/north,
 /turf/simulated/floor,
 /area/mining/magnet_control)
 "RJ" = (
@@ -5474,7 +5492,7 @@
 /area/mining/hangar)
 "SN" = (
 /obj/machinery/bot/medbot,
-/obj/machinery/light_switch/north,
+/obj/machinery/light_switch/directional/north,
 /turf/simulated/floor/caution/south,
 /area/mining/manufacturing)
 "SP" = (
@@ -5537,7 +5555,7 @@
 /turf/simulated/floor/black,
 /area/mining/quarters)
 "Th" = (
-/obj/machinery/light_switch/south,
+/obj/machinery/light_switch/directional/south,
 /turf/simulated/floor/caution/east,
 /area/mining/quarters)
 "Tj" = (
@@ -5585,7 +5603,7 @@
 /obj/table/reinforced/auto,
 /obj/item/reagent_containers/food/snacks/riceandbeans,
 /obj/machinery/light/incandescent,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 1
 	},
 /area/mining/hangar)
@@ -5628,10 +5646,10 @@
 /area/station/solar/small_backup3)
 "TR" = (
 /obj/machinery/vending/snack,
-/obj/item/paper/businesscard/taxi{
+/obj/item/paper/image/businesscard/taxi{
 	pixel_y = 32
 	},
-/obj/item/paper/businesscard/ezekian{
+/obj/item/paper/image/businesscard/ezekian{
 	pixel_x = -6;
 	pixel_y = 24
 	},
@@ -5650,7 +5668,7 @@
 "TW" = (
 /obj/table/reinforced/auto,
 /obj/item/storage/firstaid/regular,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 1
 	},
 /area/mining/hangar)
@@ -5660,7 +5678,7 @@
 	},
 /obj/landmark/spawner/loot,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "Ub" = (
 /obj/machinery/door/airlock/pyro/external{
 	dir = 8
@@ -5681,7 +5699,7 @@
 "Ug" = (
 /obj/lattice,
 /turf/simulated/floor/martian,
-/area/noGenerate)
+/area/evilreaver/crew)
 "Uk" = (
 /obj/stool/bed,
 /obj/item/clothing/suit/bedsheet,
@@ -5802,10 +5820,10 @@
 	},
 /obj/table/wood/round/champagne,
 /obj/machinery/phone,
-/obj/item/paper/businesscard/banjo{
+/obj/item/paper/image/businesscard/banjo{
 	pixel_y = 28
 	},
-/obj/item/paper/businesscard/taxi{
+/obj/item/paper/image/businesscard/taxi{
 	pixel_x = -11;
 	pixel_y = 24
 	},
@@ -5939,7 +5957,7 @@
 /obj/fakeobject/robot,
 /obj/decal/cleanable/oil,
 /turf/simulated/floor/plating/damaged3,
-/area/noGenerate)
+/area/evilreaver/crew)
 "VK" = (
 /obj/cable{
 	icon_state = "1-2"
@@ -6020,7 +6038,7 @@
 "Wv" = (
 /obj/storage/closet/welding_supply,
 /obj/machinery/light/incandescent,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 4
 	},
 /area/mining/hangar)
@@ -6228,7 +6246,7 @@
 /area/mining/dock)
 "XJ" = (
 /turf/simulated/wall/auto/reinforced/old,
-/area/noGenerate)
+/area/evilreaver/crew)
 "XL" = (
 /obj/decal/cleanable/dirt,
 /turf/simulated/floor/caution/south,
@@ -6254,7 +6272,7 @@
 /area/mining/miningoutpost)
 "XU" = (
 /obj/storage/closet/welding_supply,
-/turf/simulated/floor/orangeblack/side{
+/turf/simulated/floor/caution/side{
 	dir = 8
 	},
 /area/mining/hangar)
@@ -6402,7 +6420,7 @@
 /obj/cable{
 	icon_state = "4-8"
 	},
-/obj/machinery/light_switch/south,
+/obj/machinery/light_switch/directional/south,
 /obj/decal/cleanable/dirt,
 /obj/random_item_spawner/junk/one_or_zero,
 /turf/simulated/floor/grime,
@@ -16948,12 +16966,12 @@ ab
 ab
 ab
 aw
-aw
-aw
+fp
+fp
 nR
-aw
-aw
-aw
+fp
+fp
+fp
 XJ
 Xr
 Yr
@@ -17250,12 +17268,12 @@ ab
 ab
 NG
 aw
-aw
-Qc
-UM
+fp
+CK
+Pi
 oz
-Qi
-aw
+BD
+fp
 XJ
 Xx
 Yf
@@ -17551,11 +17569,11 @@ ab
 ab
 NG
 aw
-aw
-Qc
+fp
+CK
 Oq
-UM
-UM
+Pi
+Pi
 Ua
 pM
 XJ
@@ -17853,7 +17871,7 @@ ab
 ab
 aw
 aw
-aw
+fp
 MA
 Ug
 Ug
@@ -18155,13 +18173,13 @@ ab
 ab
 aw
 aw
-Qi
+BD
 MI
 Ou
 nV
 nV
 oM
-UM
+Pi
 pR
 XJ
 YW
@@ -18457,13 +18475,13 @@ ab
 ab
 aw
 aw
-aw
+fp
 fz
 OA
 nW
-UM
-UM
-UM
+Pi
+Pi
+Pi
 qd
 XJ
 Yn
@@ -18764,8 +18782,8 @@ cc
 OD
 Qe
 QC
-UM
-UM
+Pi
+Pi
 qg
 qv
 Yr
@@ -19063,10 +19081,10 @@ ab
 Rk
 XJ
 XJ
-aw
-Qi
+fp
+BD
 oD
-UM
+Pi
 pN
 VI
 XJ
@@ -19365,11 +19383,11 @@ ab
 ab
 SX
 XJ
-aw
-aw
-aw
-UM
-aw
+fp
+fp
+fp
+Pi
+fp
 XJ
 XJ
 YW
@@ -21494,7 +21512,7 @@ zp
 Ac
 Ac
 Ey
-Gr
+GU
 bf
 XN
 GU
@@ -43904,7 +43922,7 @@ Kc
 Kc
 Pz
 RN
-ON
+nJ
 oj
 ON
 QB

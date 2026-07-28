@@ -1,6 +1,6 @@
 #define VALID_WHITE_HOLE_LOCATIONS list("artlab", "teg", "flock", "chapel", "trench", "asteroid", \
 	"cafeteria", "singulo", "plasma", "nukies", "hell", "botany", "maint", "ai", "bridge", "clown", \
-	"medbay", "security", "cargo", "nuclear", "janitorial", "wizard", "spacemas")
+	"medbay", "security", "cargo", "nuclear", "janitorial", "wizard", "spacemas", "basketball")
 
 TYPEINFO(/datum/random_event/major/white_hole)
 	initialization_args = list(
@@ -663,7 +663,7 @@ ADMIN_INTERACT_PROCS(/obj/whitehole, proc/admin_activate)
 			/obj/item/clothing/head/red = 4,
 			/obj/item/clothing/head/helmet/siren = 2,
 			/obj/machinery/flasher/portable = 1,
-			/obj/item/barrier = 1,
+			/obj/item/barrier/collapsible/security = 1,
 			/mob/living/carbon/human/npc/monkey/stirstir = 1,
 			/datum/projectile/energy_bolt = 3,
 			/datum/projectile/energy_bolt/burst = 3,
@@ -813,7 +813,7 @@ ADMIN_INTERACT_PROCS(/obj/whitehole, proc/admin_activate)
 			/obj/item/clothing/head/apprentice = 1,
 			/obj/item/toy/plush/small/kitten/wizard = 1,
 			/obj/item/paper/Wizardry101 = 10,
-			/obj/item/paper/businesscard/cosmicacres = 2,
+			/obj/item/paper/image/businesscard/cosmicacres = 2,
 			/datum/projectile/fireball = 5,
 			/datum/projectile/special/homing/magicmissile/weak = 20,
 			/datum/projectile/special/homing/magicmissile = 15,
@@ -856,6 +856,27 @@ ADMIN_INTERACT_PROCS(/obj/whitehole, proc/admin_activate)
 			/datum/figure_info/santa = 1,
 #endif
 			/datum/reagent/fooddrink/alcoholic/mulled_wine = 2,
+		),
+		"basketball" = list(
+			/obj/item/basketball = 15,
+			/obj/item/bballbasket = 4,
+			/obj/item/clothing/under/referee = 3,
+			/obj/item/clothing/under/jersey/red = 5,
+			/obj/item/clothing/under/jersey/blue = 5,
+			/obj/item/clothing/under/jersey/green = 4,
+			/obj/item/clothing/under/jersey/purple = 4,
+			/obj/item/clothing/under/jersey/black = 3,
+			/obj/item/clothing/shoes/white = 2,
+			/obj/newmeteor/basketball = 4,
+			/obj/item/trophy = 1,
+			/obj/item/instrument/whistle = 4,
+			/obj/item/instrument/bikehorn/airhorn = 3,
+			/obj/item/basketball/lethal = 0.3,
+			/obj/item/reagent_containers/food/snacks/hotdog = 3,
+			/obj/item/reagent_containers/food/drinks/energyshake = 3,
+			/obj/item/reagent_containers/pill/crank = 2,
+			/obj/item/reagent_containers/pill/methamphetamine = 4,
+			/mob/living/carbon/human/referee = 1
 		),
 	)
 
@@ -901,6 +922,7 @@ ADMIN_INTERACT_PROCS(/obj/whitehole, proc/admin_activate)
 				shake_camera(C.mob, 5, 16)
 
 			playsound(src,'sound/effects/creaking_metal1.ogg',100,FALSE,5,-0.5)
+			SEND_GLOBAL_SIGNAL(COMSIG_GRAVITY_EVENT, GRAVITY_EVENT_DISRUPT, src.z)
 
 		processing_items |= src
 
