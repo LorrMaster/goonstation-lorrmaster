@@ -1655,7 +1655,18 @@ ABSTRACT_TYPE(/datum/material/organic)
 		mat_id = "greymatter"
 		name = "grey matter"
 		desc = "It makes your brain think good."
-		color = "#b99696"
+		color = list(1.00, 0.00, 0.00, 0.00,\
+					0.00, 1.00, 0.00, 0.00,\
+					0.00, 0.00, 1.00, 0.00,\
+					0.00, 0.00, 0.00, 1.00,\
+					0.00, 0.00, 0.00, 0.00)
+		hsl_color = list(0.00, 0.00, 0.00, 0.00,\
+						0.00, 0.25, 0.00, 0.00,\
+						0.00, 0.00, 1.00, 0.00,\
+						0.00, 0.00, 0.00, 1.00,\
+						0.91, 0.05, 0.05, 0.00)
+		texture = "brain"
+		texture_blend = BLEND_OVERLAY
 
 /datum/material/organic/char
 	mat_id = "char"
