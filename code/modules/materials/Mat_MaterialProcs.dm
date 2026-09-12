@@ -26,7 +26,7 @@ triggerOnImage(var/image/target, var/datum/material/source)
 	proc/execute()
 		return
 
-	proc/get_scan_desc()
+	proc/get_scan_desc(var/datum/material/material)
 		return desc_scan
 /*
 /datum/materialProc/oneat_flesh
@@ -992,3 +992,8 @@ triggerOnImage(var/image/target, var/datum/material/source)
 		else
 			var/turf/target = pick(block(L.x - 5, L.y - 5, L.z, L.x + 5, L.y + 5, L.z))
 			arcFlashTurf(L, target, src.wattage, 100)
+
+/datum/materialProc/anticontaminant_add
+	get_scan_desc(var/datum/material/material)
+		var/spread_chance = 100 - (material.getProperty("chemical") * 10)
+		return "Surface reduces chance of disease spread by approximately [spread_chance]%"

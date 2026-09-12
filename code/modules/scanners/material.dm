@@ -53,7 +53,7 @@ TYPEINFO(/obj/item/device/matanalyzer)
 		var/list/trigger_desc = list()
 		for(var/X in triggerVars)
 			for(var/datum/materialProc/mat_proc in mat.vars[X])
-				var/desc = mat_proc.get_scan_desc()
+				var/desc = mat_proc.get_scan_desc(mat)
 				if(!desc)
 					continue
 				var/desc_match = FALSE

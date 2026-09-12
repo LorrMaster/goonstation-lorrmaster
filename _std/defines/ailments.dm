@@ -18,3 +18,9 @@
 #define CURE_HEART_TRANSPLANT (1<<7)
 /// ailment cure is determined by the ailment
 #define CURE_CUSTOM (1<<8)
+
+#define SPREAD_NONCONTAGIOUS 0
+#define SPREAD_ALL (SPREAD_AIRBORN | SPREAD_SURGERY)
+#define SPREAD_AIRBORN 1
+#define SPREAD_SURGERY 2
+#define SPREAD_SALIVA 4
