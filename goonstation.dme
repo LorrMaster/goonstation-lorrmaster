@@ -123,6 +123,7 @@
 #include "code\datums\rand.dm"
 #include "code\datums\recipe.dm"
 #include "code\datums\regex.dm"
+#include "code\datums\riddles.dm"
 #include "code\datums\round_management.dm"
 #include "code\datums\savefile.dm"
 #include "code\datums\sims.dm"

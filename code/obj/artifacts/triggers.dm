@@ -191,4 +191,27 @@ ABSTRACT_TYPE(/datum/artifact_trigger/)
 				return "hint"
 		return "hint"
 
+/datum/artifact_trigger/quiz
+	type_name = "Quiz"
+	stimulus_required = "language"
+	hint_prob = 0 // uses custom way of giving hint
+	do_amount_check = FALSE
+	var/datum/quiz/question = null
+	var/show_type
+
+	New()
+		. = ..()
+		src.show_type = pick("whispers","reads","wails","hums","sings","writes","reveals")
+		var/question_type = pick(concrete_typesof(/datum/quiz))
+		src.question = new question_type
+
+	proc/show_question(var/mob/user, var/datum/artifact/artifact)
+		if(!src.question)
+			return "Woops. Riddle/Trivia not found."
+		var/result = "The [artifact.holder] [src.show_type]... "
+		result += "\"[src.question.text]\""
+		if(src.question.hint && user.traitHolder?.hasTrait("training_chaplain"))
+			result += SPAN_SUBTLE(" ([src.question.hint])")
+		boutput(user, result)
+
 #undef ARTIFACT_LANGUAGE_SENTENCE_CHECK
