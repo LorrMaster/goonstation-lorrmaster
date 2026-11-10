@@ -3,11 +3,37 @@ ABSTRACT_TYPE(/obj/item/fossil)
 	name = "fossil"
 	desc = "An imprint of some long-dead space creature."
 	icon = 'icons/obj/items/materials/fossil.dmi'
-	var/sprite_count = 2 // Number of sprites availible to choose from
+	var/sprite_count = 2 // Number of sprites available to choose from
+
+	var/datum/extinct_species/species = null //! Data on what kind of creature was fossilized
+	var/list/slots_missing = list() //! What parts of the creature's body are missing from the fossil.
 
 	New()
 		. = ..()
 		src.icon_state = "fossil_[rand(1,src.sprite_count)]$$[src.default_material]"
+		src.species = pick(extinct_species_list)
+		if(!src.species)
+			return
+		var/list/slots_missing_temp = list_keys(src.species.body_parts)
+		var/preserved_slot = pick(slots_missing_temp)
+		slots_missing_temp -= preserved_slot
+		var/preserve_prob = (0.02 ** (1 / length(slots_missing_temp))) * 100 // 2% chance for a complete fossil
+		for(var/slot in slots_missing_temp)
+			if(prob(preserve_prob))
+				slots_missing_temp -= slot
+		src.slots_missing = slots_missing_temp
+
+	get_desc(dist, mob/user)
+		. = ..()
+		if(!src.species || dist > 1)
+			return
+		var/fossil_desc
+		if(user.mind?.assigned_role == "Geneticist")
+			fossil_desc = "Looks like it's \a <i>[species.name_genus] [species.name_species]</i> fossil! It's an extinct type of [species.body_category.name]. "
+		else if(user.traitHolder.hasTrait("training_miner"))
+			fossil_desc = "Looks like some kind of [pick("weird","odd-looking","strange","extinct")] [species.body_category.name]. "
+		fossil_desc += src.species.body_category.get_fossil_desc(src)
+		return fossil_desc + .
 
 	afterattack(var/atom/A, var/mob/user)
 		if(istype(A, /obj/machinery/computer/genetics))
@@ -21,6 +47,21 @@ ABSTRACT_TYPE(/obj/item/fossil)
 			user.drop_item()
 			playsound(genetics_computer, 'sound/machines/scan2.ogg', 125, TRUE)
 			boutput(user,SPAN_SUCCESS("[src] submitted for 100 research material and some chromosomes."))
+
+			if(src.species)
+				var/list/slots_preserved = list_keys(src.species.body_parts) - src.slots_missing
+				for(var/slot in slots_preserved)
+					var/datum/extinct_body_part/part = src.species.body_parts[slot]
+					part.is_analysed = TRUE
+				var/analysis_complete = TRUE
+				for(var/slot in src.species.body_parts)
+					var/datum/extinct_body_part/part = src.species.body_parts[slot]
+					if(!part.is_analysed)
+						analysis_complete = FALSE
+						break
+				if(analysis_complete)
+					var/mob/living/critter/extinct/fossil_critter = new(get_turf(A), src.species)
+					boutput(user, SPAN_SUCCESS("<i>[src.species.name_genus] [src.species.name_genus]</i> analysis complete."))
 			qdel(src)
 
 /obj/item/fossil/stone

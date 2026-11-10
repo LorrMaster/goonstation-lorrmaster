@@ -1,0 +1,3 @@
+name_start@=ath@,ac@,bi@,cin@,chi@,del@,en@,fon@,gru@,hou@,ir@,ju@,ka@,lu@,mi@,ni@,or@,phi@,quo@,ru@,ste@,sha@,tia@,u@,vul@,za
+name_middle@=acast@,bonte@,bana@,cast@,caugh@,delli@,effe@,fali@,gissi@,hippo@,illuv@,jino@,kina@,lorr@,liv@,manne@,neppo@,oppos@,pasqu@,querro@,rue@,sienn@,tulli@,urse@,vorro
+name_end@=ius@,rus@,lia@,dae@,ava@,us@,des@,ina@,are@,ella@,tes@,ge@,um@,ide@,no
