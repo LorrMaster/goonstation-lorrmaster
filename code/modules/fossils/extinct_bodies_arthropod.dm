@@ -1,11 +1,10 @@
 /datum/extinct_body_category/arthropod
 	name = "arthropod"
 	icon_file = 'icons/mob/critter/nonhuman/extinct/arthropod.dmi'
-	antag_message = "Your kind has been deceased for countless eons and the remnants of your once-great species lie all but \
-		forgotten. But despair not... for you have been reborn! <i><sub>With a misaligned exoskeleton,</sub></i> \
-		but reborn nonetheless! What's more, your creators are generous and have bestowed upon you a bounty of \
-		many potentially-highly-delectable bipeds. Stretch out your appendages and sharpen your mandibles, for your \
-		instincts are only limited by your ambitions!"
+	antag_message = "Your kind hast lay ruined for countless eons and the remnants of thine once-great species lie all but \
+		forgotten. But despair not... for thou hast been reborn! <i><sub>With a misaligned exoskeleton,</sub></i> \
+		but reborn nonetheless! What is more, your creators art generous and hast bestowed upon you a bounty of \
+		many potentially-highly-delectable bipeds. Ready your appendages, for thy instincts art only confined by thine ambitions!"
 
 	New()
 		. = ..()
@@ -34,7 +33,7 @@
 		critter.speech_verb_say = "clicks"
 		critter.speech_verb_exclaim = "screeches"
 		critter.speech_verb_ask = "chitters"
-		
+
 		return
 
 	apply_species(var/datum/extinct_species/species)

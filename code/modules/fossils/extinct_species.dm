@@ -11,7 +11,7 @@ var/global/datum/extinct_species/extinct_species_list = list()
 	var/alist/body_parts = alist() //! Associative list of "extinct_body_parts". Keys are slot names.
 	var/datum/bioHolder/bioHolder
 	var/list/abilities = list()
-	var/critter_type = /mob/living/critter/extinct //! The type of critter to spawn. In case you want it to be a rance critter or something.
+	var/critter_type = /mob/living/critter/extinct //! The type of critter to spawn. In case you want it to be a ranch critter or something.
 	var/is_antag = FALSE
 
 	New()
@@ -54,6 +54,16 @@ var/global/datum/extinct_species/extinct_species_list = list()
 		src.build_sprite_direction(SOUTH)
 		src.build_sprite_direction(EAST)
 		src.build_sprite_direction(WEST)
+
+		// Turn it upside-down for the death sprite
+		var/icon/icon_dead_east = icon(src.body_icon, "creature", EAST, 1)
+		var/icon/icon_dead_west = icon(src.body_icon, "creature", WEST, 1)
+		icon_dead_east.Flip(NORTH)
+		icon_dead_west.Flip(NORTH)
+		src.body_icon.Insert(icon_dead_east, "creature_dead", SOUTH)
+		src.body_icon.Insert(icon_dead_east, "creature_dead", EAST)
+		src.body_icon.Insert(icon_dead_west, "creature_dead", NORTH)
+		src.body_icon.Insert(icon_dead_west, "creature_dead", WEST)
 
 	proc/build_sprite_direction(var/direction)
 		// Figure out how the parts should be layered in the given direction, from back to front.

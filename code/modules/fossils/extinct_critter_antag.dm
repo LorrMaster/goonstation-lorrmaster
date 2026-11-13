@@ -1,12 +1,9 @@
-#define ROLE_EXTINCT_CREATURE "extinct_creature"
-
 /datum/antagonist/mob/fossil_critter
 	id = ROLE_EXTINCT_CREATURE
 	display_name = "extinct creature"
+	popup_name_override = "traitorgeneric" // I don't know TGUI
 	remove_on_death = TRUE
-
-	is_compatible_with(datum/mind/mind)
-		return TRUE
+	mutually_exclusive = FALSE
 
 	give_equipment()
 		var/mob/living/critter/critter = src.owner.current
@@ -32,9 +29,9 @@
 	name = "Sting (neurotoxin)"
 	icon_state = "scorpion_sting"
 	desc = "Sting a mob, injecting them with 35 units of neurotoxin."
-	cooldown = 120 SECONDS
+	cooldown = 100 SECONDS
 	venom1 = "neurotoxin"
-	amt1 = 35
+	amt1 = 30
 	venom2 = "toxin"
 	amt2 = 0
 

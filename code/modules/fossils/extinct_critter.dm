@@ -1,3 +1,5 @@
+#define ROLE_EXTINCT_CREATURE "extinct_creature"
+
 /mob/living/critter
 	var/datum/extinct_species/extinct_species = null
 
@@ -6,7 +8,7 @@
 	name = "weird creature"
 	desc = ""
 	icon_state = "creature"
-	icon_state_dead = "creature"
+	icon_state_dead = "creature_dead"
 	icon_state_ghost = "creature"
 	hand_count = 1
 	can_help = TRUE
@@ -119,7 +121,6 @@
 		text_messages.Add("You have been added to the list of eligible candidates. The game will pick a player soon. Good luck!")
 
 		// The proc takes care of all the necessary work (job-banned etc checks, confirmation delay).
-		usr.playsound_local(usr.loc, "sound/voice/wraith/wraithportal.ogg", 50, 0)
 		message_admins("Sending [src.species.is_antag ? "antag" : "non-antag"] extinct creature offer to eligible ghosts. They have [src.ghost_confirmation_delay / 10] seconds to respond.")
 		var/list/datum/mind/candidates = dead_player_list(1, src.ghost_confirmation_delay, text_messages, allow_dead_antags = FALSE)
 		if(!islist(candidates) || length(candidates) <= 0)
