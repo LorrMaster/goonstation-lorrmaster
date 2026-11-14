@@ -6,7 +6,7 @@
 /// A fossil critter that can be player-controlled
 /mob/living/critter/extinct
 	name = "weird creature"
-	desc = ""
+	desc = " "
 	icon_state = "creature"
 	icon_state_dead = "creature_dead"
 	icon_state_ghost = "creature"
@@ -33,11 +33,15 @@
 		. = ..()
 		if(!species)
 			species = new()
-		src.name = pick("weird","odd","bizarre","curious","peculiar","strange","eerie","exotic","uncanny","unusual","unknown","quaint","outlandish")
-		src.name += " [species.body_category.name]"
-		src.icon = species.body_icon
 		src.extinct_species = species
+		src.name = pick("weird","odd","bizarre","curious","peculiar","strange","eerie","exotic","uncanny","unusual","unknown","quaint","outlandish")
+		src.name += " [src.extinct_species.body_category.name]"
+		src.icon = src.extinct_species.body_icon
 		src.extinct_species.on_spawn(src)
+
+	examine(mob/user)
+		. = ..()
+
 
 	get_desc(dist, mob/user)
 		. = ..()
@@ -83,7 +87,7 @@
 	item_state = "card-id"
 	w_class = W_CLASS_TINY
 	var/datum/extinct_species/species = null
-	var/ghost_confirmation_delay = 10 SECONDS
+	var/ghost_confirmation_delay = 30 SECONDS
 
 	New(newLoc, var/datum/extinct_species/species)
 		. = ..()
@@ -107,12 +111,11 @@
 		playsound(computer, 'sound/machines/scan2.ogg', 125, TRUE)
 		user.drop_item(src)
 		src.set_loc(computer)
-		SPAWN(5 SECONDS)
-			// We're gonna spawn the fossil critter out of thin air because this PR is already complicated enough.
-			var/mob/living/critter/fossil_critter = new src.species.critter_type(get_turf(clone_pod), src.species)
-			fossil_critter.bioHolder.age = src.species.bioHolder.age
-			src.make_fossil_critter(fossil_critter, user.mind)
-			qdel(src)
+
+		// We're gonna spawn the fossil critter out of thin air because this PR is already complicated enough.
+		var/mob/living/critter/fossil_critter = new src.species.critter_type(get_turf(clone_pod), src.species)
+		src.make_fossil_critter(fossil_critter, user.mind)
+		qdel(src)
 
 	proc/make_fossil_critter(var/mob/living/critter/extinct/critter, var/source)
 		var/list/text_messages = list()
@@ -139,3 +142,53 @@
 
 		if(src.species.is_antag)
 			chosen_player.add_antagonist(ROLE_EXTINCT_CREATURE, source = ANTAGONIST_SOURCE_SUMMONED)
+
+// Temporarily keeping secret species-specific fossil stuff here
+/obj/item/fossil
+	var/datum/extinct_species/species = null //! Data on what kind of creature was fossilized
+	var/list/slots_preserved = list() //! Which parts of the creature's body have been preserved.
+
+	get_desc(dist, mob/user)
+		. = ..()
+		if(!src.species || dist > 1)
+			return
+		var/fossil_desc
+		if(user.mind?.assigned_role == "Geneticist")
+			fossil_desc = "Looks like \a <i>[species.name_genus] [species.name_species]</i> fossil, an extinct type of [species.body_category.name]. "
+		else if(user.traitHolder.hasTrait("training_miner"))
+			fossil_desc = "Looks like some kind of [pick("weird","odd-looking","strange","extinct")] [species.body_category.name]. "
+		fossil_desc += src.species.body_category.get_fossil_desc(src)
+		return fossil_desc
+
+	proc/on_create_secret()
+		if(!length(extinct_species_list) || prob(50 ** (1 / length(extinct_species_list))))
+			src.species = new()
+		else
+			src.species = pick(extinct_species_list)
+
+		var/list/slots_list = list_keys(src.species.body_parts)
+		var/preserved_slot = pick(slots_list)
+		src.slots_preserved += preserved_slot
+		slots_list -= preserved_slot
+		// 3% chance for a complete fossil. Keeping it low for now but can increase later.
+		var/preserve_prob = (0.03 ** (1 / length(slots_list))) * 100
+		for(var/slot in slots_list)
+			if(prob(preserve_prob))
+				src.slots_preserved += slot
+
+	proc/on_attack_secret(var/obj/machinery/computer/genetics/genetics_computer, var/mob/user)
+		if(!src.species || !genetics_computer)
+			return
+		for(var/slot in src.slots_preserved)
+			var/datum/extinct_body_part/part = src.species.body_parts[slot]
+			part.is_analysed = TRUE
+		var/analysis_complete = TRUE
+		for(var/slot in src.species.body_parts)
+			var/datum/extinct_body_part/part = src.species.body_parts[slot]
+			if(!part.is_analysed)
+				analysis_complete = FALSE
+				break
+		if(analysis_complete)
+			var/obj/item/fossil_critter_disk/disk = new(get_turf(genetics_computer), src.species)
+			boutput(user, SPAN_SUCCESS("Analysis of <i>[src.species.name_genus] [src.species.name_species]</i> complete."))
+			genetics_computer.visible_message("[disk] is ejected from the [genetics_computer].")

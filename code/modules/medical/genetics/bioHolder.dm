@@ -353,7 +353,7 @@ var/list/datum/bioEffect/mutini_effects = list()
 			bloodType = toCopy.bloodType
 			bloodColor = toCopy.bloodColor
 			clone_generation = toCopy.clone_generation
-			ownerName = toCopy.ownerName || toCopy.owner.real_name // To quote line 386, "fuck this shit"
+			ownerName = toCopy.ownerName || toCopy.owner?.real_name // To quote line 386, "fuck this shit"
 			Uid = toCopy.Uid
 			uid_hash = md5(Uid)
 			default_fingerprints = toCopy.default_fingerprints
@@ -370,7 +370,6 @@ var/list/datum/bioEffect/mutini_effects = list()
 				BE = toCopy.effects[curr]
 				if (!BE.can_copy)
 					continue
-
 				var/datum/bioEffect/newCopy
 				if(HasEffect(BE.id))
 					newCopy = GetEffect(BE.id)
@@ -379,7 +378,6 @@ var/list/datum/bioEffect/mutini_effects = list()
 
 				if(!newCopy) //uh oh
 					continue
-
 				var/oldpower = newCopy.power
 				newCopy.power = BE.power
 				newCopy.safety = BE.safety

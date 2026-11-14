@@ -23,7 +23,7 @@ var/global/datum/extinct_species/extinct_species_list = list()
 				extinct_body_categories[body_type] = new body_type
 
 		src.bioHolder = new()
-		src.bioHolder.age = rand(10, 500) * 1000000
+		src.bioHolder.age = rand(10, 520) * 1000000
 		src.body_category = extinct_body_categories[pick(extinct_body_categories)]
 		src.body_category.apply_species(src)
 		src.build_sprite()
@@ -38,8 +38,7 @@ var/global/datum/extinct_species/extinct_species_list = list()
 
 	proc/on_spawn(var/mob/living/critter/critter)
 		critter.blood_id = src.blood_id
-		src.bioHolder.CopyOther(critter.bioHolder)
-		critter.bioHolder.age = 0
+		critter.bioHolder.CopyOther(src.bioHolder, copyPool = FALSE)
 		for(var/ability_type in src.abilities)
 			critter.addAbility(ability_type)
 		src.body_category.on_spawn(critter)
@@ -104,55 +103,5 @@ var/global/datum/extinct_species/extinct_species_list = list()
 			icon_dir_moving.Blend(part_sprite, ICON_OVERLAY)
 		src.body_icon.Insert(icon_dir, "creature", direction, delay = 2)
 		src.body_icon.Insert(icon_dir_moving, "creature", direction, moving = TRUE)
-
-// Temporarily keeping species-specific fossil stuff here
-/obj/item/fossil
-	var/datum/extinct_species/species = null //! Data on what kind of creature was fossilized
-	var/list/slots_preserved = list() //! Which parts of the creature's body have been preserved.
-
-	get_desc(dist, mob/user)
-		. = ..()
-		if(!src.species || dist > 1)
-			return
-		var/fossil_desc
-		if(user.mind?.assigned_role == "Geneticist")
-			fossil_desc = "Looks like \a <i>[species.name_genus] [species.name_species]</i> fossil, an extinct type of [species.body_category.name]! "
-		else if(user.traitHolder.hasTrait("training_miner"))
-			fossil_desc = "Looks like some kind of [pick("weird","odd-looking","strange","extinct")] [species.body_category.name]. "
-		fossil_desc += src.species.body_category.get_fossil_desc(src)
-		return fossil_desc
-
-	proc/on_create_secret()
-		if(!length(extinct_species_list) || prob(50 ** (1 / length(extinct_species_list))))
-			src.species = new()
-		else
-			src.species = pick(extinct_species_list)
-
-		var/list/slots_list = list_keys(src.species.body_parts)
-		var/preserved_slot = pick(slots_list)
-		src.slots_preserved += preserved_slot
-		slots_list -= preserved_slot
-		// 3% chance for a complete fossil. Keeping it low for now but can increase later.
-		var/preserve_prob = (0.03 ** (1 / length(slots_list))) * 100
-		for(var/slot in slots_list)
-			if(prob(preserve_prob))
-				src.slots_preserved += slot
-
-	proc/on_attack_secret(var/obj/machinery/computer/genetics/genetics_computer, var/mob/user)
-		if(!src.species || !genetics_computer)
-			return
-		for(var/slot in src.slots_preserved)
-			var/datum/extinct_body_part/part = src.species.body_parts[slot]
-			part.is_analysed = TRUE
-		var/analysis_complete = TRUE
-		for(var/slot in src.species.body_parts)
-			var/datum/extinct_body_part/part = src.species.body_parts[slot]
-			if(!part.is_analysed)
-				analysis_complete = FALSE
-				break
-		if(analysis_complete)
-			var/obj/item/fossil_critter_disk/disk = new(get_turf(genetics_computer), src.species)
-			boutput(user, SPAN_SUCCESS("Analysis of <i>[src.species.name_genus] [src.species.name_species]</i> complete."))
-			genetics_computer.visible_message("[disk] is ejected from the [genetics_computer].")
 
 

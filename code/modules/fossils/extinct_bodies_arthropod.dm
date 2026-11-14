@@ -33,19 +33,13 @@
 		critter.speech_verb_say = "clicks"
 		critter.speech_verb_exclaim = "screeches"
 		critter.speech_verb_ask = "chitters"
-
 		return
 
 	apply_species(var/datum/extinct_species/species)
 		. = ..()
 		species.abilities += /datum/targetable/vent_move
 		species.abilities += pick(/datum/targetable/critter/bury_hide, /datum/targetable/critter/spit, /datum/targetable/critter/tackle)
-
-		var/datum/dna_chromosome/power_enhancer/empower = new()
-		var/datum/dna_chromosome/stabalize = new()
-		var/datum/bioEffect/carapace = species.bioHolder.AddEffect("carapace", do_stability = FALSE, scannable = TRUE, innate = TRUE)
-		stabalize.apply(carapace)
-		empower.apply(carapace)
+		species.bioHolder.AddEffect("carapace", do_stability = FALSE, scannable = TRUE, innate = TRUE)
 
 	generate_body_colors(var/datum/extinct_species/species)
 		var/list/color_hsl_primary
