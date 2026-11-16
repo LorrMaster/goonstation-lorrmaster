@@ -1,18 +1,17 @@
 /datum/extinct_body_category/arthropod
 	name = "arthropod"
 	icon_file = 'icons/mob/critter/nonhuman/extinct/arthropod.dmi'
-	antag_message = "Your kind hast lay ruined for countless eons and the remnants of thine once-great species lie all but \
-		forgotten. But despair not... for thou hast been reborn! <i><sub>With a misaligned exoskeleton,</sub></i> \
-		but reborn nonetheless! What is more, your creators art generous and hast bestowed upon you a bounty of \
-		many potentially-highly-delectable bipeds. Ready your appendages, for thy instincts art only confined by thine ambitions!"
+	potential_niches = list(
+		/datum/extinct_niche/bottomfeeder
+	)
 
 	New()
 		. = ..()
 		var/datum/extinct_body_slot/slot_face = new/datum/extinct_body_slot(80, list(55, 85, 85, 85), EXTINCT_COLOR_PRIMARY)
 		var/datum/extinct_body_slot/slot_head = new/datum/extinct_body_slot(100, list(50, 80, 80, 80), EXTINCT_COLOR_PRIMARY)
 		var/datum/extinct_body_slot/slot_body_main = new/datum/extinct_body_slot(100, list(20, 50, 50, 50), EXTINCT_COLOR_SECONDARY)
-		var/datum/extinct_body_slot/slot_body_side = new/datum/extinct_body_slot(75, list(25, 60, 55, 55), EXTINCT_COLOR_HIGHLIGHT)
-		var/datum/extinct_body_slot/slot_body_back = new/datum/extinct_body_slot(75, list(80, 55, 60, 60), EXTINCT_COLOR_HIGHLIGHT)
+		var/datum/extinct_body_slot/slot_body_side = new/datum/extinct_body_slot(80, list(25, 60, 55, 55), EXTINCT_COLOR_HIGHLIGHT)
+		var/datum/extinct_body_slot/slot_body_back = new/datum/extinct_body_slot(80, list(80, 55, 60, 60), EXTINCT_COLOR_HIGHLIGHT)
 		var/datum/extinct_body_slot/slot_legs = new/datum/extinct_body_slot(100, list(0, 0, 0, 0), EXTINCT_COLOR_SECONDARY)
 		slot_face.desc_missing = "its face"
 		slot_head.desc_missing = "a good portion of its head"
@@ -38,8 +37,8 @@
 	apply_species(var/datum/extinct_species/species)
 		. = ..()
 		species.abilities += /datum/targetable/vent_move
-		species.abilities += pick(/datum/targetable/critter/bury_hide, /datum/targetable/critter/spit, /datum/targetable/critter/tackle)
 		species.bioHolder.AddEffect("carapace", do_stability = FALSE, scannable = TRUE, innate = TRUE)
+		species.bioHolder.AddEffect("skitter", do_stability = FALSE, scannable = TRUE, innate = TRUE)
 
 	generate_body_colors(var/datum/extinct_species/species)
 		var/list/color_hsl_primary
@@ -123,6 +122,29 @@
 				desc += "You can see \a [legs.desc] preserved on the surface of the [fossil]. "
 		return desc + src.get_fossil_desc_missing(fossil)
 
+// ============================================================================================================
+// ================================================== Niches ==================================================
+// ============================================================================================================
+
+/// At the end of the day the floor is really just a giant platter
+/datum/extinct_niche/bottomfeeder
+	name = "bottom feeder"
+	potential_genes = list(
+		/datum/bioEffect/toxres,
+		/datum/bioEffect/detox,
+		/datum/bioEffect/nightvision,
+		/datum/bioEffect/shortsighted
+	)
+	New(var/datum/extinct_species/species)
+		. = ..()
+		species.bioHolder.AddNewPoolEffect("bottomfeeder", TRUE)
+		species.bioHolder.AddEffect("bottomfeeder", do_stability = FALSE, scannable = TRUE, innate = TRUE)
+		return
+
+// ============================================================================================================
+// ================================================ Body Parts ================================================
+// ============================================================================================================
+
 /datum/extinct_body_part/arthropod
 	head_large
 		icon_state = "head_large"
@@ -162,6 +184,9 @@
 	face_eyes_small
 		icon_state = "face_eyes_small"
 		desc = "pair of small eyes"
+	face_eyes_three
+		icon_state = "face_eyes_three"
+		desc = "set of three eyes"
 	face_horns
 		icon_state = "face_horns"
 		desc = "set of small horns"

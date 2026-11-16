@@ -5,14 +5,14 @@ var/global/datum/extinct_species/extinct_species_list = list()
 	var/name_genus = ""
 	var/name_species = ""
 	var/blood_id = "hemolymph"
+	var/health_mult = 1
 
 	var/icon/body_icon = null //! The final sprite for this species.
 	var/datum/extinct_body_category/body_category //! What general kind of of creature this is.
 	var/alist/body_parts = alist() //! Associative list of "extinct_body_parts". Keys are slot names.
 	var/datum/bioHolder/bioHolder
 	var/list/abilities = list()
-	var/critter_type = /mob/living/critter/extinct //! The type of critter to spawn. In case you want it to be a ranch critter or something.
-	var/is_antag = FALSE
+	var/datum/extinct_niche/niche = null //! Type of critter, major abilities, is it player-controlled, etc.
 
 	New()
 		. = ..()
@@ -27,7 +27,6 @@ var/global/datum/extinct_species/extinct_species_list = list()
 		src.body_category = extinct_body_categories[pick(extinct_body_categories)]
 		src.body_category.apply_species(src)
 		src.build_sprite()
-		src.is_antag = prob(20)
 
 		// Generate a super-scientific name for this species.
 		var/list/start_strings = strings("extinct_names.txt", "name_start")
@@ -38,7 +37,7 @@ var/global/datum/extinct_species/extinct_species_list = list()
 
 	proc/on_spawn(var/mob/living/critter/critter)
 		critter.blood_id = src.blood_id
-		critter.bioHolder.CopyOther(src.bioHolder, copyPool = FALSE)
+		critter.bioHolder.CopyOther(src.bioHolder, copyPool = TRUE)
 		for(var/ability_type in src.abilities)
 			critter.addAbility(ability_type)
 		src.body_category.on_spawn(critter)
@@ -105,3 +104,11 @@ var/global/datum/extinct_species/extinct_species_list = list()
 		src.body_icon.Insert(icon_dir_moving, "creature", direction, moving = TRUE)
 
 
+
+/// The type of critter and its abilities
+ABSTRACT_TYPE(/datum/extinct_niche)
+/datum/extinct_niche
+	var/name = "unnamed niche"
+	var/critter_type = /mob/living/critter/extinct
+	var/is_playable = FALSE //! Are players allowed to respawn as this critter?
+	var/list/potential_genes //! This creature is likely to start out with some of these genes

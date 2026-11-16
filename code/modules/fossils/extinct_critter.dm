@@ -1,9 +1,6 @@
-#define ROLE_EXTINCT_CREATURE "extinct_creature"
 
-/mob/living/critter
-	var/datum/extinct_species/extinct_species = null
-
-/// A fossil critter that can be player-controlled
+/// For mob types that are designed for extinct critters
+/// Warning: Extinct creatures are not guaranteed to be of this type
 /mob/living/critter/extinct
 	name = "weird creature"
 	desc = " "
@@ -15,9 +12,9 @@
 	can_throw = TRUE
 	can_grab = TRUE
 	can_disarm = TRUE
+	has_genes = TRUE
 	health_brute = 50
 	health_burn = 50
-	has_genes = TRUE
 	void_mindswappable = TRUE
 	butcherable = BUTCHER_ALLOWED
 	name_the_meat = TRUE
@@ -37,6 +34,8 @@
 		src.name = pick("weird","odd","bizarre","curious","peculiar","strange","eerie","exotic","uncanny","unusual","unknown","quaint","outlandish")
 		src.name += " [src.extinct_species.body_category.name]"
 		src.icon = src.extinct_species.body_icon
+		src.health_brute = 50 * species.health_mult
+		src.health_burn = 50 * species.health_mult
 		src.extinct_species.on_spawn(src)
 
 	examine(mob/user)
@@ -50,21 +49,21 @@
 				. = "[pick("Wow","Amazing","Incredible","Unbelievable")]! "
 				. += "It's a real-life <i>[src.extinct_species.name_genus] [src.extinct_species.name_species]</i>!"
 			if("Chef")
-				. = "You wonder what it tastes like."
+				. = "Maybe it would make for a good stew?"
 			if("Rancher")
 				. = "Maybe it's hungry?"
 			if("Miner")
-				. = "Almost looks like it came from a fossil."
+				. = "Just blame the geneticists."
 			if("Pest Control Specialist")
 				. = "Well your pest control training didn't include that."
 			if("Quartermaster")
-				. = "I wonder if there's a market for this?"
+				. = "Maybe there's a market for this?"
 			else
 				. = pick(
 					"The heck is this...?",
 					"Uhh... hello?",
 					"You should really start laying off the... whatever it is you're taking.",
-					"Whoever's fault this is you're pretty sure it's not yours.")
+					"Whoever's fault this is it's very likely not yours.")
 
 	setup_healths()
 		add_hh_flesh(src.health_brute, src.health_brute_vuln)
@@ -73,11 +72,60 @@
 		add_health_holder(/datum/healthHolder/brain)
 
 	valid_target(mob/living/C)
-		if(iscritter(C))
+		if(ismobcritter(C))
 			var/mob/living/critter/extinct = C
 			if(extinct.extinct_species == src.extinct_species)
 				return FALSE
 		. = ..()
+
+/// A fossil critter that can be player-controlled
+/mob/living/critter/extinct/player
+	var/static/list/datum/mind/respawn_candidates = list() //! Players who have responded "yes" since the last request
+	var/static/time_ask_last = -INFINITY
+	var/static/time_ask_wait = 2 MINUTES //! Spam protection
+	var/static/ghost_confirmation_delay = 5 SECONDS
+
+	proc/transfer_mind(var/datum/mind/mind)
+		if(!mind)
+			return
+		if(!isobserver(mind.current))
+			mind.current.ghostize()
+		mind.transfer_to(src)
+		src.is_npc = FALSE
+		src.mind.assigned_role = "Extinct Creature"
+		log_respawn_event(src.mind, "extinct creature", src)
+		message_admins("[key_name(src.mind)] respawned as an extinct creature.")
+
+	/// System for asking observers if they want to respawn while trying to avoid spam.
+	proc/request_player_new()
+		if((time_ask_last + time_ask_wait) < TIME)
+			while(length(src.respawn_candidates) > 0)
+				var/datum/mind/candidate = pick(src.respawn_candidates)
+				// TODO: Check if a player is already part of an existing species and skip them if they are
+				src.respawn_candidates -= candidate
+				if(!isobserver(candidate.current))
+					continue
+				src.transfer_mind(candidate)
+			return
+		time_ask_last = TIME
+		var/list/text_messages = list()
+		text_messages.Add("Would you like to respawn as an extinct creature? Your name will be added to the list of eligible candidates.")
+		text_messages.Add("You are eligible to be respawned as an extinct creature. You have [src.ghost_confirmation_delay / 10] seconds to respond to the offer.")
+		text_messages.Add("You have been added to the list of eligible candidates. The game will pick a player soon. Good luck!")
+		message_admins("Sending extinct creature respawn offer to eligible ghosts. They have [src.ghost_confirmation_delay / 10] seconds to respond.")
+		src.respawn_candidates = dead_player_list(1, src.ghost_confirmation_delay, text_messages, allow_dead_antags = FALSE)
+		if(!islist(src.respawn_candidates) || length(src.respawn_candidates) <= 0)
+			message_admins("Couldn't set up extinct creature ; no ghosts responded. Source: [src]")
+			logTheThing(LOG_ADMIN, null, "Couldn't set up extinct creature ; no ghosts responded. Source: [src]")
+			return
+		if(QDELETED(src))
+			message_admins("Couldn't set up extinct creature ; mob was destroyed")
+			logTheThing(LOG_ADMIN, null, "Couldn't set up extinct creature ; mob was destroyed")
+			return
+		var/datum/mind/candidate = pick(src.respawn_candidates)
+		src.respawn_candidates -= candidate
+		return candidate
+
 
 /// Lazy fossil critter spawning device
 /obj/item/fossil_critter_disk
@@ -87,7 +135,6 @@
 	item_state = "card-id"
 	w_class = W_CLASS_TINY
 	var/datum/extinct_species/species = null
-	var/ghost_confirmation_delay = 30 SECONDS
 
 	New(newLoc, var/datum/extinct_species/species)
 		. = ..()
@@ -113,82 +160,11 @@
 		src.set_loc(computer)
 
 		// We're gonna spawn the fossil critter out of thin air because this PR is already complicated enough.
-		var/mob/living/critter/fossil_critter = new src.species.critter_type(get_turf(clone_pod), src.species)
-		src.make_fossil_critter(fossil_critter, user.mind)
+		var/mob/living/critter/fossil_critter = new src.species.niche.critter_type(get_turf(clone_pod), src.species)
+		message_admins("[user] has cloned extinct creature [fossil_critter].")
+		if(istype(fossil_critter, /mob/living/critter/extinct/player))
+			var/mob/living/critter/extinct/player/player_critter = fossil_critter
+			var/datum/mind/chosen = player_critter.request_player_new()
+			if(chosen)
+				player_critter.transfer_mind(chosen)
 		qdel(src)
-
-	proc/make_fossil_critter(var/mob/living/critter/extinct/critter, var/source)
-		var/list/text_messages = list()
-		text_messages.Add("Would you like to respawn as an extinct creature? Your name will be added to the list of eligible candidates.")
-		text_messages.Add("You are eligible to be respawned as an extinct creature. You have [src.ghost_confirmation_delay / 10] seconds to respond to the offer.")
-		text_messages.Add("You have been added to the list of eligible candidates. The game will pick a player soon. Good luck!")
-
-		// The proc takes care of all the necessary work (job-banned etc checks, confirmation delay).
-		message_admins("Sending [src.species.is_antag ? "antag" : "non-antag"] extinct creature offer to eligible ghosts. They have [src.ghost_confirmation_delay / 10] seconds to respond.")
-		var/list/datum/mind/candidates = dead_player_list(1, src.ghost_confirmation_delay, text_messages, allow_dead_antags = FALSE)
-		if(!islist(candidates) || length(candidates) <= 0)
-			message_admins("Couldn't set up extinct creature ; no ghosts responded. Source: [source]")
-			logTheThing(LOG_ADMIN, null, "Couldn't set up extinct creature ; no ghosts responded. Source: [source]")
-			return
-
-		var/datum/mind/chosen_player = pick(candidates)
-		if(!isobserver(chosen_player.current))
-			chosen_player.current.ghostize()
-		chosen_player.transfer_to(critter)
-		critter.is_npc = FALSE
-		critter.mind.assigned_role = "Extinct Animal"
-		log_respawn_event(chosen_player, "extinct creature", source)
-		message_admins("[key_name(chosen_player)] respawned as an extinct creature by [source].")
-
-		if(src.species.is_antag)
-			chosen_player.add_antagonist(ROLE_EXTINCT_CREATURE, source = ANTAGONIST_SOURCE_SUMMONED)
-
-// Temporarily keeping secret species-specific fossil stuff here
-/obj/item/fossil
-	var/datum/extinct_species/species = null //! Data on what kind of creature was fossilized
-	var/list/slots_preserved = list() //! Which parts of the creature's body have been preserved.
-
-	get_desc(dist, mob/user)
-		. = ..()
-		if(!src.species || dist > 1)
-			return
-		var/fossil_desc
-		if(user.mind?.assigned_role == "Geneticist")
-			fossil_desc = "Looks like \a <i>[species.name_genus] [species.name_species]</i> fossil, an extinct type of [species.body_category.name]. "
-		else if(user.traitHolder.hasTrait("training_miner"))
-			fossil_desc = "Looks like some kind of [pick("weird","odd-looking","strange","extinct")] [species.body_category.name]. "
-		fossil_desc += src.species.body_category.get_fossil_desc(src)
-		return fossil_desc
-
-	proc/on_create_secret()
-		if(!length(extinct_species_list) || prob(50 ** (1 / length(extinct_species_list))))
-			src.species = new()
-		else
-			src.species = pick(extinct_species_list)
-
-		var/list/slots_list = list_keys(src.species.body_parts)
-		var/preserved_slot = pick(slots_list)
-		src.slots_preserved += preserved_slot
-		slots_list -= preserved_slot
-		// 3% chance for a complete fossil. Keeping it low for now but can increase later.
-		var/preserve_prob = (0.03 ** (1 / length(slots_list))) * 100
-		for(var/slot in slots_list)
-			if(prob(preserve_prob))
-				src.slots_preserved += slot
-
-	proc/on_attack_secret(var/obj/machinery/computer/genetics/genetics_computer, var/mob/user)
-		if(!src.species || !genetics_computer)
-			return
-		for(var/slot in src.slots_preserved)
-			var/datum/extinct_body_part/part = src.species.body_parts[slot]
-			part.is_analysed = TRUE
-		var/analysis_complete = TRUE
-		for(var/slot in src.species.body_parts)
-			var/datum/extinct_body_part/part = src.species.body_parts[slot]
-			if(!part.is_analysed)
-				analysis_complete = FALSE
-				break
-		if(analysis_complete)
-			var/obj/item/fossil_critter_disk/disk = new(get_turf(genetics_computer), src.species)
-			boutput(user, SPAN_SUCCESS("Analysis of <i>[src.species.name_genus] [src.species.name_species]</i> complete."))
-			genetics_computer.visible_message("[disk] is ejected from the [genetics_computer].")

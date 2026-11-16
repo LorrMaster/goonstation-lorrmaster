@@ -16,7 +16,7 @@ ABSTRACT_TYPE(/datum/extinct_body_category)
 	var/name = null
 	var/icon_file = null
 	var/list/body_slot_data = list() //! Associative list of part slots that will be used to build the creature's body
-	var/antag_message
+	var/list/potential_niches = list()
 
 	proc/on_spawn(var/mob/living/new_mob)
 		return
@@ -35,6 +35,8 @@ ABSTRACT_TYPE(/datum/extinct_body_category)
 		for(var/slot_key in species.body_parts)
 			var/datum/extinct_body_part/part = species.body_parts[slot_key]
 			part.apply_species(species)
+		var/niche_type = pick(src.potential_niches)
+		species.niche = new niche_type(species)
 
 	proc/generate_body_colors()
 		return

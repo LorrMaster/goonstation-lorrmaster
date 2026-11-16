@@ -4,11 +4,39 @@ ABSTRACT_TYPE(/obj/item/fossil)
 	desc = "An imprint of some long-dead space creature."
 	icon = 'icons/obj/items/materials/fossil.dmi'
 	var/sprite_count = 2 // Number of sprites available to choose from
+	var/datum/extinct_species/species = null //! Data on what kind of creature was fossilized
+	var/list/slots_preserved = list() //! Which parts of the creature's body have been preserved.
 
 	New()
 		. = ..()
 		src.icon_state = "fossil_[rand(1,src.sprite_count)]$$[src.default_material]"
-		src.on_create_secret()
+		if(!length(extinct_species_list) || prob(50 ** (1 / length(extinct_species_list))))
+			src.species = new()
+		else
+			src.species = pick(extinct_species_list)
+
+		var/list/slots_list = list_keys(src.species.body_parts)
+		var/preserved_slot = pick(slots_list)
+		src.slots_preserved += preserved_slot
+		slots_list -= preserved_slot
+		// 5% chance for a complete fossil.
+		var/preserve_prob = (0.05 ** (1 / length(slots_list))) * 100
+		for(var/slot in slots_list)
+			if(prob(preserve_prob))
+				src.slots_preserved += slot
+
+	get_desc(dist, mob/user)
+		. = ..()
+		if(!src.species || dist > 1)
+			return
+		var/fossil_desc
+		if(user.mind?.assigned_role == "Geneticist")
+			fossil_desc = "Looks like \a <i>[species.name_genus] [species.name_species]</i> fossil, an extinct type of [species.body_category.name]. "
+		else if(user.traitHolder.hasTrait("training_miner"))
+			fossil_desc = "Looks like some kind of [pick("weird","odd-looking","strange","extinct")] [species.body_category.name]. "
+		fossil_desc += src.species.body_category.get_fossil_desc(src)
+		return fossil_desc
+
 
 	afterattack(var/atom/A, var/mob/user)
 		if(istype(A, /obj/machinery/computer/genetics))
@@ -22,7 +50,20 @@ ABSTRACT_TYPE(/obj/item/fossil)
 			user.drop_item()
 			playsound(genetics_computer, 'sound/machines/scan2.ogg', 125, TRUE)
 			boutput(user,SPAN_SUCCESS("[src] submitted for 100 research material and some chromosomes."))
-			src.on_attack_secret(genetics_computer, user)
+
+			for(var/slot in src.slots_preserved)
+				var/datum/extinct_body_part/part = src.species.body_parts[slot]
+				part.is_analysed = TRUE
+			var/analysis_complete = TRUE
+			for(var/slot in src.species.body_parts)
+				var/datum/extinct_body_part/part = src.species.body_parts[slot]
+				if(!part.is_analysed)
+					analysis_complete = FALSE
+					break
+			if(analysis_complete)
+				var/obj/item/fossil_critter_disk/disk = new(get_turf(genetics_computer), src.species)
+				boutput(user, SPAN_SUCCESS("Analysis of <i>[src.species.name_genus] [src.species.name_species]</i> complete."))
+				genetics_computer.visible_message("[disk] is ejected from the [genetics_computer].")
 			qdel(src)
 
 /obj/item/fossil/stone

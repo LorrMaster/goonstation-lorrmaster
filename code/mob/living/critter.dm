@@ -83,6 +83,8 @@ ADMIN_INTERACT_PROCS(/mob/living/critter, proc/modify_health, proc/admincmd_atta
 
 	var/custom_brain_type = null
 
+	/// If this critter is an extinct species, data on what they look like, abilities,etc is stored here
+	var/datum/extinct_species/extinct_species = null
 	var/ghost_spawned = FALSE //Am i inhabited by a ghost player who used the respawn critter option?
 	var/original_name = null
 
