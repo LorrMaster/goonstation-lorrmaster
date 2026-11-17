@@ -112,13 +112,3 @@ var/global/datum/extinct_species/extinct_species_list = list()
 			icon_dir_moving.Blend(part_sprite, ICON_OVERLAY)
 		src.body_icon.Insert(icon_dir, "creature", direction, delay = 2)
 		src.body_icon.Insert(icon_dir_moving, "creature", direction, moving = TRUE)
-
-
-
-/// Determines what type of mob will spawn. Can give them abilities themed around a certain survival strategy.
-ABSTRACT_TYPE(/datum/extinct_niche)
-/datum/extinct_niche
-	var/name = "unnamed niche"
-	var/critter_type = /mob/living/critter/extinct
-	var/is_playable = FALSE //! Are players allowed to respawn as this critter?
-	var/list/potential_genes = list() //! This creature is likely to start out with some of these genes
