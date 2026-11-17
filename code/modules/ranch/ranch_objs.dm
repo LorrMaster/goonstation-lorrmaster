@@ -114,6 +114,7 @@ TYPEINFO(/obj/submachine/chicken_incubator)
 				user.u_equip(E)
 				E.set_loc(src)
 				my_egg = E
+				egg_overlay.color = my_egg.color // For extinct critter eggs to keep their color
 				if (istype(E, /obj/item/reagent_containers/food/snacks/ingredient/egg/chicken))
 					var/obj/item/reagent_containers/food/snacks/ingredient/egg/chicken/chicken_egg = E
 					if(chicken_egg.chicken_egg_props.is_secret)

@@ -9,22 +9,25 @@ var/global/datum/extinct_species/extinct_species_list = list()
 
 	var/icon/body_icon = null //! The final sprite for this species.
 	var/datum/extinct_body_category/body_category //! What general kind of of creature this is.
+	var/datum/extinct_niche/niche //! Type of critter, major abilities, is it player-controlled, etc.
 	var/alist/body_parts = alist() //! Associative list of "extinct_body_parts". Keys are slot names.
 	var/datum/bioHolder/bioHolder
 	var/list/abilities = list()
-	var/datum/extinct_niche/niche = null //! Type of critter, major abilities, is it player-controlled, etc.
+	var/associated_color //! What color to use for things associated with this species, such as eggs
 
-	New()
+	New(var/niche_type = null)
 		. = ..()
 		extinct_species_list += src
 		if(!extinct_body_categories)
 			extinct_body_categories = list()
 			for(var/body_type in concrete_typesof(/datum/extinct_body_category))
 				extinct_body_categories[body_type] = new body_type
-
+		src.body_category = extinct_body_categories[pick(extinct_body_categories)]
 		src.bioHolder = new()
 		src.bioHolder.age = rand(10, 520) * 1000000
-		src.body_category = extinct_body_categories[pick(extinct_body_categories)]
+		if(!niche_type)
+			niche_type = pick(src.body_category.potential_niches)
+		src.niche = new niche_type(src)
 		src.body_category.apply_species(src)
 		src.build_sprite()
 
@@ -36,6 +39,13 @@ var/global/datum/extinct_species/extinct_species_list = list()
 		src.name_species = "[pick(start_strings)][pick(middle_strings)][pick(end_strings)]"
 
 	proc/on_spawn(var/mob/living/critter/critter)
+		critter.icon = src.body_icon
+		critter.icon_state = "creature"
+		critter.icon_state_alive = "creature"
+		critter.icon_state_dead = "creature_dead"
+		critter.icon_state_ghost = "creature"
+		critter.name = pick("weird","odd","bizarre","curious","peculiar","strange","eerie","exotic","uncanny","unusual","unknown","quaint","outlandish")
+		critter.name += " [src.body_category.name]"
 		critter.blood_id = src.blood_id
 		critter.bioHolder.CopyOther(src.bioHolder, copyPool = TRUE)
 		for(var/ability_type in src.abilities)
@@ -105,10 +115,10 @@ var/global/datum/extinct_species/extinct_species_list = list()
 
 
 
-/// The type of critter and its abilities
+/// Determines what type of mob will spawn. Can give them abilities themed around a certain survival strategy.
 ABSTRACT_TYPE(/datum/extinct_niche)
 /datum/extinct_niche
 	var/name = "unnamed niche"
 	var/critter_type = /mob/living/critter/extinct
 	var/is_playable = FALSE //! Are players allowed to respawn as this critter?
-	var/list/potential_genes //! This creature is likely to start out with some of these genes
+	var/list/potential_genes = list() //! This creature is likely to start out with some of these genes

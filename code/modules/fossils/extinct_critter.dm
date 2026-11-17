@@ -4,9 +4,6 @@
 /mob/living/critter/extinct
 	name = "weird creature"
 	desc = " "
-	icon_state = "creature"
-	icon_state_dead = "creature_dead"
-	icon_state_ghost = "creature"
 	hand_count = 1
 	can_help = TRUE
 	can_throw = TRUE
@@ -29,14 +26,12 @@
 	New(newLoc, var/datum/extinct_species/species)
 		. = ..()
 		if(!species)
-			species = new()
+			var/niche_type = extinct_niche_ofmobtype(/mob/living/critter/extinct)
+			species = new(niche_type = niche_type)
 		src.extinct_species = species
-		src.name = pick("weird","odd","bizarre","curious","peculiar","strange","eerie","exotic","uncanny","unusual","unknown","quaint","outlandish")
-		src.name += " [src.extinct_species.body_category.name]"
-		src.icon = src.extinct_species.body_icon
-		src.health_brute = 50 * species.health_mult
-		src.health_burn = 50 * species.health_mult
 		src.extinct_species.on_spawn(src)
+		src.health_brute = 50 * src.extinct_species.health_mult
+		src.health_burn = 50 * src.extinct_species.health_mult
 
 	examine(mob/user)
 		. = ..()

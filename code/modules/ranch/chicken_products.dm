@@ -199,6 +199,7 @@ ABSTRACT_TYPE(/datum/chicken_egg_props)
 
 	/// do things after the mob is created
 	proc/AfterHatch(var/mob/living/critter/small_animal/ranch_base/chicken/C)
+		C.bioHolder.age = 0 // Added for extinct critters, since their default age is in the millions
 		return
 
  	/// Called when the "egg" is layed. For chickens who lay "eggs" which are really just items that can't hatch but need to call some stuff still

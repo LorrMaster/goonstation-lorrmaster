@@ -2,17 +2,30 @@
 	name = "arthropod"
 	icon_file = 'icons/mob/critter/nonhuman/extinct/arthropod.dmi'
 	potential_niches = list(
-		/datum/extinct_niche/bottomfeeder
+		/datum/extinct_niche/bottomfeeder,
+		/datum/extinct_niche/chicken
+	)
+	potential_genes = list(
+		/datum/bioEffect/skitter,
+		/datum/bioEffect/regenerator,
+		/datum/bioEffect/food_stores,
+		/datum/bioEffect/horns,
+		/datum/bioEffect/power/darkcloak,
+		/datum/bioEffect/power/chameleon,
+		/datum/bioEffect/power/bigpuke,
+		/datum/bioEffect/power/shoot_limb,
+		/datum/bioEffect/power/critter/scorpion_sting,
+		/datum/bioEffect/clumsy
 	)
 
 	New()
 		. = ..()
-		var/datum/extinct_body_slot/slot_face = new/datum/extinct_body_slot(80, list(55, 85, 85, 85), EXTINCT_COLOR_PRIMARY)
-		var/datum/extinct_body_slot/slot_head = new/datum/extinct_body_slot(100, list(50, 80, 80, 80), EXTINCT_COLOR_PRIMARY)
-		var/datum/extinct_body_slot/slot_body_main = new/datum/extinct_body_slot(100, list(20, 50, 50, 50), EXTINCT_COLOR_SECONDARY)
-		var/datum/extinct_body_slot/slot_body_side = new/datum/extinct_body_slot(80, list(25, 60, 55, 55), EXTINCT_COLOR_HIGHLIGHT)
-		var/datum/extinct_body_slot/slot_body_back = new/datum/extinct_body_slot(80, list(80, 55, 60, 60), EXTINCT_COLOR_HIGHLIGHT)
-		var/datum/extinct_body_slot/slot_legs = new/datum/extinct_body_slot(100, list(0, 0, 0, 0), EXTINCT_COLOR_SECONDARY)
+		var/datum/extinct_body_slot/slot_face = new/datum/extinct_body_slot(80, list(55, 85, 85, 85), EXTINCT::COLOR::PRIMARY)
+		var/datum/extinct_body_slot/slot_head = new/datum/extinct_body_slot(100, list(50, 80, 80, 80), EXTINCT::COLOR::PRIMARY)
+		var/datum/extinct_body_slot/slot_body_main = new/datum/extinct_body_slot(100, list(20, 50, 50, 50), EXTINCT::COLOR::SECONDARY)
+		var/datum/extinct_body_slot/slot_body_side = new/datum/extinct_body_slot(80, list(25, 60, 55, 55), EXTINCT::COLOR::HIGHLIGHT)
+		var/datum/extinct_body_slot/slot_body_back = new/datum/extinct_body_slot(80, list(80, 55, 60, 60), EXTINCT::COLOR::HIGHLIGHT)
+		var/datum/extinct_body_slot/slot_legs = new/datum/extinct_body_slot(100, list(0, 0, 0, 0), EXTINCT::COLOR::SECONDARY)
 		slot_face.desc_missing = "its face"
 		slot_head.desc_missing = "a good portion of its head"
 		slot_body_main.desc_missing = "the overall shape of its body"
@@ -32,13 +45,14 @@
 		critter.speech_verb_say = "clicks"
 		critter.speech_verb_exclaim = "screeches"
 		critter.speech_verb_ask = "chitters"
+		critter.skinresult = /obj/item/raw_material/chitin
 		return
 
 	apply_species(var/datum/extinct_species/species)
 		. = ..()
 		species.abilities += /datum/targetable/vent_move
+		species.bioHolder.AddNewPoolEffect("carapace", TRUE)
 		species.bioHolder.AddEffect("carapace", do_stability = FALSE, scannable = TRUE, innate = TRUE)
-		species.bioHolder.AddEffect("skitter", do_stability = FALSE, scannable = TRUE, innate = TRUE)
 
 	generate_body_colors(var/datum/extinct_species/species)
 		var/list/color_hsl_primary
@@ -66,18 +80,19 @@
 		var/color_rgb_primary = hsl2rgb(color_hsl_primary[1], color_hsl_primary[2], color_hsl_primary[3])
 		var/color_rgb_secondary = hsl2rgb(color_hsl_secondary[1], color_hsl_secondary[2], color_hsl_secondary[3])
 		var/color_rgb_highlight = hsl2rgb(color_hsl_highlight[1], color_hsl_highlight[2], color_hsl_highlight[3])
+		species.associated_color = color_rgb_highlight
 		for(var/slot_key in species.body_parts)
 			var/datum/extinct_body_part/part = species.body_parts[slot_key]
-			if(part.color_category == EXTINCT_COLOR_RANDOM)
-				part.color_category = pick(EXTINCT_COLOR_PRIMARY, EXTINCT_COLOR_SECONDARY, EXTINCT_COLOR_HIGHLIGHT, EXTINCT_COLOR_HIGHLIGHT)
+			if(part.color_category == EXTINCT::COLOR::RANDOM)
+				part.color_category = pick(EXTINCT::COLOR::PRIMARY, EXTINCT::COLOR::SECONDARY, EXTINCT::COLOR::HIGHLIGHT, EXTINCT::COLOR::HIGHLIGHT)
 			switch(part.color_category)
-				if(EXTINCT_COLOR_PRIMARY)
+				if(EXTINCT::COLOR::PRIMARY)
 					part.color = color_rgb_primary
-				if(EXTINCT_COLOR_SECONDARY)
+				if(EXTINCT::COLOR::SECONDARY)
 					part.color = color_rgb_secondary
-				if(EXTINCT_COLOR_HIGHLIGHT)
+				if(EXTINCT::COLOR::HIGHLIGHT)
 					part.color = color_rgb_highlight
-				if(EXTINCT_COLOR_BLACK)
+				if(EXTINCT::COLOR::BLACK)
 					part.color = "#181818"
 				else
 					part.color = "#FFFFFF"
@@ -141,6 +156,54 @@
 		species.bioHolder.AddEffect("bottomfeeder", do_stability = FALSE, scannable = TRUE, innate = TRUE)
 		return
 
+/datum/extinct_niche/chicken
+	name = "chicken-like creature"
+	critter_type = /mob/living/critter/small_animal/ranch_base/chicken/extinct/ai_controlled
+	potential_genes = list(
+		/datum/bioEffect/fastSounds,
+		/datum/bioEffect/food_stores,
+		/datum/bioEffect/clumsy
+	)
+	var/favorite_flag
+	var/impressionable = FALSE
+	var/hens_fight = FALSE
+	var/hyperaggressive = FALSE
+	var/befriend_with_feed = FALSE
+	var/befriend_with_pets = FALSE
+	var/forgiving = FALSE
+	var/forgive_species = FALSE
+	var/negative_happiness = FALSE
+	var/crowded_minimum = 15
+	var/list/egg_effects = list()
+
+	New(var/datum/extinct_species/species)
+		. = ..()
+		// Make our random creature have random chicken properties
+		// These creatures aren't quite as domesticated and docile as the actual chickens
+		src.favorite_flag = pick("rice","spicy","wheat","fish","synth","peanut","chicken_meat","banana")
+		src.impressionable = prob(50)
+		src.hens_fight = prob(25)
+		src.hyperaggressive = prob(15)
+		src.forgive_species = prob(25)
+		if(src.forgive_species)
+			src.forgiving = prob(25)
+		src.befriend_with_feed = prob(50)
+		src.befriend_with_pets = prob(50)
+		src.negative_happiness = prob(75)
+		src.crowded_minimum = rand(10, 20)
+
+		// IDK, just pick something
+		var/list/potential_effects = list("space_splice", "c_power", "photosynthesis", "empulsar", "crunched", \
+			"sugar_rush", "aquabreath", "supersleep", "frozen", "haunted", "missile", "fear", \
+			"popsicle", "egg_defense", "food_fireburp", "food_cateyes", "food_explosion_resist", "food_disease_resist", \
+			"food_rad_resist", "food_brute", "food_tox", "food_burn", "food_cold", "food_warm", "food_all", "food_hp_up")
+		var/effect_count = rand(2, 3)
+		for(var/i in 1 to effect_count)
+			var/effect = pick(potential_effects)
+			potential_effects -= effect
+			src.egg_effects += effect
+		return
+
 // ============================================================================================================
 // ================================================ Body Parts ================================================
 // ============================================================================================================
@@ -190,17 +253,17 @@
 	face_horns
 		icon_state = "face_horns"
 		desc = "set of small horns"
-		color_category = EXTINCT_COLOR_HIGHLIGHT
+		color_category = EXTINCT::COLOR::HIGHLIGHT
 	face_horn_large
 		icon_state = "face_horn_large"
 		desc = "single large horn"
-		color_category = EXTINCT_COLOR_HIGHLIGHT
+		color_category = EXTINCT::COLOR::HIGHLIGHT
 		// Keep the horn behind head while facing north
 		override_layering = alist(NORTH = 45, SOUTH = INFINITY, EAST = INFINITY, WEST = INFINITY)
 	face_antenna
 		icon_state = "face_antenna"
 		desc = "pair of antenna"
-		color_category = EXTINCT_COLOR_BLACK
+		color_category = EXTINCT::COLOR::BLACK
 		// Keep the antenna behind head while facing north
 		override_layering = alist(NORTH = 45, SOUTH = INFINITY, EAST = INFINITY, WEST = INFINITY)
 

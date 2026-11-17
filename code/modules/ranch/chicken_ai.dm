@@ -356,11 +356,10 @@
 						egg_props.happiness_value = CE.chicken_egg_props.happiness_value
 						CE.chicken_egg_props = egg_props
 					else if(prob(50)) // dads
-						var/obj/item/reagent_containers/food/snacks/ingredient/egg/chicken/temp = new C.egg_type
-						temp.chicken_egg_props.happiness_value += CE.chicken_egg_props.happiness_value // add on existing eggs happiness
-						temp.chicken_egg_props.happiness_value += C.happiness / 3 // add on hatching rooster's happiness
-						CE.chicken_egg_props = temp.chicken_egg_props
-						qdel(temp)
+						// No longer creating a new "chicken_egg_props" here because that was
+						// deleting data from the previous one. - LorrMaster (2026)
+						CE.chicken_egg_props.happiness_value += CE.chicken_egg_props.happiness_value // add on existing eggs happiness
+						CE.chicken_egg_props.happiness_value += C.happiness / 3 // add on hatching rooster's happiness
 				E.hatch_c()
 				C.egg_pity_count = 0
 				C.egg_timer += C.egg_cooldown
