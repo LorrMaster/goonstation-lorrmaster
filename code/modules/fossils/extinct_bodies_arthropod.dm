@@ -51,7 +51,7 @@
 	apply_species(var/datum/extinct_species/species)
 		. = ..()
 		species.abilities += /datum/targetable/vent_move
-		species.bioHolder.AddNewPoolEffect("carapace", TRUE)
+		species.bioHolder.AddNewPoolEffect("carapace", FALSE)
 		species.bioHolder.AddEffect("carapace", do_stability = FALSE, scannable = TRUE, innate = TRUE)
 
 	generate_body_colors(var/datum/extinct_species/species)
@@ -183,6 +183,9 @@
 	face_eyes_three
 		icon_state = "face_eyes_three"
 		desc = "set of three eyes"
+	face_eyes_five
+		icon_state = "face_eyes_five"
+		desc = "set of five eyes"
 	face_horns
 		icon_state = "face_horns"
 		desc = "set of small horns"

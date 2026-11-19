@@ -14,6 +14,7 @@ var/global/datum/extinct_species/extinct_species_list = list()
 	var/datum/bioHolder/bioHolder
 	var/list/abilities = list()
 	var/associated_color //! What color to use for things associated with this species, such as eggs
+	var/is_recorded = FALSE //! Has this species's genetics been scanned and recorded into the medical database?
 
 	New(var/niche_type = null)
 		. = ..()
@@ -30,6 +31,13 @@ var/global/datum/extinct_species/extinct_species_list = list()
 		src.niche = new niche_type(src)
 		src.body_category.apply_species(src)
 		src.build_sprite()
+
+		// Pick some genes for the gene pool. These genes will need to be activated to clone the creature from a fossil.
+		var/list/chosen_genes = pick_multiple(src.niche.potential_genes, 2)
+		chosen_genes += pick_multiple(src.body_category.potential_genes - chosen_genes, 2)
+		for(var/chosen in chosen_genes)
+			var/datum/bioEffect/gene_type = chosen
+			src.bioHolder.AddNewPoolEffect(initial(gene_type.id), TRUE)
 
 		// Generate a super-scientific name for this species.
 		var/list/start_strings = strings("extinct_names.txt", "name_start")
@@ -52,6 +60,9 @@ var/global/datum/extinct_species/extinct_species_list = list()
 			critter.addAbility(ability_type)
 		src.body_category.on_spawn(critter)
 		return
+
+	proc/get_name_full()
+		return "[capitalize(src.name_genus)] [capitalize(src.name_species)]"
 
 	// ============================================= Sprite Building =============================================
 

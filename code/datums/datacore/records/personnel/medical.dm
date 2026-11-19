@@ -22,7 +22,7 @@
 /datum/db_record/personnel/medical/init_from_human(mob/living/carbon/human/H)
 	src["id"] = H.datacore_id
 	src["blood_type"] = H.bioHolder.bloodType
-	src["dnasample"] = global.create_new_dna_sample_file(H)
+	src["dnasample"] = global.create_new_dna_sample_file_mob(H)
 
 	if (H.client?.preferences?.medical_note)
 		src["notes"] = H.client?.preferences?.medical_note

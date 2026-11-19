@@ -4,17 +4,17 @@
 // genetic pre-scan datum
 // DNA scan file format
 
-/proc/scan_genetic(mob/M as mob, datum/genetic_prescan/prescan = null, visible = FALSE)
-	if (!M)
+/proc/scan_genetic(var/atom/target, datum/bioHolder/BH, datum/genetic_prescan/prescan = null, visible = FALSE)
+	if(!BH)
 		return "<b class='alert'>ERROR: NO SUBJECT DETECTED</b>"
-	if (visible)
-		animate_scanning(M, "#9eee80")
-	if (!M.has_genetics())
-		return "<b class='alert'>ERROR: UNABLE TO ANALYZE GENETIC STRUCTURE</b>"
-	var/mob/living/carbon/human/H = M
+	if(ismob(target))
+		var/mob/M = target
+		if(!M.has_genetics())
+			return "<b class='alert'>ERROR: UNABLE TO ANALYZE GENETIC STRUCTURE</b>"
+	if (target && visible)
+		animate_scanning(target, "#9eee80")
 	var/list/data = list()
-	var/datum/bioHolder/BH = M.bioHolder
-	data += "Analyzing Results for [SPAN_NOTICE("[M]")]"
+	data += "Analyzing Results for [SPAN_NOTICE("[target]")]"
 	data += "<b class='notice'>Genetic Stability: [BH.genetic_stability]</b>"
 	var/datum/genetic_prescan/GP = prescan
 	if (!GP)
@@ -24,7 +24,8 @@
 		for (var/bioEffectId in BH.effects)
 			GP.activeDna += BH.GetEffect(bioEffectId)
 		for (var/bioEffectId in BH.effectPool)
-			GP.poolDna += BH.GetEffect(bioEffectId)
+			// Was previously "BH.GetEffect(bioEffectId)". I'm not sure if that was a mistake or not, but fossil scans weren't working. - LorrMaster (2026)
+			GP.poolDna += BH.GetEffectFromPool(bioEffectId)
 		GP.generate_known_unknown()
 	data += "<b class='notice'>Potential Genetic Effects:</b>"
 	for (var/datum/bioEffect/BE in GP.poolDnaKnown)
@@ -41,7 +42,8 @@
 	else if (!length(GP.activeDnaKnown))
 		data += "-- None --"
 
-	if(istype(H))
+	if(ishuman(target))
+		var/mob/living/carbon/human/H = target
 		if (length(H.cloner_defects.active_cloner_defects))
 			data += "<b class='alert'>Detected Cloning-Related Defects:</b>"
 			for(var/datum/cloner_defect/defect as anything in H.cloner_defects.active_cloner_defects)
@@ -65,7 +67,7 @@
 	var/last_scan_timestamp = null
 
 /obj/item/device/analyzer/genetic/attack(mob/target, mob/user, def_zone, is_special = FALSE, params = null)
-	var/datum/computer/file/genetics_scan/GS = create_new_dna_sample_file(target, visible_name=TRUE)
+	var/datum/computer/file/genetics_scan/GS = create_new_dna_sample_file_mob(target, visible_name=TRUE)
 	if (!GS)
 		return
 	user.visible_message(
@@ -77,11 +79,28 @@
 	GP.activeDna = GS.dna_active
 	GP.poolDna = GS.dna_pool
 	GP.generate_known_unknown()
-	src.last_scan_data = scan_genetic(target, prescan = GP, visible = 1)
+	src.last_scan_data = scan_genetic(target, target.bioHolder, prescan = GP, visible = 1)
 	src.last_scan_timestamp = time2text(world.timeofday, "DD MMM [CURRENT_SPACE_YEAR], hh:mm:ss")
 	boutput(user, src.last_scan_data)
 
 	record_cloner_defects(target)
+
+/obj/item/device/analyzer/genetic/afterattack(atom/target, mob/user, reach, params)
+	. = ..()
+	var/datum/bioHolder/target_bio = null
+	if(istype(target, /obj/item/fossil))
+		var/obj/item/fossil/fossil = target
+		target_bio = fossil.bioHolder
+		fossil.record_genetics()
+		user.visible_message(
+		SPAN_ALERT("<b>[user]</b> has analyzed genetic remnants from [target]."),
+		SPAN_ALERT("You have analyzed genetic remnants from [target]."))
+		boutput(user, SPAN_SUCCESS("Genetic record of <i>[fossil.species.get_name_full()]</i> uploaded to database."))
+	if(!target_bio)
+		return
+	src.last_scan_data = scan_genetic(target, target_bio, null, visible = 1)
+	src.last_scan_timestamp = time2text(world.timeofday, "DD MMM [CURRENT_SPACE_YEAR], hh:mm:ss")
+	boutput(user, src.last_scan_data)
 
 /obj/item/device/analyzer/genetic/attack_self(mob/user)
 	if (isnull(src.last_scan_data))

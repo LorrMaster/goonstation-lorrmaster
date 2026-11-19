@@ -156,9 +156,7 @@ ABSTRACT_TYPE(/datum/extinct_body_category)
 	/// Set to a list to override the default slot layering (Format: alist(NORTH = W, SOUTH = X, EAST = Y, WEST = Z)).
 	/// Use infinity to keep the normal layering for that direction.
 	var/alist/override_layering = null
-
 	var/color = null
-	var/is_analysed = FALSE //! Has this part been analysed by a genetics computer for the species that it is on?
 
 	New(var/datum/extinct_body_part/source = null)
 		. = ..()

@@ -15,6 +15,8 @@
 	blockCount = 4
 	blockGaps = 7
 	occur_in_genepools = FALSE
+	effectType = EFFECT_TYPE_POWER
+	can_research = FALSE // Fossil-exclusive genes should not be visible until the creature is cloned
 	stability_loss = 5
 	degrade_to = "stinky"
 	ability_path = /datum/targetable/geneticsAbility/bottomfeeder

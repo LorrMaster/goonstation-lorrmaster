@@ -3,19 +3,19 @@ ABSTRACT_TYPE(/datum/extinct_niche)
 /datum/extinct_niche
 	var/name = "unnamed niche"
 	var/critter_type = /mob/living/critter/extinct
-	var/list/potential_genes = list() //! This creature is likely to start out with some of these genes
+	var/list/potential_genes = list() //! The species will have two of these genes
 
 /datum/extinct_niche/bottomfeeder
 	name = "bottom feeder"
 	potential_genes = list(
 		/datum/bioEffect/toxres,
 		/datum/bioEffect/detox,
-		/datum/bioEffect/nightvision,
+		/datum/bioEffect/narcolepsy,
 		/datum/bioEffect/shortsighted
 	)
 	New(var/datum/extinct_species/species)
 		. = ..()
-		species.bioHolder.AddNewPoolEffect("bottomfeeder", TRUE)
+		species.bioHolder.AddNewPoolEffect("bottomfeeder", FALSE)
 		species.bioHolder.AddEffect("bottomfeeder", do_stability = FALSE, scannable = TRUE, innate = TRUE)
 		return
 

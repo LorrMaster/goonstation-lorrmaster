@@ -162,7 +162,7 @@ var/list/datum/bioEffect/mutini_effects = list()
 		E.owner = owner
 		E.holder = src
 		E.activated_from_pool = 1
-		if (!src.inactive)
+		if (E.owner && !src.inactive)
 			E.OnAdd()
 
 		OutputGainOrLoseMsg(E, TRUE)
@@ -314,7 +314,7 @@ var/list/datum/bioEffect/mutini_effects = list()
 		var/datum/bioEffect/BE
 		for(var/curr in effects)
 			BE = effects[curr]
-			if (BE)
+			if (BE && BE.owner)
 				BE.OnLife(mult)
 				if(BE.timeLeft != -1)
 					BE.timeLeft -= 1*mult

@@ -477,39 +477,41 @@ var/datum/geneticsResearchManager/genResearch = new()
 // Things related to DNA samples //
 ///////////////////////////////////
 
-/proc/create_new_dna_sample_file(var/mob/living/L, visible_name=FALSE)
+/proc/create_new_dna_sample_file_mob(var/mob/living/L, visible_name = FALSE)
 	if (!istype(L) && L.has_genetics())
 		return null
 	if (!istype(L.bioHolder))
 		return null
 
-	var/datum/computer/file/genetics_scan/scan = new /datum/computer/file/genetics_scan()
-
-	if (visible_name)
+	var/subject_name
+	if (visible_name && ishuman(L))
 		var/mob/living/carbon/human/H = L
 		if (H.face_visible())
-			scan.subject_name = H.real_name
+			subject_name = H.real_name
 		else
-			scan.subject_name = H.name
+			subject_name = H.name
 	else
-		scan.subject_name = L.real_name
+		subject_name = L.real_name
+	return create_new_dna_sample_file(L.bioHolder, subject_name)
 
-	scan.subject_uID = L.bioHolder.Uid
-	scan.subject_stability = L.bioHolder.genetic_stability
+/proc/create_new_dna_sample_file(var/datum/bioHolder/bioHolder, var/subject_name)
+	var/datum/computer/file/genetics_scan/scan = new /datum/computer/file/genetics_scan()
+	scan.subject_name = subject_name
+	scan.subject_uID = bioHolder.Uid
+	scan.subject_stability = bioHolder.genetic_stability
 	scan.scanned_at = TIME
 
 	scan.dna_active = list()
 	scan.dna_pool = list()
-
-	for (var/bioEffectId in L.bioHolder.effects)
-		var/datum/bioEffect/BE = L.bioHolder.GetEffect(bioEffectId)
+	for (var/bioEffectId in bioHolder.effects)
+		var/datum/bioEffect/BE = bioHolder.GetEffect(bioEffectId)
 		var/datum/bioEffect/scannedBE = new BE.type(scan)
 		// copy necessary information
 		// currently only name, for chromosome presence
 		scannedBE.name = BE.name
 		scan.dna_active += scannedBE
-	for (var/bioEffectId in L.bioHolder.effectPool)
-		var/datum/bioEffect/BE = L.bioHolder.GetEffectFromPool(bioEffectId)
+	for (var/bioEffectId in bioHolder.effectPool)
+		var/datum/bioEffect/BE = bioHolder.GetEffectFromPool(bioEffectId)
 		var/datum/bioEffect/scannedBE = new BE.type(scan)
 		scannedBE.dnaBlocks.blockList = BE.dnaBlocks.blockList
 		scannedBE.dnaBlocks.blockListCurr = BE.dnaBlocks.blockListCurr

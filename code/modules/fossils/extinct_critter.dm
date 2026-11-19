@@ -130,14 +130,15 @@
 	item_state = "card-id"
 	w_class = W_CLASS_TINY
 	var/datum/extinct_species/species = null
+	var/datum/bioHolder/bioHolder = null // bioHolder to give to the new critter in place of the species' default one
 
 	New(newLoc, var/datum/extinct_species/species)
 		. = ..()
 		if(!species)
 			return
 		src.species = species
-		src.name = "[src.species.name_genus] [src.species.name_species] Disk"
-		src.desc = "A complete record of the extinct <i>[src.species.name_genus] [src.species.name_species]</i>."
+		src.name = "[src.species.get_name_full()] Disk"
+		src.desc = "A complete record of the extinct <i>[src.species.get_name_full()]</i>."
 
 	afterattack(var/atom/A, var/mob/user)
 		if(!istype(A, /obj/machinery/computer/cloning))
@@ -156,6 +157,8 @@
 
 		// We're gonna spawn the fossil critter out of thin air because this PR is already complicated enough.
 		var/mob/living/critter/fossil_critter = new src.species.niche.critter_type(get_turf(clone_pod), src.species)
+		if(src.bioHolder)
+			fossil_critter.bioHolder.CopyOther(src.bioHolder, copyPool = TRUE)
 		message_admins("[user] has cloned extinct creature [fossil_critter].")
 		if(istype(fossil_critter, /mob/living/critter/extinct/player))
 			var/mob/living/critter/extinct/player/player_critter = fossil_critter

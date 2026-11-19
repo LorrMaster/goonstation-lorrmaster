@@ -45,7 +45,7 @@
 /// It tastes like chicken so it's basically the same thing.
 /// Would probably be better as its own type of ranch critter, but this is good enough for now
 /mob/living/critter/small_animal/ranch_base/chicken/extinct
-	desc = "It can actually look very cute if you look at it from the right distance."
+	desc = "Aww, it's an adorable small baby... thing."
 	egg_type = /obj/item/reagent_containers/food/snacks/ingredient/egg/chicken/extinct
 	species_type = /mob/living/critter/small_animal/ranch_base/chicken/extinct
 	base_evolution_type = /datum/ranch/evolution/chicken/extinct
@@ -98,7 +98,7 @@
 		src.transform = matrix(1,0,0,0,1,0)
 		src.remove_filter("extinct_baby_color")
 		critter_scream_pitch = 1
-		desc = "Maybe this thing is the future of ranching?"
+		desc = "It can actually look very cute if you look at it from the right distance and angle."
 
 	death(var/gibbed, var/do_drop_equipment = 1)
 		..()
@@ -108,6 +108,7 @@
 		. = ..()
 		var/obj/item/reagent_containers/food/snacks/ingredient/egg/chicken/extinct/egg = .
 		egg.set_species(src.extinct_species)
+		src.desc = "Maybe this thing is the future of ranching?"
 
 	rooster
 		is_masc = TRUE

@@ -918,6 +918,22 @@ proc/get_adjacent_floor(atom/W, mob/user, px, py)
 		return null
 	return L[pick(L)]
 
+/// Pick multiple elements out of the list and returns them via another list.
+proc/pick_multiple(var/list/L, var/pick_count, var/allow_duplicates = TRUE)
+	RETURN_TYPE(/list)
+	var/list/list_copy = L.Copy()
+	var/list/list_chosen = list()
+	while((pick_count > 0) && (length(list_copy) > 0))
+		var/chosen = pick(list_copy)
+		list_chosen += chosen
+		if(allow_duplicates)
+			list_copy -= chosen
+		else
+			list_copy.RemoveAll(chosen)
+		pick_count--
+	return list_chosen
+
+
 /proc/ran_zone(zone, probability)
 
 	if (probability == null)
@@ -2869,3 +2885,4 @@ proc/get_turf_pixel_clicked_over(mob/user, list/params)
 		eye.y + (C.pixel_y / world.icon_size) + (tile_y - 1 - (TILE_HEIGHT - 1) / 2),\
 		eye.z)
 	return list("turf" = T, "pixel_x" = pixel_x, "pixel_y" = pixel_y)
+

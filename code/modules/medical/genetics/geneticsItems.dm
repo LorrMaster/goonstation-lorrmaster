@@ -23,17 +23,15 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 
 		if(target == user)
 			user.visible_message(SPAN_ALERT("<b>[user.name] injects [himself_or_herself(user)] with [src]!</b>"))
-			src.injected(user,user)
+			src.injected(user, user.bioHolder)
 		else
 			logTheThing(LOG_COMBAT, user, "tries to inject [constructTarget(target,"combat")] with [src.name] at [log_loc(user)]")
 			actions.start(new/datum/action/bar/icon/genetics_injector(target,src), user)
 
-	proc/injected(var/mob/living/carbon/user,var/mob/living/carbon/target)
-		if(!istype(user) || !istype(target))
+	proc/injected(var/mob/user, var/datum/bioHolder/target_bio)
+		if(!istype(user) || !istype(target_bio))
 			return 1
-		if(!istype(target.bioHolder))
-			return 1
-		logTheThing(LOG_COMBAT, user, "injects [constructTarget(target,"combat")] with [src.name] at [log_loc(user)]")
+		logTheThing(LOG_COMBAT, user, "injects [constructTarget(target_bio.owner,"combat")] with [src.name] at [log_loc(user)]")
 		return 0
 
 	proc/update_appearance()
@@ -57,13 +55,29 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 		desc = "A syringe designed to safely insert genetic structures into a living organism."
 		var/datum/bioEffect/BE = null
 
-		injected(var/mob/living/carbon/user,var/mob/living/carbon/target)
+		afterattack(atom/target, mob/user, reach, params)
+			. = ..()
+			if(istype(target, /obj/item/fossil))
+				var/obj/item/fossil/fossil = target
+				// Fossil genes are activated using an injector. Otherwise it would be too easy.
+				// They're just really, really old genes okay?
+				var/obj/item/genetics_injector/dna_activator/temp_activator = new(src)
+				temp_activator.gene_to_activate = src.BE.id
+				temp_activator.injected(user, fossil.bioHolder)
+				qdel(temp_activator)
+				src.uses--
+				src.update_appearance()
+				boutput(user, SPAN_SUCCESS("You inject the contents of [src] into [target]."))
+				return
+
+
+		injected(var/mob/user, var/datum/bioHolder/target_bio)
 			if (..())
 				return
 
 			var/datum/bioEffect/NEW = new BE.type()
 			copy_datum_vars(BE, NEW)
-			target.bioHolder.AddEffectInstance(NEW,1)
+			target_bio.AddEffectInstance(NEW,1)
 			src.uses--
 			src.update_appearance()
 
@@ -84,15 +98,21 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 		var/expended_properly = 0
 		icon_state = "activator_1"
 
-		injected(var/mob/living/carbon/user,var/mob/living/carbon/target)
+		afterattack(atom/target, mob/user, reach, params)
+			. = ..()
+			if(istype(target, /obj/item/fossil))
+				boutput(user, SPAN_NOTICE("[target]'s ancient genetic residue requires a DNA injector for proper activation."))
+				return
+
+		injected(var/mob/user, var/datum/bioHolder/target_bio)
 			if (..())
 				return
 
 			var/datum/bioEffect/BE
-			for(var/X in target.bioHolder.effectPool)
-				BE = target.bioHolder.effectPool[X]
+			for(var/X in target_bio.effectPool)
+				BE = target_bio.effectPool[X]
 				if (BE && BE.id == gene_to_activate)
-					if (target.bioHolder.ActivatePoolEffect(BE,overrideDNA = 1,grant_research = 0) && !isnpcmonkey(target) && target.client)
+					if (target_bio.ActivatePoolEffect(BE,overrideDNA = 1,grant_research = 0) && !isnpcmonkey(target_bio.owner) && target_bio.owner?.client)
 						src.expended_properly = 1
 					break
 			src.uses--
@@ -146,7 +166,7 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 	onEnd()
 		..()
 		owner.visible_message(SPAN_ALERT("<b>[owner.name] injects [target.name] with [injector].</b>"))
-		injector.injected(owner,target)
+		injector.injected(owner, target.bioHolder)
 
 // Traitor item
 /obj/item/speed_injector
@@ -197,7 +217,7 @@ ADMIN_INTERACT_PROCS(/obj/item/genetics_injector/dna_injector, proc/admin_comman
 		if (payload)
 			boutput(user, SPAN_ALERT("You stab [target], injecting them."))
 			logTheThing(LOG_COMBAT, user, "stabs [constructTarget(target,"combat")] with the speed injector (<b>Payload:</b> [payload.name]).")
-			payload.injected(user,target)
+			payload.injected(user, target.bioHolder)
 			qdel(payload)
 			payload = null
 		else

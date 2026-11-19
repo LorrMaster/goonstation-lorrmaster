@@ -327,7 +327,7 @@ ADMIN_INTERACT_PROCS(/obj/machinery/computer/cloning, proc/scan_someone, proc/tr
 
 	src.diskette.root.add_file(clone_file)
 
-	var/datum/computer/file/genetics_scan/gene_scan = create_new_dna_sample_file(subject, visible_name=TRUE)
+	var/datum/computer/file/genetics_scan/gene_scan = create_new_dna_sample_file_mob(subject, visible_name=TRUE)
 	src.diskette.root.add_file(gene_scan)
 
 	//label the disk, clearing other labels
