@@ -14,7 +14,7 @@ ABSTRACT_TYPE(/obj/item/fossil)
 		src.species = new()
 
 		src.bioHolder = new()
-		src.bioHolder.CopyOther(src.species.bioHolder, copyPool = TRUE)
+		src.bioHolder.CopyOther(src.species.bioHolder)
 
 		// Choose which body parts to preserve
 		var/list/slots_list = list_keys(src.species.body_parts)
@@ -27,13 +27,14 @@ ABSTRACT_TYPE(/obj/item/fossil)
 				src.slots_preserved += slot
 
 		// More complete fossils start with some genes activated.
+		for(var/test in (list_keys(src.bioHolder.effectPool) - list_keys(src.bioHolder.effects)))
+			boutput(world, "Test: [test]")
 		var/gene_preservation_amount = (length(src.slots_preserved) - 1) / length(slots_list)
 		var/list/pool_ids = list_keys(src.bioHolder.effectPool)
 		var/gene_pool_count = length(pool_ids - list_keys(src.bioHolder.effects))
 		var/genes_preserved = round(gene_pool_count * gene_preservation_amount)
 		for(var/i in 1 to genes_preserved)
 			var/chosen = pick(pool_ids)
-			boutput(world, "Activated: [chosen]")
 			src.bioHolder.ActivatePoolEffect(src.bioHolder.GetEffectFromPool(chosen), grant_research = FALSE)
 			pool_ids -= chosen
 
@@ -93,7 +94,7 @@ ABSTRACT_TYPE(/obj/item/fossil)
 
 			var/obj/item/fossil_critter_disk/disk = new(get_turf(genetics_computer), src.species)
 			disk.bioHolder = new()
-			disk.bioHolder.CopyOther(src.bioHolder, copyPool = TRUE)
+			disk.bioHolder.CopyOther(src.bioHolder)
 			boutput(user, SPAN_SUCCESS("Analysis of <i>[src.species.name_genus] [src.species.name_species]</i> complete."))
 			genetics_computer.visible_message("[disk] is ejected from the [genetics_computer].")
 			qdel(src)

@@ -10,13 +10,29 @@ ABSTRACT_TYPE(/datum/extinct_niche)
 	potential_genes = list(
 		/datum/bioEffect/toxres,
 		/datum/bioEffect/detox,
-		/datum/bioEffect/narcolepsy,
-		/datum/bioEffect/shortsighted
+		/datum/bioEffect/stinky,
+		/datum/bioEffect/shortsighted,
+		/datum/bioEffect/food_stores
 	)
 	New(var/datum/extinct_species/species)
 		. = ..()
 		species.bioHolder.AddNewPoolEffect("bottomfeeder", FALSE)
 		species.bioHolder.AddEffect("bottomfeeder", do_stability = FALSE, scannable = TRUE, innate = TRUE)
+		return
+
+/datum/extinct_niche/excavator
+	name = "excavator"
+	potential_genes = list(
+		/datum/bioEffect/blind,
+		/datum/bioEffect/cough,
+		/datum/bioEffect/rad_resist,
+		/datum/bioEffect/breathless,
+		/datum/bioEffect/strong
+	)
+	New(var/datum/extinct_species/species)
+		. = ..()
+		species.bioHolder.AddNewPoolEffect("geosense", FALSE)
+		species.bioHolder.AddEffect("geosense", do_stability = FALSE, scannable = TRUE, innate = TRUE)
 		return
 
 /datum/extinct_niche/chicken
@@ -26,7 +42,8 @@ ABSTRACT_TYPE(/datum/extinct_niche)
 		/datum/bioEffect/fastSounds,
 		/datum/bioEffect/food_stores,
 		/datum/bioEffect/clumsy,
-		/datum/bioEffect/power/mattereater
+		/datum/bioEffect/power/mattereater,
+		/datum/bioEffect/emoter/screamer
 	)
 	var/favorite_flag
 	var/impressionable = FALSE

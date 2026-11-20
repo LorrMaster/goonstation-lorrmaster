@@ -158,7 +158,7 @@
 		// We're gonna spawn the fossil critter out of thin air because this PR is already complicated enough.
 		var/mob/living/critter/fossil_critter = new src.species.niche.critter_type(get_turf(clone_pod), src.species)
 		if(src.bioHolder)
-			fossil_critter.bioHolder.CopyOther(src.bioHolder, copyPool = TRUE)
+			fossil_critter.bioHolder.CopyOther(src.bioHolder)
 		message_admins("[user] has cloned extinct creature [fossil_critter].")
 		if(istype(fossil_critter, /mob/living/critter/extinct/player))
 			var/mob/living/critter/extinct/player/player_critter = fossil_critter

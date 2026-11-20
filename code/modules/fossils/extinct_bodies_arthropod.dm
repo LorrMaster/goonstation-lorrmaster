@@ -3,19 +3,21 @@
 	icon_file = 'icons/mob/critter/nonhuman/extinct/arthropod.dmi'
 	potential_niches = list(
 		/datum/extinct_niche/bottomfeeder,
+		/datum/extinct_niche/excavator,
 		/datum/extinct_niche/chicken
 	)
 	potential_genes = list(
 		/datum/bioEffect/skitter,
 		/datum/bioEffect/regenerator,
 		/datum/bioEffect/food_stores,
-		/datum/bioEffect/horns,
 		/datum/bioEffect/power/darkcloak,
 		/datum/bioEffect/power/chameleon,
 		/datum/bioEffect/power/bigpuke,
 		/datum/bioEffect/power/shoot_limb,
 		/datum/bioEffect/power/critter/scorpion_sting,
-		/datum/bioEffect/clumsy
+		/datum/bioEffect/clumsy,
+		/datum/bioEffect/fitness_debuff,
+		/datum/bioEffect/thermal_vuln
 	)
 
 	New()

@@ -46,6 +46,7 @@ ABSTRACT_TYPE(/datum/bioEffect)
 	var/cooldown = 0 //For effects that come with verbs
 	var/can_reclaim = 1 // Can this gene be turned into mats with the reclaimer?
 	var/can_scramble = 1 // Can this gene be scrambled with the emitter?
+	var/limited_storage = FALSE //! If true, the gene can only be stored if another is in the pool. Does not affect reclaiming.
 	var/can_copy = 1 //Is this gene copied over on bioHolder transfer (i.e. cloning?)
 	var/can_research = 1 // If zero, it must be researched via brute force
 	var/can_make_injector = 1 // Guess.

@@ -99,9 +99,12 @@
 
 	onScanDirect(var/turf/simulated/wall/auto/asteroid/AST, var/mob/user){
 		. = ..()
+		src.reveal_fossil(AST)
+	}
+
+	proc/reveal_fossil(var/turf/simulated/wall/auto/asteroid/AST)
 		if(AST.mining_marker)
 			AST.mining_marker.icon_state = "scan-fossil"
-	}
 
 /datum/ore/event/rare_metal
 	analysis_string = "Unusual metal deposit detected."

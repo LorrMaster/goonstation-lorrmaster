@@ -3451,6 +3451,13 @@ datum
 			hygiene_value = -3
 			viscosity = 0.4
 
+			on_mob_life(var/mob/M, var/mult = 1)
+				. = ..()
+				var/datum/bioEffect/bottom_feeder = M.bioHolder?.GetEffect("bottomfeeder")
+				if(bottom_feeder && ishuman(M))
+					var/mob/living/carbon/human/H = M
+					H.sims.affectMotive("Hunger", 0.5 * bottom_feeder.power * mult)
+
 			reaction_turf(var/turf/T, var/volume)
 				var/list/covered = holder.covered_turf()
 				if (length(covered) > 9)
@@ -3473,6 +3480,13 @@ datum
 			value = 2
 			hygiene_value = -4
 			viscosity = 0.4
+
+			on_mob_life(var/mob/M, var/mult = 1)
+				. = ..()
+				var/datum/bioEffect/bottom_feeder = M.bioHolder?.GetEffect("bottomfeeder")
+				if(bottom_feeder && ishuman(M))
+					var/mob/living/carbon/human/H = M
+					H.sims.affectMotive("Hunger", 0.5 * bottom_feeder.power * mult)
 
 			reaction_turf(var/turf/T, var/volume)
 				var/list/covered = holder.covered_turf()
@@ -3522,10 +3536,12 @@ datum
 			reaction_mob(var/mob/M, var/method=TOUCH, var/volume)
 				. = ..()
 				if (method == INGEST)
-					// People with synth leg can absorb shit with no consequences. Disgusting.
+					// People with synth leg / bottomfeeder can absorb shit with no consequences. Disgusting.
 					var/mob/living/carbon/human/H = M
 					if(istype(H) && (H.limbs.r_leg?.kind_of_limb & LIMB_PLANT || H.limbs.l_leg?.kind_of_limb & LIMB_PLANT))
 						boutput(M, SPAN_SUCCESS(pick("You feel like life!", "You feel refreshened!","You feel good.")))
+					else if(M.bioHolder?.GetEffect("bottomfeeder"))
+						boutput(M, SPAN_ALERT("It doesn't taste half bad."))
 					else
 						// if not synth leg
 						boutput(M, SPAN_ALERT("Ugh! This tastes like shit!"))
@@ -3534,8 +3550,10 @@ datum
 								M.vomit(0, null, SPAN_ALERT("[M] pukes violently!"))
 				else
 					var/mob/living/carbon/human/H = M
-					// nothing bad happens with synthlegs
+					// nothing bad happens with synthlegs or with bottomfeeder
 					if(!(H.limbs.r_leg?.kind_of_limb & LIMB_PLANT || H.limbs.l_leg?.kind_of_limb & LIMB_PLANT))
+						if(M.bioHolder?.GetEffect("bottomfeeder"))
+							return
 						var/output_message = "This smells like shit! What the fuck?!"
 						if (prob(50) && !(H.wear_mask?.c_flags & COVERSMOUTH))
 							output_message += " Shit! Some got into your mouth!"
@@ -3549,8 +3567,12 @@ datum
 			on_mob_life(var/mob/M, var/mult = 1)
 				if (!M) M = holder.my_atom
 				var/mob/living/carbon/human/H = M
-				if(istype(H) && (H.limbs.r_leg?.kind_of_limb & LIMB_PLANT || H.limbs.l_leg?.kind_of_limb & LIMB_PLANT))
-					H.take_toxin_damage(-0.25 * mult)
+				if(istype(H))
+					if((H.limbs.r_leg?.kind_of_limb & LIMB_PLANT || H.limbs.l_leg?.kind_of_limb & LIMB_PLANT))
+						H.take_toxin_damage(-0.25 * mult)
+					var/datum/bioEffect/bottom_feeder = M.bioHolder?.GetEffect("bottomfeeder")
+					if(bottom_feeder)
+						H.sims.affectMotive("Hunger", 0.5 * bottom_feeder.power * mult)
 				else
 					if (isliving(M) && probmult(0.75))
 						var/mob/living/L = M

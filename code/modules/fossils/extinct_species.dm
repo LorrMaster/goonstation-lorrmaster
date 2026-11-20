@@ -55,7 +55,7 @@ var/global/datum/extinct_species/extinct_species_list = list()
 		critter.name = pick("weird","odd","bizarre","curious","peculiar","strange","eerie","exotic","uncanny","unusual","unknown","quaint","outlandish")
 		critter.name += " [src.body_category.name]"
 		critter.blood_id = src.blood_id
-		critter.bioHolder.CopyOther(src.bioHolder, copyPool = TRUE)
+		// critter.bioHolder.CopyOther(src.bioHolder, copyPool = TRUE)
 		for(var/ability_type in src.abilities)
 			critter.addAbility(ability_type)
 		src.body_category.on_spawn(critter)

@@ -217,6 +217,9 @@ var/datum/explosion_controller/explosions
 		for(var/client/C in clients)
 			if(C.mob && (C.mob.z == epicenter.z) && power > 20)
 				shake_camera(C.mob, 8, 24) // remove if this is too laggy
+				var/datum/bioEffect/geosense/geosense = C.mob.bioHolder?.GetEffect("geosense")
+				if(geosense)
+					geosense.sense_explosion(src.epicenter)
 
 				playsound(C.mob, explosions.distant_sound, 70, 0)
 
