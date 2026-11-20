@@ -136,9 +136,8 @@ var/list/datum/bioEffect/mutini_effects = list()
 		src.OutputGainOrLoseMsg(E, FALSE)
 
 	proc/ActivatePoolEffect(var/datum/bioEffect/E, var/overrideDNA = 0, var/grant_research = 1)
-		if(!E || !effectPool[E.id] || (!E.dnaBlocks.sequenceCorrect() && !overrideDNA) || HasEffect(E.id))
+		if(!E || !effectPool[E.id] || (!E.dnaBlocks.sequenceCorrect() && !overrideDNA))
 			return 0
-
 		var/datum/bioEffect/global_BE = E.get_global_instance()
 		if (grant_research)
 			if (global_BE.research_level < EFFECT_RESEARCH_DONE)
@@ -153,10 +152,11 @@ var/list/datum/bioEffect/mutini_effects = list()
 		if(effectPool[E.id] != E)
 			CRASH("BioEffect [E] [E.type] is not in our effectPool but we activate it on [identify_object(src.owner)]!")
 
-		//AddEffect(E.id)
-		//effectPool.Remove(E)
-		// changed this to transfer the instance across rather than add a copy
-		// since some bioeffects have unique stuff
+		var/datum/bioEffect/existing_effect = src.GetEffect(E.id)
+		if(existing_effect)
+			E.activated_from_pool = TRUE
+			return existing_effect
+
 		effects[E.id] = E
 		effectPool.Remove(E.id)
 		E.owner = owner
